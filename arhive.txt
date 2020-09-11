@@ -1,0 +1,381 @@
+получение координат ников для сб
+int add_x = 0;
+        for(int i=0; i<6; i++){
+        if(i==1||i==2||i==3)add_x = 53; else add_x = 55;
+            int x = coord_of_table[0]+coords_places_of_nicks[i][0]+add_x;
+            int y = coord_of_table[1]+coords_places_of_nicks[i][1];
+            int w = coord_of_table[0]+coords_places_of_nicks[i][0]+add_x+16;
+            int h = coord_of_table[1]+coords_places_of_nicks[i][1]+12;
+            IplImage subimage = getSubImageFromIpl(iplImage, x, y, w, h);
+            BufferedImage cheked_img = check_free_of_kursor(subimage,71);
+
+
+
+             WebView webview = new WebView();
+                    webview.getEngine().load(
+                            //"http://www.youtube.com/embed/utUPth77L_o?autoplay=1"
+                            //"https://youtu.be/6vSVFLqHJyk?list=PLT2jpB-7A1uZLHlXDTcK8Hr8HLcJ6pVz2?autoplay=1"
+                          //  "https://www.youtube.com/embed/6vSVFLqHJyk?list=PLT2jpB-7A1uZLHlXDTcK8Hr8HLcJ6pVz2?autoplay=1"
+                            //"http://salmyshskaya.camsh.1743.ru/hls/salmyshskaya-sd.m3u8"
+                            "http://192.168.0.211:8080/video"
+                    );
+                    webview.setPrefSize(800, 500);
+                    pane_screen.getChildren().add(webview);
+
+
+                  class Getting_frames implements Runnable{
+                         FFmpegFrameGrabber grabber;
+                         private boolean is_run = true;
+
+                         Getting_frames(FFmpegFrameGrabber grabber){
+                             this.grabber = grabber;
+                             new Thread(this).start();
+                         }
+
+
+                         @Override
+                         public void run() {
+                             Frame frame;
+                             try {
+                                 while(is_run) {
+                                     if (( frame = grabber.grabImage() ) == null) continue;
+                                     //synchronized( frames ) {
+                                         frames_list.add( frame.clone() );
+                                    // }
+                                 }
+                             } catch (FrameGrabber.Exception e) {
+                                 e.printStackTrace();
+                             }
+                         }
+
+
+                     }
+
+
+                     void screen(FFmpegFrameGrabber grabber){
+
+                             OpenCVFrameConverter.ToIplImage converter = new OpenCVFrameConverter.ToIplImage();
+                             Frame frame = null;
+                             CanvasFrame canvasFrame = new CanvasFrame("Some Title");
+                             canvasFrame.setCanvasSize(600, 300);//задаем размер окна
+                             canvasFrame.setBounds(100,100,600,300);
+
+                             try{
+                                ScheduledThreadPoolExecutor executor =  new ScheduledThreadPoolExecutor( 1 );
+                                executor.scheduleAtFixedRate(
+                                         () -> {
+                                             synchronized( frames_list ) {
+                                                 if( !frames_list.isEmpty() ) {
+                                                     canvasFrame.showImage( frames_list.remove() );
+
+                                                 }
+                                             }
+                                         }, 10L, 1000 / (long) grabber.getVideoFrameRate(), TimeUnit.MILLISECONDS
+                                 );
+
+                                 while( ( frame = grabber.grabImage() ) != null ) {
+                                     synchronized( frames_list ) {
+                                         frames_list.add( frame.clone() );
+                                     }
+                                 }
+                                 grabber.release();
+                                 executor.shutdown();
+                                 System.out.println("stop "+executor.isShutdown());
+                             } catch(FrameGrabber.Exception e ) {
+                                 e.printStackTrace();
+                             }
+
+
+
+
+                             canvasFrame.dispose();
+                         }
+
+
+
+                         static void test_web_cam() throws MalformedURLException, FrameGrabber.Exception {
+                                IPCameraFrameGrabber grabber = new IPCameraFrameGrabber("http://192.168.0.128:1234",20,30, TimeUnit.SECONDS);
+                                //"http://192.168.0.211:8080"
+                                //grabber.setFormat("mjpeg");
+                                grabber.start();
+
+                                Frame frame = grabber.grab();
+                                CanvasFrame canvasFrame = new CanvasFrame("Some Title");
+                                canvasFrame.setCanvasSize(frame.imageWidth, frame.imageHeight);//задаем размер окна
+                                canvasFrame.setBounds(100,100,frame.imageWidth-200,frame.imageHeight-200);
+                                while (canvasFrame.isVisible() && (frame =grabber.grab()) != null){
+                                    canvasFrame.showImage(frame);
+                                }
+                                canvasFrame.dispose();
+                            }
+
+
+
+                             static BufferedImage Mat2BufferedImage(Mat m){
+                                    //source: http://answers.opencv.org/question/10344/opencv-java-load-image-to-gui/
+                                    //Fastest code
+                                    //The output can be assigned either to a BufferedImage or to an Image
+
+                                    int type = BufferedImage.TYPE_BYTE_GRAY;
+                                    if ( m.channels() > 1 ) {
+                                        type = BufferedImage.TYPE_3BYTE_BGR;
+                                    }
+                                    int bufferSize = m.channels()*m.cols()*m.rows();
+                                    byte [] b = new byte[bufferSize];
+                                    m.get(0,0,b); // get all the pixels
+                                    BufferedImage image = new BufferedImage(m.cols(),m.rows(), type);
+                                    final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+                                    System.arraycopy(b, 0, targetPixels, 0, b.length);
+                                    return image;
+                                }
+
+
+                              /*boolean compare_image_and_shablon(BufferedImage  source,int[][] shablon,int limit_error,int limit_grey){
+                                      int error = 0;
+                                      for (int x = 0; x < source.getWidth(); x++)
+                                          for (int y = 0; y < source.getHeight(); y++) {
+                                              Color color = new Color(source.getRGB(x, y));
+                                              int blue = color.getBlue();
+                                              int red = color.getRed();
+                                              int green = color.getGreen();
+                                              int grey = (int) (red * 0.299 + green * 0.587 + blue * 0.114);
+                                              if(grey>limit_grey){ grey = 0;}
+                                              else grey = 255;
+                                              int newRed = grey;
+                                              int newGreen = grey;
+                                              int newBlue = grey;
+                                              int rgb = new Color(newRed, newGreen, newBlue).getRGB();
+                                              if(rgb!=shablon[x][y])error++;
+                                          }
+                                      //System.out.println("error "+error);
+                                      if(error>limit_error)return false;
+                                      return true;
+                                  }*/
+
+
+                                  void test_cap_video() throws FrameGrabber.Exception, FrameRecorder.Exception, FrameFilter.Exception, InterruptedException, MalformedURLException {
+                                          //FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(System.getProperty("user.dir")+"\\test_video9.avi");
+                                          FFmpegFrameGrabber grabber = null;
+                                          while (true) {
+                                              grabber = new FFmpegFrameGrabber("rtmp://127.0.0.1/live/test");
+                                              //OpenCVFrameGrabber grabber = new OpenCVFrameGrabber("rtp://@192.168.0.128:1234");
+                                              //FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("rtp://@192.168.0.128:1234");
+                                              //FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("udp://@192.168.0.128:9999");
+                                              //IplImage title_table = cvLoadImage(System.getProperty("user.dir")+"\\tilt_table.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+                                              //ObjectFinder objectFinder = get_finder(title_table);
+                                              // OpenCVFrameConverter.ToIplImage converter = new OpenCVFrameConverter.ToIplImage();
+                                              //Java2DFrameConverter java2DFrameConverter =  new Java2DFrameConverter();
+                                              //"F:\\Skacheno\\1935 - Есть метро.avi"
+                                              //http://salmyshskaya.camsh.1743.ru/hls/salmyshskaya-sd.m3u8
+                                              ///grabber.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+                                              //grabber.setFormat("h264");
+                                              // grabber.setImageWidth(getWidth());
+                                              grabber.setFrameRate(30);
+                                              grabber.start();//запускаем камеру
+                                              if(grabber.hasVideo())break;
+                                          }
+
+                                          Frame frame = null;
+
+                                          /*String filters = "fps=fps=23";
+                                          FFmpegFrameFilter filter = new FFmpegFrameFilter(filters, grabber.getImageWidth(), grabber.getImageHeight());
+                                          filter.setPixelFormat(grabber.getPixelFormat());
+                                          filter.setAspectRatio(grabber.getAspectRatio());
+                                          filter.setFrameRate(grabber.getFrameRate());
+                                          filter.start();*/
+                                          CanvasFrame canvasFrame = new CanvasFrame("Some Title");
+                                          canvasFrame.setCanvasSize(600, 300);//задаем размер окна
+                                          //canvasFrame.setBounds(100,100,frame.imageWidth-200,frame.imageHeight-200);
+                                          canvasFrame.setBounds(100,100,600,300);
+
+                                          //запишим видео в файл
+                                          /*FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(System.getProperty("user.dir")+"\\video.avi",frame.imageWidth, frame.imageHeight);
+                                          recorder.setFrameRate(25);//скорость записа
+                                          recorder.setVideoCodec(13);//колек
+                                          recorder.setFormat("avi");
+
+                                          double quality = 1;
+                                          recorder.setVideoBitrate((int)(quality *704 * 576));//качество записи*/
+
+                                          //recorder.start();//запустить запись в файл
+                                          avutil.av_log_set_level (avutil.AV_LOG_ERROR);
+
+                                          //запускаем картинку
+                                          IplImage[] iplImages = new IplImage[6];
+                                          //grabber.setFrameNumber(100);
+                                          //grabber.setFrameRate(30);
+                                          //grabber.setTimestamp(5*1000);
+                                          org.bytedeco.opencv.opencv_core.IplImage oneiplImage = null;
+                                         int count_frame = -1;long start = 0;
+                                          long startv = System.currentTimeMillis();
+                                          System.out.println(grabber.hasVideo());
+                                          while (canvasFrame.isVisible()
+                                                  //&& (frame =grabber.grabImage()) != null
+                                          ){
+                                              frame=grabber.grabImage();
+                                              if(frame==null)continue;
+
+                                             // System.out.println(count_frame);
+                                              /*count_frame++;
+
+                                              iplImages[count_frame] = converter.convert(frame);
+
+                                              if(count_frame==COUNT_TABLES-1){
+                                                  //for(IplImage iplImage:iplImages){ canvasFrame.showImage(converter.convert(iplImage)); }
+                                                  start = System.currentTimeMillis();
+                                                  find_tables(iplImages,count_frame);;
+                                                  paint_line(iplImages);
+                                                  System.out.println("find_tables time = " + (System.currentTimeMillis() - start) + " ms");
+                                                  count_frame=-1;
+                                                 // break;
+
+                                              }*/
+
+                                              //start = System.currentTimeMillis();
+                                              //if(bufferedImageBlockingQueue.size()>52)break;
+                                              find_tables(frame,0);
+                                              canvasFrame.showImage(frame);
+                                              //paint_line(iplImages);
+                                              //System.out.println("find_tables time = " + (System.currentTimeMillis() - start) + " ms");
+                                              //if(oneiplImage==null)continue;
+                                              //canvasFrame.showImage(converter.convert(oneiplImage));
+
+                                  //if(count_frame>200)break;
+                                              //break;
+                                          }
+                                        /*  try {
+                                              ImageIO.write(Java2DFrameUtils.toBufferedImage(oneiplImage),"jpg",new File(System.getProperty("user.dir")+"\\all_window.jpg"));
+                                          } catch (IOException e) {
+                                              e.printStackTrace();
+                                          }*/
+                                          canvasFrame.dispose();
+
+                                         System.out.println("Video time = " + (System.currentTimeMillis() - startv) + " ms");
+                                      }
+
+                                      static void compare_card(){
+                                         OCR ocr = new OCR("",1);
+                                        BufferedImage image_for_campare = null; int c = 0;
+                                         for(int i=0; i<bufferedImageBlockingQueue.size(); i++){
+                                             if(bufferedImageBlockingQueue.get(i)==null)continue;
+                                             image_for_campare = bufferedImageBlockingQueue.get(i); c++;
+                                             save_image(image_for_campare,"lastcards3\\card_"+c+"_");
+                                             for(int a=i+1; a<bufferedImageBlockingQueue.size(); a++){
+                                                 if(bufferedImageBlockingQueue.get(a)==null)continue;
+                                                 if(ocr.compare_buffred_images(image_for_campare,bufferedImageBlockingQueue.get(a),1))bufferedImageBlockingQueue.set(a,null);
+                                             }
+                                         }
+
+                                      }
+
+                                       static void set_count_one_in_numbers(){
+                                              try {	FileInputStream file=new FileInputStream(System.getProperty("user.dir")+"\\count_one_in_numbers.file");
+                                                  ObjectInput out = new ObjectInputStream(file);
+                                                  count_one_in_numbers = (byte[]) out.readObject();
+                                                  out.close();
+                                                  file.close();
+                                              } catch(IOException e) {
+                                                  System.out.println(e);
+                                              } catch (ClassNotFoundException e) {
+                                                  e.printStackTrace();
+                                              }
+                                          }
+
+
+                                          static void count_one_int_short(){
+                                                  for(int i=-32768; i<32768; i++){
+                                                      String bit_short = Integer.toBinaryString(i&0x0000ffff);
+                                                      if(i==-32768||i==0||i==32767) System.out.println(i+"   "+bit_short);
+                                                      byte c=0;
+                                                      for(char a:bit_short.toCharArray())if(a=='1')c++;
+                                                      count_one_in_numbers[i+32768] = c;
+                                                      //if(c==16) System.out.println(i);
+                                                  }
+                                                  write_arr_ti_file(count_one_in_numbers);
+                                                  System.out.println("-32768 "+count_one_in_numbers[-32768+32768]);
+                                                  System.out.println("0 "+count_one_in_numbers[0+32768]);
+                                                  System.out.println("32767 "+count_one_in_numbers[32767+32768]);
+                                              }
+
+
+                                               static BufferedImage matToBufferedImage(Mat frame) {
+                                                      int type = 0;
+                                                      if (frame.channels() == 1) {
+                                                          type = BufferedImage.TYPE_BYTE_GRAY;
+                                                      } else if (frame.channels() == 3) {
+                                                          type = BufferedImage.TYPE_3BYTE_BGR;
+                                                      }
+                                                      BufferedImage image = new BufferedImage(frame.width() ,frame.height(), type);
+                                                      WritableRaster raster = image.getRaster();
+                                                      DataBufferByte dataBuffer = (DataBufferByte) raster.getDataBuffer();
+                                                      byte[] data = dataBuffer.getData();
+                                                      frame.get(0, 0, data);
+                                                      return image;
+                                                  }
+
+                                                  public static Mat bufferedImageToMat(BufferedImage bi) {
+                                                      Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
+                                                      byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+                                                      mat.put(0, 0, data);
+                                                      return mat;
+                                                  }
+
+                                                  private void readAllsettings(){
+                                                          try {
+                                                              putsetting  = new File(System.getProperty("user.dir")+"\\setting.xml");
+                                                              if(!putsetting.exists()&&!putsetting.isDirectory()){
+                                                                  propertiessettings.storeToXML(new FileOutputStream(putsetting), null);
+                                                                  return;
+                                                              }
+                                                              propertiessettings.loadFromXML(new FileInputStream(putsetting));
+                                                          } catch (Exception e) {
+                                                              System.out.println("Poluch puti setting "+e);
+                                                          }
+                                                      }
+
+                                                  /* static synchronized long[] get_number_img_nicks(long[] img_nick_for_compare,int error){
+
+                                                         int count_pix_in_ =(int)img_nick_for_compare[16];
+                                                         int min = count_pix_in_-error, max = count_pix_in_+error;
+                                                         int size_list_all_imgs_pix = all_imgs_pix_of_nicks.size();
+                                                         List<long[]>imgs_with_min_error = new ArrayList<>();
+                                                         for(int i=0; i<size_list_all_imgs_pix; i++){
+                                                             long[] img_pix = all_imgs_pix_of_nicks.get(i);
+                                                             if(img_pix[16]>=min&&img_pix[16]<=max)imgs_with_min_error.add(img_pix);
+                                                         }
+
+                                                         List<long[]> equal_imgs = new ArrayList<>();
+                                                         for(long[] img_min_error:imgs_with_min_error){
+                                                             int count_error_in_compare = 0;
+                                                             boolean is_equal = true;
+                                                             for(int i=0; i<15; i++){
+                                                                 count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
+                                                                 if(count_error_in_compare>error){is_equal = false; break;}
+                                                             }
+                                                             if(!is_equal)continue;
+                                                             equal_imgs.add(img_min_error);
+                                                         }
+                                                         if(equal_imgs.isEmpty()){long id_img_pix = System.nanoTime(); img_nick_for_compare[17]= id_img_pix;
+                                                             all_imgs_pix_of_nicks.add(img_nick_for_compare); return new long[]{-id_img_pix};}
+
+                                                         int size = equal_imgs.size();
+                                                         long[] result = new long[size];
+                                                         for(int i=0; i<size; i++)
+                                                             result[i] = equal_imgs.get(i)[17];
+
+                                                         return result;
+                                                     }*/
+
+
+                                                      ScheduledThreadPoolExecutor executor =  new ScheduledThreadPoolExecutor( 1 );
+                                                                 executor.scheduleAtFixedRate(
+                                                                         () -> {
+                                                                             synchronized( frames ) {
+                                                                                 if( !frames.isEmpty() ) {
+                                                                                     window.showImage( frames.remove() );
+                                                                                    //atomicInteger.set(0);
+                                                                                 }
+                                                                                 //else System.out.println(atomicInteger.incrementAndGet());
+                                                                             }
+                                                                         }, 10L, 1000 / (long) fg.getVideoFrameRate(), TimeUnit.MILLISECONDS
+                                                                 );
