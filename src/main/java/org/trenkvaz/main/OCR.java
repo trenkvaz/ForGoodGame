@@ -23,8 +23,7 @@ import java.util.Queue;
 /*import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_core.cvResetImageROI;*/
 import static org.trenkvaz.main.CaptureVideo.*;
-import static org.trenkvaz.main.CaptureVideo.s;
-import static org.trenkvaz.main.Settings.write_nicks_keys_img_pix;
+//import static org.trenkvaz.main.Settings.write_nicks_keys_img_pix;
 
 public class OCR implements Runnable {
 
@@ -152,15 +151,7 @@ public class OCR implements Runnable {
 
         }*/
     }
-    boolean cut = false;
 
-    private void add_to_drop(String [] to_drop){
-        try {
-            drop.put(to_drop);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
 
 
@@ -235,7 +226,7 @@ public class OCR implements Runnable {
                     }
                     set_get_nicks_in_hashmap(-id_img_pix[0],currentHand.nicks[i]);
                     // если нет похожих и надо распознать, то возвращает два числа, первое ИД, второе ключ для сортированного массива, чтобы его можно было записать в файл
-                    write_nicks_keys_img_pix(currentHand.nicks[i],id_img_pix[1],img_pix);
+                    settings.write_nicks_keys_img_pix(currentHand.nicks[i],id_img_pix[1],img_pix);
                 //System.out.println("id "+-id_img_pix[0]+" id in arr "+img_pix[16]);
                    // save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),limit_grey),"id_nicks\\"+currentHand.nicks[i]+" "+(-id_img_pix[0]));
                 save_image(set_grey_and_inverse_or_no(cheked_img,true),"id_nicks\\"+currentHand.nicks[i]+" "+(-id_img_pix[0])+"_"+c+""+table);

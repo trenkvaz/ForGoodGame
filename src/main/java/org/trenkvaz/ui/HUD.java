@@ -1,4 +1,4 @@
-package org.trenkvaz.main;
+package org.trenkvaz.ui;
 
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -7,6 +7,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -24,25 +27,25 @@ public class HUD {
     private static double yOffset;
     public Stage[] hud_players;
     int table;
-    final int COUNT_TABLES;
+    int COUNT_TABLES;
     Label[] nicks_labels;
+    AnchorPane[] anchorpanes_players;
 
 
-    public HUD(Stage stage1,int table1,int count_tables){
+    public HUD(Stage stage1,int table1){
         mainstage = stage1;
         coord_of_table = coord_left_up_of_tables[table1];
         table = table1;
-        COUNT_TABLES = count_tables;
         hud_players = new Stage[6];
         nicks_labels = new Label[6];
+        anchorpanes_players = new AnchorPane[6];
         init_hud_players();
     }
 
-    public void setAll_huds(HUD[] huds){ all_huds = huds; }
+    public void setAll_huds(HUD[] huds){ all_huds = huds; COUNT_TABLES = all_huds.length;}
 
 
     private void init_hud_players() {
-
         FXMLLoader loader = null;
         Scene scene = null;
         for(int i=0; i<6; i++)
@@ -51,12 +54,12 @@ public class HUD {
             hud_players[i].setTitle("Player"+i);
             loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("/fxml/hud_window.fxml"));
-            AnchorPane anchorPanehere = loader.load();
-            nicks_labels[i] = (Label) anchorPanehere.lookup("#nick");
+            anchorpanes_players[i] = loader.load();
+            //nicks_labels[i] = (Label) anchorpanes_players[i].lookup("#nick");
             loader.setController(this);
             loader.setRoot(mainstage);
             hud_players[i].setResizable(false);
-            scene = new Scene(anchorPanehere);
+            scene = new Scene(anchorpanes_players[i]);
             hud_players[i].setScene(scene);
             hud_players[i].initModality(Modality.NONE);
             hud_players[i].initOwner(mainstage.getScene().getWindow());
@@ -99,6 +102,16 @@ public class HUD {
     public void setNicks(String[] nicks_str){
         Platform.runLater(() -> {
            for(int i=0; i<6; i++)nicks_labels[i].setText(nicks_str[i]);
+        });
+    }
+
+    public void set_text(){
+        Text t = new Text(1, 12, "30");
+        t.setFont(new Font(12));
+        t.setFill(Color.YELLOW);
+
+        Platform.runLater(() -> {
+            anchorpanes_players[0].getChildren().add(t);
         });
     }
 

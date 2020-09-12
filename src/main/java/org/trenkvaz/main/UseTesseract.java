@@ -5,8 +5,7 @@ import net.sourceforge.tess4j.TesseractException;
 
 import java.awt.image.BufferedImage;
 import java.util.concurrent.locks.ReentrantLock;
-
-import static org.trenkvaz.main.CaptureVideo.save_image;
+import static org.trenkvaz.main.Testing.save_image;
 
 public class UseTesseract {
     Tesseract tesseract_for_number_hand;

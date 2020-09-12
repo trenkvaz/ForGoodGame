@@ -34,6 +34,26 @@ import static org.trenkvaz.main.CaptureVideo.*;
 
 public class Testing {
 
+    public static void save_image(BufferedImage image,String name_file){
+        try {
+            ImageIO.write(image ,"png",new File(home_folder+"\\"+name_file+".png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static BufferedImage read_image(String name_file){
+        BufferedImage result = null;
+        try {
+            result = ImageIO.read(new File(home_folder+"\\"+name_file+".png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+
     static void test_work_compare_nicks_img(){
         new Settings();
         SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks_million = new TreeMap<>();
@@ -219,7 +239,7 @@ public class Testing {
         Settings settings = new Settings();
         BufferedImage win = read_image("Mtest\\win_long_nick");
         save_image(win.getSubimage(640+12,469+120,87,15),"Mtest\\long_nick");
-        System.out.println(useTesseract.get_ocr(get_white_black_image(ocr.set_grey_and_inverse_or_no(
+        System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(
                 ocr.get_scale_image(win.getSubimage(640+12,469+120,87,15),4),true),100),"nicks").trim());
         BufferedImage long_nick = win.getSubimage(640+12,469+120,87,15);
         save_image(Thumbnails.of(ocr.set_grey_and_inverse_or_no

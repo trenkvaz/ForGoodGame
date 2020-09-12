@@ -1,28 +1,17 @@
 package org.trenkvaz.ui;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Pane;
-import javafx.scene.web.WebView;
-import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.TesseractException;
 import org.trenkvaz.main.CaptureVideo;
-import org.trenkvaz.main.HUD;
 import org.trenkvaz.main.OCR;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
+import static org.trenkvaz.ui.StartAppLauncher.captureVideo;
 
 public class Controller_main_window {
 
     @FXML public Button start_stop_capture_video;
 
-    CaptureVideo captureVideo;
+    //CaptureVideo captureVideo;
 
 
     @FXML public void initialize() {
