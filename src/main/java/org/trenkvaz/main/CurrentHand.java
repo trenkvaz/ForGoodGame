@@ -2,9 +2,11 @@ package org.trenkvaz.main;
 
 import java.util.ArrayList;
 
+import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
+
 public class CurrentHand {
 
-    long number_hand = 0;
+    int table;
     String[] nicks = new String[6];
     boolean is_nicks_filled = false;
     boolean is_preflop_end = false;
@@ -17,8 +19,8 @@ public class CurrentHand {
     //float[] first_round_preflop = new float[6];
     ArrayList<ArrayList<Float>> preflop_by_positions = new ArrayList<>(6);
 
-    CurrentHand(long number_hand,float sb){
-        this.number_hand = number_hand;
+    CurrentHand(int table1,float sb){
+       table = table1;
         /*first_round_preflop[4] = -sb;
         first_round_preflop[5] = -1;*/
         for(int i=0; i<6; i++){
@@ -32,7 +34,7 @@ public class CurrentHand {
     void setIs_nicks_filled(){
         for(int i=1; i<6; i++)if(nicks[i]==null){is_nicks_filled = false; return;}
         is_nicks_filled = true;
-
+        creatingHUD.send_current_hand_to_creating_hud(nicks,table);
     }
 
    /* void setIs_stacks_and_1_raund_actions_filled(){

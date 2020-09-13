@@ -9,6 +9,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import static org.trenkvaz.ui.StartAppLauncher.hud;
+
 public class MainWindow extends Application {
 
     static AnchorPane anchorPane;
@@ -29,7 +31,7 @@ public class MainWindow extends Application {
         primaryStage.setHeight(610);
         primaryStage.setWidth(910);
         primaryStage.show();
-
+        hud.init_hud(primaryStage);
         //open_hud_on_tables();
         //init_hud(primaryStage);
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -44,11 +46,11 @@ public class MainWindow extends Application {
 
 
     private void init_hud(Stage mainstage){
-        HUD[] huds = new HUD[6];
+        /*HUD[] huds = new HUD[6];
         for(int i=0; i<6; i++) huds[i] =new HUD(mainstage,i);
         huds[0].setAll_huds(huds);
         String[] nicks = {"aaa","bbb","ccc","ddd","eee","fff"};
-        for(int i=0; i<6; i++)huds[i].set_text();
+        for(int i=0; i<6; i++)huds[i].set_text();*/
 
     }
 

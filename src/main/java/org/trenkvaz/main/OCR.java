@@ -1,18 +1,13 @@
 package org.trenkvaz.main;
 
 import net.coobird.thumbnailator.Thumbnails;
-import net.sourceforge.tess4j.*;
-import org.bytedeco.javacv.Java2DFrameConverter;
-import org.bytedeco.javacv.Java2DFrameUtils;
 //import org.bytedeco.javacpp.opencv_core.IplImage;
 //import org.bytedeco.opencv.opencv_core.IplImage;
-import org.bytedeco.javacv.JavaCV;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -85,7 +80,7 @@ public class OCR implements Runnable {
     //boolean is_nicks_filled = false;
 
     static synchronized void show_total_hand(CurrentHand currentHand,OCR ocr){
-        System.out.println("****** cards "+currentHand.cards_hero+" flop "+currentHand.is_start_flop+" N "+currentHand.number_hand+" table "+ocr.table);
+        System.out.println("****** cards "+currentHand.cards_hero+" flop "+currentHand.is_start_flop+" table "+ocr.table);
 
         for(int i=0; i<6; i++) {
             System.out.print(currentHand.nicks[i]+"    "+currentHand.stacks[i]+"  ");
@@ -110,7 +105,7 @@ public class OCR implements Runnable {
              show_total_hand(currentHand,this);
             }
 
-           currentHand = new CurrentHand(check_number_hand,sb);
+           currentHand = new CurrentHand(table-1,sb);
             for(int i=0; i<6; i++)bufferedimage_current_position_actions[i]=null;
            /*current_cards_hero = "";
            current_position_of_sb = 0;*/
@@ -226,7 +221,7 @@ public class OCR implements Runnable {
                     }
                     set_get_nicks_in_hashmap(-id_img_pix[0],currentHand.nicks[i]);
                     // если нет похожих и надо распознать, то возвращает два числа, первое ИД, второе ключ для сортированного массива, чтобы его можно было записать в файл
-                    settings.write_nicks_keys_img_pix(currentHand.nicks[i],id_img_pix[1],img_pix);
+                    CaptureVideo.Settings.write_nicks_keys_img_pix(currentHand.nicks[i],id_img_pix[1],img_pix);
                 //System.out.println("id "+-id_img_pix[0]+" id in arr "+img_pix[16]);
                    // save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),limit_grey),"id_nicks\\"+currentHand.nicks[i]+" "+(-id_img_pix[0]));
                 save_image(set_grey_and_inverse_or_no(cheked_img,true),"id_nicks\\"+currentHand.nicks[i]+" "+(-id_img_pix[0])+"_"+c+""+table);

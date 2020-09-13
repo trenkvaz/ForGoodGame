@@ -4,11 +4,10 @@ package org.trenkvaz.main;
 //import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
-
-        import javax.imageio.ImageIO;
-        import java.awt.image.*;
+import javax.imageio.ImageIO;
+import java.awt.image.*;
 import java.io.*;
-        import java.nio.charset.StandardCharsets;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 
@@ -54,12 +53,13 @@ public class CaptureVideo implements Runnable{
    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks = new TreeMap<>();
    static HashMap<String,BufferedImage>avirage_cards =new HashMap<>();
    static BufferedImage[] images_bu = new BufferedImage[6];
-   public static Settings settings;
+
 
 
    public CaptureVideo(){
        for(int i=0; i<4; i++)use_tessearts[i] = new UseTesseract();
-       settings = new Settings();
+       //settings_capturevideo = new Settings();
+       Settings.setting_cupture_video();
    }
 
 
@@ -383,21 +383,19 @@ public class CaptureVideo implements Runnable{
 
 
 
-    public class Settings {
+    public static class Settings {
 
+       private static File file_with_nicks;
 
-        private File file_with_nicks;
-
-
-        public Settings(){
+      public static void setting_cupture_video(){
             read_file_with_nicks_and_img_pixs();
             set_avirage_img_nominal_cards();
             set_count_one_of_bite_in_mumber();
             set_images_bu();
         }
 
-        private void read_file_with_nicks_and_img_pixs(){
-            file_with_nicks = new File(home_folder+"\\nicks_img.txt");
+        private static void read_file_with_nicks_and_img_pixs(){
+            file_with_nicks = new File(home_folder+"\\all_settings\\capture_video\\nicks_img.txt");
             if(!file_with_nicks.isFile())return;
             try {
                 BufferedReader br = new BufferedReader(new FileReader(file_with_nicks));
@@ -420,8 +418,8 @@ public class CaptureVideo implements Runnable{
 
 
 
-        private void set_avirage_img_nominal_cards(){
-            for(File file:new File(home_folder+"\\"+"b_w_nominal").listFiles()){
+        private static void set_avirage_img_nominal_cards(){
+            for(File file: Objects.requireNonNull(new File(home_folder + "\\all_settings\\capture_video\\b_w_nominal").listFiles())){
                 try {
                     avirage_cards.put(file.getName().substring(0,1),ImageIO.read(file));
                 } catch (IOException e) {
@@ -430,8 +428,8 @@ public class CaptureVideo implements Runnable{
             }
         }
 
-        private void set_count_one_of_bite_in_mumber(){
-            try {	FileInputStream file=new FileInputStream(System.getProperty("user.dir")+"\\count_one_in_numbers.file");
+        private static void set_count_one_of_bite_in_mumber(){
+            try {	FileInputStream file=new FileInputStream(home_folder+"\\all_settings\\capture_video\\count_one_in_numbers.file");
                 ObjectInput out = new ObjectInputStream(file);
                 count_one_in_numbers = (byte[]) out.readObject();
                 out.close();
@@ -444,9 +442,9 @@ public class CaptureVideo implements Runnable{
         }
 
 
-        private void set_images_bu(){
+        private static void set_images_bu(){
             int i = -1;
-            for(File file:new File(home_folder+"\\"+"images_bu").listFiles()){
+            for(File file: Objects.requireNonNull(new File(home_folder + "\\all_settings\\capture_video\\images_bu").listFiles())){
                 try {
                     i++;
                     images_bu[i] = ImageIO.read(file);
@@ -463,7 +461,7 @@ public class CaptureVideo implements Runnable{
 
 
 
-        public synchronized void write_nicks_keys_img_pix(String nick,long key_in_treemap_img_pix,long[] imgs_pix_of_nick){
+        public static synchronized void write_nicks_keys_img_pix(String nick,long key_in_treemap_img_pix,long[] imgs_pix_of_nick){
             StringBuilder line = new StringBuilder("*");
             line.append(nick);line.append('%');line.append(key_in_treemap_img_pix);line.append('%');
             for(long pixs:imgs_pix_of_nick){

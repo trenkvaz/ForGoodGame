@@ -6,10 +6,11 @@ import org.trenkvaz.main.CaptureVideo;
 import org.trenkvaz.main.OCR;
 
 import static org.trenkvaz.ui.StartAppLauncher.captureVideo;
+import static org.trenkvaz.ui.StartAppLauncher.hud;
 
 public class Controller_main_window {
 
-    @FXML public Button start_stop_capture_video;
+    @FXML public Button start_stop_capture_video, show_hide_hud;
 
     //CaptureVideo captureVideo;
 
@@ -36,6 +37,16 @@ public class Controller_main_window {
 
 
           }
+    }
+
+    @FXML public void set_show_hud(){
+        if(show_hide_hud.getText().equals("Show HUD")){
+            show_hide_hud.setText("Stop HUD");
+            hud.show_hud();
+        } else {
+            show_hide_hud.setText("Show HUD");
+            hud.stop_show_hud();
+        }
     }
 
     public static void main(String[] args) {
