@@ -2,6 +2,7 @@ package org.trenkvaz.main;
 
 
 //import org.bytedeco.javacpp.opencv_core.IplImage;
+import javafx.application.Platform;
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
 import javax.imageio.ImageIO;
@@ -18,6 +19,8 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgproc.*;*/
 //import static org.bytedeco.javacpp.opencv_videoio.cvCreateFileCapture;
 import org.bytedeco.ffmpeg.global.avutil;
+
+import static org.trenkvaz.ui.Controller_main_window.*;
 
 public class CaptureVideo implements Runnable{
 
@@ -60,6 +63,9 @@ public class CaptureVideo implements Runnable{
        for(int i=0; i<4; i++)use_tessearts[i] = new UseTesseract();
        //settings_capturevideo = new Settings();
        Settings.setting_cupture_video();
+       canvasFrame = new CanvasFrame("Some Title");
+       canvasFrame.setCanvasSize(600, 300);//задаем размер окна
+       canvasFrame.setBounds(100,100,600,300);
    }
 
 
@@ -132,14 +138,14 @@ public class CaptureVideo implements Runnable{
 
    void screen2(FFmpegFrameGrabber grabber){
        Frame frame = null;
-       canvasFrame = new CanvasFrame("Some Title");
-       canvasFrame.setCanvasSize(600, 300);//задаем размер окна
-       canvasFrame.setBounds(100,100,600,300);
+
+
        is_getting_frame = true;
        int last = -1;
        try {
            System.out.println(grabber.getFrameRate());
            System.out.println("start");
+           controller_main_window.setMessage_work("start");
            int count_space_frame = 0;
            while(is_getting_frame){
                frame = grabber.grabImage();
@@ -158,8 +164,9 @@ public class CaptureVideo implements Runnable{
        } catch (FrameGrabber.Exception e) {
            e.printStackTrace();
        }
+      controller_main_window.setMessage_work("stop");
        System.out.println("stop");
-       canvasFrame.dispose();
+       //canvasFrame.dispose();
    }
 
 

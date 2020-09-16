@@ -1,7 +1,10 @@
 package org.trenkvaz.ui;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.text.Text;
 import org.trenkvaz.main.CaptureVideo;
 import org.trenkvaz.main.OCR;
 
@@ -11,13 +14,13 @@ import static org.trenkvaz.ui.StartAppLauncher.hud;
 public class Controller_main_window {
 
     @FXML public Button start_stop_capture_video, show_hide_hud;
-
+    @FXML public Label message_work;
     //CaptureVideo captureVideo;
-
+    public static Controller_main_window controller_main_window;
 
     @FXML public void initialize() {
         //captureVideo = new CaptureVideo();
-
+        controller_main_window = this;
        // new HUD();
     }
 
@@ -47,6 +50,12 @@ public class Controller_main_window {
             show_hide_hud.setText("Show HUD");
             hud.stop_show_hud();
         }
+    }
+
+    public void setMessage_work(String message){
+        Platform.runLater(() -> {
+            message_work.setText(message);
+        });
     }
 
     public static void main(String[] args) {

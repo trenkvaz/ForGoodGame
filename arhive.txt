@@ -379,3 +379,91 @@ int add_x = 0;
                                                                              }
                                                                          }, 10L, 1000 / (long) fg.getVideoFrameRate(), TimeUnit.MILLISECONDS
                                                                  );
+
+
+
+    Frame[][] frames;
+    public void init_frames(){
+        frames = new Frame[6][6];
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                for(int table = 0; table<6; table++)
+                    for(int player =0; player<6; player++){
+                        frames[table][player] = new Frame(table,player,
+                                coord_left_up_of_tables[table][0]+start_coords[player][0],coord_left_up_of_tables[table][1]+start_coords[player][1]);
+                       // JFrame.setDefaultLookAndFeelDecorated(true);
+                    }
+            }
+        });
+
+
+
+    }
+
+    /*class MyFrame extends JFrame {
+
+        // ...
+
+        MyFrame() {
+            setUndecorated(true);
+            setType(Type.UTILITY);
+        }
+
+        // ...
+    }*/
+    class Frame extends JFrame{
+
+        private int framePositionX, framePositionY, mousePositionX, mousePositionY, newMousePositionX, newMousePositionY, ontable, onplayer;
+
+
+        Frame(int table1, int player1, int x, int y){
+          ontable = table1; onplayer = player1;
+            addMouseListener(new MouseListener() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent mouseEvent) {
+                    framePositionX = mouseEvent.getComponent().getX();
+                    framePositionY = mouseEvent.getComponent().getY();
+                    mousePositionX = mouseEvent.getX();
+                    mousePositionY = mouseEvent.getY();
+                }
+                @Override
+                public void mousePressed(java.awt.event.MouseEvent mouseEvent) {
+                    framePositionX = mouseEvent.getComponent().getX();
+                    framePositionY = mouseEvent.getComponent().getY();
+                    mousePositionX = mouseEvent.getX();
+                    mousePositionY = mouseEvent.getY();
+                }
+                @Override public void mouseReleased(java.awt.event.MouseEvent mouseEvent) { }
+                @Override public void mouseEntered(java.awt.event.MouseEvent mouseEvent) { }
+                @Override public void mouseExited(java.awt.event.MouseEvent mouseEvent) { }
+            });
+
+            addMouseMotionListener(new MouseAdapter() {
+                @Override
+                public void mouseDragged(java.awt.event.MouseEvent e) {
+                    newMousePositionX = e.getX();
+                    newMousePositionY = e.getY();
+                    int newFramePositionX = (newMousePositionX - mousePositionX)+ framePositionX-coord_left_up_of_tables[ontable][0];
+                    int newFramePositionY = (newMousePositionY - mousePositionY)+ framePositionY-coord_left_up_of_tables[ontable][1];
+                    for(int table = 0; table<6; table++)
+                        frames[table][onplayer].setLocation(newFramePositionX+coord_left_up_of_tables[ontable][0],newFramePositionY+coord_left_up_of_tables[ontable][1]);
+
+                    //e.getComponent().setLocation(newFramePositionX, newFramePositionY);
+                }
+            });
+            JPanel contents = new JPanel();
+            setSize(143,64);
+            setContentPane(contents);
+            setUndecorated(true);
+            setType(Type.UTILITY);
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            pack();
+            setLocation(x,y);
+            setVisible(true);
+            System.out.println("show table");
+        }
+
+       /* public void setFramePositionX(int x){framePositionX = x;}
+
+        public void setFramePositionY(int y){framePositionY = y;}*/
+    }

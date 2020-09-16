@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
 import static org.trenkvaz.ui.StartAppLauncher.hud;
@@ -15,6 +16,7 @@ public class MainWindow extends Application {
 
     static AnchorPane anchorPane;
     public static Stage stage;
+
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -25,13 +27,21 @@ public class MainWindow extends Application {
         //loadermain.setLocation(new URL("file:\\"+file_address_program_folder+"\\resources\\fxml\\sample.fxml"));
         //loadermain.setLocation(getClass().getResource(System.getProperty("user.dir").toString()+"\\resources\\fxml\\sample.fxml"));
 
-        anchorPane = (AnchorPane) loadermain.load();
+        anchorPane = loadermain.load();
         Scene scene = new Scene(anchorPane);
         primaryStage.setScene(scene);
-        primaryStage.setHeight(610);
+        primaryStage.setHeight(164);
         primaryStage.setWidth(910);
+        primaryStage.setX(900);
+        primaryStage.setY(950);
+        primaryStage.initStyle(StageStyle.UTILITY);
+        stage.setAlwaysOnTop(true);
+        //stage.setIconified(false);
         primaryStage.show();
         hud.init_hud(primaryStage);
+
+
+
         //open_hud_on_tables();
         //init_hud(primaryStage);
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -45,14 +55,7 @@ public class MainWindow extends Application {
     }
 
 
-    private void init_hud(Stage mainstage){
-        /*HUD[] huds = new HUD[6];
-        for(int i=0; i<6; i++) huds[i] =new HUD(mainstage,i);
-        huds[0].setAll_huds(huds);
-        String[] nicks = {"aaa","bbb","ccc","ddd","eee","fff"};
-        for(int i=0; i<6; i++)huds[i].set_text();*/
 
-    }
 
 
 

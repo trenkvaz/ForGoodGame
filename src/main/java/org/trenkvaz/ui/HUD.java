@@ -12,6 +12,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.trenkvaz.main.CreatingHUD;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 
 import static org.trenkvaz.main.CaptureVideo.coord_left_up_of_tables;
@@ -49,7 +53,7 @@ public class HUD {
                     scene = new Scene(anchorpanes_huds_each_player[table][player]);
                     stages_huds_each_player[table][player].setScene(scene);
                     //stages_huds_each_player[table][player].initModality(Modality.NONE);
-                    //stages_huds_each_player[table][player].initOwner(mainstage.getScene().getWindow());
+                    stages_huds_each_player[table][player].initOwner(mainstage);
                     stages_huds_each_player[table][player].setX(coord_left_up_of_tables[table][0]+start_coords[player][0]);
                     stages_huds_each_player[table][player].setY(coord_left_up_of_tables[table][1]+start_coords[player][1]);
                     final int fin_table =table, fin_player = player;
@@ -76,6 +80,7 @@ public class HUD {
                     });
 
                     stages_huds_each_player[table][player].initStyle(StageStyle.UNDECORATED);
+                    //stages_huds_each_player[table][player].initStyle(StageStyle.UTILITY);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -99,15 +104,11 @@ public class HUD {
                     anchorpanes_huds_each_player[table][player].getChildren().clear();
                     anchorpanes_huds_each_player[table][player].getChildren().add(stata);
                 }
-
-
             }
         });
+
     }
 
 
-
-
-
-
 }
+

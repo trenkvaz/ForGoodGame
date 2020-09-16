@@ -35,10 +35,25 @@ public class CreatingHUD {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public static class Setting{
-
-
-
 
         private static File file_setting_coords_hud;
 
@@ -66,7 +81,7 @@ public class CreatingHUD {
 
         public static void write_coords_hud(int[][] coords){
 
-            StringBuilder line = new StringBuilder("");
+            StringBuilder line = new StringBuilder();
             for (int[] p:coords) line.append(p[0]).append(",").append(p[1]).append(",");
 
             try (OutputStream os = new FileOutputStream(file_setting_coords_hud,false)) {
