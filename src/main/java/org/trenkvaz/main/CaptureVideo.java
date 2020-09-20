@@ -38,7 +38,7 @@ public class CaptureVideo implements Runnable{
 
    static String nick_hero = "trenkvaz";
 
-   static String home_folder = System.getProperty("user.dir");
+   public static String home_folder = System.getProperty("user.dir");
 
 
    public List<OCR> ocrList_1;

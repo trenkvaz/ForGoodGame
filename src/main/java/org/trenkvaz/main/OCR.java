@@ -203,7 +203,7 @@ public class OCR implements Runnable {
                         }
                     }
             }
-
+    // если нет похожих и надо распознать, то возвращает два числа, первое ИД, второе ключ для сортированного массива, чтобы его можно было записать в файл
             if(id_img_pix[0]<0){
                 int attempt = 0;
                     while (true){
@@ -220,7 +220,7 @@ public class OCR implements Runnable {
                         }
                     }
                     set_get_nicks_in_hashmap(-id_img_pix[0],currentHand.nicks[i]);
-                    // если нет похожих и надо распознать, то возвращает два числа, первое ИД, второе ключ для сортированного массива, чтобы его можно было записать в файл
+
                     CaptureVideo.Settings.write_nicks_keys_img_pix(currentHand.nicks[i],id_img_pix[1],img_pix);
                 //System.out.println("id "+-id_img_pix[0]+" id in arr "+img_pix[16]);
                    // save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),limit_grey),"id_nicks\\"+currentHand.nicks[i]+" "+(-id_img_pix[0]));
@@ -274,6 +274,7 @@ public class OCR implements Runnable {
     }
 
     void set_nick_by_positions_and_position_of_hero(){
+        // расстановка ников по покерным позициям, и на основе этого инициализация позиции херо
         currentHand.nicks[0] = nick_hero;
         String[] nicks_by_positions = new String[6];
         for(int i=0; i<6; i++){
@@ -284,14 +285,6 @@ public class OCR implements Runnable {
     }
 
 
-    int get_hash_buffered_image(byte[] image){
-        int result = 0;
-        int l = image.length;
-        for (int x = 0; x < l; x++) {
-           result+=image[x]*x;
-         }
-    return result;
-    }
 
 
     void set_cards_hero(){
@@ -377,6 +370,7 @@ public class OCR implements Runnable {
                 BufferedImage sub_white_black_image = get_white_black_image(cheked_img,150);
                 if(compare_part_of_buffred_images(sub_white_black_image,images_bu[i],9,5,16,12)){ currentHand.position_of_bu = i+1; break;}
             }
+            // алгоритм определения соответсвия покерных позиций позициям за столом которые начинаются с херо, на основе того где на столе находится БУ
             int utg = currentHand.position_of_bu+3;
             if(utg>6) utg = utg-6;
             int positons_on_table = 0; boolean start = false; int i =-1;
@@ -555,6 +549,7 @@ public class OCR implements Runnable {
     }
 
     void check_start_flop(){
+        // проверка что херо не делал ход, кроме когда находится на ББ, где возможен чек, если не делал, то проверки на флоп нет
         if(!(currentHand.preflop_by_positions.get(currentHand.position_of_hero).get(0)>0)&&currentHand.position_of_hero!=5) return;
         /*int x1 = coord_of_table[0]+coord_2_3_cards_flop[0][0];
         int x2 = coord_of_table[0]+coord_2_3_cards_flop[1][0];
@@ -623,10 +618,7 @@ public class OCR implements Runnable {
         final float MAX_BLUE_HUE = 0.8333333f; // MAGENTA
         float[] hsv = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
         float hue = hsv[0];
-        if (hue >= MIN_BLUE_HUE && hue <= MAX_BLUE_HUE){
-            return true;
-        }
-        return false;
+        return hue >= MIN_BLUE_HUE && hue <= MAX_BLUE_HUE;
     }
 
     BufferedImage get_scale_image(BufferedImage img,double scale){
