@@ -93,11 +93,11 @@ public class OCR implements Runnable {
 
 
     private void main_work_on_table(){
-        //if(table!=1)return;
+        if(table!=1)return;
 
 
         long check_number_hand = get_number_hand();
-       // System.out.println(check_number_hand);
+        //System.out.println(check_number_hand);
         if(check_number_hand==0)return;
 
         if(check_number_hand>0){
@@ -133,10 +133,7 @@ public class OCR implements Runnable {
         //System.out.println("bu "+currentHand.position_of_bu+" cards "+currentHand.cards_hero+" allnicks "+currentHand.is_nicks_filled);
 
 
-
-
-
-
+        //System.out.println("bu "+currentHand.position_of_bu);
 
 
        /* if(currentHand.position_of_bu >0&&!currentHand.cards_hero.equals("")&&currentHand.is_nicks_filled&&start_hand&&currentHand.is_stacks_and_1_raund_actions_filled){
@@ -174,17 +171,19 @@ public class OCR implements Runnable {
             BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,240,2,1,-3,-2);
             if(cheked_img==null)continue;
             int bright = get_max_brightness(cheked_img);
-            if(bright<140)continue;
-
+            if(bright<200)continue;
+            //if(is_error_image(cheked_img))continue;
+             // проверка на надпись фолд пост сб бб синий будет не ярким
             if(is_error_image(cheked_img)){ c++; save_image(cheked_img,"error_img\\"+table+" "+c);                continue;}
             int limit_grey = 105; c++;
             //save_image(cheked_img,"test2\\br"+c+"__"+bright);
-            if(bright<200) limit_grey = 155;
-            if(limit_grey==155)if(is_error_image(cheked_img))continue;
-
+            if(bright<245) limit_grey = 155;
+            // если синий из надписей фолд пост сб бб подмешался к светлым никам
+            //if(limit_grey==155)if(is_error_image(cheked_img))continue;
+            //System.out.println("limitgray "+limit_grey);
             long s = System.currentTimeMillis();
             long[] img_pix = get_img_pix(cheked_img,limit_grey);
-            long[] id_img_pix = get_number_img_nicks(img_pix,6);
+            long[] id_img_pix = get_number_img_nicks(img_pix,15);
             //System.out.println("time id "+(System.currentTimeMillis()-s));
             //System.out.println("id "+id_img_pix[0]);
             int id_img_pix_length = id_img_pix.length;
@@ -194,7 +193,7 @@ public class OCR implements Runnable {
                         currentHand.nicks[i] = set_get_nicks_in_hashmap(id_img_pix[0],null);
                         //System.out.println("campare  "+currentHand.nicks[i]);
                         //save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),limit_grey),"test\\"+currentHand.nicks[i]+" "+id_img_pix[0]);
-                        save_image(set_grey_and_inverse_or_no(cheked_img,true),"test\\"+currentHand.nicks[i]+"_"+id_img_pix[0]+"_"+c+""+table);
+                        save_image(set_grey_and_inverse_or_no(cheked_img,true),"test\\"+currentHand.nicks[i]+"_"+id_img_pix[0]+"_"+limit_grey);
                         if(currentHand.nicks[i]!=null)break;
                         try {
                             Thread.sleep(10);
@@ -250,10 +249,13 @@ public class OCR implements Runnable {
                     if(!str_nicks[0].equals(str_nicks[n])){currentHand.nicks[i]=null; break;}
                 }
 
-            if(currentHand.nicks[i]==null) System.err.println("DUBLIKATS IMG_PIX_NICK");
+            if(currentHand.nicks[i]==null) {System.err.println("DUBLIKATS IMG_PIX_NICK");
             int n=-1;
             for(long d:id_img_pix) { n++;     save_image(cheked_img,"dublicats_nicks\\"+str_nicks[n]+"_"+d); }
                 System.out.println("**********************************");
+            }
+
+
             }
 
 
@@ -266,6 +268,8 @@ public class OCR implements Runnable {
             /*if(i==4){
             if(currentHand.nicks[4]==null)save_image(cheked_img,"SittingD_null");
             else if(currentHand.nicks[4].equals("SittingD"))save_image(cheked_img,"SittingD");}*/
+            //if(currentHand.nicks[i].equals("Posts SB")||currentHand.nicks[i].equals("Fold")){is_error_image(cheked_img); save_image(cheked_img,"error_img\\"+(++c));}
+            if(currentHand.nicks[i]!=null)save_image(cheked_img,"test2\\"+currentHand.nicks[i]+"_"+get_max_brightness(cheked_img));
         }
 
         currentHand.setIs_nicks_filled();
@@ -367,8 +371,12 @@ public class OCR implements Runnable {
                 BufferedImage cheked_img = check_free_of_kursor(subimage,200);*/
                 BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,200,0,0,0,0);
                 if(cheked_img==null)continue;
-                BufferedImage sub_white_black_image = get_white_black_image(cheked_img,150);
-                if(compare_part_of_buffred_images(sub_white_black_image,images_bu[i],9,5,16,12)){ currentHand.position_of_bu = i+1; break;}
+                //save_image(cheked_img,"test\\bu"+(++c));
+                /*BufferedImage sub_white_black_image = get_white_black_image(cheked_img,150);
+                if(compare_part_of_buffred_images(sub_white_black_image,images_bu[i],9,5,16,12)){ currentHand.position_of_bu = i+1; break;}*/
+                int bright = get_max_brightness(cheked_img);
+                if(bright>200){currentHand.position_of_bu = i+1; break;}
+                //System.out.println((i+1)+" "+bright);
             }
             // алгоритм определения соответсвия покерных позиций позициям за столом которые начинаются с херо, на основе того где на столе находится БУ
             int utg = currentHand.position_of_bu+3;
@@ -592,7 +600,7 @@ public class OCR implements Runnable {
 
     boolean is_error_image(BufferedImage image){
         int h = image.getHeight(), w = image.getWidth();
-        int count_blue = 0; boolean is_symbol_start = false; int count_white = 0;
+        int count_line_with_symbols = 0; boolean is_symbol_start = false; int count_white = 0;
         for(int i=18;i<w;i++) {
             for(int j=0;j<h;j++) {
                 int val = image.getRGB(i, j);
@@ -602,11 +610,12 @@ public class OCR implements Runnable {
                 int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
                 if(grey<100)continue;
                 is_symbol_start = true;
-                if(grey>140)count_white++;
+                //System.out.println("er "+grey);
+                if(grey>200)count_white++;
                 //if(isBlue(new Color(val)))count_blue++;
             }
-            if(is_symbol_start)count_blue++;
-            if(count_blue==5)break;
+            if(is_symbol_start)count_line_with_symbols++;
+            if(count_line_with_symbols==5)break;
         }
         return count_white <= 0;
     }

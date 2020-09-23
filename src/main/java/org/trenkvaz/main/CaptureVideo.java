@@ -19,7 +19,10 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgproc.*;*/
 //import static org.bytedeco.javacpp.opencv_videoio.cvCreateFileCapture;
 import org.bytedeco.ffmpeg.global.avutil;
+import org.opencv.videoio.VideoCapture;
 
+import static org.bytedeco.javacv.FFmpegFrameGrabber.getDeviceDescriptions;
+import static org.trenkvaz.main.Testing.save_image;
 import static org.trenkvaz.ui.Controller_main_window.*;
 
 public class CaptureVideo implements Runnable{
@@ -42,7 +45,7 @@ public class CaptureVideo implements Runnable{
 
 
    public List<OCR> ocrList_1;
-   final int COUNT_TABLES = 6;
+   final int COUNT_TABLES = 1;
    boolean is_run = true;
    Thread thread;
    boolean is_getting_frame = true;
@@ -126,10 +129,14 @@ public class CaptureVideo implements Runnable{
 
         //FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(System.getProperty("user.dir")+"\\test_video9.avi");
         FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("rtmp://127.0.0.1/live/test");
-        grabber.setFrameRate(30);
+
+
+
+        //grabber.setFrameRate(30);
         try {
             grabber.start();
             //grabber.setFrameNumber(200);
+            //grabber.setFrameRate(30);
         } catch (FrameGrabber.Exception e) {
             return null;
         }
@@ -148,7 +155,13 @@ public class CaptureVideo implements Runnable{
            controller_main_window.setMessage_work("start");
            int count_space_frame = 0;
            while(is_getting_frame){
+               /*int num = grabber.getFrameNumber();
+               System.out.println(grabber.getFrameNumber()+"   "+(num%2));
+               //if(num%2==0){ //System.out.println(num%2);
+               //continue;}*/
                frame = grabber.grabImage();
+               //System.out.println("*"+num+"*");
+               //frame = grabAt(grabber.getFrameNumber(),30);
                if(frame!=null){ count_space_frame++;
                    canvasFrame.showImage(frame);
                    //System.out.println(canvasFrame.isDisplayable()+" "+canvasFrame.isActive()+" "+canvasFrame.isValid());
@@ -264,16 +277,19 @@ public class CaptureVideo implements Runnable{
        for(int i=0; i<COUNT_TABLES; i++){
 
             //  проверка отсутствия курсора на номере раздачи
-           check_kursor = check_free_of_kursor(coord_left_up_of_tables[i][0]+x,coord_left_up_of_tables[i][1]+y,w,h,10,bufferedImageframe);
-
+           check_kursor = check_free_of_kursor(coord_left_up_of_tables[i][0]+x,coord_left_up_of_tables[i][1]+y,w,h,30,bufferedImageframe);
+           c++;
+           //if(i==0){save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[i][0],coord_left_up_of_tables[i][1],639,468),"tables_img\\t_"+(c));}
            if(check_kursor!=null){
-               //if(i==4){save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[i][0],coord_left_up_of_tables[i][1],639,468),"tables_img\\t_"+(++c));}
+               //if(i==0){save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[i][0],coord_left_up_of_tables[i][1],639,468),"tables_img\\t_nokurs"+(++c));}
                // проверка наличия числа в номере раздачи
                int hand_bright = get_max_brightness(check_kursor);
                //System.out.println("check "+hand_bright);
            if(hand_bright<100)check_kursor = null;
            else {
                // проверка наличия ников в раздаче по верхнему нику стола
+              // System.out.println(is_check_free_of_kursor(coord_left_up_of_tables[i][0]+264,coord_left_up_of_tables[i][1]+67,82,15,100,bufferedImageframe));
+
                if(is_check_free_of_kursor(coord_left_up_of_tables[i][0]+264,coord_left_up_of_tables[i][1]+67,82,15,100,bufferedImageframe)){
                    ocrList_1.get(i).set_image_for_ocr(
                            new BufferedImage[]{bufferedImageframe.getSubimage(coord_left_up_of_tables[i][0],coord_left_up_of_tables[i][1],639,468),check_kursor} );
@@ -298,6 +314,8 @@ public class CaptureVideo implements Runnable{
 
    }
 
+
+
     int get_max_brightness(BufferedImage image){
         int w = image.getWidth(); int y = image.getHeight()/2;
         int max = 0;
@@ -315,6 +333,7 @@ public class CaptureVideo implements Runnable{
 
 
     BufferedImage check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,BufferedImage frame){
+      // save_image(frame.getSubimage(X,Y,w,h),"tables_img\\t_"+(c));
         for(int x=X; x<w+X; x++){
             for(int y=Y; y<h+Y; y+=h-1){
                 int val = frame.getRGB(x, y);
@@ -322,6 +341,7 @@ public class CaptureVideo implements Runnable{
                 int g = (val >> 8) & 0xff;
                 int b = val & 0xff;
                 int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                //System.out.println("1 grey "+grey);
                 if(grey>limit_grey)return null;
             }
         }
@@ -332,6 +352,7 @@ public class CaptureVideo implements Runnable{
                 int g = (val >> 8) & 0xff;
                 int b = val & 0xff;
                 int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                //System.out.println("2 grey "+grey);
                 if(grey>limit_grey)return null;
             }
         return frame.getSubimage(X,Y,w,h);

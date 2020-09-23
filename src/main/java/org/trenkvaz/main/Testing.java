@@ -8,8 +8,8 @@ import net.sourceforge.tess4j.Word;
 import net.sourceforge.tess4j.util.ImageIOHelper;
 import net.sourceforge.tess4j.*;
 import net.sourceforge.tess4j.util.LoadLibs;
-import org.bytedeco.javacv.Java2DFrameUtils;
-import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.bytedeco.javacv.*;
+import org.bytedeco.javacv.Frame;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -30,6 +30,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.LongStream;
 
 import static net.sourceforge.tess4j.TessAPI.*;
+import static org.bytedeco.javacv.FFmpegFrameGrabber.getDeviceDescriptions;
 import static org.trenkvaz.main.CaptureVideo.*;
 
 public class Testing {
@@ -158,10 +159,7 @@ public class Testing {
 
         float[] hsv = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
         float hue = hsv[0];
-        if (hue >= MIN_BLUE_HUE && hue <= MAX_BLUE_HUE){
-            return true;
-        }
-        return false;
+        return hue >= MIN_BLUE_HUE && hue <= MAX_BLUE_HUE;
     }
 
 
@@ -192,22 +190,19 @@ public class Testing {
         }
     }
 
-   static int get_brightness(BufferedImage image){
-        int W = image.getWidth(); int H = image.getHeight();
-        int sum_grey = 0;
-       //for(int y=0; y<H; y++)
-          // for(int x=0; x<W; x++){
-            int val = image.getRGB(0, 0);
-            int r = (val >> 16) & 0xff;
-            int g = (val >> 8) & 0xff;
-            int b = val & 0xff;
-            sum_grey += (int) (r * 0.299 + g * 0.587 + b * 0.114);
-           //}
-       return sum_grey;
-           //}
-
-        //System.out.println((sum_grey/(W*H)));
-    }
+   static int get_max_brightness(BufferedImage image){
+       int w = image.getWidth(); int y = image.getHeight()/2;
+       int max = 0;
+       for(int x=0; x<w; x++){
+           int val = image.getRGB(x, y);
+           int r = (val >> 16) & 0xff;
+           int g = (val >> 8) & 0xff;
+           int b = val & 0xff;
+           int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+           if(grey>max)max=grey;
+       }
+       return max;
+   }
 
     static BufferedImage getGrayScale(BufferedImage inputImage){
         BufferedImage img = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
@@ -223,7 +218,94 @@ public class Testing {
         return op.filter(inputImage,bufferedImage);
     }
 
+   static BufferedImage check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,BufferedImage frame){
+        //save_image(frame.getSubimage(X,Y,w,h),"tables_img\\t_");
+        for(int x=X; x<w+X; x++){
+            for(int y=Y; y<h+Y; y+=h-1){
+                int val = frame.getRGB(x, y);
+                int r = (val >> 16) & 0xff;
+                int g = (val >> 8) & 0xff;
+                int b = val & 0xff;
+                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                System.out.println("1 grey "+grey);
+                //if(grey>limit_grey)return null;
+            }
+        }
+        for(int y=Y; y<h+Y; y++)
+            for(int x=X; x<w+X; x+=w-1){
+                int val = frame.getRGB(x, y);
+                int r = (val >> 16) & 0xff;
+                int g = (val >> 8) & 0xff;
+                int b = val & 0xff;
+                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                System.out.println("2 grey "+grey);
+                //if(grey>limit_grey)return null;
+            }
+        return frame.getSubimage(X,Y,w,h);
+    }
 
+    static void show_canvas() throws FrameGrabber.Exception {
+        FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("video=USB Video");
+
+        grabber.setFormat("dshow");
+        grabber.setVideoCodecName("mjpeg");
+
+        grabber.setFrameRate(60);
+
+        grabber.start();
+
+        Frame frame = null;
+        CanvasFrame canvasFrame = new CanvasFrame("");
+        canvasFrame.setCanvasSize(600, 300);//задаем размер окна
+        canvasFrame.setBounds(100,100,600,300);
+        while (canvasFrame.isVisible()&&(frame =grabber.grabImage())!=null)canvasFrame.showImage(frame);
+    }
+
+    static void compare_binar_imgs(BufferedImage img1,BufferedImage img2,int limit_grey){
+        int w = img1.getWidth(), h = img1.getHeight(); int error = 0;
+        for(int x=0; x<w; x++) {
+            for (int y = 0; y < h; y++) {
+                int val1 = img1.getRGB(x, y);
+                int r = (val1 >> 16) & 0xff;
+                int g = (val1 >> 8) & 0xff;
+                int b = val1 & 0xff;
+                int grey1 = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                if(grey1<limit_grey)grey1=1;else grey1=0;
+                int val2 = img2.getRGB(x, y);
+                r = (val2 >> 16) & 0xff;
+                g = (val2 >> 8) & 0xff;
+                b = val2 & 0xff;
+                int grey2 = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                if(grey2<limit_grey)grey2=1;else grey2=0;
+                if(grey1!=grey2)error++;
+                //if(grey>limit_grey)return null;
+            }
+        }
+        System.out.println("error "+error);
+    }
+
+
+   static boolean is_error_image(BufferedImage image){
+        int h = image.getHeight(), w = image.getWidth();
+        int count_line_with_symbols = 0; boolean is_symbol_start = false; int count_white = 0;
+        for(int i=18;i<w;i++) {
+            for(int j=0;j<h;j++) {
+                int val = image.getRGB(i, j);
+                int r = (val >> 16) & 0xff;
+                int g = (val >> 8) & 0xff;
+                int b = val & 0xff;
+                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                if(grey<100)continue;
+                is_symbol_start = true;
+                System.out.println("er "+grey);
+                if(grey>200)count_white++;
+                //if(isBlue(new Color(val)))count_blue++;
+            }
+            if(is_symbol_start)count_line_with_symbols++;
+            if(count_line_with_symbols==5)break;
+        }
+        return count_white <= 0;
+    }
     public static void main(String[] args) throws Exception {
         /*static int[][] coords_places_of_nicks = {{297,320},{15,253},{15,120},{264,67},{543,120},{543,253}};
 
@@ -404,7 +486,7 @@ public class Testing {
                 System.out.println();
                 System.out.println();
             }*/
-        BufferedImage img_light = read_image("Mtest\\poker chips l");
+       /* BufferedImage img_light = read_image("Mtest\\poker chips l");
         BufferedImage img_dark = read_image("Mtest\\poker chips d");
         save_image(getGrayScale(img_light),"Mtest\\pokerchipsl_gs");
         save_image(getGrayScale(img_dark),"Mtest\\pokerchipsd_gs");
@@ -419,7 +501,12 @@ public class Testing {
             System.out.println("b "+b+" "+get_brightness(re_bright(img_dark,b)));
         }
 
-        save_image(re_bright(img_dark,1.115f),"Mtest\\pc_d_rebr");
+        save_image(re_bright(img_dark,1.115f),"Mtest\\pc_d_rebr");*/
+
+       // OpenCVFrameGrabber grabber = new OpenCVFrameGrabber(1);
+     //compare_binar_imgs(read_image("test\\poker chips_178715279560800_105"),read_image("test\\poker chips_178703125392000_105"),105);
+        System.out.println(get_max_brightness(read_image("error_img\\1 28")));
+        System.out.println(is_error_image(read_image("error_img\\1 28")));
     }
 
 

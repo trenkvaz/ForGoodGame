@@ -132,8 +132,9 @@ public class UseTesseract {
         catch (TesseractException e) {
             e.printStackTrace();
         }
-        if(text.equals(""))return null;
         save_image(bufferedImage,"for_ocr\\_"+text.trim());
+        if(text.equals(""))return null;
+
         return text;
     }
 
