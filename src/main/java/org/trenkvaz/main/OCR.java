@@ -42,10 +42,10 @@ public class OCR implements Runnable {
         new Thread(this).start();
     }
 
-   public OCR(String test,int table){
+   public OCR(String test,int table,BufferedImage[] frame1){
        this.coord_of_table = coord_left_up_of_tables[table];
        this.table = table;
-
+       frame = frame1;
    }
 
 
@@ -155,20 +155,16 @@ public class OCR implements Runnable {
             //if(i!=2)continue;
             if(i==0||i==1||i==2||i==3)p=0;
             else p=-1;
-           /* int x = coord_of_table[0]+coords_places_of_nicks[i][0]+p;
-            int y = coord_of_table[1]+coords_places_of_nicks[i][1];*/
-            int x = coords_places_of_nicks[i][0]+p;
-            int y = coords_places_of_nicks[i][1];
-            int w = 82;
+            int x = coords_places_of_nicks[i][0]+p-5;
+            int y = coords_places_of_nicks[i][1]+1;
+
+            /* old int w = 82;
             int h = 15;
-//c++;
-            //save_image(subimage,"test\\nicks"+c);
+            BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,240,2,1,-3,-2);*/
 
-            /*BufferedImage subimage = frame.getSubimage(x,y,w,h);
-            BufferedImage cheked_img = check_free_of_kursor(subimage,200);*/
-
-
-            BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,240,2,1,-3,-2);
+            int w = 87;
+            int h = 14;
+            BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,240,0,0,0,0);
             if(cheked_img==null)continue;
             int bright = get_max_brightness(cheked_img);
             if(bright<200)continue;
@@ -318,11 +314,14 @@ public class OCR implements Runnable {
     }
 
 
-    long[] get_img_pix(BufferedImage image,int limit_grey){
-        int count_64_pix = 0; long _64_pixels =0; long[] result = new long[17]; int index_for_result = -1, start_get_pix = 0;long count_black_pix = 0;
-        for (int x = 0; x < image.getWidth(); x++) {
-            for (int y = 0; y < image.getHeight(); y++) {
-                if(start_get_pix<3){ start_get_pix++; continue;}
+    public long[] get_img_pix(BufferedImage image,int limit_grey){
+        // for idimg 0 2 0 -3
+        int count_64_pix = 3, W = image.getWidth(), H = image.getHeight()-1;
+        long _64_pixels =0; long[] result = new long[16]; int index_for_result = -1, start_get_pix = 0;long count_black_pix = 0;
+        int count =0;
+        for (int x = 0; x < W; x++) {
+            for (int y = 2; y < H; y++) {
+                //if(start_get_pix<3){ start_get_pix++; continue;}
                 int val = image.getRGB(x, y);
                 int r = (val >> 16) & 0xff;
                 int g = (val >> 8) & 0xff;
@@ -337,10 +336,11 @@ public class OCR implements Runnable {
                     count_64_pix = 0;
                     _64_pixels = 0;
                 }
+                count++;
             }
         }
-        result[16] = count_black_pix;
-
+        result[15] = count_black_pix;
+        System.out.println("countpix "+count);
         return result;
     }
 

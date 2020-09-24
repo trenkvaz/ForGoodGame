@@ -314,7 +314,7 @@ public class Testing {
         static int[][] coords_buttons = {{382,287},{144,231},{156,133},{242,104},{459,133},{473,231}};
 
         static int[][] coords_cards_hero = {{287,286},{331,286}};*/
-        OCR ocr = new OCR("",1);
+        OCR ocr = new OCR("",1,new BufferedImage[]{read_image("Mtest\\winlongnick").getSubimage(coord_left_up_of_tables[3][0],coord_left_up_of_tables[3][1],639,468),null});
         UseTesseract useTesseract =new UseTesseract();
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
@@ -505,8 +505,23 @@ public class Testing {
 
        // OpenCVFrameGrabber grabber = new OpenCVFrameGrabber(1);
      //compare_binar_imgs(read_image("test\\poker chips_178715279560800_105"),read_image("test\\poker chips_178703125392000_105"),105);
-        System.out.println(get_max_brightness(read_image("error_img\\1 28")));
-        System.out.println(is_error_image(read_image("error_img\\1 28")));
+        /*System.out.println(get_max_brightness(read_image("error_img\\1 28")));
+        System.out.println(is_error_image(read_image("error_img\\1 28")));*/
+        int p =1;
+        int x = coords_places_of_nicks[4][0]+p;
+        int y = coords_places_of_nicks[4][1];
+        int w = 82;
+        int h = 15;
+        // 0 2 -1 -2
+        // for idimg 0 2 -1 -3
+        BufferedImage cheked_img = ocr.check_free_of_kursor(x-5,y+1,w+5,h-1,240,0,0,0,0);
+        if(cheked_img==null) System.out.println("null");
+        BufferedImage bufferedImage = read_image("Mtest\\winlongnick").
+                getSubimage(coord_left_up_of_tables[3][0],coord_left_up_of_tables[3][1],639,468).
+                getSubimage(x-5,y+1,w+5,h-1);
+        save_image(cheked_img,"Mtest\\longnick2foridimg");
+        System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(cheked_img,4),true),105),"nicks"));
+        long[] test = ocr.get_img_pix(cheked_img,105);
     }
 
 
