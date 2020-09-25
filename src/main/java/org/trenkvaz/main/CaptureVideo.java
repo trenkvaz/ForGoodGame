@@ -200,7 +200,7 @@ public class CaptureVideo implements Runnable{
         // img_nick_for_compare 15 чисел изо, 16-у количество черных пикселей
         // умножается на миллион, чтобы получить индексы в сортируемом мепе, по ним будет отбираться диапазон по количеству черных пикселей
 
-        long count_pix_in_ = img_nick_for_compare[16]*1_000_000;
+        long count_pix_in_ = img_nick_for_compare[15]*1_000_000;
         long min = count_pix_in_-error*1_000_000, max = count_pix_in_+(error+1)*1_000_000;
 
         Map<Long,long[]> submap_imgs_with_min_error = sortedmap_all_imgs_pix_of_nicks.subMap(min,max);
@@ -209,7 +209,7 @@ public class CaptureVideo implements Runnable{
         for(long[] img_min_error:submap_imgs_with_min_error.values()){
             int count_error_in_compare = 0;
             boolean is_equal = true;
-            for(int i=0; i<16; i++){
+            for(int i=0; i<15; i++){
                 count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
                 if(count_error_in_compare>error){is_equal = false; break;}
             }
@@ -226,8 +226,9 @@ public class CaptureVideo implements Runnable{
 
 
        // если не нашлось в мепе такого же изо, то создается новый ИД для изо и записывается на место количества черных пикселей
-        if(equal_imgs.isEmpty()){long id_img_pix = System.nanoTime(); img_nick_for_compare[16]= id_img_pix;
-
+        if(equal_imgs.isEmpty()){long id_img_pix = System.nanoTime(); img_nick_for_compare[15]= id_img_pix;
+            // проверка наличия изо с таким же количеством пикселей и индексом если есть то добавляется единица и снова проверяется, пока такого индекса не будет в списке,
+            // тогда он присваевается новому изо
             boolean is_contain = true;
             while (is_contain){
                 is_contain = submap_imgs_with_min_error.containsKey(count_pix_in_);
@@ -244,7 +245,7 @@ public class CaptureVideo implements Runnable{
         int size = equal_imgs.size();
         long[] result = new long[size];
         for(int i=0; i<size; i++)
-            result[i] = equal_imgs.get(i)[16];
+            result[i] = equal_imgs.get(i)[15];
 
         return result;
     }
@@ -432,13 +433,14 @@ public class CaptureVideo implements Runnable{
                     if(!(line.startsWith("*")&&line.endsWith("*")))break;
                     String[] arr_line = line.substring(1,line.length()-1).split("%");
                     //System.out.println("line "+arr_line.length);
-                    hashmap_id_img_pix_nick.put(Long.parseLong(arr_line[18]),arr_line[0]);
-                    long[] img_pix = new long[17];
-                    for(int i=2; i<19; i++){
+                    hashmap_id_img_pix_nick.put(Long.parseLong(arr_line[17]),arr_line[0]);
+                    long[] img_pix = new long[16];
+                    for(int i=2; i<18; i++){
                         img_pix[i-2] = Long.parseLong(arr_line[i]);
                     }
                     sortedmap_all_imgs_pix_of_nicks.put(Long.parseLong(arr_line[1]),img_pix);
                 }
+                br.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

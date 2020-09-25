@@ -169,12 +169,12 @@ public class Testing {
 
     static void show_img_from_arr_long(long[] arr_long){
         int count_pix = -1;
-        for(int y=0; y<13; y++){
-            for(int x=0; x<79; x++){
-                if(y<3&&x==0)continue;
+        for(int y=0; y<11; y++){
+            for(int x=0; x<87; x++){
+                //if(y<3&&x==0)continue;
                 //System.out.println(y+" "+x);
                 //count_pix++;
-                int coord_in_arr_long = (y+13*x)-3;
+                int coord_in_arr_long = (y+11*x)+3;
                 int index_bit = coord_in_arr_long%64;
                 int index_in_arrlong = coord_in_arr_long/64;
                 //index_bit++;
@@ -183,6 +183,7 @@ public class Testing {
                 // 1<<число сдвига маска единицы 000001 двигаешь еденицу влево
                 pix = pix&(long)1<<(63-index_bit);
                 if(pix==0)System.out.print("0");else System.out.print("1");
+                System.out.print(" ");
                 //System.out.println("ind "+index_bit);
                 //if(index_bit==63){index_bit=-1; index_in_arrlong++; }
             }
@@ -522,6 +523,7 @@ public class Testing {
         save_image(cheked_img,"Mtest\\longnick2foridimg");
         System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(cheked_img,4),true),105),"nicks"));
         long[] test = ocr.get_img_pix(cheked_img,105);
+        show_img_from_arr_long(test);
     }
 
 

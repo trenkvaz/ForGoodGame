@@ -315,11 +315,13 @@ public class OCR implements Runnable {
 
 
     public long[] get_img_pix(BufferedImage image,int limit_grey){
-        // for idimg 0 2 0 -3
-        int count_64_pix = 3, W = image.getWidth(), H = image.getHeight()-1;
+        // битов в числах на три больше чем нужно, поэтому первые три нули
+        int count_64_pix = 3,
+                W = image.getWidth(), H = image.getHeight()-1; // урезание картинки снизу на 1
         long _64_pixels =0; long[] result = new long[16]; int index_for_result = -1, start_get_pix = 0;long count_black_pix = 0;
         int count =0;
         for (int x = 0; x < W; x++) {
+            // уразание картинки сверху на 2
             for (int y = 2; y < H; y++) {
                 //if(start_get_pix<3){ start_get_pix++; continue;}
                 int val = image.getRGB(x, y);
@@ -340,7 +342,7 @@ public class OCR implements Runnable {
             }
         }
         result[15] = count_black_pix;
-        System.out.println("countpix "+count);
+
         return result;
     }
 
