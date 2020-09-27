@@ -174,7 +174,7 @@ public class Testing {
                 //if(y<3&&x==0)continue;
                 //System.out.println(y+" "+x);
                 //count_pix++;
-                int coord_in_arr_long = (y+11*x)+3;
+                int coord_in_arr_long = (y+11*x);
                 int index_bit = coord_in_arr_long%64;
                 int index_in_arrlong = coord_in_arr_long/64;
                 //index_bit++;
@@ -307,6 +307,32 @@ public class Testing {
         }
         return count_white <= 0;
     }
+   static int c=0;
+
+   static long get_number_hand(BufferedImage img,OCR ocr,int grey){
+
+        //save_image(frame[1],"for_ocr_number\\osr_"+c+"t"+table);
+        int limit_grey = 175;
+        if(get_max_brightness(img)<150)limit_grey = 214;
+        //BufferedImage scaled_sub_bufferedImage = ocr.get_scale_image(ocr.set_grey_and_inverse_or_no(img,true),2);
+        //BufferedImage scaled_sub_bufferedImage = set_grey_and_inverse_or_no(get_scale_image(frame[1],3),true);
+        BufferedImage black_white_image = ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(img,true),limit_grey);
+        save_image(black_white_image,"test\\bwnum_"+grey+"_"+(c++));
+        if(ocr.compare_buffred_images(ocr.bufferedImage_current_number_hand,black_white_image,5))return -1;
+        ocr.bufferedImage_current_number_hand = black_white_image;
+
+        //save_image(black_white_image,"test2\\osr_"+(c++));
+        return 1;
+
+    }
+
+
+
+
+
+
+
+
     public static void main(String[] args) throws Exception {
         /*static int[][] coords_places_of_nicks = {{297,320},{15,253},{15,120},{264,67},{543,120},{543,253}};
 
@@ -315,7 +341,10 @@ public class Testing {
         static int[][] coords_buttons = {{382,287},{144,231},{156,133},{242,104},{459,133},{473,231}};
 
         static int[][] coords_cards_hero = {{287,286},{331,286}};*/
-        OCR ocr = new OCR("",1,new BufferedImage[]{read_image("Mtest\\winlongnick").getSubimage(coord_left_up_of_tables[3][0],coord_left_up_of_tables[3][1],639,468),null});
+        /*OCR ocr = new OCR("",1,new BufferedImage[]{read_image("Mtest\\wins5p2").
+                getSubimage(coord_left_up_of_tables[4][0],coord_left_up_of_tables[4][1],639,468),null});*/
+        OCR ocr = new OCR("",1,new BufferedImage[]{read_image("Mtest\\win3p5").
+                getSubimage(coord_left_up_of_tables[2][0],coord_left_up_of_tables[2][1],639,468),null});
         UseTesseract useTesseract =new UseTesseract();
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
@@ -328,66 +357,7 @@ public class Testing {
         save_image(Thumbnails.of(ocr.set_grey_and_inverse_or_no
                 (long_nick,true)).size(long_nick.getWidth(),long_nick.getWidth()).asBufferedImage(),"Mtest\\img8x8");
 
-        //System.out.println("win "+captureVideo.is_check_free_of_kursor(640+264,468+67,82,15,100,win));
-        //System.out.println(ocr.check_free_of_kursor());
-       /* BufferedImage nick = read_image("SittingD_new");
-        save_image(get_white_black_image(nick,100),"old_wb");
-        save_image(get_white_black(nick),"new_wb");
 
-        System.out.println(useTesseract.get_ocr(nick,"nicks"));
-
-        System.out.println(useTesseract.get_ocr(get_white_black(nick),"nicks"));
-
-        BufferedImage window = read_image("allwindow2");
-        BufferedImage white_nick = window.getSubimage(15,253,82,15);
-        BufferedImage black_nick = window.getSubimage(640+15,469+253,82,15);
-        save_image(ocr.get_scale_image(get_white_black_image(ocr.set_grey_and_inverse_or_no(white_nick,true),100),2),"white_wbx2");
-        save_image(ocr.get_scale_image(get_white_black_image(ocr.set_grey_and_inverse_or_no(black_nick,true),150),2),"black_wbx2");
-        save_image(black_nick,"black_nick");
-
-        System.out.println(useTesseract.get_ocr(ocr.get_scale_image(get_white_black_image(ocr.set_grey_and_inverse_or_no(black_nick,true),150),2),"nicks"));
-        System.out.println(useTesseract.get_ocr(ocr.get_scale_image(get_white_black_image(ocr.set_grey_and_inverse_or_no(white_nick,true),100),2),"nicks"));
-        save_image(get_white_black(ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(white_nick,2),true)),"white_wbx2_n");
-        save_image(get_white_black(ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(black_nick,2),true)),"black_wbx2_n");
-        save_image(get_white_black(nick),"wb_nick");*/
-        /*float brightenFactor = 1.2f;
-        RescaleOp op = new RescaleOp(brightenFactor, 0, null);
-        op.filter(black_nick, black_nick);*/
-        //save_image(black_nick,"black_nick_br");
-
-       /* BufferedImage sw = get_white_black(ocr.get_scale_image(get_white_black_image(ocr.set_grey_and_inverse_or_no(white_nick,true),100),2));
-        BufferedImage sb = get_white_black(ocr.get_scale_image(get_white_black_image(ocr.set_grey_and_inverse_or_no(black_nick,true),150),2));
-        save_image(sw,"sw");
-        save_image(sb,"sb");*/
-        /*save_image(get_white_black_image(ocr.set_grey_and_inverse_or_no(white_nick,true),100),"white_wbx2_o");
-        save_image(get_white_black_image(ocr.set_grey_and_inverse_or_no(black_nick,true),150),"black_wbx2_o");
-        long s =System.currentTimeMillis();
-        System.out.println(useTesseract.get_ocr(get_white_black_image(nick,100),"nicks"));
-        System.out.println((System.currentTimeMillis()-s));
-        System.out.println(useTesseract.get_ocr(get_scaled(nick),"nicks"));
-
-       save_image(get_scaled(nick),"scaled_nick");*/
-
-        /*save_image(ocr.get_scale_image(black_nick,2),"black_nickX2");
-        save_image(get_white_black_image(ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(white_nick,2),true),100),"WHx2wbaver");
-        save_image(get_white_black_image(ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(black_nick,2),true),150),"BLx2wbaver");
-        save_image(get_sharp(ocr.get_scale_image(read_image("original\\YukKiVH"),4.0)),"YukKiVH_sharp");
-        save_image(ocr.get_scale_image(read_image("original\\YukKiVH"),10),"YukKiVH_sharp2");
-        save_image(ocr.get_scale_image(read_image("original\\YukKiVH"),20.0),"YukKiVH_sharp2_2");*/
-       // System.out.println(is_error_image(read_image("error_img\\1 13")));
-       //System.out.println(is_error_image(read_image("error_img\\6 209")));
-        /*System.out.println(is_error_image(read_image("Mtest\\tiaczek")));
-        System.out.println(is_error_image(read_image("original\\3")));*/
-       /* save_image(ocr.get_white_black_image(read_image("Mtest\\tiaczek"),100),"Mtest\\tiaczek_100");
-        save_image(ocr.get_white_black_image(read_image("Mtest\\tiaczek"),150),"Mtest\\tiaczek_150");*/
-        //save_image(ocr.get_white_black_image(ocr.get_scale_image(read_image("for_ocr_number\\2040037899"),2),200),"Mtest\\n_200");
-        //System.out.println((((double)15/2)));
-
-        //System.out.println("win "+captureVideo.is_check_free_of_kursor(0,0,82,15,100,read_image("Mtest\\tiaczek")));
-
-/*
-        BufferedImage black_white_img = ocr.set_grey_and_inverse_or_no(read_image("original\\BryanKearney 138").getSubimage(2,1,77,13),true);
-        save_image(ocr.get_scale_image(black_white_img,0.5),"Mtest\\BryanKearney 138_cut_smalled");*/
       /*  List<long[]> testarr = new ArrayList();
         long time = 0;
         for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\original").listFiles()){
@@ -508,22 +478,38 @@ public class Testing {
      //compare_binar_imgs(read_image("test\\poker chips_178715279560800_105"),read_image("test\\poker chips_178703125392000_105"),105);
         /*System.out.println(get_max_brightness(read_image("error_img\\1 28")));
         System.out.println(is_error_image(read_image("error_img\\1 28")));*/
-        int p =1;
+        // p for 0 1 2 3 = 2
+        // p for 4 5 = 1
+        /*int p =1;
         int x = coords_places_of_nicks[4][0]+p;
         int y = coords_places_of_nicks[4][1];
         int w = 82;
         int h = 15;
         // 0 2 -1 -2
         // for idimg 0 2 -1 -3
-        BufferedImage cheked_img = ocr.check_free_of_kursor(x-5,y+1,w+5,h-1,240,0,0,0,0);
+        BufferedImage cheked_img = ocr.check_free_of_kursor(x-5,y+1,w+5,h-1,240,0,0,-1,0);
         if(cheked_img==null) System.out.println("null");
         BufferedImage bufferedImage = read_image("Mtest\\winlongnick").
                 getSubimage(coord_left_up_of_tables[3][0],coord_left_up_of_tables[3][1],639,468).
                 getSubimage(x-5,y+1,w+5,h-1);
-        save_image(cheked_img,"Mtest\\longnick2foridimg");
-        System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(cheked_img,4),true),105),"nicks"));
-        long[] test = ocr.get_img_pix(cheked_img,105);
-        show_img_from_arr_long(test);
+        save_image(cheked_img,"Mtest\\nickt3p5_2");
+        System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(cheked_img,4),true),105),"nicks"));*/
+        //long[] test = ocr.get_img_pix(cheked_img,105);
+        //show_img_from_arr_long(test);
+
+        //System.out.println("b "+get_max_brightness(read_image("for_ocr_number\\osr_0t1")));
+        //get_number_hand(read_image("for_ocr_number\\osr_0t1"),ocr);
+
+        for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\for_ocr_number").listFiles()){
+            if(a.isFile()){
+
+                BufferedImage image = ImageIO.read(a).getSubimage(25,3,26,5);
+               // for(int i=200; i<220; i++){
+               // System.out.println("GREY "+i);
+                get_number_hand(image,ocr,0);
+                //}
+            }
+        }
     }
 
 

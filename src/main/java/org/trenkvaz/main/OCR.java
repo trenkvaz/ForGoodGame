@@ -97,7 +97,7 @@ public class OCR implements Runnable {
 
 
         long check_number_hand = get_number_hand();
-        //System.out.println(check_number_hand);
+        System.out.println(check_number_hand);
         if(check_number_hand==0)return;
 
         if(check_number_hand>0){
@@ -153,8 +153,8 @@ public class OCR implements Runnable {
         for(int i=1; i<6; i++){
             if(currentHand.nicks[i]!=null)continue;
             //if(i!=2)continue;
-            if(i==0||i==1||i==2||i==3)p=0;
-            else p=-1;
+            if(i==0||i==1||i==2||i==3)p=2;
+            else p=1;
             int x = coords_places_of_nicks[i][0]+p-5;
             int y = coords_places_of_nicks[i][1]+1;
 
@@ -164,16 +164,16 @@ public class OCR implements Runnable {
 
             int w = 87;
             int h = 14;
-            BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,240,0,0,0,0);
+            BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,240,0,0,-1,0);
             if(cheked_img==null)continue;
-            int bright = get_max_brightness(cheked_img);
-            if(bright<200)continue;
+            /*int bright = get_max_brightness(cheked_img);
+            if(bright<200)continue;*/
             //if(is_error_image(cheked_img))continue;
              // проверка на надпись фолд пост сб бб синий будет не ярким
-            if(is_error_image(cheked_img)){ c++; save_image(cheked_img,"error_img\\"+table+" "+c);                continue;}
+            //if(is_error_image(cheked_img)){ c++; save_image(cheked_img,"error_img\\"+table+" "+c);                continue;}
             int limit_grey = 105; c++;
             //save_image(cheked_img,"test2\\br"+c+"__"+bright);
-            if(bright<245) limit_grey = 155;
+            //if(bright<245) limit_grey = 155;
             // если синий из надписей фолд пост сб бб подмешался к светлым никам
             //if(limit_grey==155)if(is_error_image(cheked_img))continue;
             //System.out.println("limitgray "+limit_grey);
@@ -258,14 +258,16 @@ public class OCR implements Runnable {
 
 
             //assert currentHand.nicks[i] != null;
-            //if(currentHand.nicks[i] != null&&(currentHand.nicks[i].equals("Posts SB")||currentHand.nicks[i].equals("Posts BB")))currentHand.nicks=null;
+            if(currentHand.nicks[i] != null&&
+                    (currentHand.nicks[i].equals("Posts SB")||currentHand.nicks[i].equals("Posts BB")||
+                            currentHand.nicks[i].equals("Fold")||currentHand.nicks[i].equals("Check")||currentHand.nicks[i].equals("Raise")))currentHand.nicks[i]=null;
             //System.out.println(currentHand.nicks[i]);
             //assert currentHand.nicks[i] != null;
             /*if(i==4){
             if(currentHand.nicks[4]==null)save_image(cheked_img,"SittingD_null");
             else if(currentHand.nicks[4].equals("SittingD"))save_image(cheked_img,"SittingD");}*/
             //if(currentHand.nicks[i].equals("Posts SB")||currentHand.nicks[i].equals("Fold")){is_error_image(cheked_img); save_image(cheked_img,"error_img\\"+(++c));}
-            if(currentHand.nicks[i]!=null)save_image(cheked_img,"test2\\"+currentHand.nicks[i]+"_"+get_max_brightness(cheked_img));
+            //if(currentHand.nicks[i]!=null)save_image(cheked_img,"test2\\"+currentHand.nicks[i]+"_"+get_max_brightness(cheked_img));
         }
 
         currentHand.setIs_nicks_filled();
@@ -316,7 +318,7 @@ public class OCR implements Runnable {
 
     public long[] get_img_pix(BufferedImage image,int limit_grey){
         // битов в числах на три больше чем нужно, поэтому первые три нули
-        int count_64_pix = 3,
+        int count_64_pix = 0,
                 W = image.getWidth(), H = image.getHeight()-1; // урезание картинки снизу на 1
         long _64_pixels =0; long[] result = new long[16]; int index_for_result = -1, start_get_pix = 0;long count_black_pix = 0;
         int count =0;
@@ -416,13 +418,19 @@ public class OCR implements Runnable {
         //System.out.println("sub");
         //if(cheked_img==null){ return 0;}
         //System.out.println("check");
-        BufferedImage scaled_sub_bufferedImage = get_scale_image(set_grey_and_inverse_or_no(frame[1],true),2);
-        //BufferedImage scaled_sub_bufferedImage = set_grey_and_inverse_or_no(get_scale_image(frame[1],3),true);
-        BufferedImage black_white_image = get_white_black_image(scaled_sub_bufferedImage,175);
-        if(compare_buffred_images(bufferedImage_current_number_hand,black_white_image,15))return -1;
-        bufferedImage_current_number_hand = black_white_image;
+
+        int limit_grey = 175;
+        if(get_max_brightness(frame[1])<150)limit_grey = 214;
         c++;
-        save_image(black_white_image,"for_ocr_number\\osr_"+c+"t"+table);
+        save_image(frame[1],"for_ocr_number\\osr_"+c+"_grey_"+limit_grey);
+        //BufferedImage scaled_sub_bufferedImage = get_scale_image(set_grey_and_inverse_or_no(frame[1],true),2);
+        //BufferedImage scaled_sub_bufferedImage = set_grey_and_inverse_or_no(get_scale_image(frame[1],3),true);
+        BufferedImage black_white_image = get_white_black_image(set_grey_and_inverse_or_no(frame[1],true),limit_grey);
+        //save_image(black_white_image,"for_ocr_number\\osr_bw_"+c+"_grey_"+limit_grey);
+        if(compare_buffred_images(bufferedImage_current_number_hand,black_white_image,5))return -1;
+        bufferedImage_current_number_hand = black_white_image;
+
+
         return 1;
 
 
@@ -713,10 +721,11 @@ public class OCR implements Runnable {
                 if (rgb != 0) {
                    error++;
                     //if(limit_error==20) System.out.println(error);
-                   if(error>limit_error)return false;
+                   if(error>limit_error){ System.out.println("false "+error);                       return false;}
                 }
             }
         }
+        System.out.println("true "+error);
         return true;
     }
 

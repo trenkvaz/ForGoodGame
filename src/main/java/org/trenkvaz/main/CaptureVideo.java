@@ -356,7 +356,7 @@ public class CaptureVideo implements Runnable{
                 //System.out.println("2 grey "+grey);
                 if(grey>limit_grey)return null;
             }
-        return frame.getSubimage(X,Y,w,h);
+        return frame.getSubimage(X+25,Y+3,26,5);
     }
 
 
