@@ -146,6 +146,7 @@ public class UseTesseract {
         catch (TesseractException e) {
             e.printStackTrace();
         }
+        save_image(bufferedImage,"for_ocr_stacks\\_"+text.trim());
         return text;
     }
 

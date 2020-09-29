@@ -166,8 +166,9 @@ public class CaptureVideo implements Runnable{
                    canvasFrame.showImage(frame);
                    //System.out.println(canvasFrame.isDisplayable()+" "+canvasFrame.isActive()+" "+canvasFrame.isValid());
                    if(count_space_frame<0) continue;
-                   if(find_tables(frame,0))continue;
+                   if(find_tables(frame))continue;
                    count_space_frame = -30;
+                   for(int o=0; o<COUNT_TABLES; o++)countcheks[o]=0;
                    //System.out.println("count_space "+count_space_frame);
                    System.gc();
                }
@@ -205,13 +206,16 @@ public class CaptureVideo implements Runnable{
 
         Map<Long,long[]> submap_imgs_with_min_error = sortedmap_all_imgs_pix_of_nicks.subMap(min,max);
 
-        List<long[]> equal_imgs = new ArrayList<>();
+        List<long[]> equal_imgs = new ArrayList<>(); int first_of_pair_error = 0, second_of_pair_error = 0;
         for(long[] img_min_error:submap_imgs_with_min_error.values()){
             int count_error_in_compare = 0;
             boolean is_equal = true;
             for(int i=0; i<15; i++){
-                count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
-                if(count_error_in_compare>error){is_equal = false; break;}
+                /*count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
+                if(count_error_in_compare>error){is_equal = false; break;}*/
+                if(i%2==0)first_of_pair_error = get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
+                if(i%2!=0)second_of_pair_error = get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
+                if(i>0&&(first_of_pair_error+second_of_pair_error)>error){ is_equal = false; break;  }
             }
             if(!is_equal)continue;
             equal_imgs.add(img_min_error);
@@ -261,7 +265,9 @@ public class CaptureVideo implements Runnable{
    boolean save = false;
    int c =0;
     //BufferedImage bufferedImageframe;
-   boolean find_tables(Frame frame,int t){
+   int[] countcheks = new int[COUNT_TABLES];
+
+   boolean find_tables(Frame frame){
 
        //BufferedImage bufferedImageframe = paintConverter.getBufferedImage(frame);
        //long start = System.currentTimeMillis();
@@ -278,11 +284,11 @@ public class CaptureVideo implements Runnable{
        for(int i=0; i<COUNT_TABLES; i++){
 
             //  проверка отсутствия курсора на номере раздачи
-           check_kursor = check_free_of_kursor(coord_left_up_of_tables[i][0]+x,coord_left_up_of_tables[i][1]+y,w,h,30,bufferedImageframe);
+           check_kursor = check_free_of_kursor(coord_left_up_of_tables[i][0]+x,coord_left_up_of_tables[i][1]+y,w,h,100,bufferedImageframe);
            c++;
-           //if(i==0){save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[i][0],coord_left_up_of_tables[i][1],639,468),"tables_img\\t_"+(c));}
+           //if(i==0){save_image(check_kursor,"tables_img\\t_"+(c)+"_"+(check_kursor!=null));}
            if(check_kursor!=null){
-               //if(i==0){save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[i][0],coord_left_up_of_tables[i][1],639,468),"tables_img\\t_nokurs"+(++c));}
+               //if(i==0){save_image(check_kursor,"tables_img\\t_nokurs"+(++c));}
                // проверка наличия числа в номере раздачи
                int hand_bright = get_max_brightness(check_kursor);
                //System.out.println("check "+hand_bright);
@@ -300,10 +306,22 @@ public class CaptureVideo implements Runnable{
 
            }
 
-           if(check_kursor==null) count_cheks++;
+           //if(check_kursor==null) count_cheks++;
+           if(check_kursor==null)countcheks[i]++;
        }
+       // в массив коунтчек где элемент отвечает за один стол накапливаются ситуации когда нет номера руки если у все элементов больше 30 раз отсутствует номер руки, то
+       // это возвращает фалсе в метод где создается кадр, что вызвает в этом методе пазу на 30 кадров
+       boolean is_info_for_orc = false;
+       for(int i=0; i<COUNT_TABLES; i++){
+           if(countcheks[i]>30)continue;
+           is_info_for_orc = true;
+           break;
+       }
+
        bufferedImageframe = null;
-       return count_cheks != COUNT_TABLES;
+       //return count_cheks != COUNT_TABLES;
+       //System.out.println(is_info_for_orc);
+       return is_info_for_orc;
 
 
        //DataBuffer dataBuffer = bufferedImageframe.getData().getDataBuffer();
@@ -334,7 +352,7 @@ public class CaptureVideo implements Runnable{
 
 
     BufferedImage check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,BufferedImage frame){
-      // save_image(frame.getSubimage(X,Y,w,h),"tables_img\\t_"+(c));
+       //save_image(frame.getSubimage(X,Y,w,h),"tables_img\\t_"+(c));
         for(int x=X; x<w+X; x++){
             for(int y=Y; y<h+Y; y+=h-1){
                 int val = frame.getRGB(x, y);

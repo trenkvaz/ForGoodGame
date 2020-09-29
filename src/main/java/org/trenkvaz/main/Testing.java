@@ -500,15 +500,22 @@ public class Testing {
         //System.out.println("b "+get_max_brightness(read_image("for_ocr_number\\osr_0t1")));
         //get_number_hand(read_image("for_ocr_number\\osr_0t1"),ocr);
 
-        for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\for_ocr_number").listFiles()){
+        for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\for_ocr_stacks").listFiles()){
             if(a.isFile()){
 
-                BufferedImage image = ImageIO.read(a).getSubimage(25,3,26,5);
-               // for(int i=200; i<220; i++){
+                BufferedImage image = ImageIO.read(a);
+               /* for(int i=130; i<160; i++)
                // System.out.println("GREY "+i);
-                get_number_hand(image,ocr,0);
+                save_image(ocr.get_white_black_image(image,i),"test2\\"+a.getName()+i);*/
+
+                //System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(image,130),"stacks")+a.getName());
                 //}
             }
+        }
+       BufferedImage image = read_image("for_ocr_stacks\\_77");
+        for(int i=160; i<200; i++){
+            System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(image,i),"stacks"));
+            save_image(ocr.get_white_black_image(image,i),"test2\\"+i);
         }
     }
 
