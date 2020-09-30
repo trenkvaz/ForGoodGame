@@ -165,12 +165,13 @@ public class CaptureVideo implements Runnable{
                if(frame!=null){ count_space_frame++;
                    canvasFrame.showImage(frame);
                    //System.out.println(canvasFrame.isDisplayable()+" "+canvasFrame.isActive()+" "+canvasFrame.isValid());
-                   if(count_space_frame<0) continue;
+                   /*if(count_space_frame<0) continue;
                    if(find_tables(frame))continue;
                    count_space_frame = -30;
                    for(int o=0; o<COUNT_TABLES; o++)countcheks[o]=0;
-                   //System.out.println("count_space "+count_space_frame);
-                   System.gc();
+                   System.out.println("count_space "+count_space_frame);
+                   System.gc();*/
+                   find_tables(frame);
                }
                else {System.out.println("null frame"); break; }
            }
@@ -288,7 +289,7 @@ public class CaptureVideo implements Runnable{
            c++;
            //if(i==0){save_image(check_kursor,"tables_img\\t_"+(c)+"_"+(check_kursor!=null));}
            if(check_kursor!=null){
-               //if(i==0){save_image(check_kursor,"tables_img\\t_nokurs"+(++c));}
+
                // проверка наличия числа в номере раздачи
                int hand_bright = get_max_brightness(check_kursor);
                //System.out.println("check "+hand_bright);
@@ -296,8 +297,12 @@ public class CaptureVideo implements Runnable{
            else {
                // проверка наличия ников в раздаче по верхнему нику стола
               // System.out.println(is_check_free_of_kursor(coord_left_up_of_tables[i][0]+264,coord_left_up_of_tables[i][1]+67,82,15,100,bufferedImageframe));
+              /* if(!is_check_free_of_kursor(coord_left_up_of_tables[i][0]+264,coord_left_up_of_tables[i][1]+67,82,14,240,bufferedImageframe))
+                   save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[i][0]+264-3,coord_left_up_of_tables[i][1]+67+1,87,14),"tables_img\\t_nokurs"+(++c));*/
 
-               if(is_check_free_of_kursor(coord_left_up_of_tables[i][0]+264,coord_left_up_of_tables[i][1]+67,82,15,100,bufferedImageframe)){
+
+
+               if(is_check_free_of_kursor(coord_left_up_of_tables[i][0]+264-3,coord_left_up_of_tables[i][1]+67+1,87,14,240,bufferedImageframe)){
                    ocrList_1.get(i).set_image_for_ocr(
                            new BufferedImage[]{bufferedImageframe.getSubimage(coord_left_up_of_tables[i][0],coord_left_up_of_tables[i][1],639,468),check_kursor} );
                }
@@ -306,17 +311,17 @@ public class CaptureVideo implements Runnable{
 
            }
 
-           //if(check_kursor==null) count_cheks++;
-           if(check_kursor==null)countcheks[i]++;
+           //if(check_kursor==null) save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[i][0],coord_left_up_of_tables[i][1],639,468),"tables_img\\t_nokurs"+(++c));
+           //if(check_kursor==null)countcheks[i]++;
        }
        // в массив коунтчек где элемент отвечает за один стол накапливаются ситуации когда нет номера руки если у все элементов больше 30 раз отсутствует номер руки, то
        // это возвращает фалсе в метод где создается кадр, что вызвает в этом методе пазу на 30 кадров
-       boolean is_info_for_orc = false;
-       for(int i=0; i<COUNT_TABLES; i++){
+       boolean is_info_for_orc = true;
+       /*for(int i=0; i<COUNT_TABLES; i++){
            if(countcheks[i]>30)continue;
            is_info_for_orc = true;
            break;
-       }
+       }*/
 
        bufferedImageframe = null;
        //return count_cheks != COUNT_TABLES;

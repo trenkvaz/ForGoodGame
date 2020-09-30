@@ -507,16 +507,17 @@ public class Testing {
                /* for(int i=130; i<160; i++)
                // System.out.println("GREY "+i);
                 save_image(ocr.get_white_black_image(image,i),"test2\\"+a.getName()+i);*/
-
-                //System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(image,130),"stacks")+a.getName());
+                String tess = useTesseract.get_ocr(ocr.get_white_black_image(image,100),"stacks").trim();
+                System.out.println(tess+"        "+a.getName());
+                save_image(ocr.get_white_black_image(image,100),"test2\\_"+tess);
                 //}
             }
         }
-       BufferedImage image = read_image("for_ocr_stacks\\_77");
-        for(int i=160; i<200; i++){
+       /*BufferedImage image = read_image("for_ocr_stacks\\_7");
+        for(int i=100; i<200; i++){
             System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(image,i),"stacks"));
             save_image(ocr.get_white_black_image(image,i),"test2\\"+i);
-        }
+        }*/
     }
 
 
