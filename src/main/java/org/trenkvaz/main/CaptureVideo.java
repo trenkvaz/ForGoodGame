@@ -2,7 +2,6 @@ package org.trenkvaz.main;
 
 
 //import org.bytedeco.javacpp.opencv_core.IplImage;
-import javafx.application.Platform;
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
 import javax.imageio.ImageIO;
@@ -19,10 +18,7 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgproc.*;*/
 //import static org.bytedeco.javacpp.opencv_videoio.cvCreateFileCapture;
 import org.bytedeco.ffmpeg.global.avutil;
-import org.opencv.videoio.VideoCapture;
 
-import static org.bytedeco.javacv.FFmpegFrameGrabber.getDeviceDescriptions;
-import static org.trenkvaz.main.Testing.save_image;
 import static org.trenkvaz.ui.Controller_main_window.*;
 
 public class CaptureVideo implements Runnable{
@@ -279,40 +275,41 @@ public class CaptureVideo implements Runnable{
        
 
 
-       int x = 579,y = 56,w = 53,h = 11;
-       BufferedImage check_kursor = null;
-       int count_cheks = 0;
-       for(int i=0; i<COUNT_TABLES; i++){
-
-            //  проверка отсутствия курсора на номере раздачи
-           check_kursor = check_free_of_kursor(coord_left_up_of_tables[i][0]+x,coord_left_up_of_tables[i][1]+y,w,h,100,bufferedImageframe);
+       int x_of_number_hand = 579,y_of_number_hand = 56,width_of_number_hand = 53,height_of_number_hand = 11;
+       boolean is_correct_number_hand = false, is_correct_nicks = true;
+       int[] correction_for_place_of_nicks = {2,2,2,2,1,1};
+       for(int index_table=0; index_table<COUNT_TABLES; index_table++){
+          long s = System.currentTimeMillis();
+            //  проверка правильности изо номера раздачи
+           is_correct_number_hand = is_CorrectImageOfNumberHandAndNicks(coord_left_up_of_tables[index_table][0]+x_of_number_hand,
+                   coord_left_up_of_tables[index_table][1]+y_of_number_hand,width_of_number_hand,height_of_number_hand,100,100,bufferedImageframe);
            c++;
-           //if(i==0){save_image(check_kursor,"tables_img\\t_"+(c)+"_"+(check_kursor!=null));}
-           if(check_kursor!=null){
+           //if(index_table==0){save_image(is_correct_number_hand,"tables_img\\t_"+(c)+"_"+(is_correct_number_hand!=null));}
+           if(is_correct_number_hand){
+               // проверка правильности изо ников
+              for(int img_nicks=0; img_nicks<6; img_nicks++ ){
+                  int x_of_nick = coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5;
+                  int y_of_nick = coords_places_of_nicks[img_nicks][1]+1;
+                  int width_nick = 87;
+                  int height_nick = 14;
+                  if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,240,210,bufferedImageframe))continue;
+                  is_correct_nicks = false;
+                  break;
+              }
 
-               // проверка наличия числа в номере раздачи
-               int hand_bright = get_max_brightness(check_kursor);
-               //System.out.println("check "+hand_bright);
-           if(hand_bright<100)check_kursor = null;
-           else {
-               // проверка наличия ников в раздаче по верхнему нику стола
-              // System.out.println(is_check_free_of_kursor(coord_left_up_of_tables[i][0]+264,coord_left_up_of_tables[i][1]+67,82,15,100,bufferedImageframe));
-              /* if(!is_check_free_of_kursor(coord_left_up_of_tables[i][0]+264,coord_left_up_of_tables[i][1]+67,82,14,240,bufferedImageframe))
-                   save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[i][0]+264-3,coord_left_up_of_tables[i][1]+67+1,87,14),"tables_img\\t_nokurs"+(++c));*/
-
-
-
-               if(is_check_free_of_kursor(coord_left_up_of_tables[i][0]+264-3,coord_left_up_of_tables[i][1]+67+1,87,14,240,bufferedImageframe)){
-                   ocrList_1.get(i).set_image_for_ocr(
-                           new BufferedImage[]{bufferedImageframe.getSubimage(coord_left_up_of_tables[i][0],coord_left_up_of_tables[i][1],639,468),check_kursor} );
+               System.out.println("time "+(System.currentTimeMillis()-s));
+              if(is_correct_nicks){
+                   ocrList_1.get(index_table).set_image_for_ocr(
+                           new BufferedImage[]{bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),
+                                   bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0]+x_of_number_hand,
+                                           coord_left_up_of_tables[index_table][1]+y_of_number_hand,width_of_number_hand,height_of_number_hand)
+                           } );
                }
-               else check_kursor = null;
-           }
 
            }
 
-           //if(check_kursor==null) save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[i][0],coord_left_up_of_tables[i][1],639,468),"tables_img\\t_nokurs"+(++c));
-           //if(check_kursor==null)countcheks[i]++;
+           //if(is_correct_number_hand==null) save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),"tables_img\\t_nokurs"+(++c));
+           //if(is_correct_number_hand==null)countcheks[index_table]++;
        }
        // в массив коунтчек где элемент отвечает за один стол накапливаются ситуации когда нет номера руки если у все элементов больше 30 раз отсутствует номер руки, то
        // это возвращает фалсе в метод где создается кадр, что вызвает в этом методе пазу на 30 кадров
@@ -356,8 +353,9 @@ public class CaptureVideo implements Runnable{
 
 
 
-    BufferedImage check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,BufferedImage frame){
+    boolean is_CorrectImageOfNumberHandAndNicks(int X, int Y, int w, int h, int brightness_of_perimeter,int max_brightness_of_text, BufferedImage frame){
        //save_image(frame.getSubimage(X,Y,w,h),"tables_img\\t_"+(c));
+        // проверка отсутстивя белых пикселей по периметру номера раздачи
         for(int x=X; x<w+X; x++){
             for(int y=Y; y<h+Y; y+=h-1){
                 int val = frame.getRGB(x, y);
@@ -366,7 +364,7 @@ public class CaptureVideo implements Runnable{
                 int b = val & 0xff;
                 int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
                 //System.out.println("1 grey "+grey);
-                if(grey>limit_grey)return null;
+                if(grey>brightness_of_perimeter)return false;
             }
         }
         for(int y=Y; y<h+Y; y++)
@@ -377,9 +375,22 @@ public class CaptureVideo implements Runnable{
                 int b = val & 0xff;
                 int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
                 //System.out.println("2 grey "+grey);
-                if(grey>limit_grey)return null;
+                if(grey>brightness_of_perimeter)return false;
             }
-        return frame.getSubimage(X+25,Y+3,26,5);
+       // проверка яркости текста
+        int max = 0, y = Y+h/2;
+        for(int x=X; x<w+X; x++){
+            int val = frame.getRGB(x, y);
+            int r = (val >> 16) & 0xff;
+            int g = (val >> 8) & 0xff;
+            int b = val & 0xff;
+            int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+            if(grey>max)max=grey;
+        }
+
+        return max >= max_brightness_of_text;
+
+        //return frame.getSubimage(X+25,Y+3,26,5);
     }
 
 

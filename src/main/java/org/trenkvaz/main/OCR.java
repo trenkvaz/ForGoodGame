@@ -18,6 +18,7 @@ import java.util.Queue;
 /*import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_core.cvResetImageROI;*/
 import static org.trenkvaz.main.CaptureVideo.*;
+import static org.trenkvaz.main.Testing.list_test_numberhands;
 //import static org.trenkvaz.main.Settings.write_nicks_keys_img_pix;
 
 public class OCR implements Runnable {
@@ -83,8 +84,19 @@ public class OCR implements Runnable {
     static synchronized void show_total_hand(CurrentHand currentHand,OCR ocr,BufferedImage[] images_of_nicks_for_ocr){
         System.out.println("****** cards "+currentHand.cards_hero+" flop "+currentHand.is_start_flop+" table "+ocr.table);
         boolean save_hand_with_null_img = false;
+        boolean is_save_test_list = false;
         for(int i=0; i<6; i++) {
             System.out.print(currentHand.nicks[i]+"    "+currentHand.stacks[i]+"  ");
+            if(currentHand.nicks[i]==null&&!is_save_test_list){
+                is_save_test_list = true;
+                String namefolder = (S++)+"\\";
+                for(int l=0; l<list_test_numberhands.size(); l++){
+                    BufferedImage[] img = list_test_numberhands.get(l);
+                    String namehand = l+"";
+                    if(img[1]!=null)namehand+="_FALSE";
+                    save_image(img[0],"test3\\"+namefolder+"_"+namehand);
+                }
+            }
             /*if(i>0&&currentHand.nicks[i]==null&&!save_hand_with_null_img){
                 save_hand_with_null_img =true;
                 for(int s=1; s<6; s++)save_image(images_of_nicks_for_ocr[i],"test\\null_nicks"+(++S));
@@ -108,7 +120,9 @@ public class OCR implements Runnable {
         if(check_number_hand>0){
             if(currentHand!=null){
              show_total_hand(currentHand,this,images_of_nicks_for_ocr);
+
             }
+            list_test_numberhands.clear();
 
            currentHand = new CurrentHand(table-1,sb);
             for(int i=0; i<6; i++)bufferedimage_current_position_actions[i]=null;
@@ -156,13 +170,14 @@ public class OCR implements Runnable {
     void get_nicks(){
         //if(!current_cards_hero.equals("6sQc"))return false;
         //System.out.println("get nicks");
-        int p = 0;
+        //int p = 0;
+        int[] correction_for_place_of_nicks = {2,2,2,2,1,1};
         for(int i=1; i<6; i++){
             if(currentHand.nicks[i]!=null)continue;
             //if(i!=2)continue;
-            if(i==0||i==1||i==2||i==3)p=2;
-            else p=1;
-            int x = coords_places_of_nicks[i][0]+p-5;
+            /*if(i==0||i==1||i==2||i==3)p=2;
+            else p=1;*/
+            int x = coords_places_of_nicks[i][0]+correction_for_place_of_nicks[i]-5;
             int y = coords_places_of_nicks[i][1]+1;
             c++;
             /* old int w = 82;
@@ -176,9 +191,9 @@ public class OCR implements Runnable {
 
 
 
-            BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,240,0,0,-1,0);
+            //BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,240,0,0,-1,0);
 
-
+            BufferedImage cheked_img = frame[0].getSubimage(x,y,w-1,h);
             /*if(i==3&&currentHand.cards_hero.equals("5s9c")){
                 //System.out.println("error   "+currentHand.nicks[i]);
                 String name = "test\\_"+(c);
@@ -450,10 +465,10 @@ public class OCR implements Runnable {
         //BufferedImage scaled_sub_bufferedImage = get_scale_image(set_grey_and_inverse_or_no(frame[1],true),2);
         //BufferedImage scaled_sub_bufferedImage = set_grey_and_inverse_or_no(get_scale_image(frame[1],3),true);
         BufferedImage black_white_image = get_white_black_image(set_grey_and_inverse_or_no(frame[1],true),limit_grey);
-
+        list_test_numberhands.add(new BufferedImage[]{black_white_image,null});
         if(compare_buffred_images(bufferedImage_current_number_hand,black_white_image,5))return -1;
         bufferedImage_current_number_hand = black_white_image;
-
+        list_test_numberhands.set(list_test_numberhands.size()-1,new BufferedImage[]{black_white_image,black_white_image});
         //save_image(black_white_image,"for_ocr_number\\osr_bw_"+c+"_grey_"+limit_grey);
         return 1;
 
