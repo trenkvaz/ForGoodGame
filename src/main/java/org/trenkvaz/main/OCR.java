@@ -82,7 +82,7 @@ public class OCR implements Runnable {
     //boolean is_nicks_filled = false;
     static int S =0;
     static synchronized void show_total_hand(CurrentHand currentHand,OCR ocr,BufferedImage[] images_of_nicks_for_ocr){
-        System.out.println("****** cards "+currentHand.cards_hero+" flop "+currentHand.is_start_flop+" table "+ocr.table);
+        System.out.println("****** cards "+currentHand.cards_hero+" flop "+currentHand.is_start_flop+" bu "+currentHand.position_of_bu+" table "+ocr.table);
         boolean save_hand_with_null_img = false;
         boolean is_save_test_list = false;
         for(int i=0; i<6; i++) {
@@ -94,7 +94,7 @@ public class OCR implements Runnable {
                     BufferedImage[] img = list_test_numberhands.get(l);
                     String namehand = l+"";
                     if(img[1]!=null)namehand+="_FALSE";
-                    save_image(img[0],"test3\\"+namefolder+"_"+namehand);
+                    Testing.save_image(img[0],"test3\\"+namefolder+"_"+namehand);
                 }
             }
             /*if(i>0&&currentHand.nicks[i]==null&&!save_hand_with_null_img){

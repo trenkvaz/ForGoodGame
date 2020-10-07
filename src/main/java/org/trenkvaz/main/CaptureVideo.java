@@ -279,7 +279,7 @@ public class CaptureVideo implements Runnable{
        boolean is_correct_number_hand = false, is_correct_nicks = true;
        int[] correction_for_place_of_nicks = {2,2,2,2,1,1};
        for(int index_table=0; index_table<COUNT_TABLES; index_table++){
-          long s = System.currentTimeMillis();
+          //long s = System.currentTimeMillis();
             //  проверка правильности изо номера раздачи
            is_correct_number_hand = is_CorrectImageOfNumberHandAndNicks(coord_left_up_of_tables[index_table][0]+x_of_number_hand,
                    coord_left_up_of_tables[index_table][1]+y_of_number_hand,width_of_number_hand,height_of_number_hand,100,100,bufferedImageframe);
@@ -297,12 +297,12 @@ public class CaptureVideo implements Runnable{
                   break;
               }
 
-               System.out.println("time "+(System.currentTimeMillis()-s));
+               //System.out.println("time "+(System.currentTimeMillis()-s));
               if(is_correct_nicks){
                    ocrList_1.get(index_table).set_image_for_ocr(
                            new BufferedImage[]{bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),
-                                   bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0]+x_of_number_hand,
-                                           coord_left_up_of_tables[index_table][1]+y_of_number_hand,width_of_number_hand,height_of_number_hand)
+                                   bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0]+x_of_number_hand+25,
+                                           coord_left_up_of_tables[index_table][1]+y_of_number_hand+3,26,5)
                            } );
                }
 
@@ -334,22 +334,6 @@ public class CaptureVideo implements Runnable{
        System.out.println("sizeimage "+sizeMB);*/
 
    }
-
-
-
-    int get_max_brightness(BufferedImage image){
-        int w = image.getWidth(); int y = image.getHeight()/2;
-        int max = 0;
-        for(int x=0; x<w; x++){
-            int val = image.getRGB(x, y);
-            int r = (val >> 16) & 0xff;
-            int g = (val >> 8) & 0xff;
-            int b = val & 0xff;
-            int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
-            if(grey>max)max=grey;
-        }
-        return max;
-    }
 
 
 
@@ -392,50 +376,6 @@ public class CaptureVideo implements Runnable{
 
         //return frame.getSubimage(X+25,Y+3,26,5);
     }
-
-
-    boolean is_check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,BufferedImage frame){
-
-        for(int x=X; x<w+X; x++){
-            for(int y=Y; y<h+Y; y+=h-1){
-                int val = frame.getRGB(x, y);
-                int r = (val >> 16) & 0xff;
-                int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
-                if(grey>limit_grey)return false;
-            }
-        }
-        for(int y=Y; y<h+Y; y++)
-            for(int x=X; x<w+X; x+=w-1){
-                int val = frame.getRGB(x, y);
-                int r = (val >> 16) & 0xff;
-                int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
-                if(grey>limit_grey)return false;
-            }
-        return true;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

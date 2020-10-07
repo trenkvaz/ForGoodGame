@@ -120,7 +120,7 @@ public class UseTesseract {
         catch (TesseractException e) {
             e.printStackTrace();
         }
-       // save_image(bufferedImage,"for_ocr_number\\"+text.trim());
+        save_image(bufferedImage,"for_ocr_number\\"+text.trim());
         return text;
     }
 

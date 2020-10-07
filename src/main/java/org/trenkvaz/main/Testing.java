@@ -36,6 +36,10 @@ import static org.trenkvaz.main.CaptureVideo.*;
 public class Testing {
 
     public static void save_image(BufferedImage image,String name_file){
+        int index = name_file.lastIndexOf("\\");
+        if(index>0){
+            new File(home_folder+"\\"+name_file.substring(0,index)).mkdirs();
+        }
         try {
             ImageIO.write(image ,"png",new File(home_folder+"\\"+name_file+".png"));
         } catch (IOException e) {
@@ -56,7 +60,7 @@ public class Testing {
 
 
     static void test_work_compare_nicks_img(){
-        new Settings();
+
         SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks_million = new TreeMap<>();
         long s =System.currentTimeMillis();
         Long[] keys = sortedmap_all_imgs_pix_of_nicks.keySet().toArray(new Long[0]); int c =-1;
@@ -335,6 +339,7 @@ public class Testing {
 
 
 
+
     public static void main(String[] args) throws Exception {
         /*static int[][] coords_places_of_nicks = {{297,320},{15,253},{15,120},{264,67},{543,120},{543,253}};
 
@@ -516,13 +521,14 @@ public class Testing {
             }
         }*/
 
-       BufferedImage image = read_image("for_ocr_stacks\\_31");
+       BufferedImage image = read_image("test3\\0\\_0");
        /* for(int i=100; i<200; i++){
             System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(image,i),"stacks"));
             save_image(ocr.get_white_black_image(image,i),"test2\\"+i);
         }*/
         //File test = new File(home_folder+"test3\\test\\");
-        save_image(image,"test\\t\\rrr");
+        image = image.getSubimage(25,3,26,5);
+        save_image(image,"test\\t\\sm");
     }
 
 
