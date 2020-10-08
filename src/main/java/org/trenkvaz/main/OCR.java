@@ -18,6 +18,7 @@ import java.util.Queue;
 /*import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_core.cvResetImageROI;*/
 import static org.trenkvaz.main.CaptureVideo.*;
+import static org.trenkvaz.main.Testing.list_test_cards;
 import static org.trenkvaz.main.Testing.list_test_numberhands;
 //import static org.trenkvaz.main.Settings.write_nicks_keys_img_pix;
 
@@ -90,11 +91,18 @@ public class OCR implements Runnable {
             if(currentHand.nicks[i]==null&&!is_save_test_list){
                 is_save_test_list = true;
                 String namefolder = (S++)+"\\";
-                for(int l=0; l<list_test_numberhands.size(); l++){
+                /*for(int l=0; l<list_test_numberhands.size(); l++){
                     BufferedImage[] img = list_test_numberhands.get(l);
                     String namehand = l+"";
                     if(img[1]!=null)namehand+="_FALSE";
                     Testing.save_image(img[0],"test3\\"+namefolder+"_"+namehand);
+                }*/
+
+                for(int l=0; l<list_test_cards.size(); l++){
+                    BufferedImage[] imgs = list_test_cards.get(i).card();
+                    String cards = list_test_cards.get(i).nominal_card();
+                    Testing.save_image(imgs[0],"test3\\"+namefolder+"_"+l+"_c1_"+cards);
+                    Testing.save_image(imgs[1],"test3\\"+namefolder+"_"+l+"_c2_"+cards);
                 }
             }
             /*if(i>0&&currentHand.nicks[i]==null&&!save_hand_with_null_img){
@@ -122,7 +130,8 @@ public class OCR implements Runnable {
              show_total_hand(currentHand,this,images_of_nicks_for_ocr);
 
             }
-            list_test_numberhands.clear();
+            //list_test_numberhands.clear();
+            list_test_cards.clear();
 
            currentHand = new CurrentHand(table-1,sb);
             for(int i=0; i<6; i++)bufferedimage_current_position_actions[i]=null;
@@ -329,29 +338,77 @@ public class OCR implements Runnable {
 
     void set_cards_hero(){
         //System.out.println("set_cards_hero");
+        //BufferedImage[] cards = new BufferedImage[2];
+        int limit_grey = 105;
         for(int i=0; i<2; i++){
-            /*int x = coord_of_table[0]+coords_cards_hero[i][0];
-            int y = coord_of_table[1]+coords_cards_hero[i][1];*/
-            int x = coords_cards_hero[i][0];
-            int y = coords_cards_hero[i][1];
+            int X = coords_cards_hero[i][0];
+            int Y = coords_cards_hero[i][1];
             int w = 15;
             int h = 17;
+            // проверка периметра карта на помеху курсором
+           if(!is_noCursorInterferenceImage(frame[0],X,Y,w,h,105))continue;
 
-            /*BufferedImage subimage = frame.getSubimage(x,y,w,h);
-            BufferedImage cheked_img = check_free_of_kursor(subimage,200);*/
+            long _64_pixels =0; long[] card_hash_from_table = new long[4]; int index_for_result = -1, count_64_pix = 0;
+            for (int x = X; x < X+w; x++)
+                for (int y = Y; y < Y+h; y++) {
+                    int grey = get_intGreyColor(frame[0],x,y);
+                    count_64_pix++;
+                    _64_pixels<<=1;
+                    if(grey<limit_grey){_64_pixels+=1;}
+                    if(count_64_pix==64){
+                        index_for_result++;
+                        card_hash_from_table[index_for_result] = _64_pixels;
+                        count_64_pix = 0;
+                        _64_pixels = 0;
+                    }
+                }
 
-            BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,200,0,0,0,0);
+            int first_of_pair_error = 0, second_of_pair_error = 0, error = 5;
+            for(long[] card_hash_from_list:list_cards_for_compare){
+                boolean is_equal = true;
+                for(int ind_num=0; ind_num<4; ind_num++){
+                    if(ind_num%2==0)first_of_pair_error = get_count_one_in_numbers(card_hash_from_list[ind_num]^card_hash_from_table[ind_num]);
+                    if(ind_num%2!=0)second_of_pair_error = get_count_one_in_numbers(card_hash_from_list[ind_num]^card_hash_from_table[ind_num]);
+                    if(ind_num>0&&(first_of_pair_error+second_of_pair_error)>error){ is_equal = false; break;  }
+                }
+                if(!is_equal)continue;
+                currentHand.cards_hero+=Long.toString(card_hash_from_list[4]);
+            }
+
+            currentHand.cards_hero+=get_suit_of_card(frame[0],X,Y);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            /*BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,200,0,0,0,0);
             if(cheked_img==null)continue;
-            BufferedImage image = get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),100);
+
+            BufferedImage image = get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),105);
             for(Map.Entry<String,BufferedImage> entry:avirage_cards.entrySet()){
                 if(compare_buffred_images(image,entry.getValue(),10)){
                     currentHand.cards_hero+=entry.getKey(); break;
                 }
             }
-            currentHand.cards_hero+=get_suit_of_card(cheked_img);
+            currentHand.cards_hero+=get_suit_of_card(cheked_img);*/
+
+            //cards[i] = image;
+
         }
+
+        /*Testing.Cards cards1 = new Testing.Cards(cards,currentHand.cards_hero);
+        list_test_cards.add(cards1);*/
         //System.out.println("cards "+current_cards_hero+"  table "+table);
-        if(currentHand.cards_hero.length()<4)currentHand.cards_hero = "";
+        if(currentHand.cards_hero.length()!=4)currentHand.cards_hero = "";
     }
 
 
@@ -359,16 +416,16 @@ public class OCR implements Runnable {
 
         int count_64_pix = 0, W = image.getWidth(), H = image.getHeight()-1; // урезание картинки снизу на 1
         long _64_pixels =0; long[] result = new long[16]; int index_for_result = -1, start_get_pix = 0;long count_black_pix = 0;
-        int count =0;
+        //int count =0;
         for (int x = 0; x < W; x++) {
             // уразание картинки сверху на 2
             for (int y = 2; y < H; y++) {
                 //if(start_get_pix<3){ start_get_pix++; continue;}
-                int val = image.getRGB(x, y);
+                /*int val = image.getRGB(x, y);
                 int r = (val >> 16) & 0xff;
                 int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = 255-(int) (r * 0.299 + g * 0.587 + b * 0.114);
+                int b = val & 0xff;*/
+                int grey = get_intGreyColor(image,x,y);
                 count_64_pix++;
                 _64_pixels<<=1;
                 if(grey<limit_grey){_64_pixels+=1; count_black_pix++;}
@@ -378,7 +435,7 @@ public class OCR implements Runnable {
                     count_64_pix = 0;
                     _64_pixels = 0;
                 }
-                count++;
+               // count++;
             }
         }
         result[15] = count_black_pix;
@@ -386,8 +443,8 @@ public class OCR implements Runnable {
         return result;
     }
 
-    String get_suit_of_card(BufferedImage image_card){
-        Color color = new Color(image_card.getRGB(14, 16));
+    String get_suit_of_card(BufferedImage image_card,int X,int Y){
+        Color color = new Color(image_card.getRGB(X, Y));
         int blue = color.getBlue();
         int red = color.getRed();
         int green = color.getGreen();
@@ -440,24 +497,6 @@ public class OCR implements Runnable {
 
     long get_number_hand(){
 
-        /*int x = coord_of_table[0]+579;
-        int y = coord_of_table[1]+56;*/
-        /*int x = 579;
-        int y = 56;
-        int w = 53;
-        int h = 11;*/
-        // возрат 0 если есть помеха или нельзя распознать, -1 если новая равна текущей картинке, 1 если новая картинка распозна
-
-
-        /*BufferedImage subimage = frame.getSubimage(x,y,w,h);
-        BufferedImage cheked_img = check_free_of_kursor(subimage,10);*/
-
-        //BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,10);
-
-        //System.out.println("sub");
-        //if(cheked_img==null){ return 0;}
-        //System.out.println("check");
-
         int limit_grey = 175;
         if(get_max_brightness(frame[1])<150)limit_grey = 214;
         c++;
@@ -465,28 +504,16 @@ public class OCR implements Runnable {
         //BufferedImage scaled_sub_bufferedImage = get_scale_image(set_grey_and_inverse_or_no(frame[1],true),2);
         //BufferedImage scaled_sub_bufferedImage = set_grey_and_inverse_or_no(get_scale_image(frame[1],3),true);
         BufferedImage black_white_image = get_white_black_image(set_grey_and_inverse_or_no(frame[1],true),limit_grey);
-        list_test_numberhands.add(new BufferedImage[]{black_white_image,null});
+
+        //list_test_numberhands.add(new BufferedImage[]{black_white_image,null});
+
         if(compare_buffred_images(bufferedImage_current_number_hand,black_white_image,5))return -1;
         bufferedImage_current_number_hand = black_white_image;
-        list_test_numberhands.set(list_test_numberhands.size()-1,new BufferedImage[]{black_white_image,black_white_image});
+
+        //list_test_numberhands.set(list_test_numberhands.size()-1,new BufferedImage[]{black_white_image,black_white_image});
         //save_image(black_white_image,"for_ocr_number\\osr_bw_"+c+"_grey_"+limit_grey);
         return 1;
 
-
-        //System.out.println("ocr");
-       /* String result = ocr_image(scaled_sub_bufferedImage, "hand");
-        //if(result.trim().length()!=11)return 0;
-        long res = 0;
-        try{
-             res = Long.parseLong(result.trim());
-        } catch (Exception e){
-          return 0;
-        }
-        if(res!=0){bufferedImage_current_number_hand = black_white_image;
-
-        return  res; }
-
-        return 0;*/
     }
 
 
@@ -641,11 +668,11 @@ public class OCR implements Runnable {
         int w = image.getWidth(); int y = image.getHeight()/2;
         int max = 0;
         for(int x=0; x<w; x++){
-            int val = image.getRGB(x, y);
+            /*int val = image.getRGB(x, y);
             int r = (val >> 16) & 0xff;
             int g = (val >> 8) & 0xff;
-            int b = val & 0xff;
-            int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+            int b = val & 0xff;*/
+            int grey = get_intGreyColor(image,x,y);
             if(grey>max)max=grey;
         }
         return max;
@@ -653,37 +680,6 @@ public class OCR implements Runnable {
 
 
 
-    boolean is_error_image(BufferedImage image){
-        int h = image.getHeight(), w = image.getWidth();
-        int count_line_with_symbols = 0; boolean is_symbol_start = false; int count_white = 0;
-        for(int i=18;i<w;i++) {
-            for(int j=0;j<h;j++) {
-                int val = image.getRGB(i, j);
-                int r = (val >> 16) & 0xff;
-                int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
-                if(grey<100)continue;
-                is_symbol_start = true;
-                //System.out.println("er "+grey);
-                if(grey>200)count_white++;
-                //if(isBlue(new Color(val)))count_blue++;
-            }
-            if(is_symbol_start)count_line_with_symbols++;
-            if(count_line_with_symbols==5)break;
-        }
-        return count_white <= 0;
-    }
-
-
-
-    public static boolean isBlue(Color c) {
-        final float MIN_BLUE_HUE = 0.5f; // CYAN
-        final float MAX_BLUE_HUE = 0.8333333f; // MAGENTA
-        float[] hsv = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
-        float hue = hsv[0];
-        return hue >= MIN_BLUE_HUE && hue <= MAX_BLUE_HUE;
-    }
 
     BufferedImage get_scale_image(BufferedImage img,double scale){
         try {
@@ -701,13 +697,13 @@ public class OCR implements Runnable {
 
     BufferedImage check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,int cutX1, int cutY1,int cutX2, int cutY2){
 
-        for(int x=X; x<w+X; x++){
+        /*for(int x=X; x<w+X; x++){
             for(int y=Y; y<h+Y; y+=h-1){
-                int val = frame[0].getRGB(x, y);
+                *//*int val = frame[0].getRGB(x, y);
                 int r = (val >> 16) & 0xff;
                 int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                int b = val & 0xff;*//*
+                int grey = get_intGreyColor(frame[0],x,y);
                 //if(grey>limit_grey)System.out.println(grey);
                 if(grey>limit_grey)return null;
             }
@@ -715,14 +711,16 @@ public class OCR implements Runnable {
         }
         for(int y=Y; y<h+Y; y++)
             for(int x=X; x<w+X; x+=w-1){
-                int val = frame[0].getRGB(x, y);
+                *//*int val = frame[0].getRGB(x, y);
                 int r = (val >> 16) & 0xff;
                 int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                int b = val & 0xff;*//*
+                int grey = get_intGreyColor(frame[0],x,y);;
                 //if(grey>limit_grey)System.out.println(grey);
                 if(grey>limit_grey)return null;
-            }
+            }*/
+
+        if(!is_noCursorInterferenceImage(frame[0],X,Y,w,h,limit_grey))return null;
         // System.out.println();
         return frame[0].getSubimage(X+cutX1,Y+cutY1,w+cutX2,h+cutY2);
     }
@@ -730,31 +728,32 @@ public class OCR implements Runnable {
 
     BufferedImage set_grey_and_inverse_or_no(BufferedImage  source, boolean isnverse){
         BufferedImage result = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());
-        Color newColor = null;
 
         for (int x = 0; x < source.getWidth(); x++) {
             for (int y = 0; y < source.getHeight(); y++) {
-                // Получаем цвет текущего пикселя
-                int val = source.getRGB(x, y);
-                int r = (val >> 16) & 0xff;
-                int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                // Применяем стандартный алгоритм для получения черно-белого изображения
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
-                // Если вы понаблюдаете, то заметите что у любого оттенка серого цвета, все каналы имеют
-                // одно и то же значение. Так, как у нас изображение тоже будет состоять из оттенков серого
-                // то, все канали будут иметь одно и то же значение.
-                /*if(grey>150){ grey = 0;}
-                else grey = 255;*/
+                int grey = get_intGreyColor(source,x,y);
                 if(isnverse) grey = 255-grey;
-                //  Cоздаем новый цвет
-                newColor = new Color(grey, grey, grey);
-                // И устанавливаем этот цвет в текущий пиксель результирующего изображения
-                result.setRGB(x, y, newColor.getRGB());
+                result.setRGB(x, y, new Color(grey, grey, grey).getRGB());
             }
         }
         return result;
     }
+
+
+
+    private int get_intGreyColor(BufferedImage img,int x, int y){
+        int val = img.getRGB(x, y);
+        return  (int) (((val >> 16) & 0xff) * 0.299 + ((val >> 8) & 0xff) * 0.587 + (val & 0xff) * 0.114);
+    }
+
+
+
+    private boolean is_noCursorInterferenceImage(BufferedImage image,int X, int Y, int W, int H, int limit_grey){
+        for(int x=X; x<W+X; x++) for(int y=Y; y<H+Y; y+=H-1) if(get_intGreyColor(image,x,y)>limit_grey)return false;
+        for(int y=Y; y<H+Y; y++) for(int x=X; x<W+X; x+=W-1) if(get_intGreyColor(image,x,y)>limit_grey)return false;
+        return true;
+    }
+
 
 
     boolean compare_buffred_images(BufferedImage current_image,BufferedImage _new_image, int limit_error){
@@ -795,11 +794,11 @@ public class OCR implements Runnable {
         BufferedImage result = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());
         for (int x = 0; x < source.getWidth(); x++)
             for (int y = 0; y < source.getHeight(); y++) {
-                int val = source.getRGB(x, y);
+                /*int val = source.getRGB(x, y);
                 int r = (val >> 16) & 0xff;
                 int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                int b = val & 0xff;*/
+                int grey = get_intGreyColor(source,x,y);
                 if(grey<limit_grey){ grey = 0;}
                 else grey = 255;
                 result.setRGB(x, y, new Color(grey, grey, grey).getRGB());

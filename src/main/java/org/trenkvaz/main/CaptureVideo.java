@@ -56,6 +56,8 @@ public class CaptureVideo implements Runnable{
    static HashMap<String,BufferedImage>avirage_cards =new HashMap<>();
    static BufferedImage[] images_bu = new BufferedImage[6];
 
+   static List<long[]> list_cards_for_compare = new ArrayList<>(52);
+
 
 
    public CaptureVideo(){

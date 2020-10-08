@@ -35,7 +35,9 @@ import static org.trenkvaz.main.CaptureVideo.*;
 
 public class Testing {
 
-    public static void save_image(BufferedImage image,String name_file){
+
+
+    public static void save_image(BufferedImage image, String name_file){
         int index = name_file.lastIndexOf("\\");
         if(index>0){
             new File(home_folder+"\\"+name_file.substring(0,index)).mkdirs();
@@ -314,7 +316,7 @@ public class Testing {
    static int c=0;
 
    static long get_number_hand(BufferedImage img,OCR ocr,int grey){
-
+        
         //save_image(frame[1],"for_ocr_number\\osr_"+c+"t"+table);
         int limit_grey = 175;
         if(get_max_brightness(img)<150)limit_grey = 214;
@@ -330,8 +332,22 @@ public class Testing {
 
     }
 
+    record Cards(BufferedImage[] card,String nominal_card){}
 
     public static List<BufferedImage[]> list_test_numberhands = new ArrayList<>();
+
+
+    public static List<Cards> list_test_cards = new ArrayList<>();
+
+
+
+    static long[] get_long_arrHashImage(BufferedImage image,int X, int Y, int W, int H, int limit_grey){
+
+    return null;
+
+
+
+    }
 
 
 
@@ -507,28 +523,41 @@ public class Testing {
         //System.out.println("b "+get_max_brightness(read_image("for_ocr_number\\osr_0t1")));
         //get_number_hand(read_image("for_ocr_number\\osr_0t1"),ocr);
 
-       /* for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\for_ocr_stacks").listFiles()){
+        /*for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\lastcards2").listFiles()){
             if(a.isFile()){
 
-                BufferedImage image = ImageIO.read(a);
-               *//* for(int i=130; i<160; i++)
+                BufferedImage image = ImageIO.read(a).getSubimage(1,0,15,17);
+                //for(int i=130; i<160; i++)
                // System.out.println("GREY "+i);
-                save_image(ocr.get_white_black_image(image,i),"test2\\"+a.getName()+i);*//*
-                String tess = useTesseract.get_ocr(ocr.get_white_black_image(image,100),"stacks").trim();
+                save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(image,true),105),"lastcards2\\bwcards\\"+a.getName());
+                *//*String tess = useTesseract.get_ocr(ocr.get_white_black_image(image,100),"stacks").trim();
                 System.out.println(tess+"        "+a.getName());
-                save_image(ocr.get_white_black_image(image,100),"test2\\_"+tess);
+                save_image(ocr.get_white_black_image(image,100),"test2\\_"+tess);*//*
                 //}
             }
         }*/
 
-       BufferedImage image = read_image("test3\\0\\_0");
-       /* for(int i=100; i<200; i++){
+       /*BufferedImage image = read_image("test3\\0\\_0");
+       *//* for(int i=100; i<200; i++){
             System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(image,i),"stacks"));
             save_image(ocr.get_white_black_image(image,i),"test2\\"+i);
-        }*/
+        }*//*
         //File test = new File(home_folder+"test3\\test\\");
         image = image.getSubimage(25,3,26,5);
-        save_image(image,"test\\t\\sm");
+        save_image(image,"test\\t\\sm");*/
+       /* BufferedImage img_5er = read_image("test3\\0\\_0_c1_c9s");
+        BufferedImage img_5sh = read_image("lastcards2\\bwcards\\card_5c.png");
+        System.out.println(ocr.compare_buffred_images(img_5sh,img_5er,10));*/
+
+        Settings.setting_cupture_video();
+        for(long[] nick:sortedmap_all_imgs_pix_of_nicks.values()){
+            show_img_from_arr_long(nick);
+            System.out.println();
+            System.out.println();
+
+        }
+
+
     }
 
 
