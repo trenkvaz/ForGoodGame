@@ -60,6 +60,17 @@ public class Testing {
         return result;
     }
 
+    static void save_ObjectInFile(){
+        try {FileOutputStream file=new FileOutputStream(home_folder+"\\all_settings\\capture_video\\_long_arr_cards_for_compare.file");
+            ObjectOutput out = new ObjectOutputStream(file);
+            out.writeObject(_long_arr_cards_for_compare);
+            out.close();
+            file.close();
+        } catch(IOException e) {
+            System.out.println(e);
+        }
+    }
+
 
     static void test_work_compare_nicks_img(){
 
@@ -176,7 +187,7 @@ public class Testing {
     static void show_img_from_arr_long(long[] arr_long){
         int count_pix = -1;
         for(int y=0; y<11; y++){
-            for(int x=0; x<87; x++){
+            for(int x=0; x<86; x++){
                 //if(y<3&&x==0)continue;
                 //System.out.println(y+" "+x);
                 //count_pix++;
@@ -195,6 +206,9 @@ public class Testing {
             }
             System.out.println();
         }
+
+        System.out.println();
+        System.out.println();
     }
 
    static int get_max_brightness(BufferedImage image){
@@ -341,13 +355,7 @@ public class Testing {
 
 
 
-    static long[] get_long_arrHashImage(BufferedImage image,int X, int Y, int W, int H, int limit_grey){
 
-    return null;
-
-
-
-    }
 
 
 
@@ -522,21 +530,22 @@ public class Testing {
 
         //System.out.println("b "+get_max_brightness(read_image("for_ocr_number\\osr_0t1")));
         //get_number_hand(read_image("for_ocr_number\\osr_0t1"),ocr);
-
-        /*for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\lastcards2").listFiles()){
+        int in = -1;
+        for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\lastcards2").listFiles()){
             if(a.isFile()){
-
+               in++;
                 BufferedImage image = ImageIO.read(a).getSubimage(1,0,15,17);
                 //for(int i=130; i<160; i++)
                // System.out.println("GREY "+i);
-                save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(image,true),105),"lastcards2\\bwcards\\"+a.getName());
-                *//*String tess = useTesseract.get_ocr(ocr.get_white_black_image(image,100),"stacks").trim();
+                /*save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(image,true),105),"lastcards2\\bwcards\\"+a.getName());
+                String tess = useTesseract.get_ocr(ocr.get_white_black_image(image,100),"stacks").trim();
                 System.out.println(tess+"        "+a.getName());
-                save_image(ocr.get_white_black_image(image,100),"test2\\_"+tess);*//*
+                save_image(ocr.get_white_black_image(image,100),"test2\\_"+tess);*/
+                _long_arr_cards_for_compare[in] = ocr.get_longarr_HashImage(image,0,0,15,17,4,105);
                 //}
             }
-        }*/
-
+        }
+         save_ObjectInFile();
        /*BufferedImage image = read_image("test3\\0\\_0");
        *//* for(int i=100; i<200; i++){
             System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(image,i),"stacks"));
@@ -548,14 +557,14 @@ public class Testing {
        /* BufferedImage img_5er = read_image("test3\\0\\_0_c1_c9s");
         BufferedImage img_5sh = read_image("lastcards2\\bwcards\\card_5c.png");
         System.out.println(ocr.compare_buffred_images(img_5sh,img_5er,10));*/
-
+/*
         Settings.setting_cupture_video();
         for(long[] nick:sortedmap_all_imgs_pix_of_nicks.values()){
             show_img_from_arr_long(nick);
             System.out.println();
             System.out.println();
 
-        }
+        }*/
 
 
     }

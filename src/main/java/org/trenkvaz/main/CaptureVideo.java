@@ -35,6 +35,8 @@ public class CaptureVideo implements Runnable{
 
    static int[][] coord_2_3_cards_flop = {{270,202},{318,202}};
 
+   static String[] nominals_cards = {"2","3","4","5","6","7","8","9","T","J","Q","K","A"};
+
    static String nick_hero = "trenkvaz";
 
    public static String home_folder = System.getProperty("user.dir");
@@ -56,7 +58,7 @@ public class CaptureVideo implements Runnable{
    static HashMap<String,BufferedImage>avirage_cards =new HashMap<>();
    static BufferedImage[] images_bu = new BufferedImage[6];
 
-   static List<long[]> list_cards_for_compare = new ArrayList<>(52);
+   static long[][] _long_arr_cards_for_compare = new long[52][5];
 
 
 
@@ -394,9 +396,11 @@ public class CaptureVideo implements Runnable{
 
       public static void setting_cupture_video(){
             read_file_with_nicks_and_img_pixs();
-            set_avirage_img_nominal_cards();
+            //set_avirage_img_nominal_cards();
+            set_long_arr_CardsForCompare();
             set_count_one_of_bite_in_mumber();
             set_images_bu();
+
         }
 
         private static void read_file_with_nicks_and_img_pixs(){
@@ -461,7 +465,19 @@ public class CaptureVideo implements Runnable{
         }
 
 
+        private static void set_long_arr_CardsForCompare(){
+            try {	FileInputStream file=new FileInputStream(home_folder+"\\all_settings\\capture_video\\_long_arr_cards_for_compare.file");
+                ObjectInput out = new ObjectInputStream(file);
+                _long_arr_cards_for_compare = (long[][]) out.readObject();
+                out.close();
+                file.close();
+            } catch(IOException e) {
+                System.out.println(e);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
 
+        }
 
 
 
