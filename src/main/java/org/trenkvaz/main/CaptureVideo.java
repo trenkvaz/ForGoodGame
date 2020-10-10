@@ -43,7 +43,7 @@ public class CaptureVideo implements Runnable{
 
 
    public List<OCR> ocrList_1;
-   final int COUNT_TABLES = 1;
+   final int COUNT_TABLES = 6;
    boolean is_run = true;
    Thread thread;
    boolean is_getting_frame = true;
@@ -287,7 +287,7 @@ public class CaptureVideo implements Runnable{
             //  проверка правильности изо номера раздачи
            is_correct_number_hand = is_CorrectImageOfNumberHandAndNicks(coord_left_up_of_tables[index_table][0]+x_of_number_hand,
                    coord_left_up_of_tables[index_table][1]+y_of_number_hand,width_of_number_hand,height_of_number_hand,100,100,bufferedImageframe);
-           c++;
+           //c++;
            //if(index_table==0){save_image(is_correct_number_hand,"tables_img\\t_"+(c)+"_"+(is_correct_number_hand!=null));}
            if(is_correct_number_hand){
                // проверка правильности изо ников

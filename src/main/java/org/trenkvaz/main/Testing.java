@@ -180,18 +180,36 @@ public class Testing {
     }
 
 
+    static void show_img_from_img(BufferedImage img,int X, int Y){
+        for(int y=0; y<Y; y++){
+            for(int x=0; x<X; x++){
+                int val = img.getRGB(x, y);
+                int r = (val >> 16) & 0xff;
+                int g = (val >> 8) & 0xff;
+                int b = val & 0xff;
+                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                if(grey==255)System.out.print("0");else System.out.print("1");
+                System.out.print(" ");
+                //System.out.println("ind "+index_bit);
+                //if(index_bit==63){index_bit=-1; index_in_arrlong++; }
+            }
+            System.out.println();
+        }
+
+        System.out.println();
+        System.out.println();
+    }
 
 
 
-
-    static void show_img_from_arr_long(long[] arr_long){
-        int count_pix = -1;
-        for(int y=0; y<11; y++){
-            for(int x=0; x<86; x++){
+    static void show_img_from_arr_long(long[] arr_long,int X, int Y){
+        int count_pix = 0;
+        for(int y=0; y<Y; y++){
+            for(int x=0; x<X; x++){
                 //if(y<3&&x==0)continue;
                 //System.out.println(y+" "+x);
                 //count_pix++;
-                int coord_in_arr_long = (y+11*x);
+                int coord_in_arr_long = (y+Y*x);
                 int index_bit = coord_in_arr_long%64;
                 int index_in_arrlong = coord_in_arr_long/64;
                 //index_bit++;
@@ -203,12 +221,14 @@ public class Testing {
                 System.out.print(" ");
                 //System.out.println("ind "+index_bit);
                 //if(index_bit==63){index_bit=-1; index_in_arrlong++; }
+                count_pix++;
             }
             System.out.println();
         }
 
         System.out.println();
         System.out.println();
+        System.out.println(count_pix);
     }
 
    static int get_max_brightness(BufferedImage image){
@@ -380,13 +400,13 @@ public class Testing {
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings settings = new Settings();
-        BufferedImage win = read_image("Mtest\\win_long_nick");
+        /*BufferedImage win = read_image("Mtest\\win_long_nick");
         save_image(win.getSubimage(640+12,469+120,87,15),"Mtest\\long_nick");
         System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(
                 ocr.get_scale_image(win.getSubimage(640+12,469+120,87,15),4),true),100),"nicks").trim());
         BufferedImage long_nick = win.getSubimage(640+12,469+120,87,15);
         save_image(Thumbnails.of(ocr.set_grey_and_inverse_or_no
-                (long_nick,true)).size(long_nick.getWidth(),long_nick.getWidth()).asBufferedImage(),"Mtest\\img8x8");
+                (long_nick,true)).size(long_nick.getWidth(),long_nick.getWidth()).asBufferedImage(),"Mtest\\img8x8");*/
 
 
       /*  List<long[]> testarr = new ArrayList();
@@ -530,22 +550,30 @@ public class Testing {
 
         //System.out.println("b "+get_max_brightness(read_image("for_ocr_number\\osr_0t1")));
         //get_number_hand(read_image("for_ocr_number\\osr_0t1"),ocr);
-        int in = -1;
-        for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\lastcards2").listFiles()){
+       /* for(int i=130; i<160; i++)
+            System.out.println("GREY "+i);
+        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(image,true),105),"lastcards2\\bwcards\\"+a.getName());
+        String tess = useTesseract.get_ocr(ocr.get_white_black_image(image,100),"stacks").trim();
+        System.out.println(tess+"        "+a.getName());
+        save_image(ocr.get_white_black_image(image,100),"test2\\_"+tess);*/
+        int c = -1;
+        /*for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\lastcards2").listFiles()){
             if(a.isFile()){
-               in++;
-                BufferedImage image = ImageIO.read(a).getSubimage(1,0,15,17);
-                //for(int i=130; i<160; i++)
-               // System.out.println("GREY "+i);
-                /*save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(image,true),105),"lastcards2\\bwcards\\"+a.getName());
-                String tess = useTesseract.get_ocr(ocr.get_white_black_image(image,100),"stacks").trim();
-                System.out.println(tess+"        "+a.getName());
-                save_image(ocr.get_white_black_image(image,100),"test2\\_"+tess);*/
-                _long_arr_cards_for_compare[in] = ocr.get_longarr_HashImage(image,0,0,15,17,4,105);
+
+                BufferedImage image = ImageIO.read(a).getSubimage(2,1,14,14);
+
+
+            int in = Arrays.asList(nominals_cards).indexOf(String.valueOf(a.getName().charAt(5)));
+            c++;
+            in = in*4+c;
+            System.out.println(in);
+            _long_arr_cards_for_compare[in] = ocr.get_longarr_HashImage(image,0,0,14,14,3,150);
+            if(c==3)c=-1;
+                //
                 //}
             }
         }
-         save_ObjectInFile();
+         save_ObjectInFile();*/
        /*BufferedImage image = read_image("test3\\0\\_0");
        *//* for(int i=100; i<200; i++){
             System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(image,i),"stacks"));
@@ -565,6 +593,24 @@ public class Testing {
             System.out.println();
 
         }*/
+        Settings.setting_cupture_video();
+        for(long[] num:_long_arr_cards_for_compare)show_img_from_arr_long(num,14,14);
+        /*BufferedImage img_5sh = read_image("lastcards2\\bwcards\\card_Tc.png");
+        show_img_from_img(img_5sh,15,17);
+
+
+        BufferedImage img_5col = read_image("lastcards2\\card_Tc").getSubimage(2,1,14,14);;
+       long[]  num = ocr.get_longarr_HashImage(img_5col,0,0,14,14,3,150);
+
+
+        show_img_from_arr_long(num,14,14);
+
+
+        System.out.println("a2 "+Long.toBinaryString(num[2]));*/
+
+
+
+
 
 
     }

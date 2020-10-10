@@ -14,7 +14,7 @@ public class CurrentHand {
 
     int position_of_bu = 0;
     int position_of_hero = -1;
-    String cards_hero = "";
+    String[] cards_hero = {"",""};
     float[] stacks = new float[6];
     //float[] first_round_preflop = new float[6];
     ArrayList<ArrayList<Float>> preflop_by_positions = new ArrayList<>(6);
