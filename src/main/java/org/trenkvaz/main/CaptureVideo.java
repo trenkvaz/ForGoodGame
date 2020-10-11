@@ -5,8 +5,11 @@ package org.trenkvaz.main;
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.awt.image.*;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
@@ -49,7 +52,7 @@ public class CaptureVideo implements Runnable{
    boolean is_getting_frame = true;
    FFmpegFrameGrabber grabber;
    CanvasFrame canvasFrame;
-   Java2DFrameConverter paintConverter;
+   //Java2DFrameConverter paintConverter;
    final static UseTesseract[] use_tessearts = new UseTesseract[4];
 
    static byte[] count_one_in_numbers = new byte[65536];
@@ -129,6 +132,7 @@ public class CaptureVideo implements Runnable{
 
         //FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(System.getProperty("user.dir")+"\\test_video9.avi");
         FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("rtmp://127.0.0.1/live/test");
+       // FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("udp://192.168.0.129:1234");
 
 
 
@@ -267,16 +271,18 @@ public class CaptureVideo implements Runnable{
    int c =0;
     //BufferedImage bufferedImageframe;
    int[] countcheks = new int[COUNT_TABLES];
+   BufferedImage bufferedImageframe;
+
 
    boolean find_tables(Frame frame){
 
        //BufferedImage bufferedImageframe = paintConverter.getBufferedImage(frame);
        //long start = System.currentTimeMillis();
-       paintConverter = new Java2DFrameConverter();
-       BufferedImage bufferedImageframe = paintConverter.getBufferedImage(frame);
+       //Java2DFrameConverter paintConverter = new Java2DFrameConverter().convert(frame);
+       if(bufferedImageframe==null)bufferedImageframe = new Java2DFrameConverter().getBufferedImage(frame);
        //bufferedImageframe = Java2DFrameUtils.toBufferedImage(frame);
        //System.out.println((System.currentTimeMillis()-start));
-       
+       createBufferedImage(frame, bufferedImageframe);
 
 
        int x_of_number_hand = 579,y_of_number_hand = 56,width_of_number_hand = 53,height_of_number_hand = 11;
@@ -291,9 +297,10 @@ public class CaptureVideo implements Runnable{
            //if(index_table==0){save_image(is_correct_number_hand,"tables_img\\t_"+(c)+"_"+(is_correct_number_hand!=null));}
            if(is_correct_number_hand){
                // проверка правильности изо ников
+               is_correct_nicks = true;
               for(int img_nicks=0; img_nicks<6; img_nicks++ ){
-                  int x_of_nick = coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5;
-                  int y_of_nick = coords_places_of_nicks[img_nicks][1]+1;
+                  int x_of_nick = coord_left_up_of_tables[index_table][0]+coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5;
+                  int y_of_nick = coord_left_up_of_tables[index_table][1]+coords_places_of_nicks[img_nicks][1]+1;
                   int width_nick = 87;
                   int height_nick = 14;
                   if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,240,210,bufferedImageframe))continue;
@@ -303,6 +310,7 @@ public class CaptureVideo implements Runnable{
 
                //System.out.println("time "+(System.currentTimeMillis()-s));
               if(is_correct_nicks){
+                  //System.out.println("is_correct_nicks");
                    ocrList_1.get(index_table).set_image_for_ocr(
                            new BufferedImage[]{bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),
                                    bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0]+x_of_number_hand+25,
@@ -324,7 +332,9 @@ public class CaptureVideo implements Runnable{
            break;
        }*/
 
-       bufferedImageframe = null;
+       //bufferedImageframe = null;
+       //paintConverter = null;
+
        //return count_cheks != COUNT_TABLES;
        //System.out.println(is_info_for_orc);
        return is_info_for_orc;
@@ -338,6 +348,23 @@ public class CaptureVideo implements Runnable{
        System.out.println("sizeimage "+sizeMB);*/
 
    }
+
+
+    private void createBufferedImage(Frame frame, BufferedImage image) {
+        ByteBuffer buffer = (ByteBuffer) frame.image[0].position(0);
+            WritableRaster wr = image.getRaster();
+            byte[] bufferPixels = ((DataBufferByte) wr.getDataBuffer()).getData();
+            buffer.get(bufferPixels);
+    }
+
+
+
+
+
+
+
+
+
 
 
 

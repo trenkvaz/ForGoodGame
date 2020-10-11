@@ -467,3 +467,29 @@ int add_x = 0;
 
         public void setFramePositionY(int y){framePositionY = y;}*/
     }
+
+
+    private BufferedImage createBufferedImage(Frame frame, BufferedImage image) {
+            ByteBuffer buffer = (ByteBuffer) frame.image[0].position(0);
+
+           /* if(image == null) {
+                ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+
+                ColorModel cm = new ComponentColorModel(cs, false,false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
+                // this assumes BGR format
+                DataBuffer dataBuffer = new DataBufferByte(buffer.limit());
+                WritableRaster wr = Raster.createWritableRaster(new ComponentSampleModel(DataBuffer.TYPE_BYTE, frame.imageWidth, frame.imageHeight, frame.imageChannels, frame.imageStride, new int[] {2, 1, 0}), dataBuffer,null);
+                byte[] bufferPixels = ((DataBufferByte) wr.getDataBuffer()).getData();
+
+                buffer.get(bufferPixels);
+
+                return new BufferedImage(cm, wr, false, null);
+            }
+            else {*/
+                WritableRaster wr = image.getRaster();
+                byte[] bufferPixels = ((DataBufferByte) wr.getDataBuffer()).getData();
+                buffer.get(bufferPixels);
+
+                return image;
+          //  }
+        }

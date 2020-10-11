@@ -10,9 +10,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+import java.util.List;
 
 /*import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_core.cvResetImageROI;*/
@@ -32,8 +31,14 @@ public class OCR implements Runnable {
     float sb = 0.5f;
     int[] poker_positions_of_numbers = new int[6];
     BufferedImage[] bufferedimage_current_position_actions = new BufferedImage[6];
+
+
+    // test
     BufferedImage[] images_of_nicks_for_ocr = new BufferedImage[6];
     BufferedImage[] test_cards = new BufferedImage[2];
+    record ImgStacks(BufferedImage img,String stack){}
+    ImgStacks[]  imgStacks = new ImgStacks[6];
+    List<ImgStacks[]> test_list_imgStacks = new ArrayList<>();
 
     public OCR(int table){
         this.coord_of_table = coord_left_up_of_tables[table];
@@ -67,7 +72,7 @@ public class OCR implements Runnable {
                 }
             }
             if(queue.size()>100){System.out.println("table "+table+"    "+queue.size());c++;
-             //save_image(frame[0],"tables_img\\"+c);
+             save_image(frame[0],"tables_img\\"+table+"_"+c);
             }
         }
     }
@@ -88,6 +93,12 @@ public class OCR implements Runnable {
         boolean is_save_test_list = false;
         for(int i=0; i<6; i++) {
             System.out.print(currentHand.nicks[i]+"    "+currentHand.stacks[i]+"  ");
+            if(currentHand.stacks[i]==0){
+                save_image(ocr.frame[0],"test5\\table_"+ocr.table);
+                for(int s=0; s<ocr.test_list_imgStacks.size(); s++){
+                    save_image(ocr.test_list_imgStacks.get(s)[i].img(),"test5\\table_"+ocr.table+"_stack_"+ocr.test_list_imgStacks.get(s)[i].stack());
+                }
+            }
             /*if(currentHand.nicks[i]==null&&!is_save_test_list){
                 is_save_test_list = true;
                 String namefolder = (S++)+"\\";
@@ -110,12 +121,12 @@ public class OCR implements Runnable {
                 save_hand_with_null_img =true;
                 for(int s=1; s<6; s++)save_image(images_of_nicks_for_ocr[i],"test\\null_nicks"+(++S));
             }*/
-            BufferedImage im = new BufferedImage(30, 17, BufferedImage.TYPE_INT_ARGB);
+            /*BufferedImage im = new BufferedImage(30, 17, BufferedImage.TYPE_INT_ARGB);
             im.getGraphics().drawImage(test_cards[0], 0, 0, null);
             im.getGraphics().drawImage(test_cards[1], 15, 0, null);
-            save_image(im,"test4\\"+currentHand.cards_hero[0]+currentHand.cards_hero[1]);
+            save_image(im,"test4\\"+currentHand.cards_hero[0]+currentHand.cards_hero[1]);*/
 
-            for(Float a:currentHand.preflop_by_positions.get(i)) System.out.print(a+"  ");
+            //for(Float a:currentHand.preflop_by_positions.get(i)) System.out.print(a+"  ");
             System.out.println();
 
         }
@@ -139,6 +150,7 @@ public class OCR implements Runnable {
             }
             //list_test_numberhands.clear();
             list_test_cards.clear();
+            test_list_imgStacks.clear();
 
            currentHand = new CurrentHand(table-1,sb);
             for(int i=0; i<6; i++)bufferedimage_current_position_actions[i]=null;
@@ -367,7 +379,9 @@ public class OCR implements Runnable {
             int h = 17;
             // проверка периметра карта на помеху курсором
            if(!is_noCursorInterferenceImage(frame[0],X+1,Y,w,h,240))continue;
-           test_cards[i] = frame[0].getSubimage(X+1,Y,w,h);
+
+           //test_cards[i] = frame[0].getSubimage(X+1,Y,w,h);
+
            long[] card_hash_from_table = get_longarr_HashImage(frame[0],X+1,Y+1,14,14,3,150);
 
             //show_img_from_arr_long(card_hash_from_table,14,14);
@@ -380,49 +394,17 @@ public class OCR implements Runnable {
                 total_error = 0;
                 boolean is_equal = true;
                 for(int ind_num=0; ind_num<3; ind_num++){
-                    // попарное сравнение чисел с шагом 1 между хешем_имдж из массива номиналы_карт с хешем_имдж со стола
-                    /*if(ind_num%2==0)first_of_pair_error = get_count_one_in_numbers(_long_arr_cards_for_compare[nominal_ind_list][ind_num]^card_hash_from_table[ind_num]);
-                    if(ind_num%2!=0)second_of_pair_error = get_count_one_in_numbers(_long_arr_cards_for_compare[nominal_ind_list][ind_num]^card_hash_from_table[ind_num]);
-                    if(ind_num>0&&(first_of_pair_error+second_of_pair_error)>limit_error){ is_equal = false; break;  }
-                    */
-
                     total_error+=get_count_one_in_numbers(_long_arr_cards_for_compare[nominal_ind_list][ind_num]^card_hash_from_table[ind_num]);
                     if(total_error>limit_error){ is_equal = false; break;  }
                 }
                 if(!is_equal)continue;
-                System.err.println("TOTAL ERROR "+total_error);
+                //System.err.println("TOTAL ERROR "+total_error);
                 // если нашлось совпадение, то берется номинал карты деление на 4 для получения индекса где 13 эелементов вместо 52
                 currentHand.cards_hero[i]=nominals_cards[nominal_ind_list/4];
                 break;
             }
 
             if(currentHand.cards_hero[i].length()<2)currentHand.cards_hero[i]+=get_suit_of_card(frame[0],X+14,Y+16);
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-            BufferedImage cheked_img = check_free_of_kursor(X,Y,w,h,200,0,0,0,0);
-            if(cheked_img==null)continue;
-
-            BufferedImage image = get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),105);
-            for(Map.Entry<String,BufferedImage> entry:avirage_cards.entrySet()){
-                if(compare_buffred_images(image,entry.getValue(),10)){
-                    currentHand.cards_hero+=entry.getKey(); break;
-                }
-            }
-            currentHand.cards_hero+=get_suit_of_card(cheked_img,14,16);*/
-
-            //cards[i] = image;
 
         }
 
@@ -441,16 +423,12 @@ public class OCR implements Runnable {
         long _64_pixels =0, count_black_pix = 0, amount_pix = W*H;
         long[] longarr_hashimage = new long[amount_64nums+1]; int index_longarr_hashimage = -1, count_64_pix = 0;
         int count_all_pix = 0;
-      out: for (int x = X; x < X+W; x++){
+      out:for (int x = X; x < X+W; x++){
             for (int y = Y; y < Y+H; y++) {
                 count_all_pix++;
                 count_64_pix++;
                 _64_pixels<<=1;
-                if(get_intGreyColor(image,x,y)>limit_grey){ _64_pixels+=1; count_black_pix++; //System.out.print("1");
-                }
-                //if(255-get_intGreyColor(image,x,y)<limit_grey) System.out.print("1");
-               /* else System.out.print("0");
-                System.out.print(" ");*/
+                if(get_intGreyColor(image,x,y)>limit_grey){ _64_pixels+=1; count_black_pix++; }
                 if(count_64_pix==64||count_all_pix==amount_pix){
                     index_longarr_hashimage++;
                     longarr_hashimage[index_longarr_hashimage] = _64_pixels;
@@ -458,15 +436,9 @@ public class OCR implements Runnable {
                     _64_pixels = 0;
                 }
                 if(index_longarr_hashimage==amount_64nums-1)break out;
-
             }
-            //System.out.println();
         }
-
         longarr_hashimage[amount_64nums] = count_black_pix;
-
-        //show_img_from_arr_long(longarr_hashimage);
-
         return longarr_hashimage;
     }
 
@@ -477,8 +449,6 @@ public class OCR implements Runnable {
         int blue = color.getBlue();
         int red = color.getRed();
         int green = color.getGreen();
-        //System.out.println("b "+blue+" r "+red+" g "+green);
-        //if(blue==red&&red==green)return "s";
         if(blue>100&&blue>red&&blue>green)return "d";
         if(red>100&&red>blue&&red>green)return "h";
         if(green>100&&green>blue&&green>red)return "c";
@@ -498,13 +468,14 @@ public class OCR implements Runnable {
 
                 /*BufferedImage subimage = frame.getSubimage(x,y,w,h);
                 BufferedImage cheked_img = check_free_of_kursor(subimage,200);*/
-                BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,200,0,0,0,0);
-                if(cheked_img==null)continue;
+                /*BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,200,0,0,0,0);
+                if(cheked_img==null)continue;*/
+                if(!is_noCursorInterferenceImage(frame[0],x,y,w,h,200))continue;
                 //save_image(cheked_img,"test\\bu"+(++c));
                 /*BufferedImage sub_white_black_image = get_white_black_image(cheked_img,150);
                 if(compare_part_of_buffred_images(sub_white_black_image,images_bu[i],9,5,16,12)){ currentHand.position_of_bu = i+1; break;}*/
-                int bright = get_max_brightness(cheked_img);
-                if(bright>200){currentHand.position_of_bu = i+1; break;}
+                //int bright = get_max_brightness(cheked_img);
+                if(get_int_MaxBrightnessMiddleImg(frame[0],x,y,w,h)>200){currentHand.position_of_bu = i+1; break;}
                 //System.out.println((i+1)+" "+bright);
             }
             // алгоритм определения соответсвия покерных позиций позициям за столом которые начинаются с херо, на основе того где на столе находится БУ
@@ -549,6 +520,8 @@ public class OCR implements Runnable {
     void get_start_stacks_and_preflop(){
        int p =0;
        //System.out.println("get stacks");
+        ImgStacks[] imgStacks = new ImgStacks[6];
+
        for(int i=0; i<6; i++){
            if(currentHand.stacks[i]!=0&&currentHand.preflop_by_positions.get(i).get(currentHand.preflop_by_positions.get(i).size()-1)==1_000_000)continue;
 
@@ -575,7 +548,7 @@ public class OCR implements Runnable {
                System.out.println("stack "+currentHand.stacks[i]);}*/
            //if(i==3)save_image(Java2DFrameUtils.toBufferedImage(subimage),"notsee");
           // if((i>0&&(float)currentHand.preflop_by_positions.get(i-1).get(0)>0)||i==0||currentHand.preflop_by_positions.get(i).size()>2){
-           if(currentHand.preflop_by_positions.get(i).get(currentHand.preflop_by_positions.get(i).size()-1)!=1_000_000){
+           /*if(currentHand.preflop_by_positions.get(i).get(currentHand.preflop_by_positions.get(i).size()-1)!=1_000_000){
                if(cheked_img==null)continue;
                int brightness = get_max_brightness(cheked_img);
 
@@ -586,30 +559,30 @@ public class OCR implements Runnable {
               else currentHand.preflop_by_positions.get(i).add(1_000_000f);
               }
               else {
-                  /*int xa = coord_of_table[0]+coords_actions[poker_positions_of_numbers[i]-1][0];
-                  int ya = coord_of_table[1]+coords_actions[poker_positions_of_numbers[i]-1][1];*/
+                  *//*int xa = coord_of_table[0]+coords_actions[poker_positions_of_numbers[i]-1][0];
+                  int ya = coord_of_table[1]+coords_actions[poker_positions_of_numbers[i]-1][1];*//*
                   int xa = coords_actions[poker_positions_of_numbers[i]-1][0];
                   int ya = coords_actions[poker_positions_of_numbers[i]-1][1];
                   int wa = 54;
                   int ha = 11;
 
-                  /*BufferedImage subimage_action = frame.getSubimage(xa,ya,wa,ha);
-                  BufferedImage cheked_img_action = check_free_of_kursor(subimage_action,200);*/
+                  *//*BufferedImage subimage_action = frame.getSubimage(xa,ya,wa,ha);
+                  BufferedImage cheked_img_action = check_free_of_kursor(subimage_action,200);*//*
 
 
                   BufferedImage cheked_img_action = check_free_of_kursor(xa,ya,wa,ha,200,0,0,0,0);
 
                   if(cheked_img_action==null)continue;
 
-                  /*if(i==4&&bufferedImage_current_sb!=null){if(compare_buffred_images(bufferedImage_current_sb,cheked_img_action,1))continue;}
-                  if(i==5&&bufferedImage_current_bb!=null){if(compare_buffred_images(bufferedImage_current_bb,cheked_img_action,1))continue;}*/
+                  *//*if(i==4&&bufferedImage_current_sb!=null){if(compare_buffred_images(bufferedImage_current_sb,cheked_img_action,1))continue;}
+                  if(i==5&&bufferedImage_current_bb!=null){if(compare_buffred_images(bufferedImage_current_bb,cheked_img_action,1))continue;}*//*
                   BufferedImage inversedimage = set_grey_and_inverse_or_no(cheked_img_action,true);
                   BufferedImage black_white_img_for_campare = get_white_black_image(inversedimage,150);
                   if(!compare_buffred_images(bufferedimage_current_position_actions[i],black_white_img_for_campare,5)) {
 
 
-                  /*if(i==5){save_image(cheked_img_action,"stacks_"+i);
-                      System.out.println(currentHand.nicks[i]+"  "+get_max_brightness(cheked_img_action));}*/
+                  *//*if(i==5){save_image(cheked_img_action,"stacks_"+i);
+                      System.out.println(currentHand.nicks[i]+"  "+get_max_brightness(cheked_img_action));}*//*
 
                   if(get_max_brightness(cheked_img_action)>200){
                     // if(i==4) save_image(cheked_img_action,"img4");
@@ -625,8 +598,8 @@ public class OCR implements Runnable {
                        //if(i==5) System.out.println(action_float);
                       if((i==4&&action_float==sb)||(i==5&&action_float==1)){bufferedimage_current_position_actions[i]=black_white_img_for_campare;} else {
                       bufferedimage_current_position_actions[i] = black_white_img_for_campare;
-                     /* c++;
-                      save_image(black_white_img_for_campare,"test\\"+table+"_"+i+"_bwimg_"+c);*/
+                     *//* c++;
+                      save_image(black_white_img_for_campare,"test\\"+table+"_"+i+"_bwimg_"+c);*//*
                       if(currentHand.preflop_by_positions.get(i).get(currentHand.preflop_by_positions.get(i).size()-1)<action_float) {
                           if(!(currentHand.preflop_by_positions.get(i).get(0)>0))currentHand.preflop_by_positions.get(i).set(0,action_float);
                           else currentHand.preflop_by_positions.get(i).add(action_float);
@@ -635,7 +608,7 @@ public class OCR implements Runnable {
                     }
                   }
               }
-           }
+           }*/
            //System.out.println(i+"  "+currentHand.first_round_preflop[i]);
            //if(i==5) System.out.println("*"+currentHand.stacks[i]);
            if(currentHand.stacks[i]==0){
@@ -646,6 +619,7 @@ public class OCR implements Runnable {
                float stack_without_action = 0;
                String stack = ocr_image(get_white_black_image(get_scale_image(set_grey_and_inverse_or_no(cheked_img,true),2),100),"stacks").trim();
 
+               imgStacks[i] = new ImgStacks(cheked_img,stack);
 
                try{
                    stack_without_action = Float.parseFloat(stack);
@@ -661,6 +635,8 @@ public class OCR implements Runnable {
            }
            //System.out.println(currentHand.stacks[i]);
        }
+
+       test_list_imgStacks.add(imgStacks);
         //System.out.println("************************************");
 
     }
@@ -704,6 +680,14 @@ public class OCR implements Runnable {
     }
 
 
+    int get_int_MaxBrightnessMiddleImg(BufferedImage image,int X,int Y,int W,int H){
+        int max = 0, y = Y+H/2;
+        for(int x=X; x<X+W; x++){
+            int grey = get_intGreyColor(image,x,y);
+            if(grey>max)max=grey;
+        }
+        return max;
+    }
 
 
     BufferedImage get_scale_image(BufferedImage img,double scale){
