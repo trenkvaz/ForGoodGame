@@ -147,6 +147,7 @@ public class UseTesseract {
             e.printStackTrace();
         }
         save_image(bufferedImage,"for_ocr_stacks\\_"+text.trim());
+        //System.out.println(text);
         return text;
     }
 

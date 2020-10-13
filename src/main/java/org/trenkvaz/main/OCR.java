@@ -615,11 +615,13 @@ public class OCR implements Runnable {
 
                if(cheked_img==null){ continue;}
                // нет стека есть действие
-
+               int limit_grey = 125;
+               if(get_int_MaxBrightnessMiddleImg(cheked_img,0,0,72,13)<150)limit_grey=190;
                float stack_without_action = 0;
-               String stack = ocr_image(get_white_black_image(get_scale_image(set_grey_and_inverse_or_no(cheked_img,true),2),100),"stacks").trim();
+               String stack = ocr_image(get_white_black_image(get_scale_image(set_grey_and_inverse_or_no(cheked_img,true),2),limit_grey),"stacks").trim();
 
                imgStacks[i] = new ImgStacks(cheked_img,stack);
+               //save_image(cheked_img,"test5\\_stack_"+stack+"_"+limit_grey);
 
                try{
                    stack_without_action = Float.parseFloat(stack);

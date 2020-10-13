@@ -37,7 +37,7 @@ public class Testing {
 
 
 
-    public static void save_image(BufferedImage image, String name_file){
+    public synchronized static void save_image(BufferedImage image, String name_file){
         int index = name_file.lastIndexOf("\\");
         if(index>0){
             new File(home_folder+"\\"+name_file.substring(0,index)).mkdirs();
@@ -593,8 +593,8 @@ public class Testing {
             System.out.println();
 
         }*/
-        Settings.setting_cupture_video();
-        for(long[] num:_long_arr_cards_for_compare)show_img_from_arr_long(num,14,14);
+       /* Settings.setting_cupture_video();
+        for(long[] num:_long_arr_cards_for_compare)show_img_from_arr_long(num,14,14);*/
         /*BufferedImage img_5sh = read_image("lastcards2\\bwcards\\card_Tc.png");
         show_img_from_img(img_5sh,15,17);
 
@@ -607,6 +607,24 @@ public class Testing {
 
 
         System.out.println("a2 "+Long.toBinaryString(num[2]));*/
+
+
+
+
+        /*System.out.println(useTesseract.get_ocr(ocr.get_white_black_image
+                (ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(read_image("test5\\table_3"),2),true),100),"stacks"));
+        ocr.get_white_black_image(ocr.get_scale_image(ocr.set_grey_and_inverse_or_no(read_image("test5\\table_3"),true),2),100)*/
+
+        System.out.println("***");
+        System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(
+                ocr.get_scale_image(ocr.set_grey_and_inverse_or_no(read_image("test5\\_stack_39_105"),true),2),125),"stacks"));
+        System.out.println("***");
+
+        save_image(ocr.get_white_black_image(ocr.get_scale_image(
+                ocr.set_grey_and_inverse_or_no(read_image("test5\\_stack_39_105"),true),2),125),"Mtest\\errorim2");
+
+
+        System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test5\\_stack_39_105"),0,0,72,13));
 
 
 

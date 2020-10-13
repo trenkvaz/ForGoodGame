@@ -351,7 +351,7 @@ public class CaptureVideo implements Runnable{
 
 
     private void createBufferedImage(Frame frame, BufferedImage image) {
-        ByteBuffer buffer = (ByteBuffer) frame.image[0].position(0);
+            ByteBuffer buffer = (ByteBuffer) frame.image[0].position(0);
             WritableRaster wr = image.getRaster();
             byte[] bufferPixels = ((DataBufferByte) wr.getDataBuffer()).getData();
             buffer.get(bufferPixels);
