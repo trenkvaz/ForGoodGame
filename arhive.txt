@@ -493,3 +493,13 @@ int add_x = 0;
                 return image;
           //  }
         }
+
+         BufferedImage image = ImageIO.read(a).getSubimage(2,1,14,14);
+
+
+                    int in = Arrays.asList(nominals_cards).indexOf(String.valueOf(a.getName().charAt(5)));
+                    c++;
+                    in = in*4+c;
+                    System.out.println(in);
+                    _long_arr_cards_for_compare[in] = ocr.get_longarr_HashImage(image,0,0,14,14,3,150);
+                    if(c==3)c=-1;

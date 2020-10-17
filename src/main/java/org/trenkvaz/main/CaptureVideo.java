@@ -22,6 +22,7 @@ import static org.bytedeco.javacpp.opencv_imgproc.*;*/
 //import static org.bytedeco.javacpp.opencv_videoio.cvCreateFileCapture;
 import org.bytedeco.ffmpeg.global.avutil;
 
+import static org.trenkvaz.main.Testing.save_image;
 import static org.trenkvaz.ui.Controller_main_window.*;
 
 public class CaptureVideo implements Runnable{
@@ -268,10 +269,13 @@ public class CaptureVideo implements Runnable{
 
 
    boolean save = false;
-   int c =0;
+   static int c =0;
     //BufferedImage bufferedImageframe;
    int[] countcheks = new int[COUNT_TABLES];
    BufferedImage bufferedImageframe;
+
+  public static Map<Integer,List<String>> checknicktest_table = new HashMap<>();
+   static List<String> checknicktest_nick;
 
 
    boolean find_tables(Frame frame){
@@ -279,30 +283,35 @@ public class CaptureVideo implements Runnable{
        //BufferedImage bufferedImageframe = paintConverter.getBufferedImage(frame);
        //long start = System.currentTimeMillis();
        //Java2DFrameConverter paintConverter = new Java2DFrameConverter().convert(frame);
-       if(bufferedImageframe==null)bufferedImageframe = new Java2DFrameConverter().getBufferedImage(frame);
+       if(bufferedImageframe==null)
+        bufferedImageframe = new Java2DFrameConverter().getBufferedImage(frame);
        //bufferedImageframe = Java2DFrameUtils.toBufferedImage(frame);
        //System.out.println((System.currentTimeMillis()-start));
-       createBufferedImage(frame, bufferedImageframe);
+        createBufferedImage(frame, bufferedImageframe);
 
-
-       int x_of_number_hand = 579,y_of_number_hand = 56,width_of_number_hand = 53,height_of_number_hand = 11;
-       boolean is_correct_number_hand = false, is_correct_nicks = true;
-       int[] correction_for_place_of_nicks = {2,2,2,2,1,1};
+       int x_of_number_hand = 579,y_of_number_hand = 56,width_of_number_hand = 53,height_of_number_hand = 11, width_nick = 87, height_nick = 14;
+       boolean is_correct_number_hand = false, is_correct_nicks = false;
+       int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
        for(int index_table=0; index_table<COUNT_TABLES; index_table++){
+
           //long s = System.currentTimeMillis();
             //  проверка правильности изо номера раздачи
+           //checknicktest_nick = new ArrayList<>();
+           //checknicktest_nick.add("---------------------------------------------KURSOR");
            is_correct_number_hand = is_CorrectImageOfNumberHandAndNicks(coord_left_up_of_tables[index_table][0]+x_of_number_hand,
                    coord_left_up_of_tables[index_table][1]+y_of_number_hand,width_of_number_hand,height_of_number_hand,100,100,bufferedImageframe);
            //c++;
            //if(index_table==0){save_image(is_correct_number_hand,"tables_img\\t_"+(c)+"_"+(is_correct_number_hand!=null));}
+           //c++;
+           //checknicktest_nick.add("---------------------------------------------KURSOR   "+is_correct_number_hand+"  TABLE "+index_table);
            if(is_correct_number_hand){
                // проверка правильности изо ников
                is_correct_nicks = true;
+
               for(int img_nicks=0; img_nicks<6; img_nicks++ ){
                   int x_of_nick = coord_left_up_of_tables[index_table][0]+coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5;
                   int y_of_nick = coord_left_up_of_tables[index_table][1]+coords_places_of_nicks[img_nicks][1]+1;
-                  int width_nick = 87;
-                  int height_nick = 14;
+                  //checknicktest_nick.add("++++++++++++++++++++++++++++++++++++"+img_nicks);
                   if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,240,210,bufferedImageframe))continue;
                   is_correct_nicks = false;
                   break;
@@ -311,11 +320,16 @@ public class CaptureVideo implements Runnable{
                //System.out.println("time "+(System.currentTimeMillis()-s));
               if(is_correct_nicks){
                   //System.out.println("is_correct_nicks");
+                  /*checknicktest_table.put(c,checknicktest_nick);
+                  if(index_table==0)save_image(bufferedImageframe,"tables_img\\_");*/
                    ocrList_1.get(index_table).set_image_for_ocr(
-                           new BufferedImage[]{bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),
-                                   bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0]+x_of_number_hand+25,
+                           new BufferedImage[]{
+                                   cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),
+                                   cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0]+x_of_number_hand+25,
                                            coord_left_up_of_tables[index_table][1]+y_of_number_hand+3,26,5)
-                           } );
+                           });
+
+
                }
 
            }
@@ -350,14 +364,65 @@ public class CaptureVideo implements Runnable{
    }
 
 
-    private void createBufferedImage(Frame frame, BufferedImage image) {
+   private BufferedImage[] get_NicksImages(BufferedImage image_window,int index_table){
+       int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
+       int width_nick = 86, height_nick = 14;
+       BufferedImage[] nicks_images = new BufferedImage[6];
+       for(int img_nicks=0; img_nicks<6; img_nicks++ ){
+           int x_of_nick = coord_left_up_of_tables[index_table][0]+coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5;
+           int y_of_nick = coord_left_up_of_tables[index_table][1]+coords_places_of_nicks[img_nicks][1]+1;
+
+           BufferedImage img = image_window.getSubimage(x_of_nick, y_of_nick, width_nick, height_nick); //fill in the corners of the desired crop location here
+           nicks_images[img_nicks] = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_RGB);
+           Graphics g = nicks_images[img_nicks].createGraphics();
+           g.drawImage(img, 0, 0, null);
+       }
+       return nicks_images;
+   }
+
+
+   private BufferedImage cut_SubImage(BufferedImage image_window,int X, int Y, int W, int H){
+       BufferedImage img = image_window.getSubimage(X, Y, W, H);
+       BufferedImage cut_subimage = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_RGB);
+       Graphics g = cut_subimage.createGraphics();
+       g.drawImage(img, 0, 0, null);
+       return cut_subimage;
+   }
+
+
+    private BufferedImage createBufferedImage(Frame frame, BufferedImage image) {
             ByteBuffer buffer = (ByteBuffer) frame.image[0].position(0);
             WritableRaster wr = image.getRaster();
             byte[] bufferPixels = ((DataBufferByte) wr.getDataBuffer()).getData();
             buffer.get(bufferPixels);
+            return image;
     }
 
 
+    /*private BufferedImage createBufferedImage(Frame frame, BufferedImage image) {
+        ByteBuffer buffer = (ByteBuffer) frame.image[0].position(0);
+
+            if(image == null) {
+                ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+
+                ColorModel cm = new ComponentColorModel(cs, false,false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
+                // this assumes BGR format
+                DataBuffer dataBuffer = new DataBufferByte(buffer.limit());
+                WritableRaster wr = Raster.createWritableRaster(new ComponentSampleModel(DataBuffer.TYPE_BYTE, frame.imageWidth, frame.imageHeight, frame.imageChannels, frame.imageStride, new int[] {2, 1, 0}), dataBuffer,null);
+                byte[] bufferPixels = ((DataBufferByte) wr.getDataBuffer()).getData();
+
+                buffer.get(bufferPixels);
+
+                return new BufferedImage(cm, wr, false, null);
+            }
+            else {
+        WritableRaster wr = image.getRaster();
+        byte[] bufferPixels = ((DataBufferByte) wr.getDataBuffer()).getData();
+        buffer.get(bufferPixels);
+
+        return image;
+          }
+    }*/
 
 
 
@@ -367,8 +432,7 @@ public class CaptureVideo implements Runnable{
 
 
 
-
-    boolean is_CorrectImageOfNumberHandAndNicks(int X, int Y, int w, int h, int brightness_of_perimeter,int max_brightness_of_text, BufferedImage frame){
+  public static boolean is_CorrectImageOfNumberHandAndNicks(int X, int Y, int w, int h, int brightness_of_perimeter,int max_brightness_of_text, BufferedImage frame){
        //save_image(frame.getSubimage(X,Y,w,h),"tables_img\\t_"+(c));
         // проверка отсутстивя белых пикселей по периметру номера раздачи
         for(int x=X; x<w+X; x++){
@@ -379,6 +443,7 @@ public class CaptureVideo implements Runnable{
                 int b = val & 0xff;
                 int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
                 //System.out.println("1 grey "+grey);
+                //checknicktest_nick.add("1 "+grey);
                 if(grey>brightness_of_perimeter)return false;
             }
         }
@@ -390,6 +455,7 @@ public class CaptureVideo implements Runnable{
                 int b = val & 0xff;
                 int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
                 //System.out.println("2 grey "+grey);
+                //checknicktest_nick.add("2 "+grey);
                 if(grey>brightness_of_perimeter)return false;
             }
        // проверка яркости текста
@@ -402,6 +468,8 @@ public class CaptureVideo implements Runnable{
             int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
             if(grey>max)max=grey;
         }
+      //System.out.println("max "+max);
+        //checknicktest_nick.add("max "+max);
 
         return max >= max_brightness_of_text;
 

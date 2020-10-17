@@ -60,10 +60,12 @@ public class Testing {
         return result;
     }
 
+    static short[][] _short_arrs_shablons_numbers = new short[11][];
+
     static void save_ObjectInFile(){
-        try {FileOutputStream file=new FileOutputStream(home_folder+"\\all_settings\\capture_video\\_long_arr_cards_for_compare.file");
+        try {FileOutputStream file=new FileOutputStream(home_folder+"\\_short_arrs_shablons_numbers.file");
             ObjectOutput out = new ObjectOutputStream(file);
-            out.writeObject(_long_arr_cards_for_compare);
+            out.writeObject(_short_arrs_shablons_numbers);
             out.close();
             file.close();
         } catch(IOException e) {
@@ -71,6 +73,38 @@ public class Testing {
         }
     }
 
+    static void read_ObjectFromFile(){
+        try {	FileInputStream file=new FileInputStream(home_folder+"\\_short_arrs_shablons_numbers.file");
+            ObjectInput out = new ObjectInputStream(file);
+            _short_arrs_shablons_numbers = (short[][]) out.readObject();
+            out.close();
+            file.close();
+        } catch(IOException e) {
+            System.out.println(e);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    static void write_TextToFile(List<String> strings,String name_file){
+        int index = name_file.lastIndexOf("\\");
+        if(index>0){
+            new File(home_folder+"\\"+name_file.substring(0,index)).mkdirs();
+        }
+
+        try {
+            BufferedWriter   bufferedWriter = new BufferedWriter(new FileWriter(home_folder+"\\"+name_file+".txt"));
+            for(String text:strings){
+                bufferedWriter.write(text);
+                bufferedWriter.newLine();
+            }
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     static void test_work_compare_nicks_img(){
 
@@ -375,14 +409,80 @@ public class Testing {
 
 
 
+   static short[] get_shortarr_HashNumberImg(BufferedImage image_table,int X, int Y, int W, int H, int limit_grey){
+       int first_x_black_pix = 0, last_x_black_pix =0;
+     out:for (int x = X+5; x < X+W-5; x++)for(int y = Y; y < Y+H; y++) if(get_intGreyColor(image_table,x,y)>limit_grey){first_x_black_pix = x;break out;}
+     out: for (int x = X+W-5; x > X+5; x--)for (int y = Y; y < Y+H; y++) if(get_intGreyColor(image_table,x,y)>limit_grey){last_x_black_pix = x; break out; }
+
+     int amount_line_of_num = last_x_black_pix-first_x_black_pix+2;
+
+       System.out.println("line "+amount_line_of_num);
+       short _16_pixels =0;
+       short[] shortarr_hashimage = new short[amount_line_of_num]; int index_shortarr_hashimage = -1;
+
+       for (int x = first_x_black_pix; x < amount_line_of_num+first_x_black_pix; x++){
+           index_shortarr_hashimage++;
+           for (int y = Y; y < Y+H; y++) {
+               _16_pixels<<=1;
+               if(get_intGreyColor(image_table,x,y)>limit_grey){ _16_pixels+=1;
+                   System.out.print("1"); } else System.out.print("0");
+               System.out.print(" ");
+           }
+           shortarr_hashimage[index_shortarr_hashimage] = _16_pixels;
+           _16_pixels = 0;
+           System.out.println();
+       }
+       return shortarr_hashimage;
+   }
 
 
 
+   static short[] get_shortarr_HashShablonNumber(int amount_line_of_num, short[] shortarr_hashnumberimg,int start_line){
+       short[] shortarr_shablon = new short[amount_line_of_num];
+       for(int i=start_line, ind =0; i<amount_line_of_num+start_line; i++,  ind++) shortarr_shablon[ind] = shortarr_hashnumberimg[i];
+       return shortarr_shablon;
+   }
 
 
+   static void show_shortarr_HashShablonNumber(short[] shortarr_shablon){
+
+       for(int x=0; x<shortarr_shablon.length; x++){
 
 
+       }
+       System.out.println("4    "+shortarr_shablon[4]);
+       for(int y=0; y<9; y++){
+           for(int x=0; x<shortarr_shablon.length; x++){
+               //if(y<3&&x==0)continue;
+               //System.out.println(y+" "+x);
+               //count_pix++;
+               /*int coord_in_arr_long = (y+9*x);
+               int index_bit = coord_in_arr_long%16;
+               int index_in_arrlong = coord_in_arr_long/64;*/
+               //index_bit++;
+               //System.out.println(coord_in_arr_long+"  "+index_in_arrlong+"  "+index_bit);
+               short pix = shortarr_shablon[x];
+               // 1<<число сдвига маска единицы 000001 двигаешь еденицу влево
+               // пикс пример число шорт 16 битов(0..01) маска единицы 0000000000000001 в ней сдвигается 1 на определенное число и по этой маске определяется какой бит
+               // есть в числе на месте единицы, число закрывается маской в которой 1 это условная дырка
+               //результат ноль или число отличное от нуля так как единица на любом месте дает произвольное число
+               // операция побитовое И дает единицу бита если в исходном бите также единица в остальных случаях ноль
+               int pixl = pix&(short)1<<(8-y);
+               if(pixl==0)System.out.print("0");else System.out.print("1");
+               System.out.print(" ");
+               //System.out.println("ind "+index_bit);
+               //if(index_bit==63){index_bit=-1; index_in_arrlong++; }
 
+           }
+           System.out.println();
+       }
+
+   }
+
+    static int get_intGreyColor(BufferedImage img,int x, int y){
+        int val = img.getRGB(x, y);
+        return  (int) (((val >> 16) & 0xff) * 0.299 + ((val >> 8) & 0xff) * 0.587 + (val & 0xff) * 0.114);
+    }
 
     public static void main(String[] args) throws Exception {
         /*static int[][] coords_places_of_nicks = {{297,320},{15,253},{15,120},{264,67},{543,120},{543,253}};
@@ -557,23 +657,22 @@ public class Testing {
         System.out.println(tess+"        "+a.getName());
         save_image(ocr.get_white_black_image(image,100),"test2\\_"+tess);*/
         int c = -1;
-        /*for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\lastcards2").listFiles()){
+       /* for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test5").listFiles()){
             if(a.isFile()){
+                BufferedImage image = ImageIO.read(a);
+                //for(int i=79; i<90; i++)
+                    save_image(ocr.get_white_black_image
+                        (ocr.set_grey_and_inverse_or_no(image,true),80),"test5\\shab\\"+a.getName().substring(a.getName().lastIndexOf("_")));
 
-                BufferedImage image = ImageIO.read(a).getSubimage(2,1,14,14);
 
-
-            int in = Arrays.asList(nominals_cards).indexOf(String.valueOf(a.getName().charAt(5)));
-            c++;
-            in = in*4+c;
-            System.out.println(in);
-            _long_arr_cards_for_compare[in] = ocr.get_longarr_HashImage(image,0,0,14,14,3,150);
-            if(c==3)c=-1;
-                //
-                //}
             }
-        }
-         save_ObjectInFile();*/
+        }*/
+
+      /*  BufferedImage image = read_image("test5\\_0_34");
+        for(int i=75; i<100; i++)save_image(ocr.get_white_black_image
+                (ocr.set_grey_and_inverse_or_no(image,true),i),"test4\\_"+i);*/
+
+         //save_ObjectInFile();
        /*BufferedImage image = read_image("test3\\0\\_0");
        *//* for(int i=100; i<200; i++){
             System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(image,i),"stacks"));
@@ -615,22 +714,59 @@ public class Testing {
                 (ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(read_image("test5\\table_3"),2),true),100),"stacks"));
         ocr.get_white_black_image(ocr.get_scale_image(ocr.set_grey_and_inverse_or_no(read_image("test5\\table_3"),true),2),100)*/
 
-        System.out.println("***");
+        /*System.out.println("***");
         System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(
                 ocr.get_scale_image(ocr.set_grey_and_inverse_or_no(read_image("test5\\_stack_39_105"),true),2),125),"stacks"));
-        System.out.println("***");
+        System.out.println("***");*/
 
-        save_image(ocr.get_white_black_image(ocr.get_scale_image(
-                ocr.set_grey_and_inverse_or_no(read_image("test5\\_stack_39_105"),true),2),125),"Mtest\\errorim2");
+        /*save_image(ocr.get_white_black_image(
+                ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(read_image("test5\\table_4_stack_"),2),true),125),"Mtest\\errorim4");*/
+
+        //save_image(ocr.get_white_black_image(read_image("Mtest\\errorbig1"),125),"Mtest\\errorbig2");
+        //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test5\\_stack_39_105"),0,0,72,13));
+        /*String zer ="01110" +
+                    "10001" +
+                    "10001" +
+                    "10001" +
+                    "10001" +
+                    "10001" +
+                    "10001" +
+                    "10001" +
+                    "01110";
+
+   read_ObjectFromFile();
+  short[] num = get_shortarr_HashNumberImg(read_image("test5\\shab\\_1_stack_80.5_125"),0,2,72,9,130);
+
+      ;
+      short[] eight = get_shortarr_HashShablonNumber(5,num,1);
+      short[] zero = get_shortarr_HashShablonNumber(5,num,8);
+      short[] dot =  get_shortarr_HashShablonNumber(2,num,15);
+        short[] five =  get_shortarr_HashShablonNumber(5,num,19);
+
+        show_shortarr_HashShablonNumber(eight);
+        show_shortarr_HashShablonNumber(zero);
+        show_shortarr_HashShablonNumber(dot);
+        show_shortarr_HashShablonNumber(five);
+      _short_arrs_shablons_numbers[10] = dot;
+      _short_arrs_shablons_numbers[8] = eight;
+      _short_arrs_shablons_numbers[0] = zero;
+        _short_arrs_shablons_numbers[5] = five;*/
+      //save_ObjectInFile();
+        BufferedImage bufferedImageframe = read_image("test4\\8985\\_1_147");
+        boolean is_correct_nicks = true;int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
+        for(int img_nicks=0; img_nicks<6; img_nicks++ ){
+            int x_of_nick = coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5;
+            int y_of_nick = coords_places_of_nicks[img_nicks][1]+1;
+            int width_nick = 87;
+            int height_nick = 14;
+            System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++ "+img_nicks);
+            if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,240,240,bufferedImageframe))continue;
+            is_correct_nicks = false;
+            //break;
+        }
 
 
-        System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test5\\_stack_39_105"),0,0,72,13));
-
-
-
-
-
-
+        System.out.println(is_correct_nicks);
     }
 
 
