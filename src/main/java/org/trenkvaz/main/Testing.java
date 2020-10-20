@@ -62,10 +62,10 @@ public class Testing {
 
     static short[][] _short_arrs_shablons_numbers = new short[11][];
 
-    static void save_ObjectInFile(){
-        try {FileOutputStream file=new FileOutputStream(home_folder+"\\_short_arrs_shablons_numbers.file");
+    static void save_ObjectInFile(Object ob, String name_file){
+        try {FileOutputStream file=new FileOutputStream(home_folder+"\\"+name_file+".file");
             ObjectOutput out = new ObjectOutputStream(file);
-            out.writeObject(_short_arrs_shablons_numbers);
+            out.writeObject(ob);
             out.close();
             file.close();
         } catch(IOException e) {
@@ -73,10 +73,13 @@ public class Testing {
         }
     }
 
+    static int[][] shablons_numbers_0_9;
+
     static void read_ObjectFromFile(){
-        try {	FileInputStream file=new FileInputStream(home_folder+"\\_short_arrs_shablons_numbers.file");
+
+        try {	FileInputStream file=new FileInputStream(home_folder+"\\shablons_numbers_0_9.file");
             ObjectInput out = new ObjectInputStream(file);
-            _short_arrs_shablons_numbers = (short[][]) out.readObject();
+            shablons_numbers_0_9 =(int[][]) out.readObject();
             out.close();
             file.close();
         } catch(IOException e) {
@@ -143,29 +146,30 @@ public class Testing {
     static BufferedImage get_white_black(BufferedImage image){
         int w= image.getWidth(), h = image.getHeight();
         BufferedImage bufferedImage = new BufferedImage(w,h, BufferedImage.TYPE_INT_RGB);
-
-            for(int i=0;i<w;i++) {
-                for(int j=0;j<h;j++) {
-                    //Get RGB Value
-                    int val = image.getRGB(i, j);
-                    //Convert to three separate channels
-                    int r = (0x00ff0000 & val) >> 16;
-                    int g = (0x0000ff00 & val) >> 8;
-                    int b = (0x000000ff & val);
-                    int m=(r+g+b);
-                    //(255+255+255)/2 =283 middle of dark and light
-                    if(m>=383) {
-                        // for light color it set white
-                        bufferedImage.setRGB(i, j, Color.WHITE.getRGB());
-                    }
-                    else{
-                        // for dark color it will set black
-                        bufferedImage.setRGB(i, j, 0);
-                    }
+        for(int i=0;i<w;i++) {
+            for(int j=0;j<h;j++) {
+                //Get RGB Value
+                int val = image.getRGB(i, j);
+                //Convert to three separate channels
+                int r = (0x00ff0000 & val) >> 16;
+                int g = (0x0000ff00 & val) >> 8;
+                int b = (0x000000ff & val);
+                int m=(r+g+b);
+                //(255+255+255)/2 =283 middle of dark and light
+                if(m>=383) {
+                    // for light color it set white
+                    bufferedImage.setRGB(i, j, Color.WHITE.getRGB());
+                }
+                else{
+                    // for dark color it will set black
+                    bufferedImage.setRGB(i, j, 0);
                 }
             }
-            return bufferedImage;
+        }
+        return bufferedImage;
     }
+
+
 
     static BufferedImage get_white_black_average(BufferedImage image){
         int w= image.getWidth(), h = image.getHeight();
@@ -175,12 +179,7 @@ public class Testing {
         int[][] arr_greys = new int[w][h];
         for(int i=0;i<w;i++) {
             for(int j=0;j<h;j++) {
-                int val = image.getRGB(i, j);
-                //Convert to three separate channels
-                int r = (val >> 16) & 0xff;
-                int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                int grey = get_intGreyColor(image,i,j);
                 arr_greys[i][j] = grey;
                 sum_gray+=grey;
             }
@@ -188,8 +187,8 @@ public class Testing {
         int average = sum_gray/count_px;
         for(int i=0;i<w;i++) {
             for(int j=0;j<h;j++) {
-              if(arr_greys[i][j]>average)bufferedImage.setRGB(i, j, Color.WHITE.getRGB());
-              else bufferedImage.setRGB(i,j,0);
+                if(arr_greys[i][j]>average)bufferedImage.setRGB(i, j, Color.WHITE.getRGB());
+                else bufferedImage.setRGB(i,j,0);
 
             }
         }
@@ -198,16 +197,9 @@ public class Testing {
     }
 
 
-
-
-
-
-
-
     public static boolean isBlue(Color c) {
-         float MIN_BLUE_HUE = 0.5f; // CYAN
-         float MAX_BLUE_HUE = 0.8333333f; // MAGENTA
-
+        float MIN_BLUE_HUE = 0.5f; // CYAN
+        float MAX_BLUE_HUE = 0.8333333f; // MAGENTA
         float[] hsv = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
         float hue = hsv[0];
         return hue >= MIN_BLUE_HUE && hue <= MAX_BLUE_HUE;
@@ -217,11 +209,7 @@ public class Testing {
     static void show_img_from_img(BufferedImage img,int X, int Y){
         for(int y=0; y<Y; y++){
             for(int x=0; x<X; x++){
-                int val = img.getRGB(x, y);
-                int r = (val >> 16) & 0xff;
-                int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                int grey = get_intGreyColor(img,x,y);
                 if(grey==255)System.out.print("0");else System.out.print("1");
                 System.out.print(" ");
                 //System.out.println("ind "+index_bit);
@@ -233,7 +221,6 @@ public class Testing {
         System.out.println();
         System.out.println();
     }
-
 
 
     static void show_img_from_arr_long(long[] arr_long,int X, int Y){
@@ -265,19 +252,17 @@ public class Testing {
         System.out.println(count_pix);
     }
 
-   static int get_max_brightness(BufferedImage image){
-       int w = image.getWidth(); int y = image.getHeight()/2;
-       int max = 0;
-       for(int x=0; x<w; x++){
-           int val = image.getRGB(x, y);
-           int r = (val >> 16) & 0xff;
-           int g = (val >> 8) & 0xff;
-           int b = val & 0xff;
-           int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
-           if(grey>max)max=grey;
-       }
-       return max;
-   }
+
+    static int get_max_brightness(BufferedImage image){
+        int w = image.getWidth(); int y = image.getHeight()/2;
+        int max = 0;
+        for(int x=0; x<w; x++){
+            int grey = get_intGreyColor(image,x,y);
+            if(grey>max)max=grey;
+        }
+        return max;
+    }
+
 
     static BufferedImage getGrayScale(BufferedImage inputImage){
         BufferedImage img = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
@@ -287,48 +272,39 @@ public class Testing {
         return img;
     }
 
+
     static BufferedImage re_bright(BufferedImage inputImage,float scaleFactor){
         BufferedImage bufferedImage = new BufferedImage(inputImage.getWidth(),inputImage.getHeight(), BufferedImage.TYPE_INT_RGB);
         RescaleOp op = new RescaleOp(scaleFactor, 0, null);
         return op.filter(inputImage,bufferedImage);
     }
 
-   static BufferedImage check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,BufferedImage frame){
+
+    static BufferedImage check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,BufferedImage frame){
         //save_image(frame.getSubimage(X,Y,w,h),"tables_img\\t_");
         for(int x=X; x<w+X; x++){
             for(int y=Y; y<h+Y; y+=h-1){
-                int val = frame.getRGB(x, y);
-                int r = (val >> 16) & 0xff;
-                int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                int grey = get_intGreyColor(frame,x,y);
                 System.out.println("1 grey "+grey);
                 //if(grey>limit_grey)return null;
             }
         }
         for(int y=Y; y<h+Y; y++)
             for(int x=X; x<w+X; x+=w-1){
-                int val = frame.getRGB(x, y);
-                int r = (val >> 16) & 0xff;
-                int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                int grey = get_intGreyColor(frame,x,y);
                 System.out.println("2 grey "+grey);
                 //if(grey>limit_grey)return null;
             }
         return frame.getSubimage(X,Y,w,h);
     }
 
+
     static void show_canvas() throws FrameGrabber.Exception {
         FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("video=USB Video");
-
         grabber.setFormat("dshow");
         grabber.setVideoCodecName("mjpeg");
-
         grabber.setFrameRate(60);
-
         grabber.start();
-
         Frame frame = null;
         CanvasFrame canvasFrame = new CanvasFrame("");
         canvasFrame.setCanvasSize(600, 300);//задаем размер окна
@@ -336,21 +312,14 @@ public class Testing {
         while (canvasFrame.isVisible()&&(frame =grabber.grabImage())!=null)canvasFrame.showImage(frame);
     }
 
+
     static void compare_binar_imgs(BufferedImage img1,BufferedImage img2,int limit_grey){
         int w = img1.getWidth(), h = img1.getHeight(); int error = 0;
         for(int x=0; x<w; x++) {
             for (int y = 0; y < h; y++) {
-                int val1 = img1.getRGB(x, y);
-                int r = (val1 >> 16) & 0xff;
-                int g = (val1 >> 8) & 0xff;
-                int b = val1 & 0xff;
-                int grey1 = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                int grey1 = get_intGreyColor(img1,x,y);
                 if(grey1<limit_grey)grey1=1;else grey1=0;
-                int val2 = img2.getRGB(x, y);
-                r = (val2 >> 16) & 0xff;
-                g = (val2 >> 8) & 0xff;
-                b = val2 & 0xff;
-                int grey2 = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                int grey2 = get_intGreyColor(img2,x,y);
                 if(grey2<limit_grey)grey2=1;else grey2=0;
                 if(grey1!=grey2)error++;
                 //if(grey>limit_grey)return null;
@@ -360,16 +329,12 @@ public class Testing {
     }
 
 
-   static boolean is_error_image(BufferedImage image){
+    static boolean is_error_image(BufferedImage image){
         int h = image.getHeight(), w = image.getWidth();
         int count_line_with_symbols = 0; boolean is_symbol_start = false; int count_white = 0;
         for(int i=18;i<w;i++) {
             for(int j=0;j<h;j++) {
-                int val = image.getRGB(i, j);
-                int r = (val >> 16) & 0xff;
-                int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+                int grey = get_intGreyColor(image,i,j);
                 if(grey<100)continue;
                 is_symbol_start = true;
                 System.out.println("er "+grey);
@@ -381,10 +346,10 @@ public class Testing {
         }
         return count_white <= 0;
     }
-   static int c=0;
+    static int c=0;
 
-   static long get_number_hand(BufferedImage img,OCR ocr,int grey){
-        
+    static long get_number_hand(BufferedImage img,OCR ocr,int grey){
+
         //save_image(frame[1],"for_ocr_number\\osr_"+c+"t"+table);
         int limit_grey = 175;
         if(get_max_brightness(img)<150)limit_grey = 214;
@@ -409,75 +374,158 @@ public class Testing {
 
 
 
-   static short[] get_shortarr_HashNumberImg(BufferedImage image_table,int X, int Y, int W, int H, int limit_grey){
-       int first_x_black_pix = 0, last_x_black_pix =0;
-     out:for (int x = X+5; x < X+W-5; x++)for(int y = Y; y < Y+H; y++) if(get_intGreyColor(image_table,x,y)>limit_grey){first_x_black_pix = x;break out;}
-     out: for (int x = X+W-5; x > X+5; x--)for (int y = Y; y < Y+H; y++) if(get_intGreyColor(image_table,x,y)>limit_grey){last_x_black_pix = x; break out; }
+    static List<int[]> get_shortarr_HashNumberImg(BufferedImage image_table,int X, int Y, int W, int H, int limit_grey){
+        /*int first_x_black_pix = 0, last_x_black_pix =0;
+        out:for (int x = X+5; x < X+W-5; x++)for(int y = Y; y < Y+H; y++) if(get_intGreyColor(image_table,x,y)>limit_grey){first_x_black_pix = x-1;break out;}*/
 
-     int amount_line_of_num = last_x_black_pix-first_x_black_pix+2;
+        List<int[]> coords_line_x_for_one_num = new ArrayList<>();
+        int[] start_end_num = null;
+        boolean is_x_black = false; int count_black_x_line = 0, count_8_line_num = 0;
+        for (int x = X+W-5; x > X+5; x--) {
+            // определяется есть ли черный пиксель в текущей линии если есть то счетчик увеличивается
+            is_x_black = false;
+            for (int y = Y; y < Y+H; y++) { if(get_intGreyColor(image_table,x,y)>limit_grey){ is_x_black = true; break; } }
+            if(is_x_black) { count_black_x_line++;  //System.out.println(x+" "+count_black_x_line);
+            }
+            // если линия белая, то проверяется сколько черных линий было до этого, если 3, а это точка, то все обнуляется в лист заносится нулл
+            else {
+                if(count_black_x_line==3){
+                    coords_line_x_for_one_num.add(null);
+                    count_black_x_line = 0;
+                    continue;
+                }
+                // если счетчик черных линий равен нулю, то идет дальше если счетчик больше нуля, то идет вниз, это из-за того, что еденица меньше 8 черных линий
+                // и чтобы белая линия не сбивала подсчет линий числа
+                if(count_black_x_line==0) continue;
+            }
 
-       System.out.println("line "+amount_line_of_num);
-       short _16_pixels =0;
-       short[] shortarr_hashimage = new short[amount_line_of_num]; int index_shortarr_hashimage = -1;
+            // проверяется условие есть ли начало числа
+            if(count_black_x_line==1){
+                start_end_num = new int[2];
+                start_end_num[0] = x;
+                count_8_line_num = 1;   // начинается счетчик линий числа
+                continue;
+            }
+            count_8_line_num++;
 
-       for (int x = first_x_black_pix; x < amount_line_of_num+first_x_black_pix; x++){
-           index_shortarr_hashimage++;
-           for (int y = Y; y < Y+H; y++) {
-               _16_pixels<<=1;
-               if(get_intGreyColor(image_table,x,y)>limit_grey){ _16_pixels+=1;
-                   System.out.print("1"); } else System.out.print("0");
-               System.out.print(" ");
-           }
-           shortarr_hashimage[index_shortarr_hashimage] = _16_pixels;
-           _16_pixels = 0;
-           System.out.println();
-       }
-       return shortarr_hashimage;
-   }
+            // есть счетчик линий дошел до 8 то обнуляются все счетчики и завершается получение кординат числа
+            if(count_8_line_num==8){
+                assert start_end_num != null;
+                start_end_num[1] = x;
+                coords_line_x_for_one_num.add(start_end_num);
+                count_8_line_num = 0;
+                count_black_x_line = 0;
+            }
+        }
+
+        List<int[]> result = new ArrayList<>();
+
+        for(int[] num:coords_line_x_for_one_num){
+            if(num==null) { result.add(null);
+                //System.out.println("DOT");
+                continue;}
+
+            int start = num[1], end = num[0];
+            //System.out.println(num[0]+"  "+num[1]);
+            int _32_pixels =0;
+            int[] intarr_hashimage = new int[3]; int index_intarr_hashimage = -1, count_32_pix = 0;
+
+            for (int x = start; x < end+1; x++){
+                for (int y = Y; y < Y+H; y++) {
+                    _32_pixels<<=1;
+                    count_32_pix++;
+                    if(get_intGreyColor(image_table,x,y)>limit_grey){ _32_pixels+=1;
+                       // System.out.print("1");
+                    }
+                    /*else System.out.print("0");
+                    System.out.print(" ");*/
+                    if(count_32_pix==32){
+                        index_intarr_hashimage++;
+                        intarr_hashimage[index_intarr_hashimage] = _32_pixels;
+                        _32_pixels = 0;
+                        count_32_pix = 0;
+                    }
+                }
+
+                //System.out.println();
+            }
+            result.add(intarr_hashimage);
+        }
 
 
-
-   static short[] get_shortarr_HashShablonNumber(int amount_line_of_num, short[] shortarr_hashnumberimg,int start_line){
-       short[] shortarr_shablon = new short[amount_line_of_num];
-       for(int i=start_line, ind =0; i<amount_line_of_num+start_line; i++,  ind++) shortarr_shablon[ind] = shortarr_hashnumberimg[i];
-       return shortarr_shablon;
-   }
+        return result;
+    }
 
 
-   static void show_shortarr_HashShablonNumber(short[] shortarr_shablon){
+    static double get_OcrNum(List<int[]> list_hash_nums){
+        int first_of_pair_error = 0, second_of_pair_error = 0, limit_error = 10, total_error = 0;
+        String res = "";
+        for(int[] hash_num:list_hash_nums){
+            if(hash_num==null) {res+="."; continue;}
+            /*for(int n:hash_num) System.out.print(n+" ");
+            System.out.println();*/
+        for(int number = 0; number<10; number++){
 
-       for(int x=0; x<shortarr_shablon.length; x++){
+            total_error = 0;
+            boolean is_equal = true;
+            for(int ind_num=0; ind_num<3; ind_num++){
+                System.out.println(shablons_numbers_0_9[number][ind_num]);
+                total_error+=get_count_one_in_numbers(shablons_numbers_0_9[number][ind_num]^hash_num[ind_num]);
+                if(total_error>limit_error){ is_equal = false; break;  }
+            }
+            //System.err.println("TOTAL ERROR "+total_error);
+            if(!is_equal)continue;
+
+            // если нашлось совпадение, то берется номинал карты деление на 4 для получения индекса где 13 эелементов вместо 52
+            res+=number;
+            break;
+        }
+        }
+        System.out.println(res);
+        return 0;
+    }
+
+    static short[] get_shortarr_HashShablonNumber(int amount_line_of_num, short[] shortarr_hashnumberimg,int start_line){
+        short[] shortarr_shablon = new short[amount_line_of_num];
+        for(int i=start_line, ind =0; i<amount_line_of_num+start_line; i++,  ind++) shortarr_shablon[ind] = shortarr_hashnumberimg[i];
+        return shortarr_shablon;
+    }
 
 
-       }
-       System.out.println("4    "+shortarr_shablon[4]);
-       for(int y=0; y<9; y++){
-           for(int x=0; x<shortarr_shablon.length; x++){
-               //if(y<3&&x==0)continue;
-               //System.out.println(y+" "+x);
-               //count_pix++;
+    static void show_shortarr_HashShablonNumber(short[] shortarr_shablon){
+
+        for(int x=0; x<shortarr_shablon.length; x++){
+
+
+        }
+        System.out.println("4    "+shortarr_shablon[4]);
+        for(int y=0; y<12; y++){
+            for(int x=0; x<shortarr_shablon.length; x++){
+                //if(y<3&&x==0)continue;
+                //System.out.println(y+" "+x);
+                //count_pix++;
                /*int coord_in_arr_long = (y+9*x);
                int index_bit = coord_in_arr_long%16;
                int index_in_arrlong = coord_in_arr_long/64;*/
-               //index_bit++;
-               //System.out.println(coord_in_arr_long+"  "+index_in_arrlong+"  "+index_bit);
-               short pix = shortarr_shablon[x];
-               // 1<<число сдвига маска единицы 000001 двигаешь еденицу влево
-               // пикс пример число шорт 16 битов(0..01) маска единицы 0000000000000001 в ней сдвигается 1 на определенное число и по этой маске определяется какой бит
-               // есть в числе на месте единицы, число закрывается маской в которой 1 это условная дырка
-               //результат ноль или число отличное от нуля так как единица на любом месте дает произвольное число
-               // операция побитовое И дает единицу бита если в исходном бите также единица в остальных случаях ноль
-               int pixl = pix&(short)1<<(8-y);
-               if(pixl==0)System.out.print("0");else System.out.print("1");
-               System.out.print(" ");
-               //System.out.println("ind "+index_bit);
-               //if(index_bit==63){index_bit=-1; index_in_arrlong++; }
+                //index_bit++;
+                //System.out.println(coord_in_arr_long+"  "+index_in_arrlong+"  "+index_bit);
+                short pix = shortarr_shablon[x];
+                // 1<<число сдвига маска единицы 000001 двигаешь еденицу влево
+                // пикс пример число шорт 16 битов(0..01) маска единицы 0000000000000001 в ней сдвигается 1 на определенное число и по этой маске определяется какой бит
+                // есть в числе на месте единицы, число закрывается маской в которой 1 это условная дырка
+                //результат ноль или число отличное от нуля так как единица на любом месте дает произвольное число
+                // операция побитовое И дает единицу бита если в исходном бите также единица в остальных случаях ноль
+                int pixl = pix&(short)1<<(8-y);
+                if(pixl==0)System.out.print("0");else System.out.print("1");
+                System.out.print(" ");
+                //System.out.println("ind "+index_bit);
+                //if(index_bit==63){index_bit=-1; index_in_arrlong++; }
 
-           }
-           System.out.println();
-       }
+            }
+            System.out.println();
+        }
 
-   }
+    }
 
     static int get_intGreyColor(BufferedImage img,int x, int y){
         int val = img.getRGB(x, y);
@@ -657,14 +705,35 @@ public class Testing {
         System.out.println(tess+"        "+a.getName());
         save_image(ocr.get_white_black_image(image,100),"test2\\_"+tess);*/
         int c = -1;
-       /* for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test5").listFiles()){
+        //int[][] shablons_numbers_0_9 = new int[10][3];
+        read_ObjectFromFile();
+        /*for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test4").listFiles()){
             if(a.isFile()){
                 BufferedImage image = ImageIO.read(a);
                 //for(int i=79; i<90; i++)
-                    save_image(ocr.get_white_black_image
-                        (ocr.set_grey_and_inverse_or_no(image,true),80),"test5\\shab\\"+a.getName().substring(a.getName().lastIndexOf("_")));
-
-
+                    *//*save_image(ocr.get_white_black_image
+                        (ocr.set_grey_and_inverse_or_no(image,true),80),"test4\\old\\"+a.getName().substring(0,a.getName().lastIndexOf("_")));*//*
+              List<int[]> nums = get_shortarr_HashNumberImg(image,0,1,72,12,175);
+              get_OcrNum(nums);
+             *//* if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_41.5")){
+                  shablons_numbers_0_9[5] = nums.get(0);
+                  shablons_numbers_0_9[1] = nums.get(2);
+                  shablons_numbers_0_9[4] = nums.get(3);
+              }
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_63")){
+                    shablons_numbers_0_9[3] = nums.get(0);
+                    shablons_numbers_0_9[6] = nums.get(1);
+                }
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_127")){
+                    shablons_numbers_0_9[7] = nums.get(0);
+                    shablons_numbers_0_9[2] = nums.get(1);
+                }
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_138")){
+                    shablons_numbers_0_9[8] = nums.get(0);
+                }
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_100")){
+                    shablons_numbers_0_9[0] = nums.get(1);
+                }*//*
             }
         }*/
 
@@ -672,7 +741,7 @@ public class Testing {
         for(int i=75; i<100; i++)save_image(ocr.get_white_black_image
                 (ocr.set_grey_and_inverse_or_no(image,true),i),"test4\\_"+i);*/
 
-         //save_ObjectInFile();
+         //save_ObjectInFile(shablons_numbers_0_9,"shablons_numbers_0_9");
        /*BufferedImage image = read_image("test3\\0\\_0");
        *//* for(int i=100; i<200; i++){
             System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(image,i),"stacks"));
@@ -752,21 +821,15 @@ public class Testing {
       _short_arrs_shablons_numbers[0] = zero;
         _short_arrs_shablons_numbers[5] = five;*/
       //save_ObjectInFile();
-        BufferedImage bufferedImageframe = read_image("test4\\8985\\_1_147");
-        boolean is_correct_nicks = true;int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
-        for(int img_nicks=0; img_nicks<6; img_nicks++ ){
-            int x_of_nick = coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5;
-            int y_of_nick = coords_places_of_nicks[img_nicks][1]+1;
-            int width_nick = 87;
-            int height_nick = 14;
-            System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++ "+img_nicks);
-            if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,240,240,bufferedImageframe))continue;
-            is_correct_nicks = false;
-            //break;
-        }
 
 
-        System.out.println(is_correct_nicks);
+        //get_shortarr_HashNumberImg(read_image("test4\\_82.5_273"),0,1,72,12,175);
+
+         //get_shortarr_HashNumberImg(read_image("test4\\_1_157"),0,1,72,12,175);
+        List<int[]> nums = get_shortarr_HashNumberImg(read_image("test4\\_1_157"),0,1,72,12,175);
+        get_OcrNum(nums);
+
+
     }
 
 

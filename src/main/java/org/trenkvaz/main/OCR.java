@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /*import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_core.cvResetImageROI;*/
@@ -25,7 +26,7 @@ public class OCR implements Runnable {
     int table = -1;
     BufferedImage[] frame;
     int[] coord_of_table;
-    Queue<BufferedImage[]> queue;
+    Queue<BufferedImage[]> main_queue_with_frames;
     BufferedImage bufferedImage_current_number_hand;
     CurrentHand currentHand;
     float sb = 0.5f;
@@ -45,7 +46,7 @@ public class OCR implements Runnable {
     public OCR(int table){
         this.coord_of_table = coord_left_up_of_tables[table];
         this.table = table+1;
-        queue = new LinkedList<>();
+        main_queue_with_frames = new LinkedBlockingQueue<>();
 
 
         new Thread(this).start();
@@ -63,7 +64,7 @@ public class OCR implements Runnable {
     @Override
     public void run() {
         while (is_run){
-            if((frame = queue.poll())!=null){
+            if((frame = main_queue_with_frames.poll())!=null){
                 //numberc = testquer.poll();
                 main_work_on_table();
                // frame = null;
@@ -74,7 +75,7 @@ public class OCR implements Runnable {
                     e.printStackTrace();
                 }
             }
-            if(queue.size()>100){System.out.println("table "+table+"    "+queue.size());c++;
+            if(main_queue_with_frames.size()>100){System.out.println("table "+table+"    "+ main_queue_with_frames.size());c++;
              save_image(frame[0],"tables_img\\"+table+"_"+c);
             }
         }
@@ -82,7 +83,7 @@ public class OCR implements Runnable {
     //private int numberc = -1;
 
     public synchronized void set_image_for_ocr(BufferedImage[] frame){
-        queue.offer(frame);
+        main_queue_with_frames.offer(frame);
     }
 
     boolean start_hand = false;
@@ -138,10 +139,10 @@ public class OCR implements Runnable {
 
 
     private void main_work_on_table(){
-        if(table!=2)return;
+        //if(table!=3)return;
 
 
-        long check_number_hand = get_number_hand();
+        int check_number_hand = get_number_hand();
         //System.out.println(check_number_hand);
         if(check_number_hand==0)return;
 
@@ -450,21 +451,68 @@ public class OCR implements Runnable {
     }
 
     int c =0;
+    int P = 0;
 
-
-    long get_number_hand(){
+    int get_number_hand(){
 
         int limit_grey = 175;
-        if(get_max_brightness(frame[1])<150)limit_grey = 214;
+        if(get_int_MaxBrightnessMiddleImg(frame[1],0,0,26,5)<150)limit_grey = 214;
         BufferedImage black_white_image = get_white_black_image(set_grey_and_inverse_or_no(frame[1],true),limit_grey);
 
         //list_test_numberhands.add(new BufferedImage[]{black_white_image,null});
-        //save_image(black_white_image,"test5\\"+(c++));
+       /* c++;
+        save_image(black_white_image,"test2\\"+(c));*/
 
         if(compare_buffred_images(bufferedImage_current_number_hand,black_white_image,5))return -1;
+
+        /*if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3){
+            c++;
+            save_image(black_white_image,"test3\\obw_"+(c));
+            save_image(bufferedImage_current_number_hand,"test3\\ocur_"+(c));
+        }*/
+        if(bufferedImage_current_number_hand!=null){
+            //System.out.println("IIIIIIIIIIIIIIIII");
+            int count = 0, amount_same = 0;
+
+            while (is_run){
+                if(main_queue_with_frames.size()>4){
+                    break;
+                } else {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            if(!is_run)return 0;
+
+            //P++;
+            for(BufferedImage[] frame: main_queue_with_frames) {
+                count++; if(count==5)break;
+                //System.out.println("+++++++++++++++++");
+                limit_grey = 175;
+                if(get_int_MaxBrightnessMiddleImg(frame[1],0,0,26,5)<150)limit_grey = 214;
+                BufferedImage  in_black_white_image = get_white_black_image(set_grey_and_inverse_or_no(frame[1],true),limit_grey);
+               /* if(currentHand.cards_hero[0]!=null)
+                if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3){
+
+                    save_image(in_black_white_image,"test3\\_"+P+"_"+(c)+"_bw");
+                    save_image(bufferedImage_current_number_hand,"test3\\_"+P+"_"+(c)+"_cur");
+                }*/
+             // проверят есть ли еще такие же номера рук после текущей ноновй руки
+                if(compare_buffred_images(black_white_image,in_black_white_image,5))amount_same++;
+            }
+            if(amount_same<4)return 0;
+        }
+        //System.out.println("P "+P);
         bufferedImage_current_number_hand = black_white_image;
+        //save_image(bufferedImage_current_number_hand,"test3\\_"+P+"_"+(c)+"_out");
+
         //list_test_numberhands.set(list_test_numberhands.size()-1,new BufferedImage[]{black_white_image,black_white_image});
         //save_image(black_white_image,"for_ocr_number\\osr_bw_"+c+"_grey_"+limit_grey);
+
         return 1;
 
     }
@@ -572,13 +620,13 @@ public class OCR implements Runnable {
                String stack = ocr_image(get_white_black_image(set_grey_and_inverse_or_no(get_scale_image(cheked_img,2),true),limit_grey),"stacks").trim();
 
                //imgStacks[i] = new ImgStacks(cheked_img,stack);
-               if(i==3&&currentHand.position_of_bu==1) Testing.save_image(frame[0],"test4\\_b_"+i+"_"+stack+(c++));
+               Testing.save_image(cheked_img,"test4\\_"+stack+"_"+(c++));
 
                try{
                    stack_without_action = Float.parseFloat(stack);
 
                } catch (Exception e){
-                   Testing.save_image(frame[0],"test4\\_"+i+"_"+stack+(c++));
+                   //Testing.save_image(frame[0],"test4\\_"+i+"_"+stack+(c++));
                    //Testing.write_TextToFile(checknicktest_table.get(numberc),"test4\\"+numberc+"\\_"+i+"_");
                    continue;
                }
@@ -595,6 +643,7 @@ public class OCR implements Runnable {
         //System.out.println("************************************");
 
     }
+
 
     void check_start_flop(){
         //System.out.println("check_start_flop");
@@ -613,7 +662,7 @@ public class OCR implements Runnable {
     }
 
 
-   String ocr_image(BufferedImage bufferedImage,String type){
+    String ocr_image(BufferedImage bufferedImage,String type){
        String result = null;
        while (true){
            for(UseTesseract use_tesseart:use_tessearts){
@@ -623,16 +672,6 @@ public class OCR implements Runnable {
        }
     }
 
-
-    int get_max_brightness(BufferedImage image){
-        int w = image.getWidth(); int y = image.getHeight()/2;
-        int max = 0;
-        for(int x=0; x<w; x++){
-            int grey = get_intGreyColor(image,x,y);
-            if(grey>max)max=grey;
-        }
-        return max;
-    }
 
 
     int get_int_MaxBrightnessMiddleImg(BufferedImage image,int X,int Y,int W,int H){
@@ -735,10 +774,6 @@ public class OCR implements Runnable {
         BufferedImage result = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_RGB);
         for (int x = 0; x < source.getWidth(); x++)
             for (int y = 0; y < source.getHeight(); y++) {
-                /*int val = source.getRGB(x, y);
-                int r = (val >> 16) & 0xff;
-                int g = (val >> 8) & 0xff;
-                int b = val & 0xff;*/
                 int grey = get_intGreyColor(source,x,y);
                 if(grey<limit_grey){ grey = 0;}
                 else grey = 255;
