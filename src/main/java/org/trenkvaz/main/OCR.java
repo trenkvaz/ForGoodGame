@@ -17,6 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /*import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_core.cvResetImageROI;*/
 import static org.trenkvaz.main.CaptureVideo.*;
+import static org.trenkvaz.main.CaptureVideo.shablons_numbers_0_9;
 import static org.trenkvaz.main.Testing.*;
 //import static org.trenkvaz.main.Settings.write_nicks_keys_img_pix;
 
@@ -364,7 +365,7 @@ public class OCR implements Runnable {
                 total_error = 0;
                 boolean is_equal = true;
                 for(int ind_num=0; ind_num<3; ind_num++){
-                    total_error+=get_count_one_in_numbers(_long_arr_cards_for_compare[nominal_ind_list][ind_num]^card_hash_from_table[ind_num]);
+                    total_error+= get_AmountOneBitInLong(_long_arr_cards_for_compare[nominal_ind_list][ind_num]^card_hash_from_table[ind_num]);
                     if(total_error>limit_error){ is_equal = false; break;  }
                 }
                 if(!is_equal)continue;
@@ -539,7 +540,7 @@ public class OCR implements Runnable {
            /*System.out.println("oldm "+(System.currentTimeMillis()-s));
            s =System.currentTimeMillis();*/
 
-           BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,200,0,0,0,0);
+           BufferedImage cheked_img = check_free_of_kursor(x,y,w,h,100,0,0,0,0);
            //System.out.println("newm "+(System.currentTimeMillis()-s));
           // if(currentHand.stacks[i]==0&&currentHand.first_round_preflop[i]==0){ }
 
@@ -616,11 +617,13 @@ public class OCR implements Runnable {
                // нет стека есть действие
                int limit_grey = 80;
                //if(get_int_MaxBrightnessMiddleImg(cheked_img,0,0,72,13)<150)limit_grey=190;
-               float stack_without_action = 0;
-               String stack = ocr_image(get_white_black_image(set_grey_and_inverse_or_no(get_scale_image(cheked_img,2),true),limit_grey),"stacks").trim();
+               float stack_without_action = get_OcrNum(get_list_intarr_HashNumberImg(cheked_img,0,1,72,12,175));
+
+               Testing.save_image(cheked_img,"test5\\_"+stack_without_action+"_"+(c++));
+               /*String stack = ocr_image(get_white_black_image(set_grey_and_inverse_or_no(get_scale_image(cheked_img,2),true),limit_grey),"stacks").trim();
 
                //imgStacks[i] = new ImgStacks(cheked_img,stack);
-               Testing.save_image(cheked_img,"test4\\_"+stack+"_"+(c++));
+
 
                try{
                    stack_without_action = Float.parseFloat(stack);
@@ -629,7 +632,7 @@ public class OCR implements Runnable {
                    //Testing.save_image(frame[0],"test4\\_"+i+"_"+stack+(c++));
                    //Testing.write_TextToFile(checknicktest_table.get(numberc),"test4\\"+numberc+"\\_"+i+"_");
                    continue;
-               }
+               }*/
                //System.out.println(i+"  "+stack_without_action);
                //if(i==0)System.out.println("p "+i+" stack "+stack+" "+currentHand.stacks[i]+" number "+stack_without_action);
                if(currentHand.preflop_by_positions.get(i).get(0)==1_000_000||currentHand.preflop_by_positions.get(i).get(0)==0){currentHand.stacks[i] = stack_without_action; continue;}    // fold = -10
@@ -643,6 +646,118 @@ public class OCR implements Runnable {
         //System.out.println("************************************");
 
     }
+
+    private float get_OcrNum(List<int[]> list_hash_nums){
+        int limit_error = 10, total_error = 0;
+        String res = "";
+        int size = list_hash_nums.size();
+        for(int hash_num=size-1;  hash_num>-1; hash_num--){
+            if(list_hash_nums.get(hash_num)==null) {res+="."; continue;}
+            /*for(int n:hash_num) System.out.print(n+" ");
+            System.out.println();*/
+            out: for(int number = 0; number<10; number++){
+
+                total_error = 0;
+                // boolean is_equal = true;
+                for(int ind_num=0; ind_num<3; ind_num++){
+                    //System.out.println(shablons_nushablons_numbers_0_9[number]mbers_0_9[number][ind_num]);
+                /*System.out.println("shablon "+number);
+                show_shortarr_HashShablonNumber(shablons_numbers_0_9[number]);
+                System.out.println("+++++++++++++++++++");
+                System.out.println("number ");
+                show_shortarr_HashShablonNumber(list_hash_nums.get(hash_num));
+                System.out.println("++++++++++++++++++++++++++++++");*/
+                    total_error+= get_AmountOneBitInInt(shablons_numbers_0_9[number][ind_num]^list_hash_nums.get(hash_num)[ind_num]);
+                    //System.out.println("total "+total_error);
+                    if(total_error>limit_error){ continue out;  }
+                }
+                //System.err.println("TOTAL ERROR "+total_error);
+                //if(!is_equal)continue;
+
+                // если нашлось совпадение, то берется номинал карты деление на 4 для получения индекса где 13 эелементов вместо 52
+                //System.out.println("num "+number);
+                res+=number;
+                break;
+            }
+        }
+        //System.out.println(res);
+
+        return Float.parseFloat(res);
+    }
+
+
+    private List<int[]> get_list_intarr_HashNumberImg(BufferedImage image_table, int X, int Y, int W, int H, int limit_grey){
+
+        List<int[]> coords_line_x_for_one_num = new ArrayList<>();
+        int[] start_end_num = null;
+        boolean is_x_black = false; int count_black_x_line = 0, count_8_line_num = 0;
+        for (int x = X+W-5; x > X+5; x--) {
+            // определяется есть ли черный пиксель в текущей линии если есть то счетчик увеличивается
+            is_x_black = false;
+            for (int y = Y; y < Y+H; y++) { if(get_intGreyColor(image_table,x,y)>limit_grey){ is_x_black = true; break; } }
+            if(is_x_black) { count_black_x_line++;  //System.out.println(x+" "+count_black_x_line);
+            }
+            // если линия белая, то проверяется сколько черных линий было до этого, если 3, а это точка, то все обнуляется в лист заносится нулл
+            else {
+                if(count_black_x_line==3){
+                    coords_line_x_for_one_num.add(null);
+                    count_black_x_line = 0;
+                    continue;
+                }
+                // если счетчик черных линий равен нулю, то идет дальше если счетчик больше нуля, то идет вниз, это из-за того, что еденица меньше 8 черных линий
+                // и чтобы белая линия не сбивала подсчет линий числа
+                if(count_black_x_line==0) continue;
+            }
+            // проверяется условие есть ли начало числа
+            if(count_black_x_line==1){
+                start_end_num = new int[2];
+                start_end_num[0] = x;
+                count_8_line_num = 1;   // начинается счетчик линий числа
+                continue;
+            }
+            count_8_line_num++;
+            // есть счетчик линий дошел до 8 то обнуляются все счетчики и завершается получение кординат числа
+            if(count_8_line_num==8){
+                assert start_end_num != null;
+                start_end_num[1] = x;
+                coords_line_x_for_one_num.add(start_end_num);
+                count_8_line_num = 0;
+                count_black_x_line = 0;
+            }
+        }
+        List<int[]> result = new ArrayList<>();
+        for(int[] num:coords_line_x_for_one_num){
+            if(num==null) { result.add(null);
+                //System.out.println("DOT");
+                continue;}
+            int start = num[1], end = num[0];
+            //System.out.println(num[0]+"  "+num[1]);
+            int _32_pixels =0;
+            int[] intarr_hashimage = new int[3]; int index_intarr_hashimage = -1, count_32_pix = 0;
+            for (int x = start; x < end+1; x++){
+                for (int y = Y; y < Y+H; y++) {
+                    _32_pixels<<=1;
+                    count_32_pix++;
+                    if(get_intGreyColor(image_table,x,y)>limit_grey){ _32_pixels+=1;
+                        // System.out.print("1");
+                    }
+                    /*else System.out.print("0");
+                    System.out.print(" ");*/
+                    if(count_32_pix==32){
+                        index_intarr_hashimage++;
+                        intarr_hashimage[index_intarr_hashimage] = _32_pixels;
+                        _32_pixels = 0;
+                        count_32_pix = 0;
+                    }
+                }
+                //System.out.println();
+            }
+            result.add(intarr_hashimage);
+        }
+        return result;
+    }
+
+    static int get_AmountOneBitInInt(int lng){ return count_one_in_numbers[(short)(lng>>16)+32768]+count_one_in_numbers[(short)(lng)+32768]; }
 
 
     void check_start_flop(){

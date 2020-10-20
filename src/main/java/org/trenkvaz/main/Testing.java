@@ -1,36 +1,16 @@
 package org.trenkvaz.main;
 
-import com.sun.jna.Pointer;
-import net.coobird.thumbnailator.Thumbnails;
-import net.sourceforge.tess4j.ITessAPI;
-import net.sourceforge.tess4j.TessAPI;
-import net.sourceforge.tess4j.Word;
-import net.sourceforge.tess4j.util.ImageIOHelper;
-import net.sourceforge.tess4j.*;
-import net.sourceforge.tess4j.util.LoadLibs;
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.awt.image.RescaleOp;
-import java.awt.image.WritableRaster;
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.LongStream;
 
-import static net.sourceforge.tess4j.TessAPI.*;
-import static org.bytedeco.javacv.FFmpegFrameGrabber.getDeviceDescriptions;
 import static org.trenkvaz.main.CaptureVideo.*;
 
 public class Testing {
@@ -73,18 +53,18 @@ public class Testing {
         }
     }
 
-    static int[][] shablons_numbers_0_9;
+
 
     static void read_ObjectFromFile(){
 
         try {	FileInputStream file=new FileInputStream(home_folder+"\\shablons_numbers_0_9.file");
             ObjectInput out = new ObjectInputStream(file);
-            shablons_numbers_0_9 =(int[][]) out.readObject();
+            //shablons_numbers_0_9 =(int[][]) out.readObject();
             out.close();
             file.close();
         } catch(IOException e) {
             System.out.println(e);
-        } catch (ClassNotFoundException e) {
+       // } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -280,22 +260,27 @@ public class Testing {
     }
 
 
-    static BufferedImage check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,BufferedImage frame){
+    static int check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,BufferedImage frame){
         //save_image(frame.getSubimage(X,Y,w,h),"tables_img\\t_");
+        int max = 0;
         for(int x=X; x<w+X; x++){
             for(int y=Y; y<h+Y; y+=h-1){
                 int grey = get_intGreyColor(frame,x,y);
-                System.out.println("1 grey "+grey);
+                //System.out.println("1 grey "+grey);
+                if(grey>max)max=grey;
                 //if(grey>limit_grey)return null;
             }
         }
         for(int y=Y; y<h+Y; y++)
             for(int x=X; x<w+X; x+=w-1){
                 int grey = get_intGreyColor(frame,x,y);
-                System.out.println("2 grey "+grey);
+                //System.out.println("2 grey "+grey);
+                if(grey>max)max=grey;
                 //if(grey>limit_grey)return null;
             }
-        return frame.getSubimage(X,Y,w,h);
+        //if(max>80)System.out.println("MAX "+max);
+        //return frame.getSubimage(X,Y,w,h);
+        return max;
     }
 
 
@@ -374,9 +359,7 @@ public class Testing {
 
 
 
-    static List<int[]> get_shortarr_HashNumberImg(BufferedImage image_table,int X, int Y, int W, int H, int limit_grey){
-        /*int first_x_black_pix = 0, last_x_black_pix =0;
-        out:for (int x = X+5; x < X+W-5; x++)for(int y = Y; y < Y+H; y++) if(get_intGreyColor(image_table,x,y)>limit_grey){first_x_black_pix = x-1;break out;}*/
+    static List<int[]> get_list_intarr_HashNumberImg(BufferedImage image_table, int X, int Y, int W, int H, int limit_grey){
 
         List<int[]> coords_line_x_for_one_num = new ArrayList<>();
         int[] start_end_num = null;
@@ -398,7 +381,6 @@ public class Testing {
                 // и чтобы белая линия не сбивала подсчет линий числа
                 if(count_black_x_line==0) continue;
             }
-
             // проверяется условие есть ли начало числа
             if(count_black_x_line==1){
                 start_end_num = new int[2];
@@ -407,7 +389,6 @@ public class Testing {
                 continue;
             }
             count_8_line_num++;
-
             // есть счетчик линий дошел до 8 то обнуляются все счетчики и завершается получение кординат числа
             if(count_8_line_num==8){
                 assert start_end_num != null;
@@ -417,19 +398,15 @@ public class Testing {
                 count_black_x_line = 0;
             }
         }
-
         List<int[]> result = new ArrayList<>();
-
         for(int[] num:coords_line_x_for_one_num){
             if(num==null) { result.add(null);
                 //System.out.println("DOT");
                 continue;}
-
             int start = num[1], end = num[0];
             //System.out.println(num[0]+"  "+num[1]);
             int _32_pixels =0;
             int[] intarr_hashimage = new int[3]; int index_intarr_hashimage = -1, count_32_pix = 0;
-
             for (int x = start; x < end+1; x++){
                 for (int y = Y; y < Y+H; y++) {
                     _32_pixels<<=1;
@@ -446,44 +423,57 @@ public class Testing {
                         count_32_pix = 0;
                     }
                 }
-
                 //System.out.println();
             }
             result.add(intarr_hashimage);
         }
-
-
         return result;
     }
 
 
-    static double get_OcrNum(List<int[]> list_hash_nums){
+    static float get_OcrNum(List<int[]> list_hash_nums){
         int first_of_pair_error = 0, second_of_pair_error = 0, limit_error = 10, total_error = 0;
         String res = "";
-        for(int[] hash_num:list_hash_nums){
-            if(hash_num==null) {res+="."; continue;}
+        int size = list_hash_nums.size();
+        for(int hash_num=size-1;  hash_num>-1; hash_num--){
+            if(list_hash_nums.get(hash_num)==null) {res+="."; continue;}
             /*for(int n:hash_num) System.out.print(n+" ");
             System.out.println();*/
-        for(int number = 0; number<10; number++){
+         out: for(int number = 0; number<10; number++){
 
             total_error = 0;
-            boolean is_equal = true;
+           // boolean is_equal = true;
             for(int ind_num=0; ind_num<3; ind_num++){
-                System.out.println(shablons_numbers_0_9[number][ind_num]);
-                total_error+=get_count_one_in_numbers(shablons_numbers_0_9[number][ind_num]^hash_num[ind_num]);
-                if(total_error>limit_error){ is_equal = false; break;  }
+                //System.out.println(shablons_nushablons_numbers_0_9[number]mbers_0_9[number][ind_num]);
+                /*System.out.println("shablon "+number);
+                show_shortarr_HashShablonNumber(shablons_numbers_0_9[number]);
+                System.out.println("+++++++++++++++++++");
+                System.out.println("number ");
+                show_shortarr_HashShablonNumber(list_hash_nums.get(hash_num));
+                System.out.println("++++++++++++++++++++++++++++++");*/
+                total_error+= get_AmountOneBitInInt(shablons_numbers_0_9[number][ind_num]^list_hash_nums.get(hash_num)[ind_num]);
+                //System.out.println("total "+total_error);
+                if(total_error>limit_error){ continue out;  }
             }
             //System.err.println("TOTAL ERROR "+total_error);
-            if(!is_equal)continue;
+            //if(!is_equal)continue;
 
             // если нашлось совпадение, то берется номинал карты деление на 4 для получения индекса где 13 эелементов вместо 52
+             //System.out.println("num "+number);
             res+=number;
             break;
         }
         }
-        System.out.println(res);
-        return 0;
+        //System.out.println(res);
+
+        return Float.parseFloat(res);
     }
+
+
+    static int get_AmountOneBitInInt(int lng){
+        return count_one_in_numbers[(short)(lng>>16)+32768]+count_one_in_numbers[(short)(lng)+32768];
+    }
+
 
     static short[] get_shortarr_HashShablonNumber(int amount_line_of_num, short[] shortarr_hashnumberimg,int start_line){
         short[] shortarr_shablon = new short[amount_line_of_num];
@@ -492,30 +482,26 @@ public class Testing {
     }
 
 
-    static void show_shortarr_HashShablonNumber(short[] shortarr_shablon){
-
-        for(int x=0; x<shortarr_shablon.length; x++){
+    static void show_shortarr_HashShablonNumber(int[] shortarr_shablon){
 
 
-        }
-        System.out.println("4    "+shortarr_shablon[4]);
         for(int y=0; y<12; y++){
-            for(int x=0; x<shortarr_shablon.length; x++){
+            for(int x=0; x<8; x++){
                 //if(y<3&&x==0)continue;
                 //System.out.println(y+" "+x);
                 //count_pix++;
-               /*int coord_in_arr_long = (y+9*x);
-               int index_bit = coord_in_arr_long%16;
-               int index_in_arrlong = coord_in_arr_long/64;*/
+               int coord_in_arr_long = (y+12*x);
+               int index_bit = coord_in_arr_long%32;
+               int index_in_arrlong = coord_in_arr_long/32;
                 //index_bit++;
                 //System.out.println(coord_in_arr_long+"  "+index_in_arrlong+"  "+index_bit);
-                short pix = shortarr_shablon[x];
+                int pix = shortarr_shablon[index_in_arrlong];
                 // 1<<число сдвига маска единицы 000001 двигаешь еденицу влево
                 // пикс пример число шорт 16 битов(0..01) маска единицы 0000000000000001 в ней сдвигается 1 на определенное число и по этой маске определяется какой бит
                 // есть в числе на месте единицы, число закрывается маской в которой 1 это условная дырка
                 //результат ноль или число отличное от нуля так как единица на любом месте дает произвольное число
                 // операция побитовое И дает единицу бита если в исходном бите также единица в остальных случаях ноль
-                int pixl = pix&(short)1<<(8-y);
+                int pixl = pix&(short)1<<(31-index_bit);
                 if(pixl==0)System.out.print("0");else System.out.print("1");
                 System.out.print(" ");
                 //System.out.println("ind "+index_bit);
@@ -542,12 +528,13 @@ public class Testing {
         static int[][] coords_cards_hero = {{287,286},{331,286}};*/
         /*OCR ocr = new OCR("",1,new BufferedImage[]{read_image("Mtest\\wins5p2").
                 getSubimage(coord_left_up_of_tables[4][0],coord_left_up_of_tables[4][1],639,468),null});*/
-        OCR ocr = new OCR("",1,new BufferedImage[]{read_image("Mtest\\win3p5").
-                getSubimage(coord_left_up_of_tables[2][0],coord_left_up_of_tables[2][1],639,468),null});
-        UseTesseract useTesseract =new UseTesseract();
+        OCR ocr = new OCR("", 1, new BufferedImage[]{read_image("Mtest\\win3p5").
+                getSubimage(coord_left_up_of_tables[2][0], coord_left_up_of_tables[2][1], 639, 468), null});
+        UseTesseract useTesseract = new UseTesseract();
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings settings = new Settings();
+        Settings.setting_cupture_video();
         /*BufferedImage win = read_image("Mtest\\win_long_nick");
         save_image(win.getSubimage(640+12,469+120,87,15),"Mtest\\long_nick");
         System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(
@@ -673,8 +660,8 @@ public class Testing {
 
         save_image(re_bright(img_dark,1.115f),"Mtest\\pc_d_rebr");*/
 
-       // OpenCVFrameGrabber grabber = new OpenCVFrameGrabber(1);
-     //compare_binar_imgs(read_image("test\\poker chips_178715279560800_105"),read_image("test\\poker chips_178703125392000_105"),105);
+        // OpenCVFrameGrabber grabber = new OpenCVFrameGrabber(1);
+        //compare_binar_imgs(read_image("test\\poker chips_178715279560800_105"),read_image("test\\poker chips_178703125392000_105"),105);
         /*System.out.println(get_max_brightness(read_image("error_img\\1 28")));
         System.out.println(is_error_image(read_image("error_img\\1 28")));*/
         // p for 0 1 2 3 = 2
@@ -706,16 +693,18 @@ public class Testing {
         save_image(ocr.get_white_black_image(image,100),"test2\\_"+tess);*/
         int c = -1;
         //int[][] shablons_numbers_0_9 = new int[10][3];
-        read_ObjectFromFile();
-        /*for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test4").listFiles()){
+       /* read_ObjectFromFile();
+        for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test4").listFiles()){
             if(a.isFile()){
                 BufferedImage image = ImageIO.read(a);
                 //for(int i=79; i<90; i++)
-                    *//*save_image(ocr.get_white_black_image
-                        (ocr.set_grey_and_inverse_or_no(image,true),80),"test4\\old\\"+a.getName().substring(0,a.getName().lastIndexOf("_")));*//*
-              List<int[]> nums = get_shortarr_HashNumberImg(image,0,1,72,12,175);
-              get_OcrNum(nums);
-             *//* if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_41.5")){
+                List<int[]> nums = get_list_intarr_HashNumberImg(image,0,1,72,12,175);
+                    save_image(ocr.get_white_black_image
+                        (ocr.set_grey_and_inverse_or_no(image,true),80),"test3\\"+get_OcrNum(nums));
+            }
+        }*/
+
+        /*if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_41.5")){
                   shablons_numbers_0_9[5] = nums.get(0);
                   shablons_numbers_0_9[1] = nums.get(2);
                   shablons_numbers_0_9[4] = nums.get(3);
@@ -733,17 +722,16 @@ public class Testing {
                 }
                 if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_100")){
                     shablons_numbers_0_9[0] = nums.get(1);
-                }*//*
-            }
-        }*/
+                }*/
+
 
       /*  BufferedImage image = read_image("test5\\_0_34");
         for(int i=75; i<100; i++)save_image(ocr.get_white_black_image
                 (ocr.set_grey_and_inverse_or_no(image,true),i),"test4\\_"+i);*/
 
-         //save_ObjectInFile(shablons_numbers_0_9,"shablons_numbers_0_9");
-       /*BufferedImage image = read_image("test3\\0\\_0");
-       *//* for(int i=100; i<200; i++){
+        //save_ObjectInFile(shablons_numbers_0_9,"shablons_numbers_0_9");
+        /*BufferedImage image = read_image("test3\\0\\_0");
+         *//* for(int i=100; i<200; i++){
             System.out.println(useTesseract.get_ocr(ocr.get_white_black_image(image,i),"stacks"));
             save_image(ocr.get_white_black_image(image,i),"test2\\"+i);
         }*//*
@@ -793,46 +781,42 @@ public class Testing {
 
         //save_image(ocr.get_white_black_image(read_image("Mtest\\errorbig1"),125),"Mtest\\errorbig2");
         //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test5\\_stack_39_105"),0,0,72,13));
-        /*String zer ="01110" +
-                    "10001" +
-                    "10001" +
-                    "10001" +
-                    "10001" +
-                    "10001" +
-                    "10001" +
-                    "10001" +
-                    "01110";
 
-   read_ObjectFromFile();
-  short[] num = get_shortarr_HashNumberImg(read_image("test5\\shab\\_1_stack_80.5_125"),0,2,72,9,130);
 
-      ;
-      short[] eight = get_shortarr_HashShablonNumber(5,num,1);
-      short[] zero = get_shortarr_HashShablonNumber(5,num,8);
-      short[] dot =  get_shortarr_HashShablonNumber(2,num,15);
-        short[] five =  get_shortarr_HashShablonNumber(5,num,19);
-
-        show_shortarr_HashShablonNumber(eight);
-        show_shortarr_HashShablonNumber(zero);
-        show_shortarr_HashShablonNumber(dot);
-        show_shortarr_HashShablonNumber(five);
-      _short_arrs_shablons_numbers[10] = dot;
-      _short_arrs_shablons_numbers[8] = eight;
-      _short_arrs_shablons_numbers[0] = zero;
-        _short_arrs_shablons_numbers[5] = five;*/
-      //save_ObjectInFile();
+        //save_ObjectInFile();
 
 
         //get_shortarr_HashNumberImg(read_image("test4\\_82.5_273"),0,1,72,12,175);
 
-         //get_shortarr_HashNumberImg(read_image("test4\\_1_157"),0,1,72,12,175);
-        List<int[]> nums = get_shortarr_HashNumberImg(read_image("test4\\_1_157"),0,1,72,12,175);
-        get_OcrNum(nums);
+        //get_shortarr_HashNumberImg(read_image("test4\\_1_157"),0,1,72,12,175);
+        // List<int[]> nums = get_shortarr_HashNumberImg(read_image("test4\\_79.5_40"),0,1,72,12,175);
+       /* for(int[] a:nums){ if(a==null)continue;
+        show_shortarr_HashShablonNumber(a);}*/
+        // get_OcrNum(nums);
+       /* shablons_numbers_0_9[9] = nums.get(2);
+        for (int[] a:shablons_numbers_0_9){
+        show_shortarr_HashShablonNumber(a);
+            System.out.println();
+            System.out.println();;
+        }
+       save_ObjectInFile(shablons_numbers_0_9,"shablons_numbers_0_9");*/
+
+        BufferedImage bufferedImage = read_image("test5\\_1.0_743");
+        //BufferedImage bufferedImage = read_image("test5\\_10.0_2518");
+        check_free_of_kursor(0, 0, 72, 14, 200, bufferedImage);
+        for (File a : new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test5").listFiles()) {
+            if (a.isFile()) {
+                BufferedImage image = ImageIO.read(a);
+                //for(int i=79; i<90; i++)
+                //System.out.print(a.getName() + "   ");
+                int t = check_free_of_kursor(0, 0, 72, 14, 200, image);
+                if(t>80) System.out.println(a.getName()+"   "+t);
+            }
+        }
 
 
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
-
-
-
-
 }

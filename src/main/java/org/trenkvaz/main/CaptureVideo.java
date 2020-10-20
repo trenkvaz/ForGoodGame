@@ -6,7 +6,6 @@ import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.color.ColorSpace;
 import java.awt.image.*;
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -22,7 +21,6 @@ import static org.bytedeco.javacpp.opencv_imgproc.*;*/
 //import static org.bytedeco.javacpp.opencv_videoio.cvCreateFileCapture;
 import org.bytedeco.ffmpeg.global.avutil;
 
-import static org.trenkvaz.main.Testing.save_image;
 import static org.trenkvaz.ui.Controller_main_window.*;
 
 public class CaptureVideo implements Runnable{
@@ -63,7 +61,7 @@ public class CaptureVideo implements Runnable{
    static BufferedImage[] images_bu = new BufferedImage[6];
 
    static long[][] _long_arr_cards_for_compare = new long[52][5];
-
+   static int[][] shablons_numbers_0_9;
 
 
    public CaptureVideo(){
@@ -219,8 +217,8 @@ public class CaptureVideo implements Runnable{
             for(int i=0; i<15; i++){
                 /*count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
                 if(count_error_in_compare>error){is_equal = false; break;}*/
-                if(i%2==0)first_of_pair_error = get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
-                if(i%2!=0)second_of_pair_error = get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
+                if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
+                if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
                 if(i>0&&(first_of_pair_error+second_of_pair_error)>error){ is_equal = false; break;  }
             }
             if(!is_equal)continue;
@@ -261,7 +259,7 @@ public class CaptureVideo implements Runnable{
     }
 
 
-    static int get_count_one_in_numbers(long lng){
+    static int get_AmountOneBitInLong(long lng){
         return (count_one_in_numbers[(short)(lng>>48)+32768]+count_one_in_numbers[(short)(lng>>32)+32768]
                 +count_one_in_numbers[(short)(lng>>16)+32768]+count_one_in_numbers[(short)(lng)+32768]);
     }
@@ -493,6 +491,7 @@ public class CaptureVideo implements Runnable{
             read_file_with_nicks_and_img_pixs();
             //set_avirage_img_nominal_cards();
             set_long_arr_CardsForCompare();
+            set_int_arr_ShablonsNumbers09();
             set_count_one_of_bite_in_mumber();
             set_images_bu();
 
@@ -574,7 +573,20 @@ public class CaptureVideo implements Runnable{
 
         }
 
+        private static void set_int_arr_ShablonsNumbers09(){
 
+            try {	FileInputStream file=new FileInputStream(home_folder+"\\shablons_numbers_0_9.file");
+                ObjectInput out = new ObjectInputStream(file);
+                shablons_numbers_0_9 =(int[][]) out.readObject();
+                out.close();
+                file.close();
+            } catch(IOException e) {
+                System.out.println(e);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        }
 
 
 
