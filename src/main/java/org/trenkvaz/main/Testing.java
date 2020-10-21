@@ -55,19 +55,19 @@ public class Testing {
 
 
 
-    static void read_ObjectFromFile(){
-
-        try {	FileInputStream file=new FileInputStream(home_folder+"\\shablons_numbers_0_9.file");
+    static <T> T read_ObjectFromFile(String name_file){
+        T type = null;
+        try {	FileInputStream file=new FileInputStream(home_folder+"\\"+name_file+".file");
             ObjectInput out = new ObjectInputStream(file);
-            //shablons_numbers_0_9 =(int[][]) out.readObject();
+            type = (T) out.readObject();
             out.close();
             file.close();
         } catch(IOException e) {
             System.out.println(e);
-       // } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-
+      return type;
     }
 
     static void write_TextToFile(List<String> strings,String name_file){
@@ -465,8 +465,14 @@ public class Testing {
         }
         }
         //System.out.println(res);
+        float result = 0;
+        try {
+            result =  Float.parseFloat(res);
+        } catch (Exception e){
+            return -1;
+        }
 
-        return Float.parseFloat(res);
+        return result;
     }
 
 
@@ -801,7 +807,7 @@ public class Testing {
         }
        save_ObjectInFile(shablons_numbers_0_9,"shablons_numbers_0_9");*/
 
-        BufferedImage bufferedImage = read_image("test5\\_1.0_743");
+       /* BufferedImage bufferedImage = read_image("test5\\_1.0_743");
         //BufferedImage bufferedImage = read_image("test5\\_10.0_2518");
         check_free_of_kursor(0, 0, 72, 14, 200, bufferedImage);
         for (File a : new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test5").listFiles()) {
@@ -812,7 +818,37 @@ public class Testing {
                 int t = check_free_of_kursor(0, 0, 72, 14, 200, image);
                 if(t>80) System.out.println(a.getName()+"   "+t);
             }
+        }*/
+         //int[][] type = new int[][]
+        /*int x = coords_places_of_nicks[2][0]+5+2+90;
+        int y = coords_places_of_nicks[2][1]+8;*/
+        int[] correction_for_place_of_nicks = {-31,97,97,97,-31,-31};
+
+
+        //save_image(bufferedImage,"Mtest\\4fold");
+        for(int p=0;  p<6; p++){
+            int x = coords_places_of_nicks[p][0]+correction_for_place_of_nicks[p];
+            int y = coords_places_of_nicks[p][1]+8;
+            BufferedImage bufferedImage = read_image("Mtest\\2_50").getSubimage(x,y,15,15);
+        int j =-1;
+        int max = 0;
+        for(int i=0; i<15; i++){
+            j++;
+            int grey = get_intGreyColor(bufferedImage,i,j);
+            if(grey>max)max=grey;
+
+         }
+            System.out.println(p+"  "+max);
         }
+
+
+        int x = coords_places_of_nicks[0][0]+5+1;
+        int y = coords_places_of_nicks[0][1]+17;
+        List<int[]> nums = get_list_intarr_HashNumberImg(read_image("Mtest\\2_50"),x,y+1,72,12,175);
+        System.out.println(get_OcrNum(nums));
+
+
+
 
 
 

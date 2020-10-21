@@ -11,9 +11,10 @@ public class CurrentHand {
     boolean is_nicks_filled = false;
     boolean is_preflop_end = false;
     boolean is_start_flop = false;
+    boolean is_stacks_filled = false;
 
-    int position_of_bu = 0;
-    int position_of_hero = -1;
+    int position_bu_on_table = 0;
+    int poker_position_of_hero = -1;
     String[] cards_hero = {"",""};
     float[] stacks = new float[6];
     //float[] first_round_preflop = new float[6];

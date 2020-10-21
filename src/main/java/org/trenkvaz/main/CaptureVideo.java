@@ -21,6 +21,7 @@ import static org.bytedeco.javacpp.opencv_imgproc.*;*/
 //import static org.bytedeco.javacpp.opencv_videoio.cvCreateFileCapture;
 import org.bytedeco.ffmpeg.global.avutil;
 
+import static org.trenkvaz.main.OCR.get_intGreyColor;
 import static org.trenkvaz.ui.Controller_main_window.*;
 
 public class CaptureVideo implements Runnable{
@@ -51,16 +52,13 @@ public class CaptureVideo implements Runnable{
    boolean is_getting_frame = true;
    FFmpegFrameGrabber grabber;
    CanvasFrame canvasFrame;
-   //Java2DFrameConverter paintConverter;
+
    final static UseTesseract[] use_tessearts = new UseTesseract[4];
 
-   static byte[] count_one_in_numbers = new byte[65536];
+   static byte[] count_one_in_numbers;
    static HashMap<Long,String> hashmap_id_img_pix_nick = new HashMap<>();
    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks = new TreeMap<>();
-   static HashMap<String,BufferedImage>avirage_cards =new HashMap<>();
-   static BufferedImage[] images_bu = new BufferedImage[6];
-
-   static long[][] _long_arr_cards_for_compare = new long[52][5];
+   static long[][] _long_arr_cards_for_compare;
    static int[][] shablons_numbers_0_9;
 
 
@@ -211,17 +209,17 @@ public class CaptureVideo implements Runnable{
         Map<Long,long[]> submap_imgs_with_min_error = sortedmap_all_imgs_pix_of_nicks.subMap(min,max);
 
         List<long[]> equal_imgs = new ArrayList<>(); int first_of_pair_error = 0, second_of_pair_error = 0;
-        for(long[] img_min_error:submap_imgs_with_min_error.values()){
+       out: for(long[] img_min_error:submap_imgs_with_min_error.values()){
             int count_error_in_compare = 0;
-            boolean is_equal = true;
+            //boolean is_equal = true;
             for(int i=0; i<15; i++){
                 /*count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
                 if(count_error_in_compare>error){is_equal = false; break;}*/
                 if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
                 if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
-                if(i>0&&(first_of_pair_error+second_of_pair_error)>error){ is_equal = false; break;  }
+                if(i>0&&(first_of_pair_error+second_of_pair_error)>error){ continue out;  }
             }
-            if(!is_equal)continue;
+            //if(!is_equal)continue;
             equal_imgs.add(img_min_error);
         }
 
@@ -272,11 +270,11 @@ public class CaptureVideo implements Runnable{
    int[] countcheks = new int[COUNT_TABLES];
    BufferedImage bufferedImageframe;
 
-  public static Map<Integer,List<String>> checknicktest_table = new HashMap<>();
+   public static Map<Integer,List<String>> checknicktest_table = new HashMap<>();
    static List<String> checknicktest_nick;
 
 
-   boolean find_tables(Frame frame){
+   void find_tables(Frame frame){
 
        //BufferedImage bufferedImageframe = paintConverter.getBufferedImage(frame);
        //long start = System.currentTimeMillis();
@@ -314,7 +312,6 @@ public class CaptureVideo implements Runnable{
                   is_correct_nicks = false;
                   break;
               }
-
                //System.out.println("time "+(System.currentTimeMillis()-s));
               if(is_correct_nicks){
                   //System.out.println("is_correct_nicks");
@@ -326,8 +323,6 @@ public class CaptureVideo implements Runnable{
                                    cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0]+x_of_number_hand+25,
                                            coord_left_up_of_tables[index_table][1]+y_of_number_hand+3,26,5)
                            });
-
-
                }
 
            }
@@ -335,48 +330,9 @@ public class CaptureVideo implements Runnable{
            //if(is_correct_number_hand==null) save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),"tables_img\\t_nokurs"+(++c));
            //if(is_correct_number_hand==null)countcheks[index_table]++;
        }
-       // в массив коунтчек где элемент отвечает за один стол накапливаются ситуации когда нет номера руки если у все элементов больше 30 раз отсутствует номер руки, то
-       // это возвращает фалсе в метод где создается кадр, что вызвает в этом методе пазу на 30 кадров
-       boolean is_info_for_orc = true;
-       /*for(int i=0; i<COUNT_TABLES; i++){
-           if(countcheks[i]>30)continue;
-           is_info_for_orc = true;
-           break;
-       }*/
-
-       //bufferedImageframe = null;
-       //paintConverter = null;
-
-       //return count_cheks != COUNT_TABLES;
-       //System.out.println(is_info_for_orc);
-       return is_info_for_orc;
-
-
-       //DataBuffer dataBuffer = bufferedImageframe.getData().getDataBuffer();
-
-// Each bank element in the data buffer is a 32-bit integer
-      /* long sizeBytes = ((long) dataBuffer.getSize()) * 4L;
-       long sizeMB = sizeBytes / (1024L * 1024L);
-       System.out.println("sizeimage "+sizeMB);*/
 
    }
 
-
-   private BufferedImage[] get_NicksImages(BufferedImage image_window,int index_table){
-       int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
-       int width_nick = 86, height_nick = 14;
-       BufferedImage[] nicks_images = new BufferedImage[6];
-       for(int img_nicks=0; img_nicks<6; img_nicks++ ){
-           int x_of_nick = coord_left_up_of_tables[index_table][0]+coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5;
-           int y_of_nick = coord_left_up_of_tables[index_table][1]+coords_places_of_nicks[img_nicks][1]+1;
-
-           BufferedImage img = image_window.getSubimage(x_of_nick, y_of_nick, width_nick, height_nick); //fill in the corners of the desired crop location here
-           nicks_images[img_nicks] = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_RGB);
-           Graphics g = nicks_images[img_nicks].createGraphics();
-           g.drawImage(img, 0, 0, null);
-       }
-       return nicks_images;
-   }
 
 
    private BufferedImage cut_SubImage(BufferedImage image_window,int X, int Y, int W, int H){
@@ -397,37 +353,6 @@ public class CaptureVideo implements Runnable{
     }
 
 
-    /*private BufferedImage createBufferedImage(Frame frame, BufferedImage image) {
-        ByteBuffer buffer = (ByteBuffer) frame.image[0].position(0);
-
-            if(image == null) {
-                ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
-
-                ColorModel cm = new ComponentColorModel(cs, false,false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
-                // this assumes BGR format
-                DataBuffer dataBuffer = new DataBufferByte(buffer.limit());
-                WritableRaster wr = Raster.createWritableRaster(new ComponentSampleModel(DataBuffer.TYPE_BYTE, frame.imageWidth, frame.imageHeight, frame.imageChannels, frame.imageStride, new int[] {2, 1, 0}), dataBuffer,null);
-                byte[] bufferPixels = ((DataBufferByte) wr.getDataBuffer()).getData();
-
-                buffer.get(bufferPixels);
-
-                return new BufferedImage(cm, wr, false, null);
-            }
-            else {
-        WritableRaster wr = image.getRaster();
-        byte[] bufferPixels = ((DataBufferByte) wr.getDataBuffer()).getData();
-        buffer.get(bufferPixels);
-
-        return image;
-          }
-    }*/
-
-
-
-
-
-
-
 
 
   public static boolean is_CorrectImageOfNumberHandAndNicks(int X, int Y, int w, int h, int brightness_of_perimeter,int max_brightness_of_text, BufferedImage frame){
@@ -435,35 +360,21 @@ public class CaptureVideo implements Runnable{
         // проверка отсутстивя белых пикселей по периметру номера раздачи
         for(int x=X; x<w+X; x++){
             for(int y=Y; y<h+Y; y+=h-1){
-                int val = frame.getRGB(x, y);
-                int r = (val >> 16) & 0xff;
-                int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
                 //System.out.println("1 grey "+grey);
                 //checknicktest_nick.add("1 "+grey);
-                if(grey>brightness_of_perimeter)return false;
+                if(get_intGreyColor(frame,x,y)>brightness_of_perimeter)return false;
             }
         }
         for(int y=Y; y<h+Y; y++)
             for(int x=X; x<w+X; x+=w-1){
-                int val = frame.getRGB(x, y);
-                int r = (val >> 16) & 0xff;
-                int g = (val >> 8) & 0xff;
-                int b = val & 0xff;
-                int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
                 //System.out.println("2 grey "+grey);
                 //checknicktest_nick.add("2 "+grey);
-                if(grey>brightness_of_perimeter)return false;
+                if(get_intGreyColor(frame,x,y)>brightness_of_perimeter)return false;
             }
        // проверка яркости текста
         int max = 0, y = Y+h/2;
         for(int x=X; x<w+X; x++){
-            int val = frame.getRGB(x, y);
-            int r = (val >> 16) & 0xff;
-            int g = (val >> 8) & 0xff;
-            int b = val & 0xff;
-            int grey = (int) (r * 0.299 + g * 0.587 + b * 0.114);
+            int grey = get_intGreyColor(frame,x,y);
             if(grey>max)max=grey;
         }
       //System.out.println("max "+max);
@@ -485,16 +396,13 @@ public class CaptureVideo implements Runnable{
 
     public static class Settings {
 
-       private static File file_with_nicks;
+        private static File file_with_nicks;
 
-      public static void setting_cupture_video(){
+        public static void setting_cupture_video(){
             read_file_with_nicks_and_img_pixs();
-            //set_avirage_img_nominal_cards();
-            set_long_arr_CardsForCompare();
-            set_int_arr_ShablonsNumbers09();
-            set_count_one_of_bite_in_mumber();
-            set_images_bu();
-
+            _long_arr_cards_for_compare = read_ObjectFromFile("_long_arr_cards_for_compare");
+            shablons_numbers_0_9 = read_ObjectFromFile("shablons_numbers_0_9");
+            count_one_in_numbers = read_ObjectFromFile("count_one_in_numbers");
         }
 
         private static void read_file_with_nicks_and_img_pixs(){
@@ -522,20 +430,11 @@ public class CaptureVideo implements Runnable{
 
 
 
-        private static void set_avirage_img_nominal_cards(){
-            for(File file: Objects.requireNonNull(new File(home_folder + "\\all_settings\\capture_video\\b_w_nominal").listFiles())){
-                try {
-                    avirage_cards.put(file.getName().substring(0,1),ImageIO.read(file));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        private static void set_count_one_of_bite_in_mumber(){
-            try {	FileInputStream file=new FileInputStream(home_folder+"\\all_settings\\capture_video\\count_one_in_numbers.file");
+        static <T> T read_ObjectFromFile(String name_file){
+            T type = null;
+            try {	FileInputStream file=new FileInputStream(home_folder+"\\all_settings\\capture_video\\"+name_file+".file");
                 ObjectInput out = new ObjectInputStream(file);
-                count_one_in_numbers = (byte[]) out.readObject();
+                type = (T) out.readObject();
                 out.close();
                 file.close();
             } catch(IOException e) {
@@ -543,51 +442,8 @@ public class CaptureVideo implements Runnable{
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
+            return type;
         }
-
-
-        private static void set_images_bu(){
-            int i = -1;
-            for(File file: Objects.requireNonNull(new File(home_folder + "\\all_settings\\capture_video\\images_bu").listFiles())){
-                try {
-                    i++;
-                    images_bu[i] = ImageIO.read(file);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-
-        private static void set_long_arr_CardsForCompare(){
-            try {	FileInputStream file=new FileInputStream(home_folder+"\\all_settings\\capture_video\\_long_arr_cards_for_compare.file");
-                ObjectInput out = new ObjectInputStream(file);
-                _long_arr_cards_for_compare = (long[][]) out.readObject();
-                out.close();
-                file.close();
-            } catch(IOException e) {
-                System.out.println(e);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        private static void set_int_arr_ShablonsNumbers09(){
-
-            try {	FileInputStream file=new FileInputStream(home_folder+"\\shablons_numbers_0_9.file");
-                ObjectInput out = new ObjectInputStream(file);
-                shablons_numbers_0_9 =(int[][]) out.readObject();
-                out.close();
-                file.close();
-            } catch(IOException e) {
-                System.out.println(e);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-
-        }
-
 
 
         public static synchronized void write_nicks_keys_img_pix(String nick,long key_in_treemap_img_pix,long[] imgs_pix_of_nick){

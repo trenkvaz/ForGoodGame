@@ -503,3 +503,10 @@ int add_x = 0;
                     System.out.println(in);
                     _long_arr_cards_for_compare[in] = ocr.get_longarr_HashImage(image,0,0,14,14,3,150);
                     if(c==3)c=-1;
+
+        //DataBuffer dataBuffer = bufferedImageframe.getData().getDataBuffer();
+
+        // Each bank element in the data buffer is a 32-bit integer
+              /* long sizeBytes = ((long) dataBuffer.getSize()) * 4L;
+               long sizeMB = sizeBytes / (1024L * 1024L);
+               System.out.println("sizeimage "+sizeMB);*/
