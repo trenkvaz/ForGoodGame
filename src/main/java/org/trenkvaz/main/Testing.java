@@ -827,12 +827,13 @@ public class Testing {
 
         //save_image(bufferedImage,"Mtest\\4fold");
         for(int p=0;  p<6; p++){
+            BufferedImage bufferedImage = read_image("Mtest\\2_50");
             int x = coords_places_of_nicks[p][0]+correction_for_place_of_nicks[p];
             int y = coords_places_of_nicks[p][1]+8;
-            BufferedImage bufferedImage = read_image("Mtest\\2_50").getSubimage(x,y,15,15);
-        int j =-1;
+
+        int j =y-1;
         int max = 0;
-        for(int i=0; i<15; i++){
+        for(int i=x; i<15+x; i++){
             j++;
             int grey = get_intGreyColor(bufferedImage,i,j);
             if(grey>max)max=grey;

@@ -130,7 +130,7 @@ public class OCR implements Runnable {
             im.getGraphics().drawImage(test_cards[1], 15, 0, null);
             save_image(im,"test4\\"+currentHand.cards_hero[0]+currentHand.cards_hero[1]);*/
 
-            //for(Float a:currentHand.preflop_by_positions.get(i)) System.out.print(a+"  ");
+            for(Float a:ocr.currentHand.preflop_by_positions.get(i)) System.out.print(a+"  ");
             System.out.println();
 
         }
@@ -464,13 +464,15 @@ public class OCR implements Runnable {
        /* c++;
         save_image(black_white_image,"test2\\"+(c));*/
 
+        if(currentHand!=null)
+            if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("7c")){
+                c++;
+                save_image(black_white_image,"test3\\obw_"+(c));
+                save_image(bufferedImage_current_number_hand,"test3\\ocur_"+(c));
+            }
+
         if(compare_buffred_images(bufferedImage_current_number_hand,black_white_image,5))return -1;
 
-        /*if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3){
-            c++;
-            save_image(black_white_image,"test3\\obw_"+(c));
-            save_image(bufferedImage_current_number_hand,"test3\\ocur_"+(c));
-        }*/
         if(bufferedImage_current_number_hand!=null){
             //System.out.println("IIIIIIIIIIIIIIIII");
             int count = 0, amount_same = 0;
@@ -529,7 +531,7 @@ public class OCR implements Runnable {
             // проверка последнего действия на префлопе на фолд берется последний индекс
             if(currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1)==1_000_000)continue;
 
-
+            if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("7c"))save_image(frame[0],"test\\"+(c++)+"_"+poker_position);
 
 
 
@@ -538,6 +540,19 @@ public class OCR implements Runnable {
                 currentHand.preflop_by_positions.get(poker_position).set(0,1_000_000f);
             else currentHand.preflop_by_positions.get(poker_position).add(1_000_000f);
             }
+
+            int xa = coords_actions[poker_positions_index_with_numbering_on_table[poker_position]-1][0];
+            int ya = coords_actions[poker_positions_index_with_numbering_on_table[poker_position]-1][1]+2;
+            int wa = 54;
+            int ha = 11;
+            if(!(get_int_MaxBrightnessMiddleImg(frame[0],xa,ya,wa,ha)>220))continue;
+            BufferedImage subimage_action = frame[0].getSubimage(xa,ya,wa,ha);
+            if(!compare_buffred_images(bufferedimage_current_position_actions[poker_position],subimage_action,5)){
+            bufferedimage_current_position_actions[poker_position] = subimage_action;
+            //save_image(subimage_action,"test4\\"+poker_position+"_"+(c++));
+            }
+
+
             //else
               /*  {
                 int xa = coords_actions[poker_positions_of_numbers[i]-1][0];
@@ -625,9 +640,15 @@ public class OCR implements Runnable {
         int[] correction_for_place_of_imgfold = {-31,97,97,97,-31,-31};
         int x = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][0]
                 +correction_for_place_of_imgfold[poker_positions_index_with_numbering_on_table[poker_position]-1];
-        int j =x-1, max = 70;
-        for(int i=x; i<x+15; i++){ j++;if(get_intGreyColor(frame[0],i,j)>max)return false; }
-        return true;
+        int y = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][1]+8;
+        int j =y-1, max = 0;
+        for(int i=x; i<x+15; i++){ j++;
+            int grey = get_intGreyColor(frame[0],i,j);
+            //if(get_intGreyColor(frame[0],i,j)>max)return false;
+            if(grey>max)max=grey;
+        }
+        //if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("7c"))save_image(frame[0],"test\\"+poker_position+"_"+(max));
+        return !(max>70);
     }
 
 
