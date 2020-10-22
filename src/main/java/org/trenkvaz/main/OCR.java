@@ -83,15 +83,13 @@ public class OCR implements Runnable {
             }
         }
     }
-    //private int numberc = -1;
+
 
     public synchronized void set_image_for_ocr(BufferedImage[] frame){
         main_queue_with_frames.offer(frame);
     }
 
-    boolean start_hand = false;
-    //boolean is_nicks_filled = false;
-    static int S =0;
+
     static synchronized void show_total_hand(OCR ocr,BufferedImage[] test_cards){
         System.out.println("****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
                 " bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table);
@@ -166,36 +164,16 @@ public class OCR implements Runnable {
 
             currentHand = new CurrentHand(table-1,sb);
             for(int i=0; i<6; i++)bufferedimage_current_position_actions[i]=null;
-           /*current_cards_hero = "";
-           current_position_of_sb = 0;*/
-            start_hand = true;
+
+
             test_cards[0] = null;
             test_cards[1] = null;
-            //for(int i=1; i<6; i++)current_nicks[i]=null;
-            //is_nicks_filled = false;
+
             currentHand.position_bu_on_table = current_bu;
             currentHand.cards_hero[0] = current_hero_cards[0];
             currentHand.cards_hero[1] = current_hero_cards[1];
         }
 
-       /* if(check_start_or_end_hand==0){
-            if(currentHand!=null){
-                *//*if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3){
-                    System.out.println("TOTAL ---------------------------------------  "+currentHand.nicks[4]);
-
-                }*//*
-             show_total_hand(this,test_cards);
-
-            }
-            //list_test_numberhands.clear();
-            list_test_cards.clear();
-            test_list_imgStacks.clear();
-           return;
-        }*/
-
-        /*if(currentHand.position_bu_on_table ==0) set_current_position_of_bu();
-
-        if(currentHand.position_bu_on_table >0&&(currentHand.cards_hero[0].equals("")||currentHand.cards_hero[1].equals(""))) set_cards_hero();*/
 
         /*if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3
         )save_image(frame[0],"test2\\_table_"+(++c));*/
@@ -477,6 +455,7 @@ public class OCR implements Runnable {
                 positons_on_table++;
                 if(positons_on_table==utg)start = true;
                 if(start){
+                    // массив покерные позиции индексы 0-5 это утг-бб, элементы это номера 1-6 позиции на столе начиная с херо
                     i++; poker_positions_index_with_numbering_on_table[i] = positons_on_table;
                 }
                 if(positons_on_table==6)positons_on_table=0;
@@ -518,17 +497,6 @@ public class OCR implements Runnable {
            return 1;
        }
 
-
-
-
-
-
-
-
-
-
-
-
     }
 
 
@@ -546,7 +514,7 @@ public class OCR implements Runnable {
 
 
 
-
+           // если есть фолд, то или первый 0 заменяется фолдом, или добавляется фолд так как изначально первое число уже добавлено
            if(is_Fold(poker_position)){if(currentHand.preflop_by_positions.get(poker_position).size()==1&&!(currentHand.preflop_by_positions.get(poker_position).get(0)>0))
                 currentHand.preflop_by_positions.get(poker_position).set(0,1_000_000f);
             else currentHand.preflop_by_positions.get(poker_position).add(1_000_000f);
@@ -556,7 +524,13 @@ public class OCR implements Runnable {
             int ya = coords_actions[poker_positions_index_with_numbering_on_table[poker_position]-1][1]+2;
             int wa = 54;
             int ha = 11;
+            // фильтр на пустое место без рейза
             if(!(get_int_MaxBrightnessMiddleImg(frame[0],xa,ya,wa,ha)>220))continue;
+            // если есть первый рейз, но его нельзя прочитать из-за помехи, то на первое место в префлоп действии ставится -1, из-за этого не будет определятся стек
+            // последующие рейзы игнорируются для расчета стека, подразумевается, что стек определен быстро на первом рейзе
+            if(!is_noCursorInterferenceImage(frame[0],xa,ya,wa,ha,200)){
+                if(currentHand.preflop_by_positions.get(poker_position).size()==1)currentHand.preflop_by_positions.get(poker_position).set(0,-1f);continue;}
+
             BufferedImage subimage_action = frame[0].getSubimage(xa,ya,wa,ha);
             if(!compare_buffred_images(bufferedimage_current_position_actions[poker_position],subimage_action,5)){
             bufferedimage_current_position_actions[poker_position] = subimage_action;
@@ -622,7 +596,10 @@ public class OCR implements Runnable {
             int count_filled_stacks = 0;
             for(int poker_position =0; poker_position<6; poker_position++){
                 if(currentHand.stacks[poker_position]!=0){ count_filled_stacks++; continue;}
-                // массив покерные позиции индексы 0-5 это утг-бб, элементы это номера 1-6 позиции на столе начиная с херо
+                // проверка на -1, чтобы избежать получения стека, так как не ясно какой был рейз
+                if(currentHand.preflop_by_positions.get(poker_position).get(0)==-1)continue;
+
+
                 int x = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][0]
                         +5+correction_for_place_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1];
                 int y = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][1]+17;
@@ -652,14 +629,12 @@ public class OCR implements Runnable {
         int x = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][0]
                 +correction_for_place_of_imgfold[poker_positions_index_with_numbering_on_table[poker_position]-1];
         int y = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][1]+8;
-        int j =y-1, max = 0;
+        int j =y-1, max = 70;
         for(int i=x; i<x+15; i++){ j++;
-            int grey = get_intGreyColor(frame[0],i,j);
-            //if(get_intGreyColor(frame[0],i,j)>max)return false;
-            if(grey>max)max=grey;
+            if(get_intGreyColor(frame[0],i,j)>max)return false;
         }
         //if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("7c"))save_image(frame[0],"test\\"+poker_position+"_"+(max));
-        return !(max>70);
+        return true;
     }
 
 
