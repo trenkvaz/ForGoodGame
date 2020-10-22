@@ -272,7 +272,8 @@ public class CaptureVideo implements Runnable{
 
    public static Map<Integer,List<String>> checknicktest_table = new HashMap<>();
    static List<String> checknicktest_nick;
-
+   boolean[] is_start_tables = new boolean[6];
+   boolean[] is_end_tables = new boolean[6];
 
    void find_tables(Frame frame){
 
@@ -284,9 +285,10 @@ public class CaptureVideo implements Runnable{
        //bufferedImageframe = Java2DFrameUtils.toBufferedImage(frame);
        //System.out.println((System.currentTimeMillis()-start));
         createBufferedImage(frame, bufferedImageframe);
-
+       BufferedImage image_number_hand = null;
        int x_of_number_hand = 579,y_of_number_hand = 56,width_of_number_hand = 53,height_of_number_hand = 11, width_nick = 87, height_nick = 14;
        boolean is_correct_number_hand = false, is_correct_nicks = false;
+
        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
        for(int index_table=0; index_table<COUNT_TABLES; index_table++){
 
@@ -317,13 +319,30 @@ public class CaptureVideo implements Runnable{
                   //System.out.println("is_correct_nicks");
                   /*checknicktest_table.put(c,checknicktest_nick);
                   if(index_table==0)save_image(bufferedImageframe,"tables_img\\_");*/
+                  /*if(!is_start_tables[index_table]){
+                      image_number_hand = cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0]+x_of_number_hand+25,
+                              coord_left_up_of_tables[index_table][1]+y_of_number_hand+3,26,5);
+                      is_start_tables[index_table] = true;
+                      is_end_tables[index_table] = false;
+
+                  } else image_number_hand = null;*/
+
+                 /* if(index_table==2)
+                      if(image_number_hand==null) System.out.println("hand null is_start "+is_start_tables[index_table]);
+                      else System.out.println("hand start is_start "+is_start_tables[index_table]);*/
                    ocrList_1.get(index_table).set_image_for_ocr(
                            new BufferedImage[]{
                                    cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),
-                                   cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0]+x_of_number_hand+25,
-                                           coord_left_up_of_tables[index_table][1]+y_of_number_hand+3,26,5)
+                                   image_number_hand
                            });
                }
+              /*else {
+                 if(!is_end_tables[index_table]){
+                     is_start_tables[index_table] = false;
+                     is_end_tables[index_table] = true;
+                     ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{null, null});
+                 }
+              }*/
 
            }
 

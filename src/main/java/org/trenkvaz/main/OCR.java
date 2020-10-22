@@ -33,6 +33,8 @@ public class OCR implements Runnable {
     float sb = 0.5f;
     int[] poker_positions_index_with_numbering_on_table = new int[6];
     BufferedImage[] bufferedimage_current_position_actions = new BufferedImage[6];
+    int current_bu = -1;
+    String[] current_hero_cards = new String[]{"",""};
 
 
     // test
@@ -77,7 +79,7 @@ public class OCR implements Runnable {
                 }
             }
             if(main_queue_with_frames.size()>100){System.out.println("table "+table+"    "+ main_queue_with_frames.size());c++;
-             save_image(frame[0],"tables_img\\"+table+"_"+c);
+            if(frame[0]!=null) save_image(frame[0],"tables_img\\"+table+"_"+c);
             }
         }
     }
@@ -140,40 +142,60 @@ public class OCR implements Runnable {
 
 
     private void main_work_on_table(){
-        if(table!=3)return;
+        if(table!=4)return;
 
 
-        int check_number_hand = get_number_hand();
-        //System.out.println(check_number_hand);
-        if(check_number_hand==0)return;
+        int check_start_or_end_hand = get_number_hand();
+        //System.out.println(check_start_or_end_hand);
+        if(check_start_or_end_hand==0) return;
 
-        if(check_number_hand>0){
+        if(check_start_or_end_hand==1) {
             if(currentHand!=null){
                 /*if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3){
                     System.out.println("TOTAL ---------------------------------------  "+currentHand.nicks[4]);
 
                 }*/
-             show_total_hand(this,test_cards);
+                show_total_hand(this,test_cards);
 
             }
             //list_test_numberhands.clear();
             list_test_cards.clear();
             test_list_imgStacks.clear();
 
-           currentHand = new CurrentHand(table-1,sb);
+
+
+            currentHand = new CurrentHand(table-1,sb);
             for(int i=0; i<6; i++)bufferedimage_current_position_actions[i]=null;
            /*current_cards_hero = "";
            current_position_of_sb = 0;*/
-           start_hand = true;
-           test_cards[0] = null;
-           test_cards[1] = null;
-           //for(int i=1; i<6; i++)current_nicks[i]=null;
-           //is_nicks_filled = false;
+            start_hand = true;
+            test_cards[0] = null;
+            test_cards[1] = null;
+            //for(int i=1; i<6; i++)current_nicks[i]=null;
+            //is_nicks_filled = false;
+            currentHand.position_bu_on_table = current_bu;
+            currentHand.cards_hero[0] = current_hero_cards[0];
+            currentHand.cards_hero[1] = current_hero_cards[1];
         }
 
-        if(currentHand.position_bu_on_table ==0) set_current_position_of_bu();
+       /* if(check_start_or_end_hand==0){
+            if(currentHand!=null){
+                *//*if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3){
+                    System.out.println("TOTAL ---------------------------------------  "+currentHand.nicks[4]);
 
-        if(currentHand.position_bu_on_table >0&&(currentHand.cards_hero[0].equals("")||currentHand.cards_hero[1].equals(""))) set_cards_hero();
+                }*//*
+             show_total_hand(this,test_cards);
+
+            }
+            //list_test_numberhands.clear();
+            list_test_cards.clear();
+            test_list_imgStacks.clear();
+           return;
+        }*/
+
+        /*if(currentHand.position_bu_on_table ==0) set_current_position_of_bu();
+
+        if(currentHand.position_bu_on_table >0&&(currentHand.cards_hero[0].equals("")||currentHand.cards_hero[1].equals(""))) set_cards_hero();*/
 
         /*if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3
         )save_image(frame[0],"test2\\_table_"+(++c));*/
@@ -208,7 +230,7 @@ public class OCR implements Runnable {
 
 
     void get_nicks(){
-        //if(!current_cards_hero.equals("6sQc"))return false;
+
         //System.out.println("get nicks");
         //int p = 0;
         int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
@@ -319,10 +341,15 @@ public class OCR implements Runnable {
             //if(isplace) System.out.println("NICK    /////////////////////////////////////////    "+currentHand.nicks[i]);
         }
         currentHand.setIs_nicks_filled();
-        /*if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3)
-            System.out.println("AFTER NICK ---------------------------------------  "+currentHand.nicks[4]+"    "+currentHand.is_nicks_filled);*/
+        /*if(currentHand.cards_hero[0].equals("Qc")&&currentHand.cards_hero[1].equals("2h")&&table==3){
+            for(String n:currentHand.nicks) { if(n==null){
+                System.out.println("null"); continue;
+            }
+                System.out.println("*"+n);}
+        save_image(frame[0],"test\\"+(c++));
+        }*/
         if(currentHand.is_nicks_filled) set_nick_by_positions_and_position_of_hero();
-
+        //if(currentHand.cards_hero[0].equals("Qc")&&currentHand.cards_hero[1].equals("2h")) System.out.println("NICKS");;
     }
 
 
@@ -338,18 +365,18 @@ public class OCR implements Runnable {
     }
 
 
-    void set_cards_hero(){
+    String[] set_cards_hero(){
         //System.out.println("set_cards_hero");
         //BufferedImage[] cards = new BufferedImage[2];
-        int w = 15;
-        int h = 17;
+        String[] result = new String[]{"",""};
+
         for(int i=0; i<2; i++){
-            if(currentHand.cards_hero[i].length()!=0)continue;
+            //if(result[i].length()!=0)continue;
             int X = coords_cards_hero[i][0];
             int Y = coords_cards_hero[i][1];
 
             // проверка периметра карта на помеху курсором
-           if(!is_noCursorInterferenceImage(frame[0],X+1,Y,w,h,240))continue;
+           if(!is_noCursorInterferenceImage(frame[0],X+1,Y,15,17,240))continue;
 
            //test_cards[i] = frame[0].getSubimage(X+1,Y,w,h);
 
@@ -357,28 +384,31 @@ public class OCR implements Runnable {
 
             //show_img_from_arr_long(card_hash_from_table,14,14);
             int first_of_pair_error = 0, second_of_pair_error = 0, limit_error = 10, total_error = 0;
-            for(int nominal_ind_list = 0; nominal_ind_list<52; nominal_ind_list++){
+         out: for(int nominal_ind_list = 0; nominal_ind_list<52; nominal_ind_list++){
                 // сравнение количества черных пикселей между хешем_имдж из массива номиналы_карт с хешем_имдж со стола
                 //System.out.println("i "+i+" nom "+nominals_cards[nominal_ind_list/4]+"  err "+abs(_long_arr_cards_for_compare[nominal_ind_list][3]-card_hash_from_table[3]));
                 if(abs(_long_arr_cards_for_compare[nominal_ind_list][3]-card_hash_from_table[3])>limit_error)continue;
 
                 total_error = 0;
-                boolean is_equal = true;
+
                 for(int ind_num=0; ind_num<3; ind_num++){
                     total_error+= get_AmountOneBitInLong(_long_arr_cards_for_compare[nominal_ind_list][ind_num]^card_hash_from_table[ind_num]);
-                    if(total_error>limit_error){ is_equal = false; break;  }
+                    if(total_error>limit_error){ continue out;  }
                 }
-                if(!is_equal)continue;
+
                 //System.err.println("TOTAL ERROR "+total_error);
                 // если нашлось совпадение, то берется номинал карты деление на 4 для получения индекса где 13 эелементов вместо 52
-                currentHand.cards_hero[i]=nominals_cards[nominal_ind_list/4];
+                result[i]=nominals_cards[nominal_ind_list/4];
                 break;
             }
 
-            if(currentHand.cards_hero[i].length()<2)currentHand.cards_hero[i]+=get_suit_of_card(frame[0],X+14,Y+16);
+            if(result[i].length()<2)result[i]+=get_suit_of_card(frame[0],X+14,Y+16);
 
         }
 
+        if(result[0].length()==2&&result[1].length()==2)return result;
+
+        return null;
         /*Testing.Cards cards1 = new Testing.Cards(cards,currentHand.cards_hero);
         list_test_cards.add(cards1);*/
         //System.out.println("cards "+current_cards_hero+"  table "+table);
@@ -427,18 +457,20 @@ public class OCR implements Runnable {
     }
 
 
-    private void set_current_position_of_bu(){
+    private int set_current_position_of_bu(){
         //System.out.println("set_current_bu");
-            int w = 22;
-            int h = 17;
+            int result = -1;
+
             for(int i=0; i<6; i++){
                 int x = coords_buttons[i][0];
                 int y = coords_buttons[i][1];
-                if(!is_noCursorInterferenceImage(frame[0],x,y,w,h,200))continue;
-                if(get_int_MaxBrightnessMiddleImg(frame[0],x,y,w,h)>200){currentHand.position_bu_on_table = i+1; break;}
+                if(!is_noCursorInterferenceImage(frame[0],x,y,22,17,200))continue;
+                if(get_int_MaxBrightnessMiddleImg(frame[0],x,y,22,17)>200){result = i+1; break;}
             }
+
+            if(result==-1)return -1;
             // алгоритм определения соответсвия покерных позиций позициям за столом которые начинаются с херо, на основе того где на столе находится БУ
-            int utg = currentHand.position_bu_on_table +3;
+            int utg = result +3;
             if(utg>6) utg = utg-6;
             int positons_on_table = 0; boolean start = false; int i =-1;
             while (i!=5){
@@ -449,6 +481,7 @@ public class OCR implements Runnable {
                 }
                 if(positons_on_table==6)positons_on_table=0;
             }
+            return result;
     }
 
     int c =0;
@@ -456,67 +489,45 @@ public class OCR implements Runnable {
 
     int get_number_hand(){
 
-        int limit_grey = 175;
-        if(get_int_MaxBrightnessMiddleImg(frame[1],0,0,26,5)<150)limit_grey = 214;
-        BufferedImage black_white_image = get_white_black_image(set_grey_and_inverse_or_no(frame[1],true),limit_grey);
+       /* if(frame[0]==null)return 0;
+        else {
+            if(frame[1]!=null)return 1;
+            else return -1;
+        }*/
+       String[] hero_cards = set_cards_hero();
+       // карты могут пропадать в конце текущей раздачи, отсутствие карт в новой раздаче пока не обнаружено
+       if(hero_cards==null)return -1;
+        //if(hero_cards[0].equals("7c")&&hero_cards[1].equals("7h"))save_image(frame[0],"test2\\"+(c++));
+       int bu = set_current_position_of_bu();
+       /*if(!(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1]))&&bu==-1){
+           System.err.println("ERROR");
+           save_image(frame[0],"test\\"+(c++));
+        }*/
 
-        //list_test_numberhands.add(new BufferedImage[]{black_white_image,null});
-       /* c++;
-        save_image(black_white_image,"test2\\"+(c));*/
+        // БУ может отсутствовать и в начале новой и в конце старой раздачи
+        // если БУ не определилась проверяет совпадение новых карт со старыми если да, то считается текущая раздача, если карты разные, то кадр пропускается
+       if(bu==-1)if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1]))return -1;
+                 else return 0;
+       // если БУ определилась, то проверяет совпадение новых карт со старыми если да, то считается текущая раздача, если карты разные, то считается началом новой раздачи
+       if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1])&&bu==current_bu){
+           return -1;
+       } else {
+           current_hero_cards[0] = hero_cards[0];
+           current_hero_cards[1] = hero_cards[1];
+           current_bu = bu;
+           return 1;
+       }
 
-        if(currentHand!=null)
-            if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("7c")){
-                c++;
-                save_image(black_white_image,"test3\\obw_"+(c));
-                save_image(bufferedImage_current_number_hand,"test3\\ocur_"+(c));
-            }
 
-        if(compare_buffred_images(bufferedImage_current_number_hand,black_white_image,5))return -1;
 
-        if(bufferedImage_current_number_hand!=null){
-            //System.out.println("IIIIIIIIIIIIIIIII");
-            int count = 0, amount_same = 0;
 
-            while (is_run){
-                if(main_queue_with_frames.size()>4){
-                    break;
-                } else {
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
 
-            if(!is_run)return 0;
 
-            //P++;
-            for(BufferedImage[] frame: main_queue_with_frames) {
-                count++; if(count==5)break;
-                //System.out.println("+++++++++++++++++");
-                limit_grey = 175;
-                if(get_int_MaxBrightnessMiddleImg(frame[1],0,0,26,5)<150)limit_grey = 214;
-                BufferedImage  in_black_white_image = get_white_black_image(set_grey_and_inverse_or_no(frame[1],true),limit_grey);
-               /* if(currentHand.cards_hero[0]!=null)
-                if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3){
 
-                    save_image(in_black_white_image,"test3\\_"+P+"_"+(c)+"_bw");
-                    save_image(bufferedImage_current_number_hand,"test3\\_"+P+"_"+(c)+"_cur");
-                }*/
-             // проверят есть ли еще такие же номера рук после текущей ноновй руки
-                if(compare_buffred_images(black_white_image,in_black_white_image,5))amount_same++;
-            }
-            if(amount_same<4)return 0;
-        }
-        //System.out.println("P "+P);
-        bufferedImage_current_number_hand = black_white_image;
-        //save_image(bufferedImage_current_number_hand,"test3\\_"+P+"_"+(c)+"_out");
 
-        //list_test_numberhands.set(list_test_numberhands.size()-1,new BufferedImage[]{black_white_image,black_white_image});
-        //save_image(black_white_image,"for_ocr_number\\osr_bw_"+c+"_grey_"+limit_grey);
 
-        return 1;
+
+
 
     }
 
@@ -531,7 +542,7 @@ public class OCR implements Runnable {
             // проверка последнего действия на префлопе на фолд берется последний индекс
             if(currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1)==1_000_000)continue;
 
-            if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("7c"))save_image(frame[0],"test\\"+(c++)+"_"+poker_position);
+            //if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("7c"))save_image(frame[0],"test\\"+(c++)+"_"+poker_position);
 
 
 

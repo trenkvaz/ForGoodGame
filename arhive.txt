@@ -411,6 +411,7 @@ int add_x = 0;
 
         // ...
     }*/
+
     class Frame extends JFrame{
 
         private int framePositionX, framePositionY, mousePositionX, mousePositionY, newMousePositionX, newMousePositionY, ontable, onplayer;
@@ -467,7 +468,7 @@ int add_x = 0;
 
         public void setFramePositionY(int y){framePositionY = y;}*/
     }
-
+                                                                                                                         КОНВЕРТЕР ФРАЙМ в БАФФЕРЕДИМДЖ
 
     private BufferedImage createBufferedImage(Frame frame, BufferedImage image) {
             ByteBuffer buffer = (ByteBuffer) frame.image[0].position(0);
@@ -493,7 +494,7 @@ int add_x = 0;
                 return image;
           //  }
         }
-
+                                                                                                                            АЛГОРИТМ НАХОЖДЕНИЯ ИНДЕКСА В МАССИВЕ
          BufferedImage image = ImageIO.read(a).getSubimage(2,1,14,14);
 
 
@@ -504,9 +505,74 @@ int add_x = 0;
                     _long_arr_cards_for_compare[in] = ocr.get_longarr_HashImage(image,0,0,14,14,3,150);
                     if(c==3)c=-1;
 
+                                                                                                                         ПОЛУЧЕНИЕ РАЗМЕРА ОБЪЕКТА
         //DataBuffer dataBuffer = bufferedImageframe.getData().getDataBuffer();
 
         // Each bank element in the data buffer is a 32-bit integer
               /* long sizeBytes = ((long) dataBuffer.getSize()) * 4L;
                long sizeMB = sizeBytes / (1024L * 1024L);
                System.out.println("sizeimage "+sizeMB);*/
+
+                                                                                                                         СТАРОЕ ОПРЕДЕЛЕНИЕ НАЧАЛА РАЗДАЧИ ПО НОМЕРУ РУКИ
+
+/*int limit_grey = 175;
+        if(get_int_MaxBrightnessMiddleImg(frame[1],0,0,26,5)<150)limit_grey = 214;
+        BufferedImage black_white_image = get_white_black_image(set_grey_and_inverse_or_no(frame[1],true),limit_grey);
+
+        //list_test_numberhands.add(new BufferedImage[]{black_white_image,null});
+       *//* c++;
+        save_image(black_white_image,"test2\\"+(c));*//*
+
+        if(currentHand!=null)
+            if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("7c")){
+                c++;
+                save_image(black_white_image,"test3\\obw_"+(c));
+                save_image(bufferedImage_current_number_hand,"test3\\ocur_"+(c));
+            }
+
+        if(compare_buffred_images(bufferedImage_current_number_hand,black_white_image,5))return -1;
+
+        if(bufferedImage_current_number_hand!=null){
+            //System.out.println("IIIIIIIIIIIIIIIII");
+            int count = 0, amount_same = 0;
+
+            while (is_run){
+                if(main_queue_with_frames.size()>4){
+                    break;
+                } else {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            if(!is_run)return 0;
+
+            //P++;
+            for(BufferedImage[] frame: main_queue_with_frames) {
+                count++; if(count==5)break;
+                //System.out.println("+++++++++++++++++");
+                limit_grey = 175;
+                if(get_int_MaxBrightnessMiddleImg(frame[1],0,0,26,5)<150)limit_grey = 214;
+                BufferedImage  in_black_white_image = get_white_black_image(set_grey_and_inverse_or_no(frame[1],true),limit_grey);
+               *//* if(currentHand.cards_hero[0]!=null)
+                if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3){
+
+                    save_image(in_black_white_image,"test3\\_"+P+"_"+(c)+"_bw");
+                    save_image(bufferedImage_current_number_hand,"test3\\_"+P+"_"+(c)+"_cur");
+                }*//*
+             // проверят есть ли еще такие же номера рук после текущей ноновй руки
+                if(compare_buffred_images(black_white_image,in_black_white_image,5))amount_same++;
+            }
+            if(amount_same<4)return 0;
+        }
+        //System.out.println("P "+P);
+        bufferedImage_current_number_hand = black_white_image;
+        //save_image(bufferedImage_current_number_hand,"test3\\_"+P+"_"+(c)+"_out");
+
+        //list_test_numberhands.set(list_test_numberhands.size()-1,new BufferedImage[]{black_white_image,black_white_image});
+        //save_image(black_white_image,"for_ocr_number\\osr_bw_"+c+"_grey_"+limit_grey);
+
+        return 1;*/
