@@ -27,7 +27,7 @@ public class CurrentHand {
         for(int i=0; i<6; i++){
             preflop_by_positions.add(new ArrayList<Float>());
             //if(i<4)
-                preflop_by_positions.get(i).add(0f);
+                //preflop_by_positions.get(i).add(0f);
             //if(i==4)preflop_by_positions.get(i).add(-sb);
             //if(i==5)preflop_by_positions.get(i).add(-1f);
         }

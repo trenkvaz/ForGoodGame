@@ -4,7 +4,7 @@ package org.trenkvaz.main;
 //import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
-import javax.imageio.ImageIO;
+
 import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
@@ -59,7 +59,7 @@ public class CaptureVideo implements Runnable{
    static HashMap<Long,String> hashmap_id_img_pix_nick = new HashMap<>();
    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks = new TreeMap<>();
    static long[][] _long_arr_cards_for_compare;
-   static int[][] shablons_numbers_0_9;
+   static int[][] shablons_numbers_0_9_for_stacks;
 
 
    public CaptureVideo(){
@@ -420,7 +420,7 @@ public class CaptureVideo implements Runnable{
         public static void setting_cupture_video(){
             read_file_with_nicks_and_img_pixs();
             _long_arr_cards_for_compare = read_ObjectFromFile("_long_arr_cards_for_compare");
-            shablons_numbers_0_9 = read_ObjectFromFile("shablons_numbers_0_9");
+            shablons_numbers_0_9_for_stacks = read_ObjectFromFile("shablons_numbers_0_9");
             count_one_in_numbers = read_ObjectFromFile("count_one_in_numbers");
         }
 
