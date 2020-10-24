@@ -10,6 +10,8 @@ import java.awt.image.*;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
@@ -489,6 +491,39 @@ public class CaptureVideo implements Runnable{
             }
         }
 
+
+
+        public static void ErrorLog(String er){
+            boolean estfile = false; String error = ""; boolean zapis = false;
+            try {
+                Date d = new Date();
+                DateFormat formatter= new SimpleDateFormat("yyyy_MM_dd_HH.mm");
+                String Z = formatter.format(d);
+                error = Z+" "+er+"\r\n";
+                do {
+                    File homedir = new File(home_folder);
+                    for (File myFile : new File(homedir.getPath()).listFiles())
+                        if (myFile.isFile()) {
+                            if (myFile.getName().startsWith("logerror")) {
+                                estfile = true;
+                                OutputStream os = new FileOutputStream(myFile.getPath(), true);
+                                os.write(error.getBytes(StandardCharsets.UTF_8));
+                                zapis = true;
+                            }
+                        }
+                    if (!estfile) {
+                        String adressfileloger = homedir.getPath() + "\\" + "logerror.txt";
+                        File config = new File(adressfileloger);
+                        config.createNewFile();
+                    }
+                } while (!zapis);
+            } catch (NullPointerException ex){
+                System.out.println(ex);
+            } catch (IOException e) {
+                System.out.println(e);
+            }
+
+        }
 
 
     }

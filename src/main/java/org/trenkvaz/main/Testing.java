@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.*;
+import static org.trenkvaz.main.OCR.is_noCursorInterferenceImage;
 
 public class Testing {
 
@@ -507,9 +508,9 @@ public class Testing {
                 // есть в числе на месте единицы, число закрывается маской в которой 1 это условная дырка
                 //результат ноль или число отличное от нуля так как единица на любом месте дает произвольное число
                 // операция побитовое И дает единицу бита если в исходном бите также единица в остальных случаях ноль
-                int s =31;
+                //int s =31;
                 //if(index_in_arrlong==1)s = 21;
-                int pixl = pix&1<<(s-index_bit);
+                int pixl = pix&1<<(31-index_bit);
 
                 if(pixl==0)System.out.print("0");else System.out.print("1");
                 System.out.print(" ");
@@ -520,7 +521,7 @@ public class Testing {
             System.out.println();
         }
         System.out.println();
-         int xy = -1;
+        /* int xy = -1;
         for(int x=0; x<W; x++){
             for(int y=0; y<H; y++){
                 xy++;
@@ -546,11 +547,11 @@ public class Testing {
                 if(pixl!=0)p=1;
                 //System.out.println(index_in_arrlong+"   "+index_bit+"  "+p);
                 System.out.print(p+" ");
-                    /*System.out.print("0");else System.out.print("1");
-                System.out.print(" ");*/
+                    *//*System.out.print("0");else System.out.print("1");
+                System.out.print(" ");*//*
             }
             System.out.println();
-        }
+        }*/
     }
 
     static int get_intGreyColor(BufferedImage img,int x, int y){
@@ -569,14 +570,14 @@ public class Testing {
 
 
 
-        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("Mtest\\4_289"),true),80),"Mtest\\r0.5");
+        /*save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("Mtest\\4_289"),true),80),"Mtest\\r0.5");
 
        List<int[]> num = get_list_intarr_HashNumberImg(read_image("Mtest\\4_289"),0,1,54,9,175,0,2,6,2);
 
 
        //show_HashShablonNumber(num.get(0),6,9);
         show_HashShablonNumber(shablons_numbers_0_9_for_stacks[5],8,12);
-        //int[] shab = shablons_numbers_0_9[0].clone();
+        //int[] shab = shablons_numbers_0_9[0].clone();*/
 
 
 
