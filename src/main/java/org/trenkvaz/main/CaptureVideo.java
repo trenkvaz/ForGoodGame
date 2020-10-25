@@ -60,8 +60,8 @@ public class CaptureVideo implements Runnable{
    static byte[] count_one_in_numbers;
    static HashMap<Long,String> hashmap_id_img_pix_nick = new HashMap<>();
    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks = new TreeMap<>();
-   static long[][] _long_arr_cards_for_compare;
-   static int[][] shablons_numbers_0_9_for_stacks;
+   static long[][] _long_arr_cards_for_compare,shablons_text_sittingout_allin;
+   static int[][] shablons_numbers_0_9_for_stacks, shablons_numbers_0_9_for_actions;
 
 
    public CaptureVideo(){
@@ -424,6 +424,9 @@ public class CaptureVideo implements Runnable{
             _long_arr_cards_for_compare = read_ObjectFromFile("_long_arr_cards_for_compare");
             shablons_numbers_0_9_for_stacks = read_ObjectFromFile("shablons_numbers_0_9");
             count_one_in_numbers = read_ObjectFromFile("count_one_in_numbers");
+            shablons_numbers_0_9_for_actions = read_ObjectFromFile("shablons_numbers_0_9_for_actions");
+            shablons_text_sittingout_allin = read_ObjectFromFile("shablons_text_sittingout_allin");
+
         }
 
         private static void read_file_with_nicks_and_img_pixs(){

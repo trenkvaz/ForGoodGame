@@ -1,0 +1,98 @@
+
+                                                                                                                         ПЕРЕБОР ФАЙЛОВ В ПАПКЕ
+       for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\original").listFiles()){
+            if(a.isFile()){
+
+               BufferedImage image = ImageIO.read(a);
+
+            }
+        }
+                                                                                                                          БИНАРНЫЙ ОПЕРАЦИИ
+
+
+                String t = "1111111000000000100000000000111111000000000000001001111111111111";
+                String t2 = "1000111000000000100000000000111111000000000000001111111111111100";
+                String t_int = "10011111111111111111111111111111";
+
+                String tim = "1111 1110 0000 0000      1000 0000 0000 1111        1100 0000 0000 0000       1001 1111 1111 1111";
+                String t2im = "1000 1110 0000 0000     1000 0000 0000 1111        1100 0000 0000 0000       1111 1111 1111 1100";
+                long a = Long.parseUnsignedLong(t,2);
+                long a2 = Long.parseUnsignedLong(t2,2);
+                int i = Integer.parseUnsignedInt(t_int,2);
+
+                *//*a2 = a2&(long) Math.pow(2,63);
+                System.out.println("a2 "+Long.toBinaryString((long) Math.pow(2,63)));*//*
+                System.out.println("6 bit "+Long.toBinaryString(a2 & ((long) 1<<0)));
+                System.out.println(Integer.toBinaryString(((byte)a2 & 0xFF) + 256).substring(1));
+                System.out.println(Integer.toBinaryString(((byte)a2+256)%256));
+                long caa2 = a^a2;
+                System.out.println(Long.toBinaryString(caa2));
+                //byte[] bytes = _long_to_arr_bytes(a2);
+                System.out.println("bites");
+                //for(byte by:bytes) System.out.println(Integer.toBinaryString((by + 256) % 256));
+                System.out.println("last "+Long.toBinaryString((a2>>56&0x000000ff)));
+                System.out.println("bite "+Integer.toBinaryString(((byte)(a2>>56&0x000000ff) + 256) % 256));
+                System.out.println("int "+Integer.toBinaryString(i));
+                System.out.println("m "+Integer.toBinaryString((i>>24&0x000000ff)));
+
+
+
+
+            save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(ИМДЖ,true),И),"Mtest\\sub_nickl2");        ЗАГОТОВКА ДЛЯ ПОЛУЧЕНИЯ И СОХРАНЕНИЯ Ч\Б ИЗОБРАЖЕНИЯ
+
+
+           for(Map.Entry<Long,long[]>entry:sortedmap_all_imgs_pix_of_nicks.entrySet())                                     ПЕРЕБОР МАПЫ
+
+                                                                                                                            ПОЛУЧЕНИЕ ШАБЛОНОВ ИЗ СПИСКА ФАЙЛОВ ИЗОБРАЖЕНИЯ
+                          int[][] shablons_numbers_0_9 = new int[10][2];
+                                  for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test3\\shab").listFiles()){
+                                      if(a.isFile()){
+
+                                          BufferedImage image = ImageIO.read(a);
+                                          List<int[]> nums =  get_list_intarr_HashNumberImg(image,0,1,54,9,175,0,2,6,2);
+                                          if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_79")){
+                                              shablons_numbers_0_9[6] = nums.get(0);
+
+                                          }
+                                          if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_39")){
+                                              shablons_numbers_0_9[3] = nums.get(0);
+
+                                          }
+                                          if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_75")){
+                                              shablons_numbers_0_9[2] = nums.get(0);
+                                          }
+                                          if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_37")){
+                                              shablons_numbers_0_9[4] = nums.get(2);
+                                          }
+                                          if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_34")){
+                                              shablons_numbers_0_9[1] = nums.get(0);
+                                          }
+                                          if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_35")){
+                                              shablons_numbers_0_9[5] = nums.get(0);
+                                              shablons_numbers_0_9[0] = nums.get(2);
+                                          }
+                                          if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_1235")){
+                                              shablons_numbers_0_9[7] = nums.get(2);
+                                          }
+                                          if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_84")){
+                                              shablons_numbers_0_9[8] = nums.get(2);
+                                          }
+                                          if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_83")){
+                                              shablons_numbers_0_9[9] = nums.get(0);
+                                          }
+                                          /*for(int[] num:nums){
+                                              if(num==null)continue;
+                                              show_HashShablonNumber(num,6,9);
+                                          }*/
+
+                                      }
+                                  }
+
+                                                                                                                          ПОЛУЧЕНИЕ КООРДИНАТ НИКОВ
+        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
+        int x_of_nick = coord_left_up_of_tables[1][0]+coords_places_of_nicks[0][0]+correction_for_place_of_nicks[4]-5;
+        int y_of_nick = coord_left_up_of_tables[1][1]+coords_places_of_nicks[0][1]+1;
+                                                                                                                          ПОЛУЧЕНИЕ КООРДИНАТ СТЕКА
+         int x = coords_places_of_nicks[0][0]+coord_left_up_of_tables[1][0]
+                        +5+correction_for_place_of_nicks[3];
+                int y = coords_places_of_nicks[0][1]+17+coord_left_up_of_tables[1][1];

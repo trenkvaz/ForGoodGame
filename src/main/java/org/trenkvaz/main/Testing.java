@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.*;
-import static org.trenkvaz.main.OCR.is_noCursorInterferenceImage;
+import static org.trenkvaz.main.OCR.*;
 
 public class Testing {
 
@@ -267,7 +267,7 @@ public class Testing {
         for(int x=X; x<w+X; x++){
             for(int y=Y; y<h+Y; y+=h-1){
                 int grey = get_intGreyColor(frame,x,y);
-                //System.out.println("1 grey "+grey);
+                System.out.println("1 grey "+grey);
                 if(grey>max)max=grey;
                 //if(grey>limit_grey)return null;
             }
@@ -275,7 +275,7 @@ public class Testing {
         for(int y=Y; y<h+Y; y++)
             for(int x=X; x<w+X; x+=w-1){
                 int grey = get_intGreyColor(frame,x,y);
-                //System.out.println("2 grey "+grey);
+                System.out.println("2 grey "+grey);
                 if(grey>max)max=grey;
                 //if(grey>limit_grey)return null;
             }
@@ -490,7 +490,6 @@ public class Testing {
 
     static void show_HashShablonNumber(int[] shortarr_shablon,int W,int H){
 
-
         for(int y=0; y<H; y++){
             for(int x=0; x<W; x++){
                 //if(y<3&&x==0)continue;
@@ -554,6 +553,28 @@ public class Testing {
         }*/
     }
 
+    static void show_HashShablonNumber(long[] shortarr_shablon,int W,int H){
+
+        for(int y=0; y<H; y++){
+            for(int x=0; x<W; x++){
+                int coord_in_arr_long = (y+H*x);
+                int index_bit = coord_in_arr_long%64;
+                int index_in_arrlong = coord_in_arr_long/64;
+                long pix = shortarr_shablon[index_in_arrlong];
+                long pixl = pix&(long) 1<<(63-index_bit);
+                if(pixl==0)System.out.print("0");else System.out.print("1");
+                System.out.print(" ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+
+    }
+
+
+
+
+
     static int get_intGreyColor(BufferedImage img,int x, int y){
         int val = img.getRGB(x, y);
         return  (int) (((val >> 16) & 0xff) * 0.299 + ((val >> 8) & 0xff) * 0.587 + (val & 0xff) * 0.114);
@@ -578,6 +599,60 @@ public class Testing {
        //show_HashShablonNumber(num.get(0),6,9);
         show_HashShablonNumber(shablons_numbers_0_9_for_stacks[5],8,12);
         //int[] shab = shablons_numbers_0_9[0].clone();*/
+        int table = 2, nick = 3;
+        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
+        int x = coords_places_of_nicks[nick][0]+coord_left_up_of_tables[table][0]
+                +3+correction_for_place_of_nicks[nick];
+        int y = coords_places_of_nicks[nick][1]+17+coord_left_up_of_tables[table][1];
+        //if(!is_noCursorInterferenceImage(read_image("Mtest\\long_num"),x,y,72,14,100)) System.out.println("NO");
+        //check_free_of_kursor(x, y, 72, 14, 100, read_image("Mtest\\long_num"));
+       save_image(read_image("Mtest\\long_num").getSubimage(x,y,72,14),"Mtest\\lnum1");
+        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("Mtest\\allin")
+                .getSubimage(x,y+1,72,12),true),175),"Mtest\\all2");
+
+        List<int[]> num = get_list_intarr_HashNumberImg(read_image("Mtest\\long_num"),x,y+1,72,12,150,0,3,8,3);
+        for(int[]n:num){if(n==null) {System.out.println("DOT");continue;}
+        show_HashShablonNumber(n,8,12);
+        }
+
+        long[][] shablon_text_sittout_allin = new long[2][15];
+        shablon_text_sittout_allin[0] = ocr.get_longarr_HashImage(read_image("Mtest\\sittingout"),x,y,72,14,16,175);
+        show_HashShablonNumber(shablon_text_sittout_allin[0],72,14);
+        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("Mtest\\sittingout")
+                .getSubimage(x,y,72,14),true),150),"Mtest\\sit3");
+        System.out.println("sitt "+is_GoodImageForOcrStack(read_image("Mtest\\sittingout"), x,y,72,14,150));
+        System.out.println();
+
+        table = 1; nick = 0;
+        x = coords_places_of_nicks[nick][0]+coord_left_up_of_tables[table][0]
+                +3+correction_for_place_of_nicks[nick];
+        y = coords_places_of_nicks[nick][1]+17+coord_left_up_of_tables[table][1];
+        shablon_text_sittout_allin[1] = ocr.get_longarr_HashImage(read_image("Mtest\\allin"),x,y,72,14,16,175);
+        show_HashShablonNumber(shablon_text_sittout_allin[1],72,14);
+        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("Mtest\\allin")
+                .getSubimage(x,y,72,14),true),150),"Mtest\\alin3");
+        System.out.println("allin "+is_GoodImageForOcrStack(read_image("Mtest\\allin"), x,y,72,14,150));
+        System.out.println();
+        table = 2; nick = 1;
+        x = coords_places_of_nicks[nick][0]+coord_left_up_of_tables[table][0]
+                +3+correction_for_place_of_nicks[nick];
+        y = coords_places_of_nicks[nick][1]+17+coord_left_up_of_tables[table][1];
+        shablon_text_sittout_allin[1] = ocr.get_longarr_HashImage(read_image("Mtest\\long_num"),x,y,72,14,16,175);
+        show_HashShablonNumber(shablon_text_sittout_allin[1],72,14);
+        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("Mtest\\long_num")
+                .getSubimage(x,y,72,14),true),150),"Mtest\\lnum3");
+        System.out.println("long "+is_GoodImageForOcrStack(read_image("Mtest\\long_num"), x,y,72,14,150));
+
+        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("test5\\old\\_1.0_743")
+                .getSubimage(0,0,72,12),true),150),"Mtest\\stack2");
+
+        System.out.println("stack "+is_GoodImageForOcrStack(read_image("test5\\old\\_1.0_743"), 0,0,72,14,150));
+
+        System.out.println("stack1 "+is_GoodImageForOcrStack(read_image("test2\\135_0.0"), 0,0,72,12,150));
+
+
+
+
 
 
 

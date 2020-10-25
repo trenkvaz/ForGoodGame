@@ -146,7 +146,7 @@ public class OCR implements Runnable {
 
     boolean startlog = false;
     private void main_work_on_table(){
-        if(table!=1)return;
+        if(table!=5)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -542,15 +542,17 @@ public class OCR implements Runnable {
             int wa = 54;
             int ha = 11;
             // фильтр на пустое место без рейза
-            if(!(get_int_MaxBrightnessMiddleImg(frame[0],xa,ya,wa,ha)>220))continue;
+            if(currentHand.cards_hero[0].equals("8d")&&poker_position==0)save_image(frame[0].getSubimage(xa,ya,wa,ha),"test2\\_act1_"+(c++));
+            if(!(get_int_MaxBrightnessMiddleImg(frame[0],xa,ya,wa,ha)>240))continue;
+            if(currentHand.cards_hero[0].equals("8d")&&poker_position==0)save_image(frame[0].getSubimage(xa,ya,wa,ha),"test2\\_act2_"+(c++));
             // если есть первый рейз, но его нельзя прочитать из-за помехи, то в стек ставится -1, из-за этого не будет определятся стек
-            if(!is_noCursorInterferenceImage(frame[0],xa,ya,wa,ha,200)){
+            if(!is_noCursorInterferenceImage(frame[0],xa,ya,wa,ha,240)){
               if(currentHand.stacks[poker_position]>0)continue;
               if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1;
               continue;}
             // если рейз можно прочитать, а в стеке есть -1, то оно меняется на ноль, чтобы стек определялся
             if(currentHand.stacks[poker_position]==-1)currentHand.stacks[poker_position]=0;
-
+            if(currentHand.cards_hero[0].equals("8d")&&poker_position==0)save_image(frame[0].getSubimage(xa,ya,wa,ha),"test2\\_act3_"+(c++));
 
             List<int[]> nums = get_list_intarr_HashNumberImg(frame[0],xa,ya+1,54,9,175,0,2,6,2);
             if(list_by_poker_pos_current_list_arrnums_actions.get(poker_position).isEmpty()) list_by_poker_pos_current_list_arrnums_actions.set(poker_position,nums);
@@ -628,26 +630,47 @@ public class OCR implements Runnable {
 
 
                 int x = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][0]
-                        +5+correction_for_place_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1];
+                        +3+correction_for_place_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1];
                 int y = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][1]+17;
-                 // СДЕЛАТЬ !!!      если проверку не прошел нужно проверить на Ситаут
-                if(!is_noCursorInterferenceImage(frame[0],x,y,72,14,100))continue;
 
-                float stack_without_action = get_OcrNum(get_list_intarr_HashNumberImg(frame[0],x,y+1,72,12,175,5,3,8,3),3,10);
-                // СДЕЛАТЬ !!! если стек вернул -1 сделать проверку на Оллин
-                //System.out.println("stack "+stack_without_action);
+                if(!is_GoodImageForOcrStack(frame[0],x,y,72,14,150))continue;
+
+              /*  if(currentHand.cards_hero[0].equals("8d")&&poker_position==0){save_image(frame[0].getSubimage(x,y+1,72,12)
+                        ,"test2\\"+(c++)+"_"+currentHand.stacks[poker_position]);}*/
+                float stack_without_action = get_OcrNum(get_list_intarr_HashNumberImg(frame[0],x,y+1,72,12,175,5,3,8,3),10);
+                // если стек не определен проверяется на ситтаут и оллин, или вообще не определится из-за помех
+                if(stack_without_action==-1){
+                    long[] hash_for_compare = get_longarr_HashImage(frame[0],x,y+1,72,12,14,175);
+                    int first_of_pair_error = 0, second_of_pair_error = 0, error = 10;
+                    int choosed_shablon_text = -1;
+                   out: for(int ind_shablon=0; ind_shablon<2; ind_shablon++) {
+                    for(int i=0; i<14; i++){
+                        if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(shablons_text_sittingout_allin[ind_shablon][i]^hash_for_compare[i]);
+                        if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(shablons_text_sittingout_allin[ind_shablon][i]^hash_for_compare[i]);
+                        if(i>0&&(first_of_pair_error+second_of_pair_error)>error){ continue out;  }
+                    }
+                    choosed_shablon_text = ind_shablon;
+                    }
+                    if(choosed_shablon_text==-1)continue;
+                    if(choosed_shablon_text==0)currentHand.stacks[poker_position] = Float.NaN;
+                    if(choosed_shablon_text==1)currentHand.stacks[poker_position] = currentHand.preflop_by_positions.get(poker_position).
+                            get(currentHand.preflop_by_positions.get(poker_position).size()-1);
+                    count_filled_stacks++;
+                    continue;
+                }
+
                 // если первое действие фолд или пустое
                 if(currentHand.preflop_by_positions.get(poker_position).isEmpty()||currentHand.preflop_by_positions.get(poker_position).get(0)==1_000_000)
-                {currentHand.stacks[poker_position] = stack_without_action; continue;}    // fold = -10
+                {currentHand.stacks[poker_position] = stack_without_action;
+                count_filled_stacks++;
+                continue;}    // fold = -10
                 // если есть действия и возможно фолд, фолд пропускается берется последний рейз и прибавляется к стеку
                 for(int actions = currentHand.preflop_by_positions.get(poker_position).size()-1; actions>-1; actions-- ){
                     if(currentHand.preflop_by_positions.get(poker_position).get(actions)==1_000_000)continue;
                     currentHand.stacks[poker_position] = stack_without_action+currentHand.preflop_by_positions.get(poker_position).get(actions);
+                    count_filled_stacks++;
                     break;
                 }
-                /*float abc = Math.abs(currentHand.preflop_by_positions.get(poker_position).get(0));
-                if(abc>0){currentHand.stacks[poker_position] = stack_without_action+abc;}*/
-                count_filled_stacks++;
             }
             if(count_filled_stacks==6)currentHand.is_stacks_filled = true;
         }
@@ -656,6 +679,8 @@ public class OCR implements Runnable {
         //System.out.println("************************************");
 
     }
+
+
 
 
     private boolean is_Fold(int poker_position){
@@ -673,13 +698,16 @@ public class OCR implements Runnable {
     }
 
 
-    private float get_OcrNum(List<int[]> list_hash_nums,int size_of_num,int max_error){
+    public float get_OcrNum(List<int[]> list_hash_nums,int max_error){
+        if(list_hash_nums.isEmpty()||list_hash_nums.get(0)==null)return -1;
         int total_error = 0, number_with_min_error = -1, min_error = max_error;
         String res = "";
-        int size = list_hash_nums.size();
+        int size = list_hash_nums.size(), size_of_num = list_hash_nums.get(0).length;
+
         // числа берутся справа налево
         for(int hash_num=size-1;  hash_num>-1; hash_num--){
-            if(list_hash_nums.get(hash_num)==null) {res+="."; continue;}
+            // точка
+            if(list_hash_nums.get(hash_num)==null) { res+="."; continue;}
             number_with_min_error = -1;
             min_error = max_error;
             /*for(int n:hash_num) System.out.print(n+" ");
@@ -701,10 +729,7 @@ public class OCR implements Runnable {
                     if(total_error>=max_error){ continue out;  }
                 }
 
-                //if(!is_equal)continue;
-
-                // если нашлось совпадение, то берется номинал карты деление на 4 для получения индекса где 13 эелементов вместо 52
-                //System.out.println("num "+number);
+                // находится индекс в шаблоне числе с минимальным количеством ошибок
                 if(total_error<min_error){
                     min_error = total_error;
                     number_with_min_error = number;
@@ -716,8 +741,13 @@ public class OCR implements Runnable {
             res+=number_with_min_error;
         }
         //System.out.println(res);
-
-        return Float.parseFloat(res);
+        float result = -1;
+        try{
+            result = Float.parseFloat(res);
+        } catch (Exception a){
+            return -1;
+        }
+        return result;
     }
 
 
@@ -725,6 +755,7 @@ public class OCR implements Runnable {
     static List<int[]> get_list_intarr_HashNumberImg(BufferedImage image_table, int X, int Y, int W, int H, int limit_grey,
                                                      int indents_left_right, int size_dot_in_pix, int size_symbol, int size_intarr_hashimage){
         long s =System.currentTimeMillis();
+        // создается списко с координатами начала Х линии символа и конца Х линии, точки обозначаются НУЛЛ
         List<int[]> coords_line_x_for_one_num = new ArrayList<>();
         int[] start_end_num = null;
         boolean is_x_black = false; int count_black_x_line = 0, count_size_num = 0;
@@ -764,9 +795,10 @@ public class OCR implements Runnable {
             }
         }
         List<int[]> result = new ArrayList<>();
+        boolean is_first_dot = false;
         for(int[] num:coords_line_x_for_one_num){
-            // для записи точки
-            if(num==null) { result.add(null);
+            // для записи точки, отмечается только первая точка, чтобы исключить попадание точек длинных чисел больше 1000
+            if(num==null) { if(!is_first_dot){result.add(null); is_first_dot=true;}
                 //System.out.println("DOT");
                 continue;}
             int start = num[1], end = num[0];
@@ -903,7 +935,15 @@ public class OCR implements Runnable {
         return true;
     }
 
-
+    static boolean is_GoodImageForOcrStack(BufferedImage image,int X, int Y, int W, int H, int limit_grey){
+        int count_permit_error =0;
+        for(int x=X; x<W+X; x++) for(int y=Y; y<H+Y; y+=H-1) {
+            if(get_intGreyColor(image,x,y)>limit_grey)count_permit_error++;
+            if(count_permit_error>2)return false;
+        }
+        for(int y=Y; y<H+Y; y++) for(int x=X; x<W+X; x+=W-1) if(get_intGreyColor(image,x,y)>limit_grey)return false;
+        return true;
+    }
 
     boolean compare_CurrentListNumsAndNewListNums(List<int[]> current_list_nums,List<int[]> _new_list_nums, int limit_error){
 
