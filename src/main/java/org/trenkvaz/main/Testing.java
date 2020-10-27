@@ -648,9 +648,12 @@ public class Testing {
 
         System.out.println("stack "+is_GoodImageForOcrStack(read_image("test5\\old\\_1.0_743"), 0,0,72,14,150));
 
-        System.out.println("stack1 "+is_GoodImageForOcrStack(read_image("test2\\135_0.0"), 0,0,72,12,150));
+        //System.out.println("stack1 "+is_GoodImageForOcrStack(read_image("test2\\135_0.0"), 0,0,72,12,150));
 
-
+        for(int i=0; i<6; i++){
+        int x_of_nick = coords_places_of_nicks[i][0]+correction_for_place_of_nicks[i]-5;
+        int y_of_nick = coords_places_of_nicks[i][1]+1;
+         save_image(read_image("Mtest\\2_50").getSubimage(x_of_nick,y_of_nick,87,14),"Mtest\\nick"+i);}
 
 
 

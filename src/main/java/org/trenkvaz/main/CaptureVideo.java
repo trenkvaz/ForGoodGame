@@ -24,11 +24,12 @@ import static org.bytedeco.javacpp.opencv_imgproc.*;*/
 import org.bytedeco.ffmpeg.global.avutil;
 
 import static org.trenkvaz.main.OCR.get_intGreyColor;
+import static org.trenkvaz.main.OCR.save_image;
 import static org.trenkvaz.ui.Controller_main_window.*;
 
 public class CaptureVideo implements Runnable{
 
-   static int[][] coords_places_of_nicks = {{297,320},{15,253},{15,120},{264,67},{543,120},{543,253}};
+   static int[][] coords_places_of_nicks = {{298,320},{15,253},{15,120},{264,67},{543,120},{543,253}};
 
    public static int[][] coord_left_up_of_tables = {{0,0},{640,0},{1280,0},{0,469},{640,469},{1280,469}};
 
@@ -36,7 +37,7 @@ public class CaptureVideo implements Runnable{
 
    static int[][] coords_cards_hero = {{287,286},{331,286}};
 
-   static int[][] coords_actions = {{302,267},{151,256},{118,175},{323,120},{459,175},{436,256}};
+   static int[][] coords_actions = {{302-25,267},{151,256},{118,175},{323-25,120},{459-15,175},{436-25,256}};
 
    static int[][] coord_2_3_cards_flop = {{270,202},{318,202}};
 
@@ -299,7 +300,7 @@ public class CaptureVideo implements Runnable{
            //checknicktest_nick = new ArrayList<>();
            //checknicktest_nick.add("---------------------------------------------KURSOR");
            is_correct_number_hand = is_CorrectImageOfNumberHandAndNicks(coord_left_up_of_tables[index_table][0]+x_of_number_hand,
-                   coord_left_up_of_tables[index_table][1]+y_of_number_hand,width_of_number_hand,height_of_number_hand,100,100,bufferedImageframe);
+                   coord_left_up_of_tables[index_table][1]+y_of_number_hand,width_of_number_hand,height_of_number_hand,100,100,100,bufferedImageframe);
            //c++;
            //if(index_table==0){save_image(is_correct_number_hand,"tables_img\\t_"+(c)+"_"+(is_correct_number_hand!=null));}
            //c++;
@@ -312,7 +313,8 @@ public class CaptureVideo implements Runnable{
                   int x_of_nick = coord_left_up_of_tables[index_table][0]+coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5;
                   int y_of_nick = coord_left_up_of_tables[index_table][1]+coords_places_of_nicks[img_nicks][1]+1;
                   //checknicktest_nick.add("++++++++++++++++++++++++++++++++++++"+img_nicks);
-                  if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,240,210,bufferedImageframe))continue;
+                  if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,150,240,210,bufferedImageframe)){ continue; }
+                  //if(index_table==4)save_image(bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),"tables_img\\"+(c++)+"_"+img_nicks);
                   is_correct_nicks = false;
                   break;
               }
@@ -376,21 +378,23 @@ public class CaptureVideo implements Runnable{
 
 
 
-  public static boolean is_CorrectImageOfNumberHandAndNicks(int X, int Y, int w, int h, int brightness_of_perimeter,int max_brightness_of_text, BufferedImage frame){
+  public static boolean is_CorrectImageOfNumberHandAndNicks(int X, int Y, int w, int h, int brightness_of_perimeter_up_down,int brightness_of_perimeter_left_right,
+                                                            int max_brightness_of_text, BufferedImage frame){
        //save_image(frame.getSubimage(X,Y,w,h),"tables_img\\t_"+(c));
-        // проверка отсутстивя белых пикселей по периметру номера раздачи
-        for(int x=X; x<w+X; x++){
+        // вверхние и нижние линии периметра исключая  2 первых и 2 последних линии
+        for(int x=X+2; x<w+X-2; x++){
             for(int y=Y; y<h+Y; y+=h-1){
                 //System.out.println("1 grey "+grey);
                 //checknicktest_nick.add("1 "+grey);
-                if(get_intGreyColor(frame,x,y)>brightness_of_perimeter)return false;
+                if(get_intGreyColor(frame,x,y)>brightness_of_perimeter_up_down)return false;
             }
         }
+        // правые и левые линии периметра
         for(int y=Y; y<h+Y; y++)
             for(int x=X; x<w+X; x+=w-1){
                 //System.out.println("2 grey "+grey);
                 //checknicktest_nick.add("2 "+grey);
-                if(get_intGreyColor(frame,x,y)>brightness_of_perimeter)return false;
+                if(get_intGreyColor(frame,x,y)>brightness_of_perimeter_left_right)return false;
             }
        // проверка яркости текста
         int max = 0, y = Y+h/2;
