@@ -604,16 +604,15 @@ public class Testing {
         int x = coords_places_of_nicks[nick][0]+coord_left_up_of_tables[table][0]
                 +3+correction_for_place_of_nicks[nick];
         int y = coords_places_of_nicks[nick][1]+17+coord_left_up_of_tables[table][1];
-        //if(!is_noCursorInterferenceImage(read_image("Mtest\\long_num"),x,y,72,14,100)) System.out.println("NO");
-        //check_free_of_kursor(x, y, 72, 14, 100, read_image("Mtest\\long_num"));
+
        save_image(read_image("Mtest\\long_num").getSubimage(x,y,72,14),"Mtest\\lnum1");
         save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("Mtest\\allin")
                 .getSubimage(x,y+1,72,12),true),175),"Mtest\\all2");
-
+/*
         List<int[]> num = get_list_intarr_HashNumberImg(read_image("Mtest\\long_num"),x,y+1,72,12,150,0,3,8,3);
         for(int[]n:num){if(n==null) {System.out.println("DOT");continue;}
         show_HashShablonNumber(n,8,12);
-        }
+        }*/
 
         long[][] shablon_text_sittout_allin = new long[2][15];
         shablon_text_sittout_allin[0] = ocr.get_longarr_HashImage(read_image("Mtest\\sittingout"),x,y,72,14,16,175);
@@ -654,6 +653,83 @@ public class Testing {
         int x_of_nick = coords_places_of_nicks[i][0]+correction_for_place_of_nicks[i]-5;
         int y_of_nick = coords_places_of_nicks[i][1]+1;
          save_image(read_image("Mtest\\2_50").getSubimage(x_of_nick,y_of_nick,87,14),"Mtest\\nick"+i);}
+
+
+
+        List<int[]> numact = get_list_intarr_HashNumberImg(read_image("test3\\_1_-1.0_40"),0,1,70,9,200,0,2,6,2);
+        for(int[]n:numact){if(n==null) {System.out.println("DOT");continue;}
+            show_HashShablonNumber(n,6,9);
+        }
+        numact = get_list_intarr_HashNumberImg(read_image("test3\\_1_4.5_167"),0,1,70,9,200,0,2,6,2);
+        for(int[]n:numact){if(n==null) {System.out.println("DOT");continue;}
+            show_HashShablonNumber(n,6,9);
+        }
+
+        show_HashShablonNumber(shablons_numbers_0_9_for_actions[4],6,9 );
+
+
+
+        int[][] shablons_numbers_0_9 = new int[10][2];
+        for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test3\\shab").listFiles()){
+            if(a.isFile()){
+
+                BufferedImage image = ImageIO.read(a);
+                List<int[]> nums =  get_list_intarr_HashNumberImg(image,0,1,54,9,200,0,2,6,2);
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_79")){
+                    shablons_numbers_0_9[6] = nums.get(0);
+
+                }
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_39")){
+                    shablons_numbers_0_9[3] = nums.get(0);
+
+                }
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_75")){
+                    shablons_numbers_0_9[2] = nums.get(0);
+                }
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_37")){
+                    shablons_numbers_0_9[4] = nums.get(2);
+                }
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_34")){
+                    shablons_numbers_0_9[1] = nums.get(0);
+                }
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_35")){
+                    shablons_numbers_0_9[5] = nums.get(0);
+                    shablons_numbers_0_9[0] = nums.get(2);
+                }
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_1235")){
+                    shablons_numbers_0_9[7] = nums.get(2);
+                }
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_84")){
+                    shablons_numbers_0_9[8] = nums.get(2);
+                }
+                if(a.getName().substring(0,a.getName().lastIndexOf("_")).equals("_83")){
+                    shablons_numbers_0_9[9] = nums.get(0);
+                }
+                                          /*for(int[] num:nums){
+                                              if(num==null)continue;
+                                              show_HashShablonNumber(num,6,9);
+                                          }*/
+
+            }
+
+        }
+
+
+
+        System.out.println("shab");
+        for(int[]n:shablons_numbers_0_9){if(n==null) {System.out.println("DOT");continue;}
+            show_HashShablonNumber(n,6,9);
+            System.out.println();
+        }
+        save_ObjectInFile(shablons_numbers_0_9,"shablons_numbers_0_9_for_actions");
+
+
+
+
+
+
+
+
 
 
 

@@ -546,12 +546,16 @@ public class OCR implements Runnable {
             if(!(get_int_MaxBrightnessMiddleImg(frame[0],xa,ya,wa,ha)>240))continue;
             //if(currentHand.cards_hero[0].equals("8d")&&poker_position==0)save_image(frame[0].getSubimage(xa,ya,wa,ha),"test2\\_act2_"+(c++));
             // если есть первый рейз, но его нельзя прочитать из-за помехи, продолжение цикла, если стек = нулю то в стек ставится -1, из-за этого не будет определятся стек
-            if(!is_noCursorInterferenceImage(frame[0],xa,ya,wa,ha,240)){ if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1;continue;}
+            if(!is_noCursorInterferenceImage(frame[0],xa,ya,wa,ha,240)){
+
+
+                if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1;continue;
+            }
             // если рейз можно прочитать, а в стеке есть -1, то оно меняется на ноль, чтобы стек определялся
             if(currentHand.stacks[poker_position]==-1)currentHand.stacks[poker_position]=0;
             //if(currentHand.cards_hero[0].equals("8d")&&poker_position==0)save_image(frame[0].getSubimage(xa,ya,wa,ha),"test2\\_act3_"+(c++));
 
-            List<int[]> nums = get_list_intarr_HashNumberImg(frame[0],xa,ya+1,54,9,175,0,2,6,2);
+            List<int[]> nums = get_list_intarr_HashNumberImg(frame[0],xa,ya+1,70,9,200,0,2,6,2);
             // проверяется есть ли в листе сохраняющем предидущие числа действий по позициям сохраненное число, если нет то вносит новое число и идет дальше для распознавания
             if(list_by_poker_pos_current_list_arrnums_actions.get(poker_position).isEmpty()) list_by_poker_pos_current_list_arrnums_actions.set(poker_position,nums);
             else {
@@ -561,62 +565,12 @@ public class OCR implements Runnable {
                 list_by_poker_pos_current_list_arrnums_actions.set(poker_position,nums);
             }
 
-            //if(currentHand.cards_hero[0].equals("8d"))
-            String blind = "";
-            if(poker_position==4||poker_position==5)blind="bl";
-            save_image(frame[0].getSubimage(xa,ya,wa,ha),"test2\\_"+(poker_positions_index_with_numbering_on_table[poker_position])+"_"+blind+"_"+(c++));
 
-
-            //else
-              /*  {
-                int xa = coords_actions[poker_positions_of_numbers[i]-1][0];
-                int ya = coords_actions[poker_positions_of_numbers[i]-1][1];
-                int wa = 54;
-                int ha = 11;
-
-                BufferedImage subimage_action = frame.getSubimage(xa,ya,wa,ha);
-                BufferedImage cheked_img_action = check_free_of_kursor(subimage_action,200);
-
-
-                BufferedImage cheked_img_action = check_free_of_kursor(xa,ya,wa,ha,200,0,0,0,0);
-
-                if(cheked_img_action==null)continue;
-
-                if(i==4&&bufferedImage_current_sb!=null){if(compare_buffred_images(bufferedImage_current_sb,cheked_img_action,1))continue;}
-                if(i==5&&bufferedImage_current_bb!=null){if(compare_buffred_images(bufferedImage_current_bb,cheked_img_action,1))continue;}
-                BufferedImage inversedimage = set_grey_and_inverse_or_no(cheked_img_action,true);
-                BufferedImage black_white_img_for_campare = get_white_black_image(inversedimage,150);
-                if(!compare_buffred_images(bufferedimage_current_position_actions[i],black_white_img_for_campare,5)) {
-
-
-                    if(i==5){save_image(cheked_img_action,"stacks_"+i);
-                        System.out.println(currentHand.nicks[i]+"  "+get_max_brightness(cheked_img_action));}
-
-                    if(get_max_brightness(cheked_img_action)>200){
-                        // if(i==4) save_image(cheked_img_action,"img4");
-                        String action = ocr_image(get_scale_image(inversedimage,4),"actions").trim();
-                        //if(i==5) System.out.println("*"+action+"*");
-
-                        float action_float = 0;
-                        try{
-                            action_float = Float.parseFloat(action);
-                        } catch (Exception e){
-                            continue;
-                        }
-                        //if(i==5) System.out.println(action_float);
-                        if((i==4&&action_float==sb)||(i==5&&action_float==1)){bufferedimage_current_position_actions[i]=black_white_img_for_campare;} else {
-                            bufferedimage_current_position_actions[i] = black_white_img_for_campare;
-                            c++;
-                            save_image(black_white_img_for_campare,"test\\"+table+"_"+i+"_bwimg_"+c);
-                            if(currentHand.preflop_by_positions.get(i).get(currentHand.preflop_by_positions.get(i).size()-1)<action_float) {
-                                if(!(currentHand.preflop_by_positions.get(i).get(0)>0))currentHand.preflop_by_positions.get(i).set(0,action_float);
-                                else currentHand.preflop_by_positions.get(i).add(action_float);
-                            }
-                        }
-                    }
-                }
-            }*/
-
+            float actions = get_OcrNum(nums,10,"actions");
+            //System.out.println(" "+actions);
+            /*String blind = "";
+            if(poker_position==4||poker_position==5)blind="bl";*/
+            save_image(frame[0].getSubimage(xa,ya,wa,ha),"test3\\_"+(poker_positions_index_with_numbering_on_table[poker_position])+"_"+actions+"_"+(c++));
 
         }
 
@@ -639,7 +593,7 @@ public class OCR implements Runnable {
 
               /*  if(currentHand.cards_hero[0].equals("8d")&&poker_position==0){save_image(frame[0].getSubimage(x,y+1,72,12)
                         ,"test2\\"+(c++)+"_"+currentHand.stacks[poker_position]);}*/
-                float stack_without_action = get_OcrNum(get_list_intarr_HashNumberImg(frame[0],x,y+1,72,12,175,5,3,8,3),10);
+                float stack_without_action = get_OcrNum(get_list_intarr_HashNumberImg(frame[0],x,y+1,72,12,175,5,3,8,3),10,"stacks");
                 // если стек не определен проверяется на ситтаут и оллин, или вообще не определится из-за помех
                 if(stack_without_action==-1){
                     long[] hash_for_compare = get_longarr_HashImage(frame[0],x,y+1,72,12,14,175);
@@ -700,8 +654,10 @@ public class OCR implements Runnable {
     }
 
 
-    public float get_OcrNum(List<int[]> list_hash_nums,int max_error){
+    public float get_OcrNum(List<int[]> list_hash_nums,int max_error,String type_shablon){
         if(list_hash_nums.isEmpty()||list_hash_nums.get(0)==null)return -1;
+        int[][] shablons = shablons_numbers_0_9_for_stacks;
+        if(type_shablon.equals("actions")) shablons = shablons_numbers_0_9_for_actions;
         int total_error = 0, number_with_min_error = -1, min_error = max_error;
         String res = "";
         int size = list_hash_nums.size(), size_of_num = list_hash_nums.get(0).length;
@@ -726,7 +682,7 @@ public class OCR implements Runnable {
                 System.out.println("number ");
                 show_shortarr_HashShablonNumber(list_hash_nums.get(hash_num));
                 System.out.println("++++++++++++++++++++++++++++++");*/
-                    total_error+= get_AmountOneBitInInt(shablons_numbers_0_9_for_stacks[number][ind_num]^list_hash_nums.get(hash_num)[ind_num]);
+                    total_error+= get_AmountOneBitInInt(shablons[number][ind_num]^list_hash_nums.get(hash_num)[ind_num]);
                     //System.out.println("total "+total_error);
                     if(total_error>=max_error){ continue out;  }
                 }
