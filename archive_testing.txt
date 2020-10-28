@@ -96,3 +96,79 @@
          int x = coords_places_of_nicks[0][0]+coord_left_up_of_tables[1][0]
                         +5+correction_for_place_of_nicks[3];
                 int y = coords_places_of_nicks[0][1]+17+coord_left_up_of_tables[1][1];
+
+
+
+
+
+
+                 //show_HashShablonNumber(num.get(0),6,9);
+                        show_HashShablonNumber(shablons_numbers_0_9_for_stacks[5],8,12);
+                        //int[] shab = shablons_numbers_0_9[0].clone();*/
+                        /*int table = 2, nick = 3;
+                        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
+                        int x = coords_places_of_nicks[nick][0]+coord_left_up_of_tables[table][0]
+                                +3+correction_for_place_of_nicks[nick];
+                        int y = coords_places_of_nicks[nick][1]+17+coord_left_up_of_tables[table][1];
+
+                       save_image(read_image("Mtest\\long_num").getSubimage(x,y,72,14),"Mtest\\lnum1");
+                        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("Mtest\\allin")
+                                .getSubimage(x,y+1,72,12),true),175),"Mtest\\all2");*/
+                /*
+                        List<int[]> num = get_list_intarr_HashNumberImg(read_image("Mtest\\long_num"),x,y+1,72,12,150,0,3,8,3);
+                        for(int[]n:num){if(n==null) {System.out.println("DOT");continue;}
+                        show_HashShablonNumber(n,8,12);
+                        }*/
+
+                       /* long[][] shablon_text_sittout_allin = new long[2][15];
+                        shablon_text_sittout_allin[0] = ocr.get_longarr_HashImage(read_image("Mtest\\sittingout"),x,y,72,14,16,175);
+                        show_HashShablonNumber(shablon_text_sittout_allin[0],72,14);
+                        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("Mtest\\sittingout")
+                                .getSubimage(x,y,72,14),true),150),"Mtest\\sit3");
+                        System.out.println("sitt "+is_GoodImageForOcrStack(read_image("Mtest\\sittingout"), x,y,72,14,150));
+                        System.out.println();
+
+                        table = 1; nick = 0;
+                        x = coords_places_of_nicks[nick][0]+coord_left_up_of_tables[table][0]
+                                +3+correction_for_place_of_nicks[nick];
+                        y = coords_places_of_nicks[nick][1]+17+coord_left_up_of_tables[table][1];
+                        shablon_text_sittout_allin[1] = ocr.get_longarr_HashImage(read_image("Mtest\\allin"),x,y,72,14,16,175);
+                        show_HashShablonNumber(shablon_text_sittout_allin[1],72,14);
+                        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("Mtest\\allin")
+                                .getSubimage(x,y,72,14),true),150),"Mtest\\alin3");
+                        System.out.println("allin "+is_GoodImageForOcrStack(read_image("Mtest\\allin"), x,y,72,14,150));
+                        System.out.println();
+                        table = 2; nick = 1;
+                        x = coords_places_of_nicks[nick][0]+coord_left_up_of_tables[table][0]
+                                +3+correction_for_place_of_nicks[nick];
+                        y = coords_places_of_nicks[nick][1]+17+coord_left_up_of_tables[table][1];
+                        shablon_text_sittout_allin[1] = ocr.get_longarr_HashImage(read_image("Mtest\\long_num"),x,y,72,14,16,175);
+                        show_HashShablonNumber(shablon_text_sittout_allin[1],72,14);
+                        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("Mtest\\long_num")
+                                .getSubimage(x,y,72,14),true),150),"Mtest\\lnum3");
+                        System.out.println("long "+is_GoodImageForOcrStack(read_image("Mtest\\long_num"), x,y,72,14,150));
+
+                        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("test5\\old\\_1.0_743")
+                                .getSubimage(0,0,72,12),true),150),"Mtest\\stack2");
+
+                        System.out.println("stack "+is_GoodImageForOcrStack(read_image("test5\\old\\_1.0_743"), 0,0,72,14,150));
+
+                        //System.out.println("stack1 "+is_GoodImageForOcrStack(read_image("test2\\135_0.0"), 0,0,72,12,150));
+
+                        for(int i=0; i<6; i++){
+                        int x_of_nick = coords_places_of_nicks[i][0]+correction_for_place_of_nicks[i]-5;
+                        int y_of_nick = coords_places_of_nicks[i][1]+1;
+                         save_image(read_image("Mtest\\2_50").getSubimage(x_of_nick,y_of_nick,87,14),"Mtest\\nick"+i);}
+
+
+
+                        List<int[]> numact = get_list_intarr_HashNumberImg(read_image("test3\\_1_-1.0_40"),0,1,70,9,200,0,2,6,2);
+                        for(int[]n:numact){if(n==null) {System.out.println("DOT");continue;}
+                            show_HashShablonNumber(n,6,9);
+                        }
+                        numact = get_list_intarr_HashNumberImg(read_image("test3\\_1_4.5_167"),0,1,70,9,200,0,2,6,2);
+                        for(int[]n:numact){if(n==null) {System.out.println("DOT");continue;}
+                            show_HashShablonNumber(n,6,9);
+                        }
+
+                        show_HashShablonNumber(shablons_numbers_0_9_for_actions[4],6,9 );*/

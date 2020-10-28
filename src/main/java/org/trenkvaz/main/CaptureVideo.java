@@ -305,7 +305,13 @@ public class CaptureVideo implements Runnable{
            //if(index_table==0){save_image(is_correct_number_hand,"tables_img\\t_"+(c)+"_"+(is_correct_number_hand!=null));}
            //c++;
            //checknicktest_nick.add("---------------------------------------------KURSOR   "+is_correct_number_hand+"  TABLE "+index_table);
+           image_number_hand = null;
+
            if(is_correct_number_hand){
+               image_number_hand = cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0]+x_of_number_hand+25,
+                       coord_left_up_of_tables[index_table][1]+y_of_number_hand+3,26,5);
+
+
                // проверка правильности изо ников
                is_correct_nicks = true;
 
@@ -340,16 +346,12 @@ public class CaptureVideo implements Runnable{
                                    image_number_hand
                            });
                }
-              /*else {
-                 if(!is_end_tables[index_table]){
-                     is_start_tables[index_table] = false;
-                     is_end_tables[index_table] = true;
-                     ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{null, null});
-                 }
-              }*/
+              else {
+                  ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{null, image_number_hand});
+              }
 
            }
-
+           ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{null, null});
            //if(is_correct_number_hand==null) save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),"tables_img\\t_nokurs"+(++c));
            //if(is_correct_number_hand==null)countcheks[index_table]++;
        }

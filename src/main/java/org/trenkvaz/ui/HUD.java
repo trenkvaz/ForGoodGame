@@ -26,6 +26,8 @@ public class HUD {
     AnchorPane[][] anchorpanes_huds_each_player;
     Stage[][] stages_huds_each_player;
     private static double xOffset, yOffset;
+    public boolean is_hud_on = false;
+    Text[][][] arr_one_table_texts_huds_each_player = new Text[6][][];
 
 
     public HUD(){
@@ -88,15 +90,29 @@ public class HUD {
 
 
 
-    public void show_hud(){ for(Stage[] tablestage: stages_huds_each_player)for(Stage playerstage:tablestage)playerstage.show(); }
+    public void show_hud(int table){
+        if(is_hud_on)
+            Platform.runLater(() -> {
+                for(Stage playerstage:stages_huds_each_player[table])playerstage.show();
+            });
+
+    }
 
 
 
-    public void stop_show_hud(){ for(Stage[] tablestage: stages_huds_each_player)for(Stage playerstage:tablestage)playerstage.hide();}
+    public void stop_show_hud(int table){
+        if(!is_hud_on)
+            Platform.runLater(() -> {
+                for(Stage playerstage:stages_huds_each_player[table])playerstage.hide();
+            });
+
+    }
 
 
 
     public void set_hud(Text[][] arr_one_table_texts_huds_each_player,int table){
+
+       this.arr_one_table_texts_huds_each_player[table] = arr_one_table_texts_huds_each_player;
 
         Platform.runLater(() -> {
             for(int player = 0; player<6; player++){
@@ -109,6 +125,25 @@ public class HUD {
 
     }
 
+    public void clear_hud(int table){
+        Platform.runLater(() -> {
+            for(int player = 0; player<6; player++){
+                anchorpanes_huds_each_player[table][player].getChildren().clear();
+            }
+        });
+    }
+
+    public void refresh_hud(int table){
+        Platform.runLater(() -> {
+            for(int player = 0; player<6; player++){
+                for(Text stata:arr_one_table_texts_huds_each_player[table][player]){
+                    anchorpanes_huds_each_player[table][player].getChildren().clear();
+                    anchorpanes_huds_each_player[table][player].getChildren().add(stata);
+                }
+            }
+        });
+
+    }
 
 }
 

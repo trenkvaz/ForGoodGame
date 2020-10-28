@@ -45,10 +45,15 @@ public class Controller_main_window {
     @FXML public void set_show_hud(){
         if(show_hide_hud.getText().equals("Show HUD")){
             show_hide_hud.setText("Stop HUD");
-            hud.show_hud();
+            //hud.show_hud();
+            hud.is_hud_on = true;
         } else {
             show_hide_hud.setText("Show HUD");
-            hud.stop_show_hud();
+            //hud.stop_show_hud();
+            hud.is_hud_on = false;
+            for(int i=0; i<6; i++){
+                hud.stop_show_hud(i);
+            }
         }
     }
 
