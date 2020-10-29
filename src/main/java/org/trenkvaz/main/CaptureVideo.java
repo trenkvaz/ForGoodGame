@@ -213,7 +213,7 @@ public class CaptureVideo implements Runnable{
 
         List<long[]> equal_imgs = new ArrayList<>(); int first_of_pair_error = 0, second_of_pair_error = 0;
        out: for(long[] img_min_error:submap_imgs_with_min_error.values()){
-            int count_error_in_compare = 0;
+
             //boolean is_equal = true;
             for(int i=0; i<15; i++){
                 /*count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
@@ -226,7 +226,7 @@ public class CaptureVideo implements Runnable{
             equal_imgs.add(img_min_error);
         }
 
-        /*System.out.println("**********************************************************************");
+       /* System.out.println("**********************************************************************");
         System.out.println("min "+min+" max "+max+" count_pix "+count_pix_in_);
         for(Map.Entry<Long,long[]> entry:submap_imgs_with_min_error.entrySet())
             System.out.println("count_in_sub   "+entry.getKey());
@@ -244,11 +244,13 @@ public class CaptureVideo implements Runnable{
                 if(is_contain){count_pix_in_++; //System.out.println("is_countain "+is_contain+" count "+count_pix_in_);
                 }
                 else {
-                   // System.out.println("count_pix "+count_pix_in_);
+                    //System.out.println("id record "+img_nick_for_compare[15]);
                     sortedmap_all_imgs_pix_of_nicks.put(count_pix_in_,img_nick_for_compare); break; }
             }
 
             return new long[]{-id_img_pix,count_pix_in_};}
+
+        //for(long r:equal_imgs.get(0)) System.out.println(r);
 
         // если нашлось похожее изо, то берется его ИД на вывод
         int size = equal_imgs.size();

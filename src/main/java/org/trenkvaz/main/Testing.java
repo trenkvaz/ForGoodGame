@@ -593,12 +593,19 @@ public class Testing {
         //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test\\_2_469"),0,0,70,11));
 
 
-        int[]out = {0,1,2};
+        int[][]out = {{0, 1, 2},{5,6,7},{8,9,10}};
 
-        int[] in = Arrays.copyOfRange(out,1,1);
-        for(int a:in) System.out.println(a);
+        int[][] in = Arrays.copyOfRange(out,0,3);
+        out[0][0]=22;
+        for(int[] a:in)for(int b:a) System.out.println(b);
 
-
+       int[]a = {1,2,3};
+       int[]b = {4,5,6};
+       List<int[]> test = new ArrayList<>();
+       test.add(a);
+       test.add(b);
+       a[0] = 22;
+        for(int[] aa:test)for(int bb:aa) System.out.println(bb);
 
 
 

@@ -159,7 +159,7 @@ public class OCR implements Runnable {
 
     boolean startlog = false;
     private void main_work_on_table(){
-        //if(table!=1)return;
+        if(table!=3)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -265,18 +265,27 @@ public class OCR implements Runnable {
 
 
             if(count_nicks[i]<3){
-                current_id_nicks_for_choose[i][count_nicks[i]] = img_pix;
+                System.arraycopy(img_pix, 0, current_id_nicks_for_choose[i][count_nicks[i]], 0, 16);
+                /*BufferedImage test_nick = frame[0].getSubimage(x,y,w,h);;
+                images_nicks.get(i).add(test_nick);*/
                 count_nicks[i]++;
-                continue;
+                if(count_nicks[i]<3)continue;
             }
             if(count_nicks[i]==3){
                 boolean same_nicks = false;
                 //for(int c=0; c<3; c++)
                     for(int c1=1; c1<3; c1++)
                         if(compare_LongHashes(current_id_nicks_for_choose[i][0],current_id_nicks_for_choose[i][c1],10)){same_nicks =true; break;}
+
                     if(same_nicks){
-                        img_pix = current_id_nicks_for_choose[i][0];
-                    } else img_pix = current_id_nicks_for_choose[i][1];
+                        System.arraycopy(current_id_nicks_for_choose[i][0], 0, img_pix , 0, 16);
+                    } else
+                        System.arraycopy(current_id_nicks_for_choose[i][1], 0, img_pix , 0, 16);
+
+               /*if(!same_nicks){
+                   for(BufferedImage img:images_nicks.get(i))save_image(img,"test\\_"+i+"_"+(c++));
+               }
+                System.out.println("i "+i+" "+same_nicks);*/
             }
 
 
@@ -291,9 +300,13 @@ public class OCR implements Runnable {
 
 
             //if(test_is_ocr) continue;
+            /*System.out.println("I "+i);
+            for(long t:img_pix) System.out.print(" "+t);
+            System.out.println();*/
+
             long[] id_img_pix = get_number_img_nicks(img_pix,10);
             //System.out.println("time id "+(System.currentTimeMillis()-s));
-            //System.out.println("id "+id_img_pix[0]);
+            //System.out.println("id "+i+"    "+id_img_pix[0]);
             int id_img_pix_length = id_img_pix.length;
             c++;
             if(id_img_pix[0]>0&&id_img_pix_length==1){
@@ -421,7 +434,9 @@ public class OCR implements Runnable {
             }*/
 
 
-         if(count_nicks[i]==3&&currentHand.nicks[i]==null)count_nicks[i]=0;
+         /*if(count_nicks[i]==3&&currentHand.nicks[i]==null){
+             System.err.println("NOT CHOOSED");
+             count_nicks[i]=0;}*/
 
 
         }
