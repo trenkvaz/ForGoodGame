@@ -61,7 +61,7 @@ public class CaptureVideo implements Runnable{
    static byte[] count_one_in_numbers;
    static HashMap<Long,String> hashmap_id_img_pix_nick = new HashMap<>();
    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks = new TreeMap<>();
-   static long[][] _long_arr_cards_for_compare,shablons_text_sittingout_allin;
+   static long[][] _long_arr_cards_for_compare,shablons_text_sittingout_allin, shablon_text_poker_terms;
    static int[][] shablons_numbers_0_9_for_stacks, shablons_numbers_0_9_for_actions;
 
 
@@ -260,6 +260,68 @@ public class CaptureVideo implements Runnable{
     }
 
 
+    static synchronized long[] get_longarr_IdForNick(long[] img_nick_for_compare,int error){
+
+        // img_nick_for_compare 15 чисел изо, 16-у количество черных пикселей
+        // умножается на миллион, чтобы получить индексы в сортируемом мепе, по ним будет отбираться диапазон по количеству черных пикселей
+
+        long count_pix_in_ = img_nick_for_compare[15]*1_000_000;
+        long min = count_pix_in_-error*1_000_000, max = count_pix_in_+(error+1)*1_000_000;
+
+        Map<Long,long[]> submap_imgs_with_min_error = sortedmap_all_imgs_pix_of_nicks.subMap(min,max);
+
+        List<long[]> equal_imgs = new ArrayList<>(); int first_of_pair_error = 0, second_of_pair_error = 0;
+        out: for(long[] img_min_error:submap_imgs_with_min_error.values()){
+            int count_error_in_compare = 0;
+            //boolean is_equal = true;
+            for(int i=0; i<15; i++){
+                /*count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
+                if(count_error_in_compare>error){is_equal = false; break;}*/
+                if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
+                if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
+                if(i>0&&(first_of_pair_error+second_of_pair_error)>error){ continue out;  }
+            }
+            //if(!is_equal)continue;
+            equal_imgs.add(img_min_error);
+        }
+
+        if(equal_imgs.isEmpty())return null;
+        // если нашлось похожее изо, то берется его ИД на вывод
+        int size = equal_imgs.size();
+        long[] result = new long[size];
+        for(int i=0; i<size; i++)
+            result[i] = equal_imgs.get(i)[15];
+
+        return result;
+    }
+
+
+    static synchronized long[] get_longarr_CreatIdForOcrNick(long[] img_nick_for_compare,int error){
+
+        long count_pix_in_ = img_nick_for_compare[15]*1_000_000;
+        long min = count_pix_in_-error*1_000_000, max = count_pix_in_+(error+1)*1_000_000;
+
+        Map<Long,long[]> submap_imgs_with_min_error = sortedmap_all_imgs_pix_of_nicks.subMap(min,max);
+
+        // если не нашлось в мепе такого же изо, то создается новый ИД для изо и записывается на место количества черных пикселей
+        long id_img_pix = System.nanoTime(); img_nick_for_compare[15]= id_img_pix;
+            // проверка наличия изо с таким же количеством пикселей и индексом если есть то добавляется единица и снова проверяется, пока такого индекса не будет в списке,
+            // тогда он присваевается новому изо
+            boolean is_contain = true;
+            while (is_contain){
+                is_contain = submap_imgs_with_min_error.containsKey(count_pix_in_);
+                if(is_contain){count_pix_in_++; //System.out.println("is_countain "+is_contain+" count "+count_pix_in_);
+                }
+                else {
+                    // System.out.println("count_pix "+count_pix_in_);
+                    sortedmap_all_imgs_pix_of_nicks.put(count_pix_in_,img_nick_for_compare); break; }
+            }
+            return new long[]{-id_img_pix,count_pix_in_};
+
+    }
+
+
+
     static int get_AmountOneBitInLong(long lng){
         return (count_one_in_numbers[(short)(lng>>48)+32768]+count_one_in_numbers[(short)(lng>>32)+32768]
                 +count_one_in_numbers[(short)(lng>>16)+32768]+count_one_in_numbers[(short)(lng)+32768]);
@@ -432,6 +494,7 @@ public class CaptureVideo implements Runnable{
             count_one_in_numbers = read_ObjectFromFile("count_one_in_numbers");
             shablons_numbers_0_9_for_actions = read_ObjectFromFile("shablons_numbers_0_9_for_actions");
             shablons_text_sittingout_allin = read_ObjectFromFile("shablons_text_sittingout_allin");
+            shablon_text_poker_terms = read_ObjectFromFile("shablon_text_poker_terms");
 
         }
 
@@ -539,7 +602,20 @@ public class CaptureVideo implements Runnable{
 
 
 
+   /* public static synchronized void write_shablon(String term,BufferedImage image,long[] img_pix){
+       String[] terms = {"Posts SB","Posts BB","Call","Fold","Raise"};
+       int indx = Arrays.asList(terms).indexOf(term);
+       if(shablon_text_poker_terms[indx]!=null)return;
+       save_image(image,"test\\"+term);
 
+       shablon_text_poker_terms[indx] = Arrays.copyOfRange(img_pix,0,15);
+
+        System.err.println("TERM "+term);
+        for(long[] l:shablon_text_poker_terms)if(l==null)return;
+
+        Testing.save_ObjectInFile(shablon_text_poker_terms,"shablon_text_poker_terms");
+        System.err.println("SAVE SHABLON !!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    }*/
 
 
 

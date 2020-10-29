@@ -43,7 +43,7 @@ public class Testing {
 
     static short[][] _short_arrs_shablons_numbers = new short[11][];
 
-    static void save_ObjectInFile(Object ob, String name_file){
+   public static void save_ObjectInFile(Object ob, String name_file){
         try {FileOutputStream file=new FileOutputStream(home_folder+"\\"+name_file+".file");
             ObjectOutput out = new ObjectOutputStream(file);
             out.writeObject(ob);
@@ -590,9 +590,13 @@ public class Testing {
         Settings.setting_cupture_video();
 
 
-        System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test\\_2_469"),0,0,70,11));
+        //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test\\_2_469"),0,0,70,11));
 
 
+        int[]out = {0,1,2};
+
+        int[] in = Arrays.copyOfRange(out,1,1);
+        for(int a:in) System.out.println(a);
 
 
 

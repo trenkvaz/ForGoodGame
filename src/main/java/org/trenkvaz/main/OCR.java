@@ -37,6 +37,7 @@ public class OCR implements Runnable {
     List<List<int[]>> list_by_poker_pos_current_list_arrnums_actions = new ArrayList<>(6);
     int current_bu = -1;
     String[] current_hero_cards = new String[]{"",""};
+    long[][][] current_id_nicks_for_choose = new long[6][3][16];
 
 
 
@@ -190,6 +191,10 @@ public class OCR implements Runnable {
             currentHand.cards_hero[0] = current_hero_cards[0];
             currentHand.cards_hero[1] = current_hero_cards[1];
 
+            for(int i=1; i<6; i++)
+                for(int n=0; n<3; n++)
+                    for(int h=0; h<16; h++)current_id_nicks_for_choose[i][n][h] = 0;
+
 
             // test
             count_nicks = new int[6];
@@ -243,9 +248,9 @@ public class OCR implements Runnable {
         int w = 86;
         int h = 14;
         // test
-        boolean test_is_ocr = false;
+        boolean test_is_ocr = true;
         for(int i=1; i<6; i++){
-            test_is_ocr = false;
+            //test_is_ocr = false;
             if(currentHand.nicks[i]!=null)continue;
             int x = coords_places_of_nicks[i][0]+correction_for_place_of_nicks[i]-5;
             int y = coords_places_of_nicks[i][1]+1;
@@ -254,6 +259,38 @@ public class OCR implements Runnable {
             {save_image(frame[0].getSubimage(x,y,w,h),"test4\\"+(c++)); isplace=true;}*/
             long[] img_pix = get_longarr_HashImage(frame[0],x,y+2,w,h-3,15,150);
 
+            if(get_int_CompareLongHashesToShablons(img_pix,shablon_text_poker_terms)!=-1)continue;
+            //BufferedImage test_nick = frame[0].getSubimage(x,y,w,h);;
+
+
+
+            if(count_nicks[i]<3){
+                current_id_nicks_for_choose[i][count_nicks[i]] = img_pix;
+                count_nicks[i]++;
+                continue;
+            }
+            if(count_nicks[i]==3){
+                boolean same_nicks = false;
+                //for(int c=0; c<3; c++)
+                    for(int c1=1; c1<3; c1++)
+                        if(compare_LongHashes(current_id_nicks_for_choose[i][0],current_id_nicks_for_choose[i][c1],10)){same_nicks =true; break;}
+                    if(same_nicks){
+                        img_pix = current_id_nicks_for_choose[i][0];
+                    } else img_pix = current_id_nicks_for_choose[i][1];
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+            //if(test_is_ocr) continue;
             long[] id_img_pix = get_number_img_nicks(img_pix,10);
             //System.out.println("time id "+(System.currentTimeMillis()-s));
             //System.out.println("id "+id_img_pix[0]);
@@ -275,8 +312,9 @@ public class OCR implements Runnable {
                         }
                     }
             }
+
     // если нет похожих и надо распознать, то возвращает два числа, первое ИД, второе ключ для сортированного массива, чтобы его можно было записать в файл
-            BufferedImage test_nick = null;
+
             if(id_img_pix[0]<0){
                 int attempt = 0;
                 BufferedImage cheked_img = frame[0].getSubimage(x,y,w,h);
@@ -303,8 +341,8 @@ public class OCR implements Runnable {
                 save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),105),"id_nicks\\"+currentHand.nicks[i]+" "+(-id_img_pix[0])+"_"+c+""+table);
 
 
-                test_is_ocr = true;
-                test_nick= cheked_img;
+                //test_is_ocr = true;
+                //test_nick= cheked_img;
             }
 
             if(id_img_pix[0]>0&&id_img_pix_length>1) {
@@ -340,9 +378,12 @@ public class OCR implements Runnable {
 
             }
             //assert currentHand.nicks[i] != null;
-            if(currentHand.nicks[i] != null&&
-                    (currentHand.nicks[i].equals("Posts SB")||currentHand.nicks[i].equals("Posts BB")||
-                            currentHand.nicks[i].equals("Fold")||currentHand.nicks[i].equals("Check")||currentHand.nicks[i].equals("Raise")))currentHand.nicks[i]=null;
+            /*if(currentHand.nicks[i] != null&&
+                    (currentHand.nicks[i].equals("Posts SB")||currentHand.nicks[i].equals("Posts BB")||currentHand.nicks[i].equals("Call")||
+                            currentHand.nicks[i].equals("Fold")||currentHand.nicks[i].equals("Check")||currentHand.nicks[i].equals("Raise"))){
+                //write_shablon(currentHand.nicks[i],test_nick,img_pix);
+                System.err.println("ERROR TERM");
+                currentHand.nicks[i]=null;}*/
             //System.out.println(currentHand.nicks[i]);
             //assert currentHand.nicks[i] != null;
             /*if(i==4){
@@ -352,31 +393,41 @@ public class OCR implements Runnable {
             //if(currentHand.nicks[i]!=null)save_image(cheked_img,"test2\\"+currentHand.nicks[i]+"_"+get_max_brightness(cheked_img));
             //images_of_nicks_for_ocr[i] = get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),limit_grey);
             //if(isplace) System.out.println("NICK    /////////////////////////////////////////    "+currentHand.nicks[i]);
-            if(test_is_ocr)
-            if(currentHand.nicks[i] != null&&count_nicks[i]<3){
+
+
+            //if(test_is_ocr)
+            /*if(currentHand.nicks[i] != null&&count_nicks[i]<3){
 
             count_nicks[i]++;
 
-                if(count_nicks[i]==1){
-                    test_nicks.get(i).add(currentHand.nicks[i]);
-                    images_nicks.get(i).add(test_nick);
-                    currentHand.nicks[i]=null;
-                } else {
-                    boolean same_nicks = false;
-                    for(String nick:test_nicks.get(i)){
-                        if(nick.equals(currentHand.nicks[i])){same_nicks =true; break;}
-                    }
-                    if(!same_nicks){
                         test_nicks.get(i).add(currentHand.nicks[i]);
-                        images_nicks.get(i).add(test_nick);
-                    }
-                    if(count_nicks[i]==2)currentHand.nicks[i]=null;
+                        //images_nicks.get(i).add(test_nick);
+
+                    if(count_nicks[i]!=3)currentHand.nicks[i]=null;
+
+            }
+            if(count_nicks[i]==3){
+                boolean same_nicks = true;
+                for(int c=0; c<test_nicks.get(i).size(); c++)
+                    for(int c1=c+1; c1<test_nicks.get(i).size(); c1++)
+                    if(!test_nicks.get(i).get(c).equals(test_nicks.get(i).get(c1))){same_nicks =false; break;}
+
+                if(!same_nicks){
+                    System.err.println("NOT SAME");
+                    for(int n =0; n<test_nicks.get(i).size(); n++)save_image(images_nicks.get(i).get(n),"test\\"+test_nicks.get(i).get(n)+"_"+n);
                 }
-            }
-            if(count_nicks[i]==3&&test_nicks.get(i).size()>1){
-                for(int n =0; n<test_nicks.get(i).size(); n++)save_image(images_nicks.get(i).get(n),"test\\"+test_nicks.get(i).get(i));
-            }
+
+
+            }*/
+
+
+         if(count_nicks[i]==3&&currentHand.nicks[i]==null)count_nicks[i]=0;
+
+
         }
+
+
+
         currentHand.setIs_nicks_filled();
         /*if(currentHand.cards_hero[0].equals("Qc")&&currentHand.cards_hero[1].equals("2h")&&table==3){
             for(String n:currentHand.nicks) { if(n==null){
@@ -536,14 +587,14 @@ public class OCR implements Runnable {
             }
             return 0;
         }
-        // если есть то хад включается
+        // если есть номер раздачи то хад включается
         else {
             if(!start_hud){
                 end_hud = false;
                 start_hud = true;
                 hud.show_hud(table-1);
             }
-            // если стол есть, но нет раздачи, то хад очищается от текста
+            // если стол есть, но нет хода раздачи, то хад очищается от текста
             if(frame[0]==null) {
                 if(!stop_show_text_in_hud){
                     stop_show_text_in_hud = true;
@@ -694,7 +745,7 @@ public class OCR implements Runnable {
                 // если стек не определен проверяется на ситтаут и оллин, или вообще не определится из-за помех
                 if(stack_without_action==-1){
                     long[] hash_for_compare = get_longarr_HashImage(frame[0],x,y+1,72,12,14,175);
-                    int first_of_pair_error = 0, second_of_pair_error = 0, error = 10;
+                    /*int first_of_pair_error = 0, second_of_pair_error = 0, error = 10;
                     int choosed_shablon_text = -1;
                    out: for(int ind_shablon=0; ind_shablon<2; ind_shablon++) {
                     for(int i=0; i<14; i++){
@@ -703,7 +754,8 @@ public class OCR implements Runnable {
                         if(i>0&&(first_of_pair_error+second_of_pair_error)>error){ continue out;  }
                     }
                     choosed_shablon_text = ind_shablon;
-                    }
+                    }*/
+                    int choosed_shablon_text = get_int_CompareLongHashesToShablons(hash_for_compare,shablons_text_sittingout_allin);
                     if(choosed_shablon_text==-1)continue;
                     if(choosed_shablon_text==0)currentHand.stacks[poker_position] = Float.NaN;
                     if(choosed_shablon_text==1)currentHand.stacks[poker_position] = currentHand.preflop_by_positions.get(poker_position).
@@ -734,6 +786,20 @@ public class OCR implements Runnable {
 
     }
 
+
+    int get_int_CompareLongHashesToShablons(long[] hash_for_compare,long[][] shablons){
+        int first_of_pair_error = 0, second_of_pair_error = 0, error = 10, size_shbalons = shablons.length, amount_nums = shablons[0].length;
+        int choosed_shablon_text = -1;
+        out: for(int ind_shablon=0; ind_shablon<size_shbalons; ind_shablon++) {
+            for(int i=0; i<amount_nums; i++){
+                if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(shablons[ind_shablon][i]^hash_for_compare[i]);
+                if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(shablons[ind_shablon][i]^hash_for_compare[i]);
+                if(i>0&&(first_of_pair_error+second_of_pair_error)>error){ continue out;  }
+            }
+            choosed_shablon_text = ind_shablon;
+        }
+        return choosed_shablon_text;
+    }
 
 
 
@@ -1018,6 +1084,21 @@ public class OCR implements Runnable {
         //System.out.println("true "+error);
         return true;
     }
+
+    boolean compare_LongHashes(long[] current_list_nums,long[] _new_list_nums, int limit_error){
+
+        //if(current_list_nums.size()!=_new_list_nums.size())return false;
+        if(abs(current_list_nums[15]-_new_list_nums[15])>limit_error)return false;
+        int first_of_pair_error = 0, second_of_pair_error = 0;
+      for(int ind_nums = 0; ind_nums<15; ind_nums++){
+            if(ind_nums%2==0)first_of_pair_error = get_AmountOneBitInLong(current_list_nums[ind_nums]^_new_list_nums[ind_nums]);
+            if(ind_nums%2!=0)second_of_pair_error = get_AmountOneBitInLong(current_list_nums[ind_nums]^_new_list_nums[ind_nums]);
+            if(ind_nums>0&&(first_of_pair_error+second_of_pair_error)>limit_error){ return false;  }
+        }
+        //System.out.println("true "+error);
+        return true;
+    }
+
 
 
     boolean compare_part_of_buffred_images(BufferedImage current_image,BufferedImage _new_image,int x,int y, int w, int h){
