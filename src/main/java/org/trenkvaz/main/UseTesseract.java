@@ -8,11 +8,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import static org.trenkvaz.main.Testing.save_image;
 
 public class UseTesseract {
-    Tesseract tesseract_for_number_hand;
-    Tesseract tesseract_for_nicks;
+    /*Tesseract tesseract_for_number_hand;
     Tesseract tesseract_for_stacks;
-    Tesseract tesseract_for_actions;
+    Tesseract tesseract_for_actions;*/
+
+
     ReentrantLock lock = new ReentrantLock();
+    Tesseract tesseract_for_nicks;
 
     UseTesseract(){
         init_tessart();
@@ -88,30 +90,30 @@ public class UseTesseract {
 
 
 
-        tesseract_for_stacks = new Tesseract();
+        /*tesseract_for_stacks = new Tesseract();
         tesseract_for_stacks.setDatapath("C:\\Users\\Duduka\\.m2\\repository\\net\\sourceforge\\tess4j\\tess4j\\4.5.1\\tess4j-4.5.1\\tessdata");
         tesseract_for_stacks.setTessVariable("user_defined_dpi", "300");
-        tesseract_for_stacks.setTessVariable("tessedit_char_whitelist","0123456789.");
+        tesseract_for_stacks.setTessVariable("tessedit_char_whitelist","0123456789.");*/
         //tesseract_for_stacks.setPageSegMode(13);
 
 
-        tesseract_for_actions = new Tesseract();
+        /*tesseract_for_actions = new Tesseract();
         tesseract_for_actions.setDatapath("C:\\Users\\Duduka\\.m2\\repository\\net\\sourceforge\\tess4j\\tess4j\\4.5.1\\tess4j-4.5.1\\tessdata");
         tesseract_for_actions.setTessVariable("user_defined_dpi", "300");
         tesseract_for_actions.setTessVariable("tessedit_char_whitelist","0123456789.");
         tesseract_for_actions.setLanguage("eng");
 
-        tesseract_for_actions.setPageSegMode(7);
+        tesseract_for_actions.setPageSegMode(7);*/
 
         //tesseract.setOcrEngineMode(3);
     }
 
-    private void set_engin_mod(int type){
+   /* private void set_engin_mod(int type){
         tesseract_for_number_hand.setOcrEngineMode(type);
         tesseract_for_nicks.setOcrEngineMode(type);
         tesseract_for_stacks.setOcrEngineMode(type);
         tesseract_for_actions.setOcrEngineMode(type);
-    }
+    }*/
 
     /*private String get_number_hand(BufferedImage bufferedImage){
         String text = "text";
@@ -139,7 +141,7 @@ public class UseTesseract {
         return text;
     }
 
-    private String get_stacks(BufferedImage bufferedImage){
+   /* private String get_stacks(BufferedImage bufferedImage){
         String text = "text";
         try {
             text = tesseract_for_stacks.doOCR(bufferedImage);
@@ -150,9 +152,9 @@ public class UseTesseract {
         save_image(bufferedImage,"for_ocr_stacks\\_"+text.trim());
         //System.out.println(text);
         return text;
-    }
+    }*/
 
-    private String get_actions(BufferedImage bufferedImage){
+    /*private String get_actions(BufferedImage bufferedImage){
         String text = "text";
         try {
             text = tesseract_for_actions.doOCR(bufferedImage);
@@ -162,18 +164,19 @@ public class UseTesseract {
         }
         save_image(bufferedImage,"for_ocr_actions\\_"+text.trim());
         return text;
-    }
+    }*/
 
-    public String get_ocr(BufferedImage bufferedImage,String type){
+    public String get_ocr(BufferedImage bufferedImage){
 
         if(!lock.tryLock())return null;
 
         try {
             //if(type.equals("hand"))return get_number_hand(bufferedImage);
-            if(type.equals("nicks"))return get_nicks(bufferedImage);
-            if(type.equals("stacks"))return get_stacks(bufferedImage);
-            if(type.equals("actions"))return get_actions(bufferedImage);
-            return null;
+            //if(type.equals("nicks"))
+                return get_nicks(bufferedImage);
+           /* if(type.equals("stacks"))return get_stacks(bufferedImage);
+            if(type.equals("actions"))return get_actions(bufferedImage);*/
+
         } finally {
             lock.unlock();
         }
