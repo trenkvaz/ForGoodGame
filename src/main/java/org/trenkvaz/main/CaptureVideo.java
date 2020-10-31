@@ -64,6 +64,8 @@ public class CaptureVideo implements Runnable{
    static long[][] _long_arr_cards_for_compare,shablons_text_sittingout_allin, shablon_text_poker_terms;
    static int[][] shablons_numbers_0_9_for_stacks, shablons_numbers_0_9_for_actions;
 
+   // TEST
+   OCR ocr = new OCR("", 1, new BufferedImage[]{null, null});
 
    public CaptureVideo(){
        for(int i=0; i<4; i++)use_tessearts[i] = new UseTesseract();
@@ -353,7 +355,7 @@ public class CaptureVideo implements Runnable{
        //System.out.println((System.currentTimeMillis()-start));
         createBufferedImage(frame, bufferedImageframe);
        BufferedImage image_number_hand = null;
-       int x_of_number_hand = 579,y_of_number_hand = 56,width_of_number_hand = 53,height_of_number_hand = 11, width_nick = 87, height_nick = 14;
+       int x_of_number_hand = 579,y_of_number_hand = 56,width_of_number_hand = 53,height_of_number_hand = 11, width_nick = 87+4, height_nick = 14;
        boolean is_correct_number_hand = false, is_correct_nicks = false;
 
        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
@@ -380,11 +382,17 @@ public class CaptureVideo implements Runnable{
                is_correct_nicks = true;
 
               for(int img_nicks=0; img_nicks<6; img_nicks++ ){
-                  int x_of_nick = coord_left_up_of_tables[index_table][0]+coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5;
+                  int x_of_nick = coord_left_up_of_tables[index_table][0]+coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5-3;
                   int y_of_nick = coord_left_up_of_tables[index_table][1]+coords_places_of_nicks[img_nicks][1]+1;
                   //checknicktest_nick.add("++++++++++++++++++++++++++++++++++++"+img_nicks);
-                  if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,150,240,210,bufferedImageframe)){ continue; }
-                  //if(index_table==4)save_image(bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),"tables_img\\"+(c++)+"_"+img_nicks);
+                  if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,220,220,210,bufferedImageframe)){ continue; }
+                  //if(index_table==4)
+             /*      c++;
+                      save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no
+                              (bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),true),35),"test3\\"+(c)+"_a_"+img_nicks);
+                 *//* save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no
+                          (bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),true),105),"test3\\"+(c)+"_b_"+img_nicks);*//*
+                  save_image(bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),"test3\\"+(c)+"_b_"+img_nicks);*/
                   is_correct_nicks = false;
                   break;
               }
@@ -447,17 +455,19 @@ public class CaptureVideo implements Runnable{
   public static boolean is_CorrectImageOfNumberHandAndNicks(int X, int Y, int w, int h, int brightness_of_perimeter_up_down,int brightness_of_perimeter_left_right,
                                                             int max_brightness_of_text, BufferedImage frame){
        //save_image(frame.getSubimage(X,Y,w,h),"tables_img\\t_"+(c));
-        // вверхние и нижние линии периметра исключая  2 первых и 2 последних линии
-        for(int x=X+2; x<w+X-2; x++){
-            for(int y=Y; y<h+Y; y+=h-1){
+        // вверхние и нижние линии периметра верхняя линия вся, поэтому мув1 и мув2 = 0, нижняя линия ограничена с начала и с конца на 3 и 2 пикселя соотвественно
+            int p =0, move1 = 0, move2 = 0;
+            for(int y=Y; y<h+Y; y+=h-1){ p++;
+                if(p==2) { move1 = 3; move2 = 2; }
+                for(int x=X+move1; x<w+X-move2; x++){
                 //System.out.println("1 grey "+grey);
                 //checknicktest_nick.add("1 "+grey);
                 if(get_intGreyColor(frame,x,y)>brightness_of_perimeter_up_down)return false;
             }
         }
-        // правые и левые линии периметра
-        for(int y=Y; y<h+Y; y++)
-            for(int x=X; x<w+X; x+=w-1){
+        // правые и левые линии периметра ограничены на 10 пикселй снизу
+            for(int x=X; x<w+X; x+=w-1)
+                for(int y=Y; y<h+Y-10; y++){
                 //System.out.println("2 grey "+grey);
                 //checknicktest_nick.add("2 "+grey);
                 if(get_intGreyColor(frame,x,y)>brightness_of_perimeter_left_right)return false;

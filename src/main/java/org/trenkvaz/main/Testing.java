@@ -264,16 +264,20 @@ public class Testing {
     static int check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,BufferedImage frame){
         //save_image(frame.getSubimage(X,Y,w,h),"tables_img\\t_");
         int max = 0;
-        for(int x=X; x<w+X; x++){
-            for(int y=Y; y<h+Y; y+=h-1){
+        int p =0, move1 = 0, move2 = 0;
+        for(int y=Y; y<h+Y; y+=h-1){ p++;
+            if(p==2) { move1 = 3; move2 = 2; }
+            for(int x=X+move1; x<w+X-move2; x++){
+
+
                 int grey = get_intGreyColor(frame,x,y);
                 System.out.println("1 grey "+grey);
                 if(grey>max)max=grey;
                 //if(grey>limit_grey)return null;
             }
         }
-        for(int y=Y; y<h+Y; y++)
-            for(int x=X; x<w+X; x+=w-1){
+        for(int x=X; x<w+X; x+=w-1)
+            for(int y=Y; y<h+Y-10; y++){
                 int grey = get_intGreyColor(frame,x,y);
                 System.out.println("2 grey "+grey);
                 if(grey>max)max=grey;
@@ -299,49 +303,8 @@ public class Testing {
     }
 
 
-    static void compare_binar_imgs(BufferedImage img1,BufferedImage img2,int limit_grey){
-        int w = img1.getWidth(), h = img1.getHeight(); int error = 0;
-        for(int x=0; x<w; x++) {
-            for (int y = 0; y < h; y++) {
-                int grey1 = get_intGreyColor(img1,x,y);
-                if(grey1<limit_grey)grey1=1;else grey1=0;
-                int grey2 = get_intGreyColor(img2,x,y);
-                if(grey2<limit_grey)grey2=1;else grey2=0;
-                if(grey1!=grey2)error++;
-                //if(grey>limit_grey)return null;
-            }
-        }
-        System.out.println("error "+error);
-    }
 
 
-    static boolean is_error_image(BufferedImage image){
-        int h = image.getHeight(), w = image.getWidth();
-        int count_line_with_symbols = 0; boolean is_symbol_start = false; int count_white = 0;
-        for(int i=18;i<w;i++) {
-            for(int j=0;j<h;j++) {
-                int grey = get_intGreyColor(image,i,j);
-                if(grey<100)continue;
-                is_symbol_start = true;
-                System.out.println("er "+grey);
-                if(grey>200)count_white++;
-                //if(isBlue(new Color(val)))count_blue++;
-            }
-            if(is_symbol_start)count_line_with_symbols++;
-            if(count_line_with_symbols==5)break;
-        }
-        return count_white <= 0;
-    }
-    static int c=0;
-
-
-
-    record Cards(BufferedImage[] card,String nominal_card){}
-
-    public static List<BufferedImage[]> list_test_numberhands = new ArrayList<>();
-
-
-    public static List<Cards> list_test_cards = new ArrayList<>();
 
 
 
@@ -580,10 +543,37 @@ public class Testing {
         return  (int) (((val >> 16) & 0xff) * 0.299 + ((val >> 8) & 0xff) * 0.587 + (val & 0xff) * 0.114);
     }
 
+
+    static void get_card(long[] card_hash_from_table){
+        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        int total_error =0, limit_error =10;
+        String[] result = new String[2];
+        out: for(int nominal_ind_list = 0; nominal_ind_list<52; nominal_ind_list++){
+            // сравнение количества черных пикселей между хешем_имдж из массива номиналы_карт с хешем_имдж со стола
+            //System.out.println("i "+i+" nom "+nominals_cards[nominal_ind_list/4]+"  err "+abs(_long_arr_cards_for_compare[nominal_ind_list][3]-card_hash_from_table[3]));
+            if(Math.abs(_long_arr_cards_for_compare[nominal_ind_list][3]-card_hash_from_table[3])>limit_error)continue;
+            System.out.println("blackpix list "+_long_arr_cards_for_compare[nominal_ind_list][3]+"    "+card_hash_from_table[3]);
+            total_error = 0;
+
+            for(int ind_num=0; ind_num<3; ind_num++){
+                total_error+= get_AmountOneBitInLong(_long_arr_cards_for_compare[nominal_ind_list][ind_num]^card_hash_from_table[ind_num]);
+                System.out.println(nominal_ind_list+"  "+total_error);
+                //if(total_error>limit_error){ continue out;  }
+            }
+            if(total_error>limit_error){ continue out;  }
+            //System.err.println("TOTAL ERROR "+total_error);
+            // если нашлось совпадение, то берется номинал карты деление на 4 для получения индекса где 13 эелементов вместо 52
+            result[1]=nominals_cards[nominal_ind_list/4];
+
+            break;
+        }
+        System.out.println(result[1]);
+        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    }
+
     public static void main(String[] args) throws Exception {
 
-        OCR ocr = new OCR("", 1, new BufferedImage[]{read_image("Mtest\\win3p5").
-                getSubimage(coord_left_up_of_tables[2][0], coord_left_up_of_tables[2][1], 639, 468), null});
+        OCR ocr = new OCR("", 1, new BufferedImage[]{null, null});
         UseTesseract useTesseract = new UseTesseract();
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
@@ -593,29 +583,34 @@ public class Testing {
         //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test\\_2_469"),0,0,70,11));
 
 
-        int[][]out = {{0, 1, 2},{5,6,7},{8,9,10}};
 
-        int[][] in = Arrays.copyOfRange(out,0,3);
-        out[0][0]=22;
-        for(int[] a:in)for(int b:a) System.out.println(b);
+        int table = 4, nick = 2;
+        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
+        int x_of_nick = coord_left_up_of_tables[table][0]+coords_places_of_nicks[nick][0]+correction_for_place_of_nicks[nick]-5;
+        int y_of_nick = coord_left_up_of_tables[table][1]+coords_places_of_nicks[nick][1]+1;
 
-       int[]a = {1,2,3};
-       int[]b = {4,5,6};
-       List<int[]> test = new ArrayList<>();
-       test.add(a);
-       test.add(b);
-       a[0] = 22;
-        for(int[] aa:test)for(int bb:aa) System.out.println(bb);
+        save_image(read_image("testM\\longnick2").getSubimage(x_of_nick-3,y_of_nick,87+4,14),"testM\\ln2");
 
+       /* save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(read_image("testM\\ln1").
+                getSubimage(0,0,86+2,14),4),true),105),"testM\\lnbwx4");*/
 
+        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("testM\\ln2"),true),10),"testM\\lnbw21");
 
+        check_free_of_kursor(0,0,87+4,14,0,read_image("testM\\ln2"));
 
+        //System.out.println(useTesseract.get_ocr(read_image("testM\\lnbwx4")));
+        long[] card_hash_from_table = ocr.get_longarr_HashImage(read_image("test2\\Ks5c_hand\\_result_630_"),0,1,14,14,3,150);
 
+        show_HashShablonNumber(card_hash_from_table,14,14);
+        show_HashShablonNumber(_long_arr_cards_for_compare[14],14,14);
+        for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test2\\Ks5c_hand").listFiles()){
+            if(a.isFile()){
 
-
-
-
-
+                BufferedImage image = ImageIO.read(a);
+                card_hash_from_table = ocr.get_longarr_HashImage(image,0,1,14,14,3,150);
+                get_card(card_hash_from_table);
+            }
+        }
 
 
 
