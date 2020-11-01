@@ -589,10 +589,10 @@ public class Testing {
         int x_of_nick = coord_left_up_of_tables[table][0]+coords_places_of_nicks[nick][0]+correction_for_place_of_nicks[nick]-5;
         int y_of_nick = coord_left_up_of_tables[table][1]+coords_places_of_nicks[nick][1]+1;
 
-        save_image(read_image("testM\\longnick2").getSubimage(x_of_nick-3,y_of_nick,87+4,14),"testM\\ln2");
+       /* save_image(read_image("testM\\longnick2").getSubimage(x_of_nick-3,y_of_nick,87+4,14),"testM\\ln2");
 
-       /* save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(read_image("testM\\ln1").
-                getSubimage(0,0,86+2,14),4),true),105),"testM\\lnbwx4");*/
+       *//* save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(read_image("testM\\ln1").
+                getSubimage(0,0,86+2,14),4),true),105),"testM\\lnbwx4");*//*
 
         save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("testM\\ln2"),true),10),"testM\\lnbw21");
 
@@ -610,11 +610,20 @@ public class Testing {
                 card_hash_from_table = ocr.get_longarr_HashImage(image,0,1,14,14,3,150);
                 get_card(card_hash_from_table);
             }
-        }
+        }*/
 
+        long[] za9 = ocr.get_longarr_HashImage(read_image("testM\\za9b"),0,2,86,14-3,15,150);
+        long[] zaS = ocr.get_longarr_HashImage(read_image("testM\\zaSb"),0,2,86,14-3,15,150);
+        long[] test = ocr.get_longarr_HashImage(read_image("testM\\testnick"),0,2,86,14-3,15,150);
+        //show_HashShablonNumber(za9,86,11);
+        //System.out.println(ocr.compare_LongHashes(za9,test,10));
 
-
-
+        long[] za9f = sortedmap_all_imgs_pix_of_nicks.get(207000002L);
+        long[] zaSf = sortedmap_all_imgs_pix_of_nicks.get(218000001L);
+        show_HashShablonNumber(za9f,86,11);
+        System.out.println();
+        show_HashShablonNumber(zaSf,86,11);
+        System.out.println(ocr.compare_LongHashes(za9f,zaSf,10));
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 }

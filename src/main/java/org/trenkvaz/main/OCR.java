@@ -175,7 +175,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     private void main_work_on_table(){
-        //if(table!=6)return;
+        //if(table!=4)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -213,12 +213,12 @@ public class OCR implements Runnable {
 
             // TEST
 
-            for(int i=0; i<6; i++){
-               /* test_nicks.get(i).clear();
-                images_nicks.get(i).clear();*/
+       /*     for(int i=0; i<6; i++){
+               *//* test_nicks.get(i).clear();
+                images_nicks.get(i).clear();*//*
                 testRecPlayers[i].imges_nick.clear();
                 testRecPlayers[i].imges_stack.clear();
-            }
+            }*/
 
             //cadres.clear();
             //save_image(frame[0],"test5\\"+(c++));
@@ -232,8 +232,8 @@ public class OCR implements Runnable {
              cadres.add(frame[0]);
          }*/
 
-        if(currentHand.cards_hero[0].equals("Ks")&&currentHand.cards_hero[1].equals("5c")
-        )Testing.save_image(frame[0],"test2\\Ks5c\\_table_"+(++c));
+       /* if(currentHand.cards_hero[0].equals("4d")&&currentHand.cards_hero[1].equals("5s")
+        )Testing.save_image(frame[0],"test2\\4d5s\\_table_"+(++c));*/
 
 
         if(currentHand.position_bu_on_table >0&&!(currentHand.cards_hero[0].equals("")||currentHand.cards_hero[1].equals(""))&&!currentHand.is_nicks_filled) {get_nicks();}
@@ -386,7 +386,7 @@ public class OCR implements Runnable {
                 }
 
             if(currentHand.nicks[i]==null) {
-                System.err.println("DUBLIKATS IMG_PIX_NICK");
+                Settings.ErrorLog("DUBLIKATS IMG_PIX_NICK "+table);
                 BufferedImage cheked_img = frame[0].getSubimage(x,y,w,h);
             int n=-1;
             for(long d:id_img_pix) { n++;     save_image(cheked_img,"dublicats_nicks\\"+str_nicks[n]+"_"+d); }
@@ -715,11 +715,21 @@ public class OCR implements Runnable {
                 if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1;continue;
             }
 
-            // если рейз можно прочитать, а в стеке есть -1, то оно меняется на ноль, чтобы стек определялся
-            if(currentHand.stacks[poker_position]==-1)currentHand.stacks[poker_position]=0;
+
             //if(currentHand.cards_hero[0].equals("8d")&&poker_position==0)save_image(frame[0].getSubimage(xa,ya,wa,ha),"test2\\_act3_"+(c++));
 
             List<int[]> nums = get_list_intarr_HashNumberImg(frame[0],xa,ya+1,70,9,200,0,2,6,2);
+
+            if(nums==null) {  if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1;
+
+            Settings.ErrorLog(" hand "+hand+" ERROR get_list_intarr_HashNumberImg ");
+            save_image(frame[0].getSubimage(xa,ya,wa,ha),"test3\\"+(poker_positions_index_with_numbering_on_table[poker_position]-1)+"_"+table);
+
+            continue;}
+
+            // если рейз можно прочитать, а в стеке есть -1, то оно меняется на ноль, чтобы стек определялся
+            if(currentHand.stacks[poker_position]==-1)currentHand.stacks[poker_position]=0;
+
             // проверяется есть ли в листе сохраняющем предидущие числа действий по позициям сохраненное число, если нет то вносит новое число и идет дальше для распознавания
             if(list_by_poker_pos_current_list_arrnums_actions.get(poker_position).isEmpty()) list_by_poker_pos_current_list_arrnums_actions.set(poker_position,nums);
             else {
@@ -766,7 +776,7 @@ public class OCR implements Runnable {
                         +3+correction_for_place_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1];
                 int y = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][1]+17;
 
-                testRecPlayers[poker_positions_index_with_numbering_on_table[poker_position]-1].imges_stack.add(frame[0].getSubimage(x,y,72,14));
+                //testRecPlayers[poker_positions_index_with_numbering_on_table[poker_position]-1].imges_stack.add(frame[0].getSubimage(x,y,72,14));
 
                 if(!is_GoodImageForOcrStack(frame[0],x,y,72,14,150))continue;
 
@@ -990,6 +1000,8 @@ public class OCR implements Runnable {
             result.add(intarr_hashimage);
         }
 
+        if(result.isEmpty()||result.get(0)==null) return null;
+
         return result;
     }
 
@@ -1119,11 +1131,13 @@ public class OCR implements Runnable {
     boolean compare_LongHashes(long[] current_list_nums,long[] _new_list_nums, int limit_error){
 
         //if(current_list_nums.size()!=_new_list_nums.size())return false;
-        if(abs(current_list_nums[15]-_new_list_nums[15])>limit_error)return false;
+        //System.out.println(current_list_nums[15]+" "+_new_list_nums[15]);
+        if(abs(current_list_nums[15]-_new_list_nums[15])>15)return false;
         int first_of_pair_error = 0, second_of_pair_error = 0;
       for(int ind_nums = 0; ind_nums<15; ind_nums++){
             if(ind_nums%2==0)first_of_pair_error = get_AmountOneBitInLong(current_list_nums[ind_nums]^_new_list_nums[ind_nums]);
             if(ind_nums%2!=0)second_of_pair_error = get_AmountOneBitInLong(current_list_nums[ind_nums]^_new_list_nums[ind_nums]);
+          //System.out.println((first_of_pair_error+second_of_pair_error));
             if(ind_nums>0&&(first_of_pair_error+second_of_pair_error)>limit_error){ return false;  }
         }
         //System.out.println("true "+error);

@@ -204,12 +204,13 @@ public class CaptureVideo implements Runnable{
    }
 
 
-    static synchronized long[] get_number_img_nicks(long[] img_nick_for_compare,int error){
+    static synchronized long[] get_number_img_nicks(long[] img_nick_for_compare,int privat_error){
         // img_nick_for_compare 15 чисел изо, 16-у количество черных пикселей
         // умножается на миллион, чтобы получить индексы в сортируемом мепе, по ним будет отбираться диапазон по количеству черных пикселей
 
         long count_pix_in_ = img_nick_for_compare[15]*1_000_000;
-        long min = count_pix_in_-error*1_000_000, max = count_pix_in_+(error+1)*1_000_000;
+        int general_error = 15;
+        long min = count_pix_in_-general_error*1_000_000, max = count_pix_in_+(general_error+1)*1_000_000;
 
         Map<Long,long[]> submap_imgs_with_min_error = sortedmap_all_imgs_pix_of_nicks.subMap(min,max);
 
@@ -219,10 +220,10 @@ public class CaptureVideo implements Runnable{
             //boolean is_equal = true;
             for(int i=0; i<15; i++){
                 /*count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
-                if(count_error_in_compare>error){is_equal = false; break;}*/
+                if(count_error_in_compare>privat_error){is_equal = false; break;}*/
                 if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
                 if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
-                if(i>0&&(first_of_pair_error+second_of_pair_error)>error){ continue out;  }
+                if(i>0&&(first_of_pair_error+second_of_pair_error)>privat_error){ continue out;  }
             }
             //if(!is_equal)continue;
             equal_imgs.add(img_min_error);
