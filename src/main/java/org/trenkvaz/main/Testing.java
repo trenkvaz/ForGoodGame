@@ -612,18 +612,20 @@ public class Testing {
             }
         }*/
 
-        long[] za9 = ocr.get_longarr_HashImage(read_image("testM\\za9b"),0,2,86,14-3,15,150);
+       /* long[] za9 = ocr.get_longarr_HashImage(read_image("testM\\za9b"),0,2,86,14-3,15,150);
         long[] zaS = ocr.get_longarr_HashImage(read_image("testM\\zaSb"),0,2,86,14-3,15,150);
-        long[] test = ocr.get_longarr_HashImage(read_image("testM\\testnick"),0,2,86,14-3,15,150);
+        long[] test = ocr.get_longarr_HashImage(read_image("testM\\testnick"),0,2,86,14-3,15,150);*/
         //show_HashShablonNumber(za9,86,11);
         //System.out.println(ocr.compare_LongHashes(za9,test,10));
 
-        long[] za9f = sortedmap_all_imgs_pix_of_nicks.get(207000002L);
+       /* long[] za9f = sortedmap_all_imgs_pix_of_nicks.get(207000002L);
         long[] zaSf = sortedmap_all_imgs_pix_of_nicks.get(218000001L);
         show_HashShablonNumber(za9f,86,11);
         System.out.println();
         show_HashShablonNumber(zaSf,86,11);
-        System.out.println(ocr.compare_LongHashes(za9f,zaSf,10));
+        System.out.println(ocr.compare_LongHashes(za9f,zaSf,10));*/
+
+        Settings.ErrorLog("test");
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 }

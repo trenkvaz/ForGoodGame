@@ -10,6 +10,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -107,7 +109,13 @@ public class OCR implements Runnable {
 
    static int hand =0;
     static synchronized void show_total_hand(OCR ocr,TestRecPlayer[] testRecPlayers,Queue<BufferedImage> cadres){
-        System.out.println("****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
+        Date d = new Date();
+        DateFormat formatter= new SimpleDateFormat("HH.mm.ss");
+        String Z = formatter.format(d);
+
+
+
+        System.out.println(Z+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
                 " bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table);
 
 
@@ -860,7 +868,7 @@ public class OCR implements Runnable {
 
 
     public float get_OcrNum(List<int[]> list_hash_nums,int max_error,String type_shablon){
-        if(list_hash_nums.isEmpty()||list_hash_nums.get(0)==null)return -1;
+        if(list_hash_nums==null||list_hash_nums.isEmpty()||list_hash_nums.get(0)==null)return -1;
         int[][] shablons = shablons_numbers_0_9_for_stacks;
         if(type_shablon.equals("actions")) shablons = shablons_numbers_0_9_for_actions;
         int total_error = 0, number_with_min_error = -1, min_error = max_error;

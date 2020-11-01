@@ -582,7 +582,7 @@ public class CaptureVideo implements Runnable{
             boolean estfile = false; String error = ""; boolean zapis = false;
             try {
                 Date d = new Date();
-                DateFormat formatter= new SimpleDateFormat("yyyy_MM_dd_HH.mm");
+                DateFormat formatter= new SimpleDateFormat("yyyy_MM_dd HH.mm.ss");
                 String Z = formatter.format(d);
                 error = Z+" "+er+"\r\n";
                 do {
