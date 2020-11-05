@@ -29,23 +29,26 @@ import static org.trenkvaz.ui.Controller_main_window.*;
 
 public class CaptureVideo implements Runnable{
 
-   static int[][] coords_places_of_nicks = {{298,320},{15,253},{15,120},{264,67},{543,120},{543,253}};
+   static final int[][] coords_places_of_nicks = {{298,320},{15,253},{15,120},{264,67},{543,120},{543,253}};
 
-   public static int[][] coord_left_up_of_tables = {{0,0},{640,0},{1280,0},{0,469},{640,469},{1280,469}};
+   public static final int[][] coord_left_up_of_tables = {{0,0},{640,0},{1280,0},{0,469},{640,469},{1280,469}};
 
-   static int[][] coords_buttons = {{382,287},{144,231},{156,133},{242,104},{459,133},{473,231}};
+   static final int[][] coords_buttons = {{382,287},{144,231},{156,133},{242,104},{459,133},{473,231}};
 
-   static int[][] coords_cards_hero = {{287,286},{331,286}};
+   static final int[][] coords_cards_hero = {{287,286},{331,286}};
 
-   static int[][] coords_actions = {{302-25,267},{151,256},{118,175},{323-15,120},{459-15,175},{436-15,256}};
+   static final int[][] coords_actions = {{302-25,267},{151,256},{118,175},{323-15,120},{459-15,175},{436-15,256}};
 
-   static int[][] coord_2_3_cards_flop = {{270,202},{318,202}};
+   static final int[][] coord_2_3_cards_flop = {{270,202},{318,202}};
 
-   static String[] nominals_cards = {"2","3","4","5","6","7","8","9","T","J","Q","K","A"};
+   static final String[] nominals_cards = {"2","3","4","5","6","7","8","9","T","J","Q","K","A"};
 
-   static String nick_hero = "trenkvaz";
+    public static final String[] Deck = {null,"Ac","Ad","Ah","As","Kc","Kd","Kh","Ks","Qc","Qd","Qh","Qs","Jc","Jd","Jh","Js","Tc","Td","Th","Ts","9c","9d","9h","9s","8c","8d","8h","8s",
+            "7c","7d","7h","7s","6c","6d","6h","6s","5c","5d","5h","5s","4c","4d","4h","4s","3c","3d","3h","3s","2c","2d","2h","2s"};
 
-   public static String home_folder = System.getProperty("user.dir");
+   static final String nick_hero = "trenkvaz";
+
+   public static final String home_folder = System.getProperty("user.dir");
 
 
    public List<OCR> ocrList_1;
@@ -56,14 +59,15 @@ public class CaptureVideo implements Runnable{
    FFmpegFrameGrabber grabber;
    CanvasFrame canvasFrame;
 
-   final static UseTesseract[] use_tessearts = new UseTesseract[4];
+   static final UseTesseract[] use_tessearts = new UseTesseract[4];
 
    static byte[] count_one_in_numbers;
    static HashMap<Long,String> hashmap_id_img_pix_nick = new HashMap<>();
    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks = new TreeMap<>();
    static long[][] _long_arr_cards_for_compare,shablons_text_sittingout_allin, shablon_text_poker_terms;
    static int[][] shablons_numbers_0_9_for_stacks, shablons_numbers_0_9_for_actions;
-
+   static final long start_world_time = System.currentTimeMillis();
+   static final long start_nano_timer = System.nanoTime();
    // TEST
    OCR ocr = new OCR("", 1, new BufferedImage[]{null, null});
 
@@ -238,7 +242,7 @@ public class CaptureVideo implements Runnable{
 
 
        // если не нашлось в мепе такого же изо, то создается новый ИД для изо и записывается на место количества черных пикселей
-        if(equal_imgs.isEmpty()){long id_img_pix = System.nanoTime(); img_nick_for_compare[15]= id_img_pix;
+        if(equal_imgs.isEmpty()){long id_img_pix = get_TimeNanoSeconds(); img_nick_for_compare[15]= id_img_pix;
             // проверка наличия изо с таким же количеством пикселей и индексом если есть то добавляется единица и снова проверяется, пока такого индекса не будет в списке,
             // тогда он присваевается новому изо
             boolean is_contain = true;
@@ -332,6 +336,9 @@ public class CaptureVideo implements Runnable{
                 +count_one_in_numbers[(short)(lng>>16)+32768]+count_one_in_numbers[(short)(lng)+32768]);
     }
 
+
+
+    static long get_TimeNanoSeconds(){ return (start_world_time+(System.nanoTime()-start_nano_timer)%100_000/100); }
 
 
    boolean save = false;

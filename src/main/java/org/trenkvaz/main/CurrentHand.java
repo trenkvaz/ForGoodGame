@@ -1,7 +1,10 @@
 package org.trenkvaz.main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 
+import static org.trenkvaz.main.CaptureVideo.Deck;
 import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
 
 public class CurrentHand {
@@ -21,15 +24,9 @@ public class CurrentHand {
     ArrayList<ArrayList<Float>> preflop_by_positions = new ArrayList<>(6);
 
     CurrentHand(int table1,float sb){
-       table = table1;
-        /*first_round_preflop[4] = -sb;
-        first_round_preflop[5] = -1;*/
+        table = table1;
         for(int i=0; i<6; i++){
             preflop_by_positions.add(new ArrayList<Float>());
-            //if(i<4)
-                //preflop_by_positions.get(i).add(0f);
-            //if(i==4)preflop_by_positions.get(i).add(-sb);
-            //if(i==5)preflop_by_positions.get(i).add(-1f);
         }
     }
 
@@ -39,24 +36,12 @@ public class CurrentHand {
         creatingHUD.send_current_hand_to_creating_hud(nicks,table);
     }
 
-   /* void setIs_stacks_and_1_raund_actions_filled(){
-        for (int i=0; i<6; i++){
-            if(stacks[i]==0){ is_preflop_end = false; return;}
-        }
-        boolean fold_to_bb = true;
-        for(int i=0; i<5; i++){
-            if(preflop_by_positions.get(i).get(0)==1_000_000) continue;
-            fold_to_bb = false;
-        }
-        if(fold_to_bb){
-            is_preflop_end = true; return;}
+
+    public void creat_HandForSaving(){
 
 
-        for (int a=0; a<6; a++){
-            if(!(preflop_by_positions.get(a).get(0)>0)){ is_preflop_end = false; return;}
-        }
-        is_preflop_end = true;
-    }*/
+    }
 
 
+    short get_short_CardsHero(){ return (short) ((byte) Arrays.asList(Deck).indexOf(cards_hero[0])*1000+(byte) Arrays.asList(Deck).indexOf(cards_hero[1])); }
 }

@@ -183,7 +183,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     private void main_work_on_table(){
-        //if(table!=4)return;
+        if(table!=3)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -240,8 +240,8 @@ public class OCR implements Runnable {
              cadres.add(frame[0]);
          }*/
 
-       /* if(currentHand.cards_hero[0].equals("4d")&&currentHand.cards_hero[1].equals("5s")
-        )Testing.save_image(frame[0],"test2\\4d5s\\_table_"+(++c));*/
+        if(currentHand.cards_hero[0].equals("Qc")&&currentHand.cards_hero[1].equals("2h")
+        )Testing.save_image(frame[0],"test2\\Qc2h\\_table_"+(++c));
 
 
         if(currentHand.position_bu_on_table >0&&!(currentHand.cards_hero[0].equals("")||currentHand.cards_hero[1].equals(""))&&!currentHand.is_nicks_filled) {get_nicks();}
@@ -650,10 +650,8 @@ public class OCR implements Runnable {
        // карты могут пропадать в конце текущей раздачи, отсутствие карт в новой раздаче пока не обнаружено
         // ОБНАРУЖЕО !!!
 
-       if(hero_cards==null){ if(currentHand==null)return 0;
+       if(hero_cards==null) return 0;
 
-
-       return 0;}
         //if(hero_cards[0].equals("7c")&&hero_cards[1].equals("7h"))save_image(frame[0],"test2\\"+(c++));
        int bu = set_current_position_of_bu();
        /*if(!(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1]))&&bu==-1){
