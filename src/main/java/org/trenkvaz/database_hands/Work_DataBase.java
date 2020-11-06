@@ -272,7 +272,7 @@ static String work_database;
     }
 
 
-    public void close_DataBase(){
+    public static void close_DataBase(){
             try {
                 if(connect_to_db!=null)connect_to_db.close();
                 if(stmt_of_db!=null)stmt_of_db.close();
@@ -288,5 +288,11 @@ static String work_database;
 
         new Work_DataBase();
         List<CurrentHand.TempHand> list = get_list_TempHands();
+        for (CurrentHand.TempHand tempHand:list){
+            System.out.println("time "+tempHand.time_hand()+" cards "+tempHand.cards_hero()+" pos_hero "+tempHand.position_hero());
+            for(int i=0; i<6; i++)
+                System.out.println("idplayer "+tempHand.idplayers()[i]+" stack "+tempHand.stacks()[i]);
+        }
+        close_DataBase();
     }
 }

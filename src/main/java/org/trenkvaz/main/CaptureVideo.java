@@ -345,9 +345,15 @@ public class CaptureVideo implements Runnable{
                 +count_one_in_numbers[(short)(lng>>16)+32768]+count_one_in_numbers[(short)(lng)+32768]);
     }
 
+    static long last_hand_time = 0;
 
-
-    static long get_TimeNanoSeconds(){ return (start_world_time+(System.nanoTime()-start_nano_timer)%100_000/100); }
+    static long get_TimeNanoSeconds(){
+       // long time = start_world_time+((System.nanoTime()-start_nano_timer)%100_000/100);
+        long time = System.currentTimeMillis();
+        if(last_hand_time==time)time+=1;
+        last_hand_time = time;
+        return time;
+    }
 
 
    boolean save = false;

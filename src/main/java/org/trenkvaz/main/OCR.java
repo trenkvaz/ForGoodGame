@@ -20,6 +20,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import static org.bytedeco.javacpp.opencv_core.cvResetImageROI;*/
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.CaptureVideo.shablons_numbers_0_9_for_stacks;
+import static org.trenkvaz.main.CurrentHand.creat_HandForSaving;
 import static org.trenkvaz.main.Testing.*;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 import static org.trenkvaz.ui.StartAppLauncher.hud;
@@ -131,7 +132,7 @@ public class OCR implements Runnable {
             }
             if(ocr.currentHand.cards_hero[0].equals(""))Settings.ErrorLog("NO CARDS hand "+hand+" t "+ocr.table+" p "+i);
 
-            if(ocr.currentHand.stacks[i]<=0){error = true; Settings.ErrorLog(" NO STACK  hand "+hand+" t "+ocr.table+" p "+i+" stack "+ocr.currentHand.stacks[i]+
+            if(ocr.currentHand.stacks[i]<=0){ Settings.ErrorLog(" NO STACK  hand "+hand+" t "+ocr.table+" p "+i+" stack "+ocr.currentHand.stacks[i]+
                     " cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]);
                /* for(BufferedImage image:testRecPlayers[i].imges_stack)
                     Testing.save_image(image,     "test5\\"+hand+"\\stack_"+i);*/
@@ -176,7 +177,7 @@ public class OCR implements Runnable {
         }
 
         System.out.println("******************************************");
-
+        if(!error)creat_HandForSaving(ocr.currentHand);
         /*int f =0;
         if(error)for(BufferedImage img:cadres)Testing.save_image(img,"test5\\"+hand+"\\frame_"+(f++));*/
     }
@@ -184,7 +185,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     private void main_work_on_table(){
-        if(table!=2)return;
+        //if(table!=2)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -201,7 +202,7 @@ public class OCR implements Runnable {
 
                 }*/
                 show_total_hand(this,testRecPlayers,cadres);
-                currentHand.creat_HandForSaving();
+
             }
             //list_test_numberhands.clear();
             //list_test_cards.clear();
