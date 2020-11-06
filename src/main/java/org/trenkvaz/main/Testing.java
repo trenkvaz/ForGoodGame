@@ -13,6 +13,7 @@ import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OCR.*;
+import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 
 public class Testing {
 

@@ -1,5 +1,7 @@
 package org.trenkvaz.database_hands;
 
+import org.trenkvaz.main.CaptureVideo;
+import org.trenkvaz.main.CurrentHand;
 import org.trenkvaz.stats.*;
 
 import java.io.BufferedReader;
@@ -7,8 +9,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static org.trenkvaz.main.CaptureVideo.home_folder;
+
+import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 
 public class Work_DataBase {
 
@@ -93,7 +99,7 @@ static String work_database;
                         stmt_of_db = connect_to_db.createStatement();
                         if(stmt_of_db!=null){
                             System.out.println("Connect to created "+work_database+" DB is successfully...");
-                            createTables();
+                            create_Tables();
                         }
                     } catch (SQLException e) {
                         System.out.println("Connection LOCAL DB Failed");
@@ -118,30 +124,33 @@ static String work_database;
 
 
 
-    private void createTables(){
+    private void create_Tables(){
         System.out.println("creat tables");
         //String createtable_Hands = "CREATE TABLE "+NameOfTable+" ( "+getStructureTable()+" );";
-        String createtable_idplayers_stats = "CREATE TABLE idplayers_stats (idplayer bigint PRIMARY KEY);";
-        String createtable_idplayers_nicks = "CREATE TABLE idplayers_nicks (idplayer integer PRIMARY KEY, nicks text );";
+        String createtable_idplayers_stats = "CREATE TABLE idplayers_stats (idplayers bigint PRIMARY KEY);";
+        String createtable_idplayers_nicks = "CREATE TABLE idplayers_nicks (idplayers integer PRIMARY KEY, nicks text );";
+        String createtable_temphands = "CREATE TABLE temphands ( time_hand bigint PRIMARY KEY, cards_hero smallint, position_hero smallint, stacks float4[], idplayers integer[] );";
         try {
-            stmt_of_db.executeUpdate(BEGIN);
+            //stmt_of_db.executeUpdate(BEGIN);
             stmt_of_db.executeUpdate(createtable_idplayers_nicks);
             stmt_of_db.executeUpdate(createtable_idplayers_stats);
-            stmt_of_db.executeUpdate(COMMIT);
+            stmt_of_db.executeUpdate(createtable_temphands);
+            //stmt_of_db.executeUpdate(COMMIT);
             System.out.println(" sozdana tables");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        add_column_in_Idstats();
+        add_columns_in_TableIdplayersStats();
     }
 
-    private void add_column_in_Idstats(){
+
+    private void add_columns_in_TableIdplayersStats(){
         // добавление колонок со статами в таблицу idplayers_stats
         // названия и типа колонок берутся из находящихся в массиве Объектов класса МайнСтатс
 
         String query = "SELECT column_name FROM information_schema.columns WHERE table_name =  'idplayers_stats' ";
         try {
-            stmt_of_db.executeUpdate(BEGIN);
+            //stmt_of_db.executeUpdate(BEGIN);
             ResultSet rs = stmt_of_db.executeQuery(query);
             ArrayList<String> colomns = new ArrayList<>();
             while (rs.next()) {
@@ -149,14 +158,14 @@ static String work_database;
                 System.out.println(colomn);
                 colomns.add(colomn);
             }
-            stmt_of_db.executeUpdate(COMMIT);
+            //stmt_of_db.executeUpdate(COMMIT);
             System.out.println("no stats: ");
             String adding = null;
             for(MainStats stata:stats){
                 String[] str_stata = stata.getName_of_stat();
                 if(colomns.contains(str_stata[0]))continue;
                 System.out.println(str_stata[0]);
-                adding = "ALTER TABLE idstats ADD COLUMN "+str_stata[0]+" "+str_stata[1]+" ;";
+                adding = "ALTER TABLE idplayers_stats ADD COLUMN "+str_stata[0]+" "+str_stata[1]+" ;";
                 stmt_of_db.addBatch(adding);
             }
             stmt_of_db.executeBatch();
@@ -167,7 +176,88 @@ static String work_database;
     }
 
 
-    public static void deleteDataBase(String nameDB){
+   public Map<String, Integer> get_map_IdPlayersNicks(){
+        Map<String, Integer> LocalNiksMap = new HashMap<>();
+        String query = "SELECT idplayers, nicks FROM idplayers_nicks ;";
+        int Idplayer = 0; String Nick = null;
+        ResultSet rs = null;
+        try {
+            //stmt_of_db.executeUpdate(BEGIN);
+            rs = stmt_of_db.executeQuery(query);
+            while (rs.next())
+            { Idplayer = rs.getInt("idplayers");
+                Nick = rs.getString("nicks");
+                if(Idplayer!=0){ LocalNiksMap.put(Nick,Idplayer); }
+            }
+            //stmt_of_db.executeUpdate(COMMIT);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return LocalNiksMap;
+    }
+
+
+    public void record_listrec_to_TableIdPlayersNicks(List<CaptureVideo.IdPlayer_Nick> rec){
+
+        try {
+            //stmt_of_db.executeUpdate(BEGIN);
+            for(CaptureVideo.IdPlayer_Nick item :  rec){
+                String record = "INSERT INTO idplayers_nicks VALUES ("+item.idplayer()+",$ю$"+item.nick()+"$ю$);";
+                stmt_of_db.addBatch(record);
+            }
+            stmt_of_db.executeBatch();
+            //stmt_of_db.executeUpdate(COMMIT);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void record_rec_to_TableTempHands(CurrentHand.TempHand temphand){
+
+        try {
+            //stmt_of_db.executeUpdate(BEGIN);
+//         long time_hand, short cards_hero, short position_hero, float[] stacks, int[] idplayers
+            String record = "INSERT INTO temphands VALUES (?,?,?,?,?);";
+            PreparedStatement pstmt = connect_to_db.prepareStatement(record);
+            pstmt.setLong(1,temphand.time_hand());
+            pstmt.setShort(2,temphand.cards_hero());
+            pstmt.setShort(3,temphand.position_hero());
+            // connect_to_db.createArrayOf("float[]", temphand.stacks())
+            pstmt.setArray(4, connect_to_db.createArrayOf("float", temphand.stacks()));
+            //pstmt.setObject(4,temphand.stacks());
+            //pstmt.setObject(5,temphand.idplayers());
+            pstmt.setArray(5, connect_to_db.createArrayOf("integer", temphand.idplayers()));
+            pstmt.executeUpdate();
+            //stmt_of_db.executeUpdate(COMMIT);
+            //connect_to_db.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    static List<CurrentHand.TempHand> get_list_TempHands(){
+        String query = "SELECT * FROM temphands ;";
+        List<CurrentHand.TempHand> result = new ArrayList<>();
+        ResultSet rs = null;
+        try {
+            //stmt_of_db.executeUpdate(BEGIN);
+            rs = stmt_of_db.executeQuery(query);
+            while (rs.next()) {
+              result.add(new CurrentHand.TempHand(rs.getLong("time_hand"),rs.getShort("cards_hero"),
+                      rs.getShort("position_hero"),(Float[]) rs.getArray("stacks").getArray(),(Integer[]) rs.getArray("idplayers").getArray()));
+
+            }
+            //stmt_of_db.executeUpdate(COMMIT);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+      return result;
+    }
+
+    public static void delete_DataBase(String nameDB){
         connect_ToServer();
         String sql = "DROP DATABASE \""+nameDB+"\"";
         try {
@@ -178,13 +268,25 @@ static String work_database;
             System.out.println("oshibka in deletedatabase");
             e.printStackTrace();
         }
-
+        System.out.println(nameDB+" is deleted");
     }
 
+
+    public void close_DataBase(){
+            try {
+                if(connect_to_db!=null)connect_to_db.close();
+                if(stmt_of_db!=null)stmt_of_db.close();
+                System.out.println("close database");
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+    }
+
+
     public static void main(String[] args) {
-        //deleteDataBase("null");
-       /* deleteDataBase("test_db3");
-        deleteDataBase("test_db4");*/
+        //delete_DataBase("fg_test_db1");
+
         new Work_DataBase();
+        List<CurrentHand.TempHand> list = get_list_TempHands();
     }
 }

@@ -7,7 +7,7 @@ import javafx.scene.text.Text;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-import static org.trenkvaz.main.CaptureVideo.home_folder;
+import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 import static org.trenkvaz.ui.StartAppLauncher.hud;
 
 public class CreatingHUD {

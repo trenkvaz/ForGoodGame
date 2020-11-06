@@ -26,6 +26,8 @@ import org.bytedeco.ffmpeg.global.avutil;
 import static org.trenkvaz.main.OCR.get_intGreyColor;
 import static org.trenkvaz.main.OCR.save_image;
 import static org.trenkvaz.ui.Controller_main_window.*;
+import static org.trenkvaz.ui.StartAppLauncher.home_folder;
+import static org.trenkvaz.ui.StartAppLauncher.work_dataBase;
 
 public class CaptureVideo implements Runnable{
 
@@ -43,12 +45,12 @@ public class CaptureVideo implements Runnable{
 
    static final String[] nominals_cards = {"2","3","4","5","6","7","8","9","T","J","Q","K","A"};
 
-    public static final String[] Deck = {null,"Ac","Ad","Ah","As","Kc","Kd","Kh","Ks","Qc","Qd","Qh","Qs","Jc","Jd","Jh","Js","Tc","Td","Th","Ts","9c","9d","9h","9s","8c","8d","8h","8s",
+   public static final String[] Deck = {null,"Ac","Ad","Ah","As","Kc","Kd","Kh","Ks","Qc","Qd","Qh","Qs","Jc","Jd","Jh","Js","Tc","Td","Th","Ts","9c","9d","9h","9s","8c","8d","8h","8s",
             "7c","7d","7h","7s","6c","6d","6h","6s","5c","5d","5h","5s","4c","4d","4h","4s","3c","3d","3h","3s","2c","2d","2h","2s"};
 
    static final String nick_hero = "trenkvaz";
 
-   public static final String home_folder = System.getProperty("user.dir");
+
 
 
    public List<OCR> ocrList_1;
@@ -59,6 +61,7 @@ public class CaptureVideo implements Runnable{
    FFmpegFrameGrabber grabber;
    CanvasFrame canvasFrame;
 
+
    static final UseTesseract[] use_tessearts = new UseTesseract[4];
 
    static byte[] count_one_in_numbers;
@@ -68,6 +71,10 @@ public class CaptureVideo implements Runnable{
    static int[][] shablons_numbers_0_9_for_stacks, shablons_numbers_0_9_for_actions;
    static final long start_world_time = System.currentTimeMillis();
    static final long start_nano_timer = System.nanoTime();
+
+   static Map<String, Integer> map_idplayers_nicks = work_dataBase.get_map_IdPlayersNicks();
+   static int id_for_nick = 0;
+   public record IdPlayer_Nick(int idplayer,String nick){}
    // TEST
    OCR ocr = new OCR("", 1, new BufferedImage[]{null, null});
 
@@ -75,6 +82,8 @@ public class CaptureVideo implements Runnable{
        for(int i=0; i<4; i++)use_tessearts[i] = new UseTesseract();
        //settings_capturevideo = new Settings();
        Settings.setting_cupture_video();
+       if(!map_idplayers_nicks.isEmpty()) id_for_nick = Collections.max(map_idplayers_nicks.values());
+       //System.out.println("id_for_nick "+id_for_nick);
        canvasFrame = new CanvasFrame("Some Title");
        canvasFrame.setCanvasSize(600, 300);//задаем размер окна
        canvasFrame.setBounds(100,100,600,300);
@@ -496,7 +505,27 @@ public class CaptureVideo implements Runnable{
 
 
 
+    public static synchronized Integer[] get_and_write_NewIdPlayersForNicks(String[] nicks){
+        Integer[] IdNiks = new Integer[6];
+        int IDplyer = -1;
+        List<IdPlayer_Nick> list_idplayer_nicks = new ArrayList<>(6);
+        for (int n = 0; n < 6; n++) {
+            if (nicks[n] != null) {
+                if (!map_idplayers_nicks.containsKey(nicks[n])) {
+                    id_for_nick++;
+                    map_idplayers_nicks.put(nicks[n], id_for_nick);
+                    IdNiks[n] = id_for_nick;
+                    list_idplayer_nicks.add(new IdPlayer_Nick(id_for_nick,nicks[n]));
+                } else {
+                    IDplyer = map_idplayers_nicks.get(nicks[n]);
+                    IdNiks[n] = IDplyer;
+                }
+            }
+        }
+        if(!list_idplayer_nicks.isEmpty())work_dataBase.record_listrec_to_TableIdPlayersNicks(list_idplayer_nicks);
 
+        return IdNiks;
+    }
 
 
 

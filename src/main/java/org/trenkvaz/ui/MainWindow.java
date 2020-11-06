@@ -11,6 +11,7 @@ import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
 import static org.trenkvaz.ui.StartAppLauncher.hud;
+import static org.trenkvaz.ui.StartAppLauncher.work_dataBase;
 
 public class MainWindow extends Application {
 
@@ -47,6 +48,7 @@ public class MainWindow extends Application {
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent t) {
+                work_dataBase.close_DataBase();
                 Platform.exit();
                 System.exit(0);
             }

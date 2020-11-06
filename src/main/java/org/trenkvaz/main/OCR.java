@@ -21,6 +21,7 @@ import static org.bytedeco.javacpp.opencv_core.cvResetImageROI;*/
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.CaptureVideo.shablons_numbers_0_9_for_stacks;
 import static org.trenkvaz.main.Testing.*;
+import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 import static org.trenkvaz.ui.StartAppLauncher.hud;
 //import static org.trenkvaz.main.Settings.write_nicks_keys_img_pix;
 
@@ -183,7 +184,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     private void main_work_on_table(){
-        if(table!=3)return;
+        if(table!=2)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -200,7 +201,7 @@ public class OCR implements Runnable {
 
                 }*/
                 show_total_hand(this,testRecPlayers,cadres);
-
+                currentHand.creat_HandForSaving();
             }
             //list_test_numberhands.clear();
             //list_test_cards.clear();
@@ -718,7 +719,7 @@ public class OCR implements Runnable {
             if(!is_noCursorInterferenceImage(frame[0],xa,ya,wa,ha,240)){
                 //save_image(frame[0].getSubimage(xa,ya,wa,ha),"test2\\_"+(poker_positions_index_with_numbering_on_table[poker_position])+"_"+C);
 
-                if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1;continue;
+                if(currentHand.stacks[poker_position]==0f)currentHand.stacks[poker_position]=-1f;continue;
             }
 
 
@@ -726,7 +727,7 @@ public class OCR implements Runnable {
 
             List<int[]> nums = get_list_intarr_HashNumberImg(frame[0],xa,ya+1,70,9,200,0,2,6,2);
 
-            if(nums==null) {  if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1;
+            if(nums==null) {  if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1f;
 
             Settings.ErrorLog(" hand "+hand+" ERROR get_list_intarr_HashNumberImg ");
             save_image(frame[0].getSubimage(xa,ya,wa,ha),"test3\\"+(poker_positions_index_with_numbering_on_table[poker_position]-1)+"_"+table);
@@ -734,7 +735,7 @@ public class OCR implements Runnable {
             continue;}
 
             // если рейз можно прочитать, а в стеке есть -1, то оно меняется на ноль, чтобы стек определялся
-            if(currentHand.stacks[poker_position]==-1)currentHand.stacks[poker_position]=0;
+            if(currentHand.stacks[poker_position]==-1)currentHand.stacks[poker_position]=0f;
 
             // проверяется есть ли в листе сохраняющем предидущие числа действий по позициям сохраненное число, если нет то вносит новое число и идет дальше для распознавания
             if(list_by_poker_pos_current_list_arrnums_actions.get(poker_position).isEmpty()) list_by_poker_pos_current_list_arrnums_actions.set(poker_position,nums);
@@ -748,7 +749,7 @@ public class OCR implements Runnable {
 
             float actions = get_OcrNum(nums,10,"actions");
              // если не смолго определится, и стек также еще не определен, то стек также не определяется до следующего раза поэтому -1
-            if(actions==-1) {if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1; continue;}
+            if(actions==-1) {if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1f; continue;}
             // если список действий пустой то добавляется новое определенное действие
             if(currentHand.preflop_by_positions.get(poker_position).isEmpty()) currentHand.preflop_by_positions.get(poker_position).add(actions);
             else {
