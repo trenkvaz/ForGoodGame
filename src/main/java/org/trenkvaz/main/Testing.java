@@ -8,6 +8,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
@@ -572,9 +575,44 @@ public class Testing {
         System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     }
 
+
+    String nashatimezone(long ldate){
+        int chasov = 10;
+        long popravka = 3600000*chasov;
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        String novdata = "";
+        try {
+            novdata = sdf.format((ldate+(popravka)));
+        } catch (Exception e) {
+
+        }
+        return novdata;
+    }
+
+   static long get_long_TimeHandFromPartyHistory(String time){
+       long time_hh = 0;
+
+       DateFormat formatter= new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss",Locale.US);
+        try {
+            time_hh = formatter.parse(time).getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+       int chasov = 10;
+       long popravka = 3600000*chasov;
+
+       return time_hh+popravka;
+    }
+
+
+
+
+
+
+
     public static void main(String[] args) throws Exception {
 
-        OCR ocr = new OCR("", 1, new BufferedImage[]{null, null});
+        OCR ocr = new OCR();
         UseTesseract useTesseract = new UseTesseract();
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
@@ -626,7 +664,10 @@ public class Testing {
         show_HashShablonNumber(zaSf,86,11);
         System.out.println(ocr.compare_LongHashes(za9f,zaSf,10));*/
 
-        Settings.ErrorLog("test");
+        //Settings.ErrorLog("test");
+
+
+        System.out.println(get_long_TimeHandFromPartyHistory("2020/Nov/06 12:01:04"));
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 }

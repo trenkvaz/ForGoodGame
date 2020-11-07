@@ -69,19 +69,20 @@ public class CaptureVideo implements Runnable{
    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks = new TreeMap<>();
    static long[][] _long_arr_cards_for_compare,shablons_text_sittingout_allin, shablon_text_poker_terms;
    static int[][] shablons_numbers_0_9_for_stacks, shablons_numbers_0_9_for_actions;
-   static final long start_world_time = System.currentTimeMillis();
-   static final long start_nano_timer = System.nanoTime();
 
-   static Map<String, Integer> map_idplayers_nicks = work_dataBase.get_map_IdPlayersNicks();
+
+
+   static Map<String, Integer> map_idplayers_nicks;
    static int id_for_nick = 0;
    public record IdPlayer_Nick(int idplayer,String nick){}
-   // TEST
-   OCR ocr = new OCR("", 1, new BufferedImage[]{null, null});
+
+
 
    public CaptureVideo(){
        for(int i=0; i<4; i++)use_tessearts[i] = new UseTesseract();
        //settings_capturevideo = new Settings();
        Settings.setting_cupture_video();
+       map_idplayers_nicks = work_dataBase.get_map_IdPlayersNicks();
        if(!map_idplayers_nicks.isEmpty()) id_for_nick = Collections.max(map_idplayers_nicks.values());
        //System.out.println("id_for_nick "+id_for_nick);
        canvasFrame = new CanvasFrame("Some Title");

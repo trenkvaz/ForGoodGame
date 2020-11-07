@@ -81,7 +81,7 @@ public class OCR implements Runnable {
        frame = frame1;
    }
 
-
+   public OCR(){}
 
 
     @Override
