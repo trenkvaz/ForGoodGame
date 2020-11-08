@@ -606,7 +606,11 @@ public class Testing {
 
 
 
-
+    public static int get_ArrayIndex(int[] arr,int value) {
+        for(int i=0;i<arr.length;i++)
+            if(arr[i]==value) return i;
+        return -1;
+    }
 
 
 
@@ -667,7 +671,19 @@ public class Testing {
         //Settings.ErrorLog("test");
 
 
-        System.out.println(get_long_TimeHandFromPartyHistory("2020/Nov/06 12:01:04"));
+        //System.out.println(get_long_TimeHandFromPartyHistory("2020/Nov/06 12:01:04"));
+
+
+        int[] test = {3,4,5,1,2};
+        System.out.println(get_ArrayIndex(test,1));
+
+
+
+
+
+
+
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 }

@@ -21,7 +21,6 @@ import static org.bytedeco.javacpp.opencv_core.cvResetImageROI;*/
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.CaptureVideo.shablons_numbers_0_9_for_stacks;
 import static org.trenkvaz.main.CurrentHand.creat_HandForSaving;
-import static org.trenkvaz.main.Testing.*;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 import static org.trenkvaz.ui.StartAppLauncher.hud;
 //import static org.trenkvaz.main.Settings.write_nicks_keys_img_pix;
@@ -33,11 +32,8 @@ public class OCR implements Runnable {
     BufferedImage[] frame;
     int[] coord_of_table;
     Queue<BufferedImage[]> main_queue_with_frames;
-    BufferedImage bufferedImage_current_number_hand;
     CurrentHand currentHand;
-    float sb = 0.5f;
     int[] poker_positions_index_with_numbering_on_table = new int[6];
-    //BufferedImage[] bufferedimage_current_position_actions = new BufferedImage[6];
     List<List<int[]>> list_by_poker_pos_current_list_arrnums_actions = new ArrayList<>(6);
     int current_bu = -1;
     String[] current_hero_cards = new String[]{"",""};
@@ -66,11 +62,11 @@ public class OCR implements Runnable {
 
 
         //test
-        for(int i=0; i<6; i++){
+       /* for(int i=0; i<6; i++){
             //test_nicks.add(new ArrayList<>());
             //images_nicks.add(new ArrayList<>());
             testRecPlayers[i] = new TestRecPlayer(new ArrayList<>(),new ArrayList<>());
-        }
+        }*/
 
         new Thread(this).start();
     }
@@ -110,14 +106,14 @@ public class OCR implements Runnable {
     }
 
    static int hand =0;
-    static synchronized void show_total_hand(OCR ocr,TestRecPlayer[] testRecPlayers,Queue<BufferedImage> cadres){
+    static synchronized void show_test_total_hand(OCR ocr){
         Date d = new Date();
         DateFormat formatter= new SimpleDateFormat("HH.mm.ss");
         String Z = formatter.format(d);
 
 
 
-        System.out.println(Z+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
+        System.out.println(Z+"  "+ocr.currentHand.time_hand+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
                 " bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table);
 
 
@@ -126,50 +122,19 @@ public class OCR implements Runnable {
         hand++;
         for(int i=0; i<6; i++) {
             System.out.print(ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ");
-            if(ocr.currentHand.nicks[i]==null) { error = true;                   Settings.ErrorLog(" NO NICK  hand "+hand+" t "+ocr.table+" p "+i);
+            if(ocr.currentHand.nicks[i]==null) { error = true;                   Settings.ErrorLog(" NO NICK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i);
             /*for(BufferedImage image:testRecPlayers[i].imges_nick)
             Testing.save_image(image,     "test5\\"+hand+"\\nick_"+i);*/
             }
-            if(ocr.currentHand.cards_hero[0].equals(""))Settings.ErrorLog("NO CARDS hand "+hand+" t "+ocr.table+" p "+i);
+            if(ocr.currentHand.cards_hero[0].equals(""))Settings.ErrorLog("NO CARDS hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i);
 
-            if(ocr.currentHand.stacks[i]<=0){ Settings.ErrorLog(" NO STACK  hand "+hand+" t "+ocr.table+" p "+i+" stack "+ocr.currentHand.stacks[i]+
+            if(ocr.currentHand.stacks[i]<=0){ Settings.ErrorLog(" NO STACK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i+" stack "+ocr.currentHand.stacks[i]+
                     " cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]);
                /* for(BufferedImage image:testRecPlayers[i].imges_stack)
                     Testing.save_image(image,     "test5\\"+hand+"\\stack_"+i);*/
 
             }
-            /*if(currentHand.stacks[i]==0){
-                save_image(ocr.frame[0],"test5\\table_"+ocr.table);
-                for(int s=0; s<ocr.test_list_imgStacks.size(); s++){
-                    save_image(ocr.test_list_imgStacks.get(s)[i].img(),"test5\\table_"+ocr.table+"_stack_"+ocr.test_list_imgStacks.get(s)[i].stack());
-                }
-            }*/
-            /*if(currentHand.nicks[i]==null&&!is_save_test_list){
-                is_save_test_list = true;
-                String namefolder = (S++)+"\\";
-                *//*for(int l=0; l<list_test_numberhands.size(); l++){
-                    BufferedImage[] img = list_test_numberhands.get(l);
-                    String namehand = l+"";
-                    if(img[1]!=null)namehand+="_FALSE";
-                    Testing.save_image(img[0],"test3\\"+namefolder+"_"+namehand);
-                }*//*
 
-                for(int l=0; l<list_test_cards.size(); l++){
-                    BufferedImage[] imgs = list_test_cards.get(i).card();
-                    String cards = list_test_cards.get(i).nominal_card();
-                    Testing.save_image(imgs[0],"test3\\"+namefolder+"_"+l+"_c1_"+cards);
-                    Testing.save_image(imgs[1],"test3\\"+namefolder+"_"+l+"_c2_"+cards);
-                }
-            }*/
-
-            /*if(i>0&&currentHand.nicks[i]==null&&!save_hand_with_null_img){
-                save_hand_with_null_img =true;
-                for(int s=1; s<6; s++)save_image(images_of_nicks_for_ocr[i],"test\\null_nicks"+(++S));
-            }*/
-            /*BufferedImage im = new BufferedImage(30, 17, BufferedImage.TYPE_INT_ARGB);
-            im.getGraphics().drawImage(test_cards[0], 0, 0, null);
-            im.getGraphics().drawImage(test_cards[1], 15, 0, null);
-            save_image(im,"test4\\"+currentHand.cards_hero[0]+currentHand.cards_hero[1]);*/
 
             for(Float a:ocr.currentHand.preflop_by_positions.get(i)) System.out.print(a+"  ");
             System.out.println();
@@ -177,7 +142,9 @@ public class OCR implements Runnable {
         }
 
         System.out.println("******************************************");
-        if(!error)creat_HandForSaving(ocr.currentHand);
+
+        //if(!error)creat_HandForSaving(ocr.currentHand);
+
         /*int f =0;
         if(error)for(BufferedImage img:cadres)Testing.save_image(img,"test5\\"+hand+"\\frame_"+(f++));*/
     }
@@ -185,7 +152,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     private void main_work_on_table(){
-        //if(table!=2)return;
+        //if(table!=1)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -193,7 +160,15 @@ public class OCR implements Runnable {
 
         int check_start_or_end_hand = get_number_hand();
         //System.out.println(check_start_or_end_hand);
-        if(check_start_or_end_hand==0) return;
+        if(check_start_or_end_hand==0){
+            // обработка стоп сигнала для завершения последней раздачи
+            if(count_stop_signal>200&&currentHand!=null) {
+                 set_NicksByPositions();
+                //creat_HandForSaving(this.currentHand);
+
+                show_test_total_hand(this);}
+            return;
+        }
 
         if(check_start_or_end_hand==1) {
             if(currentHand!=null){
@@ -201,16 +176,22 @@ public class OCR implements Runnable {
                     System.out.println("TOTAL ---------------------------------------  "+currentHand.nicks[4]);
 
                 }*/
-                show_total_hand(this,testRecPlayers,cadres);
+
+                set_NicksByPositions();
+                //creat_HandForSaving(this.currentHand);
+
+                show_test_total_hand(this);
 
             }
             //list_test_numberhands.clear();
             //list_test_cards.clear();
 
-            currentHand = new CurrentHand(table-1,sb);
+            currentHand = new CurrentHand(table-1);
             for(int i=0; i<6; i++)list_by_poker_pos_current_list_arrnums_actions.get(i).clear();
 
             currentHand.position_bu_on_table = current_bu;
+            currentHand.nicks[0] = nick_hero;
+            currentHand.poker_position_of_hero = get_ArrayIndex(poker_positions_index_with_numbering_on_table,1);
             currentHand.cards_hero[0] = current_hero_cards[0];
             currentHand.cards_hero[1] = current_hero_cards[1];
             count_nicks = new int[6];
@@ -242,34 +223,32 @@ public class OCR implements Runnable {
              cadres.add(frame[0]);
          }*/
 
-        if(currentHand.cards_hero[0].equals("Qc")&&currentHand.cards_hero[1].equals("2h")
-        )Testing.save_image(frame[0],"test2\\Qc2h\\_table_"+(++c));
+        /*if(currentHand.cards_hero[0].equals("Qc")&&currentHand.cards_hero[1].equals("2h")
+        )Testing.save_image(frame[0],"test2\\Qc2h\\_table_"+(++c));*/
 
 
-        if(currentHand.position_bu_on_table >0&&!(currentHand.cards_hero[0].equals("")||currentHand.cards_hero[1].equals(""))&&!currentHand.is_nicks_filled) {get_nicks();}
+        //if(currentHand.position_bu_on_table >0&&!(currentHand.cards_hero[0].equals("")||currentHand.cards_hero[1].equals(""))&&!currentHand.is_nicks_filled) {get_nicks();}
 
-        if(currentHand.position_bu_on_table >0&&!(currentHand.cards_hero[0].equals("")||currentHand.cards_hero[1].equals(""))
-                &&currentHand.is_nicks_filled&&!currentHand.is_preflop_end) {
 
-            if(!currentHand.is_start_flop)check_start_flop();
-            if(!currentHand.is_start_flop)get_start_stacks_and_preflop();
-        }
+
+        /*if(currentHand.position_bu_on_table >0&&!(currentHand.cards_hero[0].equals("")||currentHand.cards_hero[1].equals(""))
+                &&currentHand.is_nicks_filled) {
+
+
+        }*/
+        if(!currentHand.is_nicks_filled)get_nicks();
+        //if(currentHand.is_nicks_filled){
+        if(!currentHand.is_start_flop)check_start_flop();
+        if(!currentHand.is_start_flop)get_start_stacks_and_preflop();
+        //}
+
 
        /* if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3)
             System.out.println("MAIN ---------------------------------------  "+currentHand.nicks[4]);*/
         //System.out.println("bu "+currentHand.position_of_bu+" cards "+currentHand.cards_hero+" allnicks "+currentHand.is_nicks_filled);
 
-
-        //System.out.println("bu "+currentHand.position_of_bu);
-
-
-       /* if(currentHand.position_of_bu >0&&!currentHand.cards_hero.equals("")&&currentHand.is_nicks_filled&&start_hand&&currentHand.is_stacks_and_1_raund_actions_filled){
-            System.out.println("nicks "+currentHand.is_nicks_filled);
-            System.out.println("table "+table+" number "+currentHand.number_hand+" BU - "+currentHand.position_of_bu +",       "+currentHand.cards_hero); start_hand=false;
-
-
-        }*/
     }
+
 
 
 
@@ -296,13 +275,8 @@ public class OCR implements Runnable {
             if(get_int_CompareLongHashesToShablons(img_pix,shablon_text_poker_terms)!=-1)continue;
             //BufferedImage test_nick = frame[0].getSubimage(x,y,w,h);;
 
-
-
             if(count_nicks[i]<3){
                 System.arraycopy(img_pix, 0, current_id_nicks_for_choose[i][count_nicks[i]], 0, 16);
-                //testRecPlayers[i].imges_nick.add( frame[0].getSubimage(x,y,w,h));
-                /*BufferedImage test_nick = frame[0].getSubimage(x,y,w,h);;
-                images_nicks.get(i).add(test_nick);*/
                 count_nicks[i]++;
                 if(count_nicks[i]<3)continue;
             }
@@ -331,7 +305,6 @@ public class OCR implements Runnable {
                         //save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),limit_grey),"test\\"+currentHand.nicks[i]+" "+id_img_pix[0]);
                         //save_image(set_grey_and_inverse_or_no(cheked_img,true),"test\\"+currentHand.nicks[i]+"_"+id_img_pix[0]+"_"+limit_grey);
                         //if(isplace) System.out.println("1 setnick+++++++++++++++++++++++++++++  "+currentHand.nicks[i]);
-
                         if(currentHand.nicks[i]!=null)break;
                         try {
                             Thread.sleep(10);
@@ -409,9 +382,6 @@ public class OCR implements Runnable {
             //save_image(get_white_black_image(set_grey_and_inverse_or_no(frame[0].getSubimage(x-3,y,w+5,h),true),105),"test4\\"+currentHand.nicks[i]+"_"+i+"_"+c+"_"+table);
 
 
-
-
-
          if(count_nicks[i]==3&&currentHand.nicks[i]==null){
              Settings.ErrorLog(" i "+i+" NOT CHOOSED "+table);
              //count_nicks[i]=0;
@@ -430,24 +400,25 @@ public class OCR implements Runnable {
                 System.out.println("*"+n);}
         save_image(frame[0],"test\\"+(c++));
         }*/
-        if(currentHand.is_nicks_filled) set_nick_by_positions_and_position_of_hero();
+        //if(currentHand.is_nicks_filled) set_nick_by_positions_and_position_of_hero();
+
         //if(currentHand.cards_hero[0].equals("Qc")&&currentHand.cards_hero[1].equals("2h")) System.out.println("NICKS");;
     }
 
 
-    void set_nick_by_positions_and_position_of_hero(){
-        // расстановка ников по покерным позициям, и на основе этого инициализация позиции херо
-        currentHand.nicks[0] = nick_hero;
+    private void set_NicksByPositions(){
+        // расстановка ников по покерным позициям
+
         String[] nicks_by_positions = new String[6];
         for(int i=0; i<6; i++){
+            if(currentHand.nicks[poker_positions_index_with_numbering_on_table[i]-1]==null)continue;
             nicks_by_positions[i] = currentHand.nicks[poker_positions_index_with_numbering_on_table[i]-1];
-            if(nicks_by_positions[i].equals(nick_hero))currentHand.poker_position_of_hero = i;
         }
         currentHand.nicks = nicks_by_positions;
     }
 
 
-    String[] set_cards_hero(){
+    private String[] set_cards_hero(){
         //System.out.println("set_cards_hero");
         //BufferedImage[] cards = new BufferedImage[2];
         String[] result = new String[]{"",""};
@@ -611,9 +582,25 @@ public class OCR implements Runnable {
 
     int c =0;
     int P = 0;
-
+    private int count_stop_signal = 0;
 
     int get_number_hand(){
+
+        if(frame[0]!=null&&frame[1]==null){
+            // если стол есть, но нет хода раздачи, то хад очищается от текста, но такая ситуация еще говорит о том, что раздача завершена и это сигнал стопа
+            if(!stop_show_text_in_hud){
+                // но такая ситуация еще говорит о том, что раздача завершена и это сигнал стопа, начало счетчика
+                count_stop_signal = 0;
+                stop_show_text_in_hud = true;
+                show_text_in_hud = false;
+                hud.clear_hud(table-1);
+            }
+            count_stop_signal++;
+            return 0;
+
+        }
+
+
         // если нет номера раздачи, то есть нет вообще стола хад выключается
         if(frame[1]==null){
             if(!end_hud){
@@ -643,7 +630,7 @@ public class OCR implements Runnable {
                 if(!show_text_in_hud){
                     stop_show_text_in_hud = false;
                     show_text_in_hud = true;
-                    hud.clear_hud(table-1);
+                    hud.refresh_hud(table-1);
                 }
             }
         }
@@ -661,8 +648,9 @@ public class OCR implements Runnable {
            save_image(frame[0],"test\\"+(c++));
         }*/
 
-        // БУ может отсутствовать и в начале новой и в конце старой раздачи
-        // если БУ не определилась проверяет совпадение новых карт со старыми если да, то считается текущая раздача, если карты разные, то кадр пропускается
+        // БУ может отсутствовать и в начале новой и в конце старой раздачи,новая это раздача или старая проверяется по картам
+        // важно наличие БУ в начале новой раздачи, если раздача новая без БУ то кадр пропускается
+        // если БУ нет в конце раздачи, то такой кадр обрабатывается
 
        if(bu==-1){
            if(currentHand==null)return 0;
@@ -1217,6 +1205,11 @@ public class OCR implements Runnable {
     }
 
 
+    private int get_ArrayIndex(int[] arr,int value) {
+        for(int i=0;i<arr.length;i++)
+            if(arr[i]==value) return i;
+        return -1;
+    }
     public synchronized void stop(){
         is_run = false;
         notify();

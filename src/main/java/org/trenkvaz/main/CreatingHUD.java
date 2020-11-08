@@ -24,6 +24,7 @@ public class CreatingHUD {
 
          Text[][] arr_one_table_texts_huds_each_player = new Text[6][];
          for(int player = 0; player<6; player++){
+             if(nicks[player]==null)continue;
              Text text_nick = new Text(1, 12, nicks[player]);
              text_nick.setFont(new Font(12));
              text_nick.setFill(Color.YELLOW);

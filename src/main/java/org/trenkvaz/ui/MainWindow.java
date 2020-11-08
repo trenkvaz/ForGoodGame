@@ -9,7 +9,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import org.trenkvaz.database_hands.Work_DataBase;
 
+import static org.trenkvaz.ui.Controller_main_window.mytimer;
 import static org.trenkvaz.ui.StartAppLauncher.hud;
 import static org.trenkvaz.ui.StartAppLauncher.work_dataBase;
 
@@ -48,7 +50,8 @@ public class MainWindow extends Application {
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent t) {
-                work_dataBase.close_DataBase();
+                Work_DataBase.close_DataBase();
+                mytimer.stop_timer();
                 Platform.exit();
                 System.exit(0);
             }

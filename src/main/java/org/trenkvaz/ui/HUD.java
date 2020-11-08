@@ -113,29 +113,24 @@ public class HUD {
     public void set_hud(Text[][] arr_one_table_texts_huds_each_player,int table){
 
        this.arr_one_table_texts_huds_each_player[table] = arr_one_table_texts_huds_each_player;
-
-        Platform.runLater(() -> {
-            for(int player = 0; player<6; player++){
-                for(Text stata:arr_one_table_texts_huds_each_player[player]){
-                    anchorpanes_huds_each_player[table][player].getChildren().clear();
-                    anchorpanes_huds_each_player[table][player].getChildren().add(stata);
-                }
-            }
-        });
-
+       refresh_hud(table);
     }
 
     public void clear_hud(int table){
+        if(arr_one_table_texts_huds_each_player[table]==null)return;
         Platform.runLater(() -> {
             for(int player = 0; player<6; player++){
+                if(arr_one_table_texts_huds_each_player[table][player]==null)continue;
                 anchorpanes_huds_each_player[table][player].getChildren().clear();
             }
         });
     }
 
     public void refresh_hud(int table){
+        if(arr_one_table_texts_huds_each_player[table]==null)return;
         Platform.runLater(() -> {
             for(int player = 0; player<6; player++){
+                if(arr_one_table_texts_huds_each_player[table][player]==null)continue;
                 for(Text stata:arr_one_table_texts_huds_each_player[table][player]){
                     anchorpanes_huds_each_player[table][player].getChildren().clear();
                     anchorpanes_huds_each_player[table][player].getChildren().add(stata);

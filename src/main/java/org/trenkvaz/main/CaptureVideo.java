@@ -24,7 +24,6 @@ import static org.bytedeco.javacpp.opencv_imgproc.*;*/
 import org.bytedeco.ffmpeg.global.avutil;
 
 import static org.trenkvaz.main.OCR.get_intGreyColor;
-import static org.trenkvaz.main.OCR.save_image;
 import static org.trenkvaz.ui.Controller_main_window.*;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 import static org.trenkvaz.ui.StartAppLauncher.work_dataBase;
@@ -101,28 +100,12 @@ public class CaptureVideo implements Runnable{
        thread.start();
    }
 
-   /*public CaptureVideo(int a){
-      // System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-       ocrList_1 = new ArrayList<>();
-
-       for(int i=0; i<COUNT_TABLES; i++){
-           ocrList_1.add(new OCR(i));
-           //ocrList_2.add(new OCR(i*10));
-       }
-       //bufferedImage_shablon_F = get_buffimage_from_shablon(shablon_F);
-       get_files_from_folder("b_w_nominal",2);
-      // posts_blinds = read_image("images_post_blinds\\wb3sb");
-       set_count_one_in_numbers();
-   }*/
 
    public CaptureVideo(String a){}
 
    public void run(){
 
-       //FFmpegFrameGrabber grabber = null;
-
        avutil.av_log_set_level (avutil.AV_LOG_ERROR);
-
        while (is_run){
          grabber = connect_stream();
            if(grabber!=null){
@@ -150,13 +133,8 @@ public class CaptureVideo implements Runnable{
         FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("rtmp://127.0.0.1/live/test");
        // FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("udp://192.168.0.129:1234");
 
-
-
-        //grabber.setFrameRate(30);
         try {
             grabber.start();
-            //grabber.setFrameNumber(200);
-            //grabber.setFrameRate(30);
         } catch (FrameGrabber.Exception e) {
             return null;
         }
@@ -165,32 +143,16 @@ public class CaptureVideo implements Runnable{
 
    void screen2(FFmpegFrameGrabber grabber){
        Frame frame = null;
-
-
        is_getting_frame = true;
-       int last = -1;
        try {
            System.out.println(grabber.getFrameRate());
            System.out.println("start");
            controller_main_window.setMessage_work("start");
-           int count_space_frame = 0;
+
            while(is_getting_frame){
-               /*int num = grabber.getFrameNumber();
-               System.out.println(grabber.getFrameNumber()+"   "+(num%2));
-               //if(num%2==0){ //System.out.println(num%2);
-               //continue;}*/
                frame = grabber.grabImage();
-               //System.out.println("*"+num+"*");
-               //frame = grabAt(grabber.getFrameNumber(),30);
-               if(frame!=null){ count_space_frame++;
+               if(frame!=null){
                    canvasFrame.showImage(frame);
-                   //System.out.println(canvasFrame.isDisplayable()+" "+canvasFrame.isActive()+" "+canvasFrame.isValid());
-                   /*if(count_space_frame<0) continue;
-                   if(find_tables(frame))continue;
-                   count_space_frame = -30;
-                   for(int o=0; o<COUNT_TABLES; o++)countcheks[o]=0;
-                   System.out.println("count_space "+count_space_frame);
-                   System.gc();*/
                    find_tables(frame);
                }
                else {System.out.println("null frame"); break; }
@@ -199,7 +161,7 @@ public class CaptureVideo implements Runnable{
        } catch (FrameGrabber.Exception e) {
            e.printStackTrace();
        }
-      controller_main_window.setMessage_work("stop");
+       controller_main_window.setMessage_work("stop");
        System.out.println("stop");
        //canvasFrame.dispose();
    }
@@ -211,7 +173,7 @@ public class CaptureVideo implements Runnable{
        try{
            hashmap_id_img_pix_nick.put(id_img_pix,name);
        } catch (IllegalArgumentException a){
-           System.err.println("error name "+name+" hash "+id_img_pix+" oldhash "+hashmap_id_img_pix_nick.get(name));
+           Settings.ErrorLog("error name "+name+" hash "+id_img_pix);
        }
 
        return null;
@@ -252,7 +214,7 @@ public class CaptureVideo implements Runnable{
 
 
        // если не нашлось в мепе такого же изо, то создается новый ИД для изо и записывается на место количества черных пикселей
-        if(equal_imgs.isEmpty()){long id_img_pix = get_TimeNanoSeconds(); img_nick_for_compare[15]= id_img_pix;
+        if(equal_imgs.isEmpty()){long id_img_pix = get_HandTime(); img_nick_for_compare[15]= id_img_pix;
             // проверка наличия изо с таким же количеством пикселей и индексом если есть то добавляется единица и снова проверяется, пока такого индекса не будет в списке,
             // тогда он присваевается новому изо
             boolean is_contain = true;
@@ -279,67 +241,6 @@ public class CaptureVideo implements Runnable{
     }
 
 
-    static synchronized long[] get_longarr_IdForNick(long[] img_nick_for_compare,int error){
-
-        // img_nick_for_compare 15 чисел изо, 16-у количество черных пикселей
-        // умножается на миллион, чтобы получить индексы в сортируемом мепе, по ним будет отбираться диапазон по количеству черных пикселей
-
-        long count_pix_in_ = img_nick_for_compare[15]*1_000_000;
-        long min = count_pix_in_-error*1_000_000, max = count_pix_in_+(error+1)*1_000_000;
-
-        Map<Long,long[]> submap_imgs_with_min_error = sortedmap_all_imgs_pix_of_nicks.subMap(min,max);
-
-        List<long[]> equal_imgs = new ArrayList<>(); int first_of_pair_error = 0, second_of_pair_error = 0;
-        out: for(long[] img_min_error:submap_imgs_with_min_error.values()){
-            int count_error_in_compare = 0;
-            //boolean is_equal = true;
-            for(int i=0; i<15; i++){
-                /*count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
-                if(count_error_in_compare>error){is_equal = false; break;}*/
-                if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
-                if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
-                if(i>0&&(first_of_pair_error+second_of_pair_error)>error){ continue out;  }
-            }
-            //if(!is_equal)continue;
-            equal_imgs.add(img_min_error);
-        }
-
-        if(equal_imgs.isEmpty())return null;
-        // если нашлось похожее изо, то берется его ИД на вывод
-        int size = equal_imgs.size();
-        long[] result = new long[size];
-        for(int i=0; i<size; i++)
-            result[i] = equal_imgs.get(i)[15];
-
-        return result;
-    }
-
-
-    static synchronized long[] get_longarr_CreatIdForOcrNick(long[] img_nick_for_compare,int error){
-
-        long count_pix_in_ = img_nick_for_compare[15]*1_000_000;
-        long min = count_pix_in_-error*1_000_000, max = count_pix_in_+(error+1)*1_000_000;
-
-        Map<Long,long[]> submap_imgs_with_min_error = sortedmap_all_imgs_pix_of_nicks.subMap(min,max);
-
-        // если не нашлось в мепе такого же изо, то создается новый ИД для изо и записывается на место количества черных пикселей
-        long id_img_pix = System.nanoTime(); img_nick_for_compare[15]= id_img_pix;
-            // проверка наличия изо с таким же количеством пикселей и индексом если есть то добавляется единица и снова проверяется, пока такого индекса не будет в списке,
-            // тогда он присваевается новому изо
-            boolean is_contain = true;
-            while (is_contain){
-                is_contain = submap_imgs_with_min_error.containsKey(count_pix_in_);
-                if(is_contain){count_pix_in_++; //System.out.println("is_countain "+is_contain+" count "+count_pix_in_);
-                }
-                else {
-                    // System.out.println("count_pix "+count_pix_in_);
-                    sortedmap_all_imgs_pix_of_nicks.put(count_pix_in_,img_nick_for_compare); break; }
-            }
-            return new long[]{-id_img_pix,count_pix_in_};
-
-    }
-
-
 
     static int get_AmountOneBitInLong(long lng){
         return (count_one_in_numbers[(short)(lng>>48)+32768]+count_one_in_numbers[(short)(lng>>32)+32768]
@@ -348,7 +249,7 @@ public class CaptureVideo implements Runnable{
 
     static long last_hand_time = 0;
 
-    static long get_TimeNanoSeconds(){
+    static synchronized long get_HandTime(){
        // long time = start_world_time+((System.nanoTime()-start_nano_timer)%100_000/100);
         long time = System.currentTimeMillis();
         if(last_hand_time==time)time+=1;
@@ -359,28 +260,23 @@ public class CaptureVideo implements Runnable{
 
    boolean save = false;
    static int c =0;
-    //BufferedImage bufferedImageframe;
-   int[] countcheks = new int[COUNT_TABLES];
+
+
    BufferedImage bufferedImageframe;
 
-   public static Map<Integer,List<String>> checknicktest_table = new HashMap<>();
-   static List<String> checknicktest_nick;
-   boolean[] is_start_tables = new boolean[6];
-   boolean[] is_end_tables = new boolean[6];
+
 
    void find_tables(Frame frame){
 
-       //BufferedImage bufferedImageframe = paintConverter.getBufferedImage(frame);
-       //long start = System.currentTimeMillis();
-       //Java2DFrameConverter paintConverter = new Java2DFrameConverter().convert(frame);
+
        if(bufferedImageframe==null)
         bufferedImageframe = new Java2DFrameConverter().getBufferedImage(frame);
-       //bufferedImageframe = Java2DFrameUtils.toBufferedImage(frame);
+
        //System.out.println((System.currentTimeMillis()-start));
         createBufferedImage(frame, bufferedImageframe);
        BufferedImage image_number_hand = null;
        int x_of_number_hand = 579,y_of_number_hand = 56,width_of_number_hand = 53,height_of_number_hand = 11, width_nick = 87+4, height_nick = 14;
-       boolean is_correct_number_hand = false, is_correct_nicks = false;
+       boolean is_correct_number_hand = false, is_correct_nicks = false, is_correct_hero_nick = false;
 
        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
        for(int index_table=0; index_table<COUNT_TABLES; index_table++){
@@ -396,7 +292,7 @@ public class CaptureVideo implements Runnable{
            //c++;
            //checknicktest_nick.add("---------------------------------------------KURSOR   "+is_correct_number_hand+"  TABLE "+index_table);
            image_number_hand = null;
-
+           is_correct_hero_nick = false;
            if(is_correct_number_hand){
                image_number_hand = cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0]+x_of_number_hand+25,
                        coord_left_up_of_tables[index_table][1]+y_of_number_hand+3,26,5);
@@ -409,7 +305,9 @@ public class CaptureVideo implements Runnable{
                   int x_of_nick = coord_left_up_of_tables[index_table][0]+coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5-3;
                   int y_of_nick = coord_left_up_of_tables[index_table][1]+coords_places_of_nicks[img_nicks][1]+1;
                   //checknicktest_nick.add("++++++++++++++++++++++++++++++++++++"+img_nicks);
-                  if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,220,220,210,bufferedImageframe)){ continue; }
+                  if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,
+                          220,220,210,bufferedImageframe))
+                  { if(img_nicks==0){is_correct_hero_nick = true;} continue; }
                   //if(index_table==4)
              /*      c++;
                       save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no
@@ -443,7 +341,9 @@ public class CaptureVideo implements Runnable{
                            });
                }
               else {
-                  ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{null, image_number_hand});
+                  // если все ники не определяются или определяется только ник героя, нужно для завершения последенй раздачи
+                  if(!is_correct_hero_nick)ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{null, image_number_hand});
+                  else ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{image_number_hand,null });
               }
 
            }
