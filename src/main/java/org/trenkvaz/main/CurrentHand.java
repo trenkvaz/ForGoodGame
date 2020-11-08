@@ -13,6 +13,7 @@ public class CurrentHand {
     int table;
     long time_hand;
     String[] nicks = new String[6];
+    int[] poker_positions_by_pos_table_for_nicks;
     boolean is_nicks_filled = false;
     //boolean is_preflop_end = false;
     boolean is_start_flop = false;
@@ -41,6 +42,16 @@ public class CurrentHand {
         is_nicks_filled = true;
     }
 
+    public void set_NicksByPositions(){
+        // расстановка ников по покерным позициям
+
+        String[] nicks_by_positions = new String[6];
+        for(int i=0; i<6; i++){
+            if(nicks[poker_positions_by_pos_table_for_nicks[i]-1]==null)continue;
+            nicks_by_positions[i] = nicks[poker_positions_by_pos_table_for_nicks[i]-1];
+        }
+        nicks = nicks_by_positions;
+    }
 
     public static synchronized void creat_HandForSaving(CurrentHand currentHand){
 

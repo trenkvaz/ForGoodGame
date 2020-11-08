@@ -427,7 +427,7 @@ public class CaptureVideo implements Runnable{
                     IDplyer = map_idplayers_nicks.get(nicks[n]);
                     IdNiks[n] = IDplyer;
                 }
-            }
+            } else IdNiks[n] = 0;
         }
         if(!list_idplayer_nicks.isEmpty())work_dataBase.record_listrec_to_TableIdPlayersNicks(list_idplayer_nicks);
 

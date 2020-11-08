@@ -36,6 +36,7 @@ public class OCR implements Runnable {
     int[] poker_positions_index_with_numbering_on_table = new int[6];
     List<List<int[]>> list_by_poker_pos_current_list_arrnums_actions = new ArrayList<>(6);
     int current_bu = -1;
+    int current_position_hero = -1;
     String[] current_hero_cards = new String[]{"",""};
     long[][][] current_id_nicks_for_choose = new long[6][3][16];
     long[] zeros_for_clear_current_id = new long[16];
@@ -105,7 +106,7 @@ public class OCR implements Runnable {
         main_queue_with_frames.offer(frame);
     }
 
-   static int hand =0;
+
     static synchronized void show_test_total_hand(OCR ocr){
         Date d = new Date();
         DateFormat formatter= new SimpleDateFormat("HH.mm.ss");
@@ -119,7 +120,7 @@ public class OCR implements Runnable {
 
         boolean error = false;
         boolean is_save_test_list = false;
-        hand++;
+
         for(int i=0; i<6; i++) {
             System.out.print(ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ");
             if(ocr.currentHand.nicks[i]==null) { error = true;                   Settings.ErrorLog(" NO NICK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i);
@@ -162,11 +163,12 @@ public class OCR implements Runnable {
         //System.out.println(check_start_or_end_hand);
         if(check_start_or_end_hand==0){
             // обработка стоп сигнала для завершения последней раздачи
-            if(count_stop_signal>200&&currentHand!=null) {
-                 set_NicksByPositions();
-                //creat_HandForSaving(this.currentHand);
-
-                show_test_total_hand(this);}
+            if(count_stop_signal==200&&currentHand!=null) {
+                currentHand.set_NicksByPositions();
+                creat_HandForSaving(this.currentHand);
+                  show_test_total_hand(this);
+                 currentHand = null;
+            }
             return;
         }
 
@@ -177,8 +179,8 @@ public class OCR implements Runnable {
 
                 }*/
 
-                set_NicksByPositions();
-                //creat_HandForSaving(this.currentHand);
+                currentHand.set_NicksByPositions();
+                creat_HandForSaving(this.currentHand);
 
                 show_test_total_hand(this);
 
@@ -191,9 +193,10 @@ public class OCR implements Runnable {
 
             currentHand.position_bu_on_table = current_bu;
             currentHand.nicks[0] = nick_hero;
-            currentHand.poker_position_of_hero = get_ArrayIndex(poker_positions_index_with_numbering_on_table,1);
+            currentHand.poker_position_of_hero = current_position_hero;
             currentHand.cards_hero[0] = current_hero_cards[0];
             currentHand.cards_hero[1] = current_hero_cards[1];
+            currentHand.poker_positions_by_pos_table_for_nicks = poker_positions_index_with_numbering_on_table.clone();
             count_nicks = new int[6];
 
             for(int i=1; i<6; i++)
@@ -314,7 +317,8 @@ public class OCR implements Runnable {
                     }
             }
 
-    // если нет похожих и надо распознать, то возвращает два числа, первое ИД, второе ключ для сортированного массива, чтобы его можно было записать в файл
+    // если нет похожих изображений в базе массивов изображений
+            // и надо распознать, то возвращает два числа, первое ИД, второе ключ для сортированного массива, чтобы его можно было записать в файл
 
             if(id_img_pix[0]<0){
                 int attempt = 0;
@@ -406,16 +410,7 @@ public class OCR implements Runnable {
     }
 
 
-    private void set_NicksByPositions(){
-        // расстановка ников по покерным позициям
 
-        String[] nicks_by_positions = new String[6];
-        for(int i=0; i<6; i++){
-            if(currentHand.nicks[poker_positions_index_with_numbering_on_table[i]-1]==null)continue;
-            nicks_by_positions[i] = currentHand.nicks[poker_positions_index_with_numbering_on_table[i]-1];
-        }
-        currentHand.nicks = nicks_by_positions;
-    }
 
 
     private String[] set_cards_hero(){
@@ -563,21 +558,29 @@ public class OCR implements Runnable {
                 if(get_int_MaxBrightnessMiddleImg(frame[0],x,y,22,17)>200){result = i+1; break;}
             }
 
-            if(result==-1)return -1;
-            // алгоритм определения соответсвия покерных позиций позициям за столом которые начинаются с херо, на основе того где на столе находится БУ
-            int utg = result +3;
-            if(utg>6) utg = utg-6;
-            int positons_on_table = 0; boolean start = false; int i =-1;
-            while (i!=5){
-                positons_on_table++;
-                if(positons_on_table==utg)start = true;
-                if(start){
-                    // массив покерные позиции индексы 0-5 это утг-бб, элементы это номера 1-6 позиции на столе начиная с херо
-                    i++; poker_positions_index_with_numbering_on_table[i] = positons_on_table;
-                }
-                if(positons_on_table==6)positons_on_table=0;
-            }
             return result;
+    }
+
+
+    private void set_PokerPositionsIndexWithNumberingOnTable(int current_bu){
+
+        // алгоритм определения соответсвия покерных позиций позициям за столом которые начинаются с херо, на основе того где на столе находится БУ
+        // также определяется позиция героя по его известной позиции на столе
+        //System.out.println("BU "+current_bu);
+        int utg = current_bu +3;
+        if(utg>6) utg = utg-6;
+        int positons_on_table = 0; boolean start = false; int i =-1;
+        while (i!=5){
+            positons_on_table++;
+            if(positons_on_table==utg)start = true;
+            if(start){
+                // массив покерные позиции индексы 0-5 это утг-бб, элементы это номера 1-6 позиции на столе начиная с херо
+                i++;
+                poker_positions_index_with_numbering_on_table[i] = positons_on_table;
+                if(positons_on_table==1)current_position_hero = i;
+            }
+            if(positons_on_table==6)positons_on_table=0;
+        }
     }
 
     int c =0;
@@ -662,7 +665,12 @@ public class OCR implements Runnable {
        } else {
            current_hero_cards[0] = hero_cards[0];
            current_hero_cards[1] = hero_cards[1];
-           current_bu = bu;
+           if(bu!=current_bu){
+               current_bu = bu;
+
+               set_PokerPositionsIndexWithNumberingOnTable(bu);
+           }
+
            return 1;
        }
 
@@ -718,7 +726,7 @@ public class OCR implements Runnable {
 
             if(nums==null) {  if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1f;
 
-            Settings.ErrorLog(" hand "+hand+" ERROR get_list_intarr_HashNumberImg ");
+            Settings.ErrorLog(" hand "+currentHand.time_hand+" ERROR get_list_intarr_HashNumberImg ");
             save_image(frame[0].getSubimage(xa,ya,wa,ha),"test3\\"+(poker_positions_index_with_numbering_on_table[poker_position]-1)+"_"+table);
 
             continue;}
