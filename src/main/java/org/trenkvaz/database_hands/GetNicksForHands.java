@@ -22,7 +22,7 @@ public class GetNicksForHands {
 
     static void start_ReadFilesInFolder(String folder){
         for(File a: Objects.requireNonNull(new File(folder).listFiles())){
-            if(a.isFile()&&a.getName().endsWith("txt")){ read_File(a.getPath()); }
+            if(a.isFile()&&a.getName().endsWith("party07.txt")){ read_File(a.getPath()); }
         }
     }
 
@@ -96,11 +96,16 @@ public class GetNicksForHands {
 
     private static short get_CardsHero(String line){ return (short)((byte)Arrays.asList(Deck).indexOf(line.subSequence(16,18))*1000+(byte)Arrays.asList(Deck).indexOf(line.subSequence(20,22)));}
 
-
+   public static String get_str_Cards(short cards){
+        int c = (cards < 0) ? cards+65536 : cards;
+        return Deck[c/1000]+" "+Deck[c%1000];
+    }
 
     public static void main(String[] args) {
         start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party");
         System.out.println("count hands "+c);
+        for (HandFromHistory hand:list_handsfromhistory)
+            System.out.println(hand.time_hand+"  "+get_str_Cards(hand.cards_hero));
     }
 
 }

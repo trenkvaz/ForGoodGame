@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
+import static org.trenkvaz.database_hands.GetNicksForHands.get_str_Cards;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 
 public class Work_DataBase {
@@ -287,11 +288,13 @@ static String work_database;
 
         new Work_DataBase();
         List<CurrentHand.TempHand> list = get_list_TempHands();
-        /*for (CurrentHand.TempHand tempHand:list){
-            System.out.println("time "+tempHand.time_hand()+" cards "+tempHand.cards_hero()+" pos_hero "+tempHand.position_hero());
-            for(int i=0; i<6; i++)
-                System.out.println("idplayer "+tempHand.idplayers()[i]+" stack "+tempHand.stacks()[i]);
-        }*/
+        for (CurrentHand.TempHand tempHand:list){
+            System.out.println("time "+tempHand.time_hand()+" cards "+get_str_Cards(tempHand.cards_hero())
+                   // +" pos_hero "+tempHand.position_hero()
+            );
+           /* for(int i=0; i<6; i++)
+                System.out.println("idplayer "+tempHand.idplayers()[i]+" stack "+tempHand.stacks()[i]);*/
+        }
         /*List<Long> times = new ArrayList<>();
         for (CurrentHand.TempHand tempHand:list){
             times
@@ -299,9 +302,9 @@ static String work_database;
 
 
 
-       long max = Collections.max(list.stream().map(CurrentHand.TempHand::time_hand).collect(Collectors.toList()));
+       /*long max = Collections.max(list.stream().map(CurrentHand.TempHand::time_hand).collect(Collectors.toList()));
 
-        System.out.println(max);
+        System.out.println(max);*/
 
         close_DataBase();
     }
