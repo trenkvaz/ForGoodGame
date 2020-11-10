@@ -237,8 +237,8 @@ static String work_database;
 
     }
 
-    static List<CurrentHand.TempHand> get_list_TempHands(){
-        String query = "SELECT * FROM temphands ;";
+  public static List<CurrentHand.TempHand> get_list_TempHandsMinMaxTime(long min, long max){
+        String query = "SELECT * FROM temphands WHERE time_hand>"+min+" AND time_hand<"+max+";";
         List<CurrentHand.TempHand> result = new ArrayList<>();
         ResultSet rs = null;
         try {
@@ -287,7 +287,7 @@ static String work_database;
         //delete_DataBase("fg_test_db1");
 
         new Work_DataBase();
-        List<CurrentHand.TempHand> list = get_list_TempHands();
+        List<CurrentHand.TempHand> list = get_list_TempHandsMinMaxTime(0,0);
         for (CurrentHand.TempHand tempHand:list){
             System.out.println("time "+tempHand.time_hand()+" cards "+get_str_Cards(tempHand.cards_hero())
                    // +" pos_hero "+tempHand.position_hero()
