@@ -153,7 +153,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     private void main_work_on_table(){
-        //if(table!=1)return;
+        if(table!=5)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -165,7 +165,7 @@ public class OCR implements Runnable {
             // обработка стоп сигнала для завершения последней раздачи
             if(count_stop_signal==200&&currentHand!=null) {
                 currentHand.set_NicksByPositions();
-                creat_HandForSaving(this.currentHand);
+                //creat_HandForSaving(this.currentHand);
                   show_test_total_hand(this);
                  currentHand = null;
             }
@@ -180,7 +180,7 @@ public class OCR implements Runnable {
                 }*/
 
                 currentHand.set_NicksByPositions();
-                creat_HandForSaving(this.currentHand);
+                //creat_HandForSaving(this.currentHand);
 
                 show_test_total_hand(this);
 
@@ -784,9 +784,14 @@ public class OCR implements Runnable {
 
                 if(!is_GoodImageForOcrStack(frame[0],x,y,72,14,150))continue;
 
-              /*  if(currentHand.cards_hero[0].equals("8d")&&poker_position==0){save_image(frame[0].getSubimage(x,y+1,72,12)
-                        ,"test2\\"+(c++)+"_"+currentHand.stacks[poker_position]);}*/
-                float stack_without_action = get_OcrNum(get_list_intarr_HashNumberImg(frame[0],x,y+1,72,12,175,5,3,8,3),10,"stacks");
+
+                float stack_without_action = get_OcrNum(get_list_intarr_HashNumberImg(frame[0],x,y+1,72,12,175,
+                        5,3,8,3),10,"stacks");
+
+                if(currentHand.cards_hero[0].equals("3d")&&poker_position==5){save_image(frame[0]
+                                //.getSubimage(x,y+1,72,12)
+                        ,"test2\\"+(c++)+"1_"+stack_without_action+"_"+currentHand.preflop_by_positions.get(5).get(0));   }
+
                 // если стек не определен проверяется на ситтаут и оллин, или вообще не определится из-за помех
                 if(stack_without_action==-1){
                     long[] hash_for_compare = get_longarr_HashImage(frame[0],x,y+1,72,12,14,175);

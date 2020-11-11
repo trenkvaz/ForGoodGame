@@ -152,7 +152,7 @@ public class CaptureVideo implements Runnable{
            while(is_getting_frame){
                frame = grabber.grabImage();
                if(frame!=null){
-                   canvasFrame.showImage(frame);
+                   //canvasFrame.showImage(frame);
                    find_tables(frame);
                }
                else {System.out.println("null frame"); break; }
