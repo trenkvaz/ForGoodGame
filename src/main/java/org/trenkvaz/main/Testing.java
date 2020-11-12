@@ -675,7 +675,8 @@ public class Testing {
 
 
         int[] test = {3,4,5,1,2};
-        System.out.println(get_ArrayIndex(test,1));
+        String[] strings = {"1","2"};
+        System.out.println(Arrays.asList(strings).indexOf("3"));
 
 
 

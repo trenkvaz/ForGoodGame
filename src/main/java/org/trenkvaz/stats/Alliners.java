@@ -41,7 +41,7 @@ public class Alliners extends MainStats {
         }
     }
 
-    public void count_Stats_for_map(byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][][]posactions,boolean isAdditional){
+    public void count_Stats_for_map(byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][]posactions,boolean isAdditional){
         //if(idhero==0)idhero=idHero;
         if(Seaters==2)return;
         if(!isAdditional)add_player_to_map_test(idplayers);
@@ -57,21 +57,22 @@ public class Alliners extends MainStats {
             //System.out.println("player "+idplayer);
             if(actions_hand[pos][raund_1][indPozRaiser]==0){
                 if(stacks[pos]<35||stacks[pos]==35){ stata[stack30][select_rfi]++; if(actions_hand[pos][raund_1][action]==RAISE){
-                    if(posactions[0][pos][0]+posactions[0][pos][1]==stacks[pos]) stata[stack30][rfi_all]++;} }
+                    if(posactions[pos][0]+posactions[pos][1]==stacks[pos]) stata[stack30][rfi_all]++;} }
                 if((stacks[pos]<70||stacks[pos]==70)&&stacks[pos]>35){ stata[stack70][select_rfi]++; if(actions_hand[pos][raund_1][action]==RAISE){
-                    if(posactions[0][pos][0]+posactions[0][pos][1]==stacks[pos]) stata[stack70][rfi_all]++;} }
+                    if(posactions[pos][0]+posactions[pos][1]==stacks[pos]) stata[stack70][rfi_all]++;} }
                 if(stacks[pos]>70){ stata[stack100][select_rfi]++; if(actions_hand[pos][raund_1][action]==RAISE){
-                    if(posactions[0][pos][0]+posactions[0][pos][1]==stacks[pos]) stata[stack100][rfi_all]++;} }
+                    if(posactions[pos][0]+posactions[pos][1]==stacks[pos]) stata[stack100][rfi_all]++;} }
             }
             else {
-                if(stacks[pos]<35||stacks[pos]==35){ stata[stack30][select_3bet]++; if(actions_hand[pos][raund_1][action]==_3BET){
-                    if(posactions[0][pos][1]==stacks[pos]) { if(idplayer==8563)System.out.println("date "+datehand+" id 30- "+idplayer+" act1 "+posactions[0][pos][0]+" act2 "+posactions[0][pos][1]+" stack "+stacks[pos]);                                    stata[stack30][_3bet_all]++;}} }
+                if(stacks[pos]<35||stacks[pos]==35){ stata[stack30][select_3bet]++;
+                if(actions_hand[pos][raund_1][action]==_3BET){ if(posactions[pos][1]==stacks[pos]) { stata[stack30][_3bet_all]++;}}
+                }
                 if((stacks[pos]<70||stacks[pos]==70)&&stacks[pos]>35){ stata[stack70][select_3bet]++; if(actions_hand[pos][raund_1][action]==_3BET){
-                    if(posactions[0][pos][1]==stacks[pos]) {  if(idplayer==8563)System.out.println("date "+datehand+" id 40- "+idplayer+" act1 "+posactions[0][pos][0]+" act2 "+posactions[0][pos][1]+" stack "+stacks[pos]);                                                        stata[stack70][_3bet_all]++;}} }
-                if(stacks[pos]>70){ stata[stack100][select_3bet]++; if(actions_hand[pos][raund_1][action]==_3BET){if(idplayer==8563)System.out.println("date 1 "+datehand+" id 100-"+idplayer+" act1 "+posactions[0][pos][0]+" act2 "+posactions[0][pos][1]+" stack "+stacks[pos]+" sum "+(posactions[0][pos][0]+posactions[0][pos][1]));
-                    if(posactions[0][pos][1]==stacks[pos]) {
-                        if(idplayer==8563)System.out.println("date 2 "+datehand+" id 100-"+idplayer+" act1 "+posactions[0][pos][0]+" act2 "+posactions[0][pos][1]+" stack "+stacks[pos]);       stata[stack100][_3bet_all]++;}
-                } }
+                    if(posactions[pos][1]==stacks[pos]) { stata[stack70][_3bet_all]++;}}
+                }
+                if(stacks[pos]>70){ stata[stack100][select_3bet]++; if(actions_hand[pos][raund_1][action]==_3BET){
+                    if(posactions[pos][1]==stacks[pos]) { stata[stack100][_3bet_all]++;} }
+                }
             }
             map_of_Idplayer_stats.put(idplayer,stata);
         }

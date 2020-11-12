@@ -32,7 +32,7 @@ public class Against3bet extends MainStats {
         }
     }
 
-    public void count_Stats_for_map(byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][][]posactions,boolean isAdditional){
+    public void count_Stats_for_map(byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][]posactions,boolean isAdditional){
 
         if(!isAdditional)add_player_to_map_test(idplayers);
 
@@ -55,14 +55,6 @@ public class Against3bet extends MainStats {
                     if(actions_hand[posAgainst_3bet][raund_2][action]==FOLD){ stata[posAgainst_3bet][pos_3beter][fold]++;}
                     if(actions_hand[posAgainst_3bet][raund_2][action]==_4BET){ stata[posAgainst_3bet][pos_3beter][_4bet]++;}
                     map_of_Idplayer_stats.put(idplayer,stata);
-                    if(idplayers[posAgainst_3bet]!=idHero){
-                        int idunknown = getUnknownId(stacks[posAgainst_3bet]);
-                        Integer[][][] stata_unknown = map_of_Idplayer_stats.get(idunknown);
-                        stata_unknown[posAgainst_3bet][pos_3beter][select]+=stata[posAgainst_3bet][pos_3beter][select];
-                        stata_unknown[posAgainst_3bet][pos_3beter][fold]+=stata[posAgainst_3bet][pos_3beter][fold];
-                        stata_unknown[posAgainst_3bet][pos_3beter][_4bet]+=stata[posAgainst_3bet][pos_3beter][_4bet];
-                        map_of_Idplayer_stats.put(idunknown,stata_unknown);
-                    }
                 }
                 break;
             }
@@ -77,14 +69,6 @@ public class Against3bet extends MainStats {
 
             map_of_Idplayer_stats.put(idplayer,stata);
 
-            if(idplayers[SB]!=idHero){
-                int idunknown = getUnknownId(stacks[SB]);
-                Integer[][][] stata_unknown = map_of_Idplayer_stats.get(idunknown);
-                stata_unknown[0][0][select]+=stata[0][0][select];
-                stata_unknown[0][0][fold]+=stata[0][0][fold];
-                stata_unknown[0][0][_4bet]+=stata[0][0][_4bet];
-                map_of_Idplayer_stats.put(idunknown,stata_unknown);
-            }
         }
     }
 

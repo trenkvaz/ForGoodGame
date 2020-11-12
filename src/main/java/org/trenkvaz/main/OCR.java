@@ -153,7 +153,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     private void main_work_on_table(){
-        if(table!=5)return;
+        //if(table!=5)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -550,14 +550,12 @@ public class OCR implements Runnable {
     private int set_current_position_of_bu(){
         //System.out.println("set_current_bu");
             int result = -1;
-
             for(int i=0; i<6; i++){
                 int x = coords_buttons[i][0];
                 int y = coords_buttons[i][1];
                 if(!is_noCursorInterferenceImage(frame[0],x,y,22,17,200))continue;
                 if(get_int_MaxBrightnessMiddleImg(frame[0],x,y,22,17)>200){result = i+1; break;}
             }
-
             return result;
     }
 
@@ -593,48 +591,26 @@ public class OCR implements Runnable {
             // если стол есть, но нет хода раздачи, то хад очищается от текста, но такая ситуация еще говорит о том, что раздача завершена и это сигнал стопа
             if(!stop_show_text_in_hud){
                 // но такая ситуация еще говорит о том, что раздача завершена и это сигнал стопа, начало счетчика
-                count_stop_signal = 0;
-                stop_show_text_in_hud = true;
-                show_text_in_hud = false;
-                hud.clear_hud(table-1);
+                count_stop_signal = 0;stop_show_text_in_hud = true;show_text_in_hud = false; hud.clear_hud(table-1);
             }
             count_stop_signal++;
             return 0;
-
         }
-
-
         // если нет номера раздачи, то есть нет вообще стола хад выключается
         if(frame[1]==null){
-            if(!end_hud){
-                end_hud = true;
-                start_hud = false;
-                hud.stop_show_hud(table-1);
-            }
+            if(!end_hud){ end_hud = true;start_hud = false;hud.stop_show_hud(table-1); }
             return 0;
         }
         // если есть номер раздачи то хад включается
         else {
-            if(!start_hud){
-                end_hud = false;
-                start_hud = true;
-                hud.show_hud(table-1);
-            }
+            if(!start_hud){ end_hud = false;start_hud = true;hud.show_hud(table-1); }
             // если стол есть, но нет хода раздачи, то хад очищается от текста
             if(frame[0]==null) {
-                if(!stop_show_text_in_hud){
-                    stop_show_text_in_hud = true;
-                    show_text_in_hud = false;
-                    hud.clear_hud(table-1);
-                }
+                if(!stop_show_text_in_hud){ stop_show_text_in_hud = true;show_text_in_hud = false;hud.clear_hud(table-1); }
                 return 0;
              // если стол есть и раздача идет то текст в хаде появляется
             } else {
-                if(!show_text_in_hud){
-                    stop_show_text_in_hud = false;
-                    show_text_in_hud = true;
-                    hud.refresh_hud(table-1);
-                }
+                if(!show_text_in_hud){ stop_show_text_in_hud = false;show_text_in_hud = true;hud.refresh_hud(table-1); }
             }
         }
 
@@ -643,7 +619,6 @@ public class OCR implements Runnable {
         // ОБНАРУЖЕО !!!
 
        if(hero_cards==null) return 0;
-
         //if(hero_cards[0].equals("7c")&&hero_cards[1].equals("7h"))save_image(frame[0],"test2\\"+(c++));
        int bu = set_current_position_of_bu();
        /*if(!(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1]))&&bu==-1){
@@ -663,17 +638,11 @@ public class OCR implements Runnable {
        if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1])&&bu==current_bu){
            return -1;
        } else {
-           current_hero_cards[0] = hero_cards[0];
-           current_hero_cards[1] = hero_cards[1];
-           if(bu!=current_bu){
-               current_bu = bu;
-
-               set_PokerPositionsIndexWithNumberingOnTable(bu);
-           }
-
+           current_hero_cards[0] = hero_cards[0];current_hero_cards[1] = hero_cards[1];
+           if(bu!=current_bu){ current_bu = bu; set_PokerPositionsIndexWithNumberingOnTable(bu); }
+           hud.clear_hud(table-1);
            return 1;
        }
-
     }
 
     int C = 0;
@@ -788,9 +757,9 @@ public class OCR implements Runnable {
                 float stack_without_action = get_OcrNum(get_list_intarr_HashNumberImg(frame[0],x,y+1,72,12,175,
                         5,3,8,3),10,"stacks");
 
-                if(currentHand.cards_hero[0].equals("3d")&&poker_position==5){save_image(frame[0]
+                /*if(currentHand.cards_hero[0].equals("3d")&&poker_position==5){save_image(frame[0]
                                 //.getSubimage(x,y+1,72,12)
-                        ,"test2\\"+(c++)+"1_"+stack_without_action+"_"+currentHand.preflop_by_positions.get(5).get(0));   }
+                        ,"test2\\"+(c++)+"1_"+stack_without_action+"_"+currentHand.preflop_by_positions.get(5).get(0));   }*/
 
                 // если стек не определен проверяется на ситтаут и оллин, или вообще не определится из-за помех
                 if(stack_without_action==-1){

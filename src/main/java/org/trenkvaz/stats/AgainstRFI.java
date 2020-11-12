@@ -37,7 +37,7 @@ public class AgainstRFI extends MainStats {
 
 
 
-    public void count_Stats_for_map(byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][][]posactions,boolean isAdditional){
+    public void count_Stats_for_map(byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][]posactions,boolean isAdditional){
         //if(idhero==0)idhero=idHero;
         if(!isAdditional)add_player_to_map_test(idplayers);
 
@@ -57,14 +57,6 @@ public class AgainstRFI extends MainStats {
                 if(actions_hand[posAgainstRFI][raund_1][action]==_3BET){ stata[posAgainstRFI][posRFI][_3bet]++;}
                 map_of_Idplayer_stats.put(idplayer,stata);
 
-                if(idplayers[posAgainstRFI]!=idHero){
-                    int idunknown = getUnknownId(stacks[posAgainstRFI]);
-                    Integer[][][] stata_unknown = map_of_Idplayer_stats.get(idunknown);
-                    stata_unknown[posAgainstRFI][posRFI][select]+=stata[posAgainstRFI][posRFI][select];
-                    stata_unknown[posAgainstRFI][posRFI][fold]+=stata[posAgainstRFI][posRFI][fold];
-                    stata_unknown[posAgainstRFI][posRFI][_3bet]+=stata[posAgainstRFI][posRFI][_3bet];
-                    map_of_Idplayer_stats.put(idunknown,stata_unknown);
-                }
             }
             break;
         }
@@ -79,14 +71,6 @@ public class AgainstRFI extends MainStats {
             //if(actions_hand[5][raund_1][action]==CALL){break;}
             map_of_Idplayer_stats.put(idplayer,stata);
 
-            if(idplayers[5]!=idHero){
-                int idunknown = getUnknownId(stacks[5]);
-                Integer[][][] stata_unknown = map_of_Idplayer_stats.get(idunknown);
-                stata_unknown[0][0][select]+=stata[0][0][select];
-                stata_unknown[0][0][fold]+=stata[0][0][fold];
-                stata_unknown[0][0][_3bet]+=stata[0][0][_3bet];
-                map_of_Idplayer_stats.put(idunknown,stata_unknown);
-            }
         }
     }
 

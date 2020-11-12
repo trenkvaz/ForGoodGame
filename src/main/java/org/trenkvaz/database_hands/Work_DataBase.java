@@ -9,8 +9,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 import static org.trenkvaz.database_hands.GetNicksForHands.get_str_Cards;
@@ -21,7 +19,7 @@ public class Work_DataBase {
 static final String DB_SERVER = "jdbc:postgresql://127.0.0.1:5433/", USER = "postgres", PASS = "admin", BEGIN = "BEGIN;",COMMIT = "COMMIT;";
 static Connection connect_to_db, connect_to_server;
 static Statement stmt_of_db, stmt_of_server;
-public static MainStats[] stats = new MainStats[]{new AgainstRFI(),new Against3bet(),new VpipPFR3bet(),new RFI(),new Alliners()};
+public static MainStats[] main_array_of_stats = new MainStats[]{new AgainstRFI(),new Against3bet(),new VpipPFR3bet(),new RFI(),new Alliners()};
 static String work_database;
 
     public Work_DataBase(){
@@ -161,7 +159,7 @@ static String work_database;
             //stmt_of_db.executeUpdate(COMMIT);
             System.out.println("no stats: ");
             String adding = null;
-            for(MainStats stata:stats){
+            for(MainStats stata: main_array_of_stats){
                 String[] str_stata = stata.getName_of_stat();
                 if(colomns.contains(str_stata[0]))continue;
                 System.out.println(str_stata[0]);

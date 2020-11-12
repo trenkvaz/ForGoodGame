@@ -22,7 +22,7 @@ public abstract class MainStats {
     public static void setDate(long date1){datehand=date1;}
 
     public abstract String[] getName_of_stat();
-    public abstract void count_Stats_for_map(byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][][] posaction,boolean isAdditional);
+    public abstract void count_Stats_for_map(byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][] posaction,boolean isAdditional);
     public abstract HashMap getMap_of_Idplayer_stats();
     public abstract void setIdplayers_stats(Integer idplayer, Array statasql);
 

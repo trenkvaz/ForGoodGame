@@ -41,7 +41,7 @@ public class VpipPFR3bet extends MainStats {
         }
     }
 
-    public void count_Stats_for_map(byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][][]posactions,boolean isAdditional){
+    public void count_Stats_for_map(byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][]posactions,boolean isAdditional){
         //if(idhero==0)idhero=idHero;
         if(Seaters==2)return;
         if(!isAdditional)add_player_to_map_test(idplayers);

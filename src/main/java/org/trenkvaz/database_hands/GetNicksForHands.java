@@ -36,17 +36,13 @@ public class GetNicksForHands {
 
     static void start_ReadFilesInFolder(String folder){
         for(File a: Objects.requireNonNull(new File(folder).listFiles())){
-            if(a.isFile()&&a.getName().endsWith("party07.txt")){
+            if(a.isFile()&&a.getName().endsWith(".txt")){
                 System.out.println(a.getName());
                 read_File(a.getPath());
                 select_TempHandsForHistoryHand();
                 write_NewHistoryHandsWithNicks(folder,a.getName());
             }
         }
-
-
-
-
     }
 
 
@@ -123,8 +119,6 @@ public class GetNicksForHands {
         int c = (cards < 0) ? cards+65536 : cards;
         return Deck[c/1000]+" "+Deck[c%1000];
     }
-
-
 
 
     static void select_TempHandsForHistoryHand(){
