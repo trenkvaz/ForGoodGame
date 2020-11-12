@@ -174,6 +174,84 @@ static String work_database;
     }
 
 
+    public static void fill_MainArrayOfStatsFromDateBase(){
+
+        String query = "SELECT * FROM idplayers_stats ;";
+
+        try {
+            PreparedStatement ps = connect_to_db.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            int id_player = 0;
+            while(rs.next()) {
+                for(int i=1; i<main_array_of_stats.length+1; i++){
+                    if(i==1){id_player = rs.getInt(i);continue;}
+                    Array statasql = rs.getArray(i);
+                    /*if(statasql==null)stats[i-3].setIdplayers_stats(id_player,null);
+                    else {Integer[][][] stata = (Integer[][][])statasql.getArray();
+                    stats[i-3].setIdplayers_stats(id_player,stata);}*/
+                    main_array_of_stats[i-2].setIdplayers_stats(id_player,statasql);
+                }
+            }
+
+            System.out.println(" sozdana tables");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public static void record_MainArrayOfStatsToDateBase(){
+        long start = System.currentTimeMillis();
+        try {
+            //connect.setAutoCommit(false);
+            StringBuilder sql = new StringBuilder("UPDATE idplayers_stats SET ");
+            int count_stats = main_array_of_stats.length;
+            for(int i=0; i<count_stats; i++){
+                sql.append(main_array_of_stats[i].getName_of_stat()[0]).append(" = ?");
+                if(i==count_stats-1)sql.append(" WHERE idplayers = ? ;");
+                else sql.append(", ");
+            }
+            PreparedStatement pstmt = connect_to_db.prepareStatement(sql.toString());
+            count_stats++;
+            for(Object key:main_array_of_stats[0].getMap_of_Idplayer_stats().keySet()){
+                pstmt.setInt(count_stats,(Integer) key);
+                for(int i=1; i<count_stats; i++){
+                    Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) main_array_of_stats[i-1].getMap_of_Idplayer_stats().get(key));
+                    pstmt.setArray(i, arraystata);
+                }
+                pstmt.addBatch();
+            }
+            assert pstmt != null;
+            pstmt.executeBatch();
+            //connect.commit();
+            System.out.println(" record stats time "+(System.currentTimeMillis()-start));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+   public static Array get_stats_of_one_player(int IdHero,String stata){
+        Array result = null;
+        String query = "SELECT "+stata+" FROM work_idplayers_stats WHERE idplayers="+IdHero+"  ;";
+
+       System.out.println(query);
+        try {
+
+            ResultSet  rs  = stmt_of_db.executeQuery(query);
+            while(rs.next()) {
+                result = rs.getArray(stata);
+
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+
    public Map<String, Integer> get_map_IdPlayersNicks(){
         Map<String, Integer> LocalNiksMap = new HashMap<>();
         String query = "SELECT idplayers, nicks FROM idplayers_nicks ;";
@@ -269,6 +347,21 @@ static String work_database;
         System.out.println(nameDB+" is deleted");
     }
 
+
+    public static void delete_and_copy_WorkIdplayersStats(){
+        String delete = "DROP TABLE IF EXISTS work_idplayers_stats ";
+        String copy = "CREATE TABLE work_idplayers_stats AS TABLE idplayers_stats ;";
+
+        try {
+            stmt_of_db.executeUpdate(delete);
+            stmt_of_db.executeUpdate(copy);
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        System.out.println("delete and copy");
+
+    }
 
     public static void close_DataBase(){
             try {

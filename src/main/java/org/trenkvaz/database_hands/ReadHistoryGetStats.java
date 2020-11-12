@@ -2,7 +2,6 @@ package org.trenkvaz.database_hands;
 
 import org.trenkvaz.stats.MainStats;
 
-import javax.crypto.Mac;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -11,8 +10,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
-import static org.trenkvaz.database_hands.Work_DataBase.close_DataBase;
-import static org.trenkvaz.database_hands.Work_DataBase.main_array_of_stats;
+import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.nick_hero;
 
 public class ReadHistoryGetStats {
@@ -277,9 +275,35 @@ public class ReadHistoryGetStats {
         }
     }
 
+    static final String[] positions_for_query = {null,"UTG","MP","CO","BU","SB","BB"};
+
+    private static float procents(int stata, int select){
+        if(select==0)return 0;
+        return ((float)stata/(float)select)*100;
+    }
+
+
     public static void main(String[] args) {
         map_nicks_idplayers = new Work_DataBase().get_map_IdPlayersNicks();
+        fill_MainArrayOfStatsFromDateBase();
         start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
+
+        //record_MainArrayOfStatsToDateBase();
+        HashMap<Integer,Integer[][]> arr = main_array_of_stats[2].getMap_of_Idplayer_stats();
+        Integer[][] stats = arr.get(6);
+
+        if(stats==null) System.out.println("null");
+
+
+        for (int i=0; i<6; i++)
+            System.out.println(positions_for_query[i+1]+" vpip "+procents(stats[i][1], stats[i][0])+" pfr "+procents(stats[i][2], stats[i][0])+
+                    " 3_bet "+procents(stats[i][4], stats[i][3])+" count pfr "+stats[i][2]+" count  select 3bet "+stats[i][3]+" count 3bet "+stats[i][4]+" count vpip "+stats[i][1]);
+        System.out.println("Total vpip "+procents(stats[6][1], stats[6][0])+" pfr "+procents(stats[6][2], stats[6][0])+
+                " 3_bet "+procents(stats[6][4], stats[6][3])+" count pfr "+stats[6][2]+" count  select 3bet "+stats[6][3]+" count 3bet "+stats[6][4]+" count vpip "+stats[6][1]);
+
+
+
+        //delete_and_copy_WorkIdplayersStats();
        /* System.out.println("count hands "+c);
         for (HandFromHistory hand:list_handsfromhistory)
             System.out.println(hand.time_hand+"  "+get_str_Cards(hand.cards_hero));*/

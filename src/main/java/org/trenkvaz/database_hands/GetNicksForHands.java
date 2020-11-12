@@ -42,6 +42,7 @@ public class GetNicksForHands {
                 select_TempHandsForHistoryHand();
                 write_NewHistoryHandsWithNicks(folder,a.getName());
             }
+            list_handsfromhistory.clear();
         }
     }
 
@@ -258,7 +259,7 @@ public class GetNicksForHands {
 
     public static void main(String[] args) {
         reverse_MapIdplayersNicks(new Work_DataBase().get_map_IdPlayersNicks());
-        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party");
+        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\");
        /* System.out.println("count hands "+c);
         for (HandFromHistory hand:list_handsfromhistory)
             System.out.println(hand.time_hand+"  "+get_str_Cards(hand.cards_hero));*/

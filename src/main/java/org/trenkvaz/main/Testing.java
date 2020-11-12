@@ -2,18 +2,21 @@ package org.trenkvaz.main;
 
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
+import org.trenkvaz.database_hands.Work_DataBase;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.io.*;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
+import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OCR.*;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
@@ -613,6 +616,49 @@ public class Testing {
     }
 
 
+    static final String[] positions_for_query = {null,"UTG","MP","CO","BU","SB","BB"};
+    static Map<String,Integer> map_nicks_idplayers;
+
+    private static float procents(int stata, int select){
+        if(select==0)return 0;
+        return ((float)stata/(float)select)*100;
+    }
+
+    private static void get_stata_one_player(String name, String stata){
+        int id = map_nicks_idplayers.get(name);
+        System.out.println(id);
+        try {
+            if(stata.equals("vpip_pfr_3bet")){ Object[][] stats =(Object[][]) get_stats_of_one_player(id,stata).getArray();
+                System.out.println("name "+name+" stata "+stata);
+                for (int i=0; i<6; i++)
+                    System.out.println(positions_for_query[i+1]+" vpip "+procents((int)stats[i][1],(int)stats[i][0])+" pfr "+procents((int)stats[i][2],(int)stats[i][0])+
+                            " 3_bet "+procents((int)stats[i][4],(int)stats[i][3])+" count pfr "+stats[i][2]+" count  select 3bet "+stats[i][3]+" count 3bet "+stats[i][4]+" count vpip "+stats[i][1]);
+                System.out.println("Total vpip "+procents((int)stats[6][1],(int)stats[6][0])+" pfr "+procents((int)stats[6][2],(int)stats[6][0])+
+                        " 3_bet "+procents((int)stats[6][4],(int)stats[6][3])+" count pfr "+stats[6][2]+" count  select 3bet "+stats[6][3]+" count 3bet "+stats[6][4]+" count vpip "+stats[6][1]);
+            }
+
+            if(stata.equals("rfi")){ Object[][] stats =(Object[][]) get_stats_of_one_player(id,stata).getArray();
+                System.out.println("name "+name+" stata "+stata);
+                for (int i=0; i<5; i++)
+                    System.out.println(positions_for_query[i+1]+" select "+stats[i][0]+" rfi "+procents((int)stats[i][1],(int)stats[i][0])+" count rfi "+stats[i][1]);
+            }
+            if(stata.equals("alliners")){ Object[][] stats =(Object[][]) get_stats_of_one_player(id,stata).getArray();
+                System.out.println("name "+name+" stata "+stata);
+                for(int v=0; v<3; v++){
+                    for (int i=0; i<4; i++){
+                        System.out.print(" stack: "+v+" select rfi- "+stats[v][0]+" all rfi- "+procents((int)stats[v][1],(int)stats[v][0])+" count rfi-"+stats[v][1]);
+                        System.out.println(" select 3bet- "+stats[v][2]+" all 3bet-"+procents((int)stats[v][3],(int)stats[v][2])+" count 3bet- "+stats[v][3]);}
+                    System.out.println();}
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+
 
     public static void main(String[] args) throws Exception {
 
@@ -621,7 +667,7 @@ public class Testing {
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings.setting_cupture_video();
-
+        map_nicks_idplayers = new Work_DataBase().get_map_IdPlayersNicks();
 
         //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test\\_2_469"),0,0,70,11));
 
@@ -674,12 +720,17 @@ public class Testing {
         //System.out.println(get_long_TimeHandFromPartyHistory("2020/Nov/06 12:01:04"));
 
 
-        int[] test = {3,4,5,1,2};
+       /* int[] test = {3,4,5,1,2};
         String[] strings = {"1","2"};
-        System.out.println(Arrays.asList(strings).indexOf("3"));
+        System.out.println(Arrays.asList(strings).indexOf("3"));*/
+        fill_MainArrayOfStatsFromDateBase();
 
+        HashMap<Integer,Integer[][][]> arr = main_array_of_stats[0].getMap_of_Idplayer_stats();
+        Integer[][][] tes = arr.get(6);
 
+        if(tes==null) System.out.println("null");
 
+        //get_stata_one_player("trenkvaz","vpip_pfr_3bet");
 
 
 
