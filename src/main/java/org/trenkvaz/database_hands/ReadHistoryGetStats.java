@@ -8,8 +8,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Array;
+import java.sql.SQLException;
 import java.util.*;
 
+import static org.trenkvaz.database_hands.GetNicksForHands.reverse_MapIdplayersNicks;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.nick_hero;
 
@@ -22,7 +25,7 @@ public class ReadHistoryGetStats {
     static final String summary = "** Summary", dealing_flop = "** Dealing Flop", folds = " folds ", calls = " calls ", raises = " raises ", checks = " checks ";
     static float[][] posActions;
     static byte[][][] preflop_players_actions_in_raunds;
-
+    static MainStats[] mainstats;
 
     static {  for(int f=0; f<6; f++){ preflop_actions.add(new ArrayList<Float>()); preflop_actions.get(f).add(0.0f); } }
 
@@ -65,12 +68,12 @@ public class ReadHistoryGetStats {
      get_Idplayers();
      int position_hero = Arrays.asList(nicks).indexOf(nick_hero);
      if(position_hero!=-1)
-     for(MainStats stats:main_array_of_stats)
+     for(MainStats stats:mainstats)
          stats.count_Stats_for_map(preflop_players_actions_in_raunds,id_players,stacks,position_hero,(byte) 6,posActions,false);
 
      // byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][][]posactions,boolean isAdditional
 
-     test_show();
+     //test_show();
 
 
      clear_UsedArrays();
@@ -284,13 +287,25 @@ public class ReadHistoryGetStats {
 
 
     public static void main(String[] args) {
-        map_nicks_idplayers = new Work_DataBase().get_map_IdPlayersNicks();
-        fill_MainArrayOfStatsFromDateBase();
-        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
-
-        //record_MainArrayOfStatsToDateBase();
-        HashMap<Integer,Integer[][]> arr = main_array_of_stats[2].getMap_of_Idplayer_stats();
-        Integer[][] stats = arr.get(6);
+        Work_DataBase work_dataBase = new Work_DataBase();
+        map_nicks_idplayers = work_dataBase.get_map_IdPlayersNicks();
+        Map<Integer,String> reversmap = reverse_MapIdplayersNicks(map_nicks_idplayers);
+        //for(Map.Entry<String,Integer> entry:map_nicks_idplayers.entrySet()) System.out.println(entry.getValue()+"   "+entry.getKey());
+        System.out.println(reversmap.get(3));
+      /* List<Integer> sortlist = new ArrayList<>(map_nicks_idplayers.values());
+       Collections.sort(sortlist);
+        for(Integer a:sortlist) System.out.println(a);*/
+        mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
+        //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
+        /*try {
+            Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[0].getMap_of_Idplayer_stats().get(6));
+            System.out.println(arraystata.toString());
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }*/
+        //record_MainArrayOfStatsToDateBase(mainstats);
+        HashMap<Integer,Integer[][]> arr = mainstats[2].getMap_of_Idplayer_stats();
+        Integer[][] stats = arr.get(2);
 
         if(stats==null) System.out.println("null");
 

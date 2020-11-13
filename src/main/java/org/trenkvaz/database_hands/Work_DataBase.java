@@ -125,7 +125,7 @@ static String work_database;
     private void create_Tables(){
         System.out.println("creat tables");
         //String createtable_Hands = "CREATE TABLE "+NameOfTable+" ( "+getStructureTable()+" );";
-        String createtable_idplayers_stats = "CREATE TABLE idplayers_stats (idplayers bigint PRIMARY KEY);";
+        String createtable_idplayers_stats = "CREATE TABLE idplayers_stats (idplayers integer PRIMARY KEY);";
         String createtable_idplayers_nicks = "CREATE TABLE idplayers_nicks (idplayers integer PRIMARY KEY, nicks text );";
         String createtable_temphands = "CREATE TABLE temphands ( time_hand bigint PRIMARY KEY, cards_hero smallint, position_hero smallint, stacks float4[], idplayers integer[] );";
         try {
@@ -142,7 +142,7 @@ static String work_database;
     }
 
 
-    private void add_columns_in_TableIdplayersStats(){
+    private static void add_columns_in_TableIdplayersStats(){
         // добавление колонок со статами в таблицу idplayers_stats
         // названия и типа колонок берутся из находящихся в массиве Объектов класса МайнСтатс
 
@@ -166,6 +166,7 @@ static String work_database;
                 adding = "ALTER TABLE idplayers_stats ADD COLUMN "+str_stata[0]+" "+str_stata[1]+" ;";
                 stmt_of_db.addBatch(adding);
             }
+            System.out.println(stmt_of_db.toString());
             stmt_of_db.executeBatch();
 
         } catch (Exception e) {
@@ -174,57 +175,67 @@ static String work_database;
     }
 
 
-    public static void fill_MainArrayOfStatsFromDateBase(){
+    public MainStats[] fill_MainArrayOfStatsFromDateBase(){
 
         String query = "SELECT * FROM idplayers_stats ;";
-
+        MainStats[] mainStats = main_array_of_stats.clone();
         try {
+            stmt_of_db.executeUpdate(BEGIN);
             PreparedStatement ps = connect_to_db.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
+
+            //ResultSet rs = stmt_of_db.executeQuery(query);
             int id_player = 0;
             while(rs.next()) {
-                for(int i=1; i<main_array_of_stats.length+1; i++){
-                    if(i==1){id_player = rs.getInt(i);continue;}
+                //System.out.println(rs.getInt("idplayers"));
+                for(int i=1; i<mainStats.length+1; i++){
+                    if(i==1){id_player = rs.getInt(i);
+                        System.out.println(id_player);
+                    continue;}
                     Array statasql = rs.getArray(i);
-                    /*if(statasql==null)stats[i-3].setIdplayers_stats(id_player,null);
-                    else {Integer[][][] stata = (Integer[][][])statasql.getArray();
-                    stats[i-3].setIdplayers_stats(id_player,stata);}*/
-                    main_array_of_stats[i-2].setIdplayers_stats(id_player,statasql);
+                    mainStats[i-2].setIdplayers_stats(id_player,statasql);
                 }
             }
 
-            System.out.println(" sozdana tables");
+         stmt_of_db.executeUpdate(COMMIT);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
+        System.out.println(" read stats");
+        return mainStats;
     }
 
 
-    public static void record_MainArrayOfStatsToDateBase(){
+    public static void record_MainArrayOfStatsToDateBase(MainStats[] mainstats){
         long start = System.currentTimeMillis();
         try {
-            //connect.setAutoCommit(false);
+            connect_to_db.setAutoCommit(false);
             StringBuilder sql = new StringBuilder("UPDATE idplayers_stats SET ");
-            int count_stats = main_array_of_stats.length;
+            int count_stats = mainstats.length;
             for(int i=0; i<count_stats; i++){
-                sql.append(main_array_of_stats[i].getName_of_stat()[0]).append(" = ?");
+                sql.append(mainstats[i].getName_of_stat()[0]).append(" = ?");
                 if(i==count_stats-1)sql.append(" WHERE idplayers = ? ;");
                 else sql.append(", ");
             }
+            System.out.println(sql);
             PreparedStatement pstmt = connect_to_db.prepareStatement(sql.toString());
-            count_stats++;
-            for(Object key:main_array_of_stats[0].getMap_of_Idplayer_stats().keySet()){
-                pstmt.setInt(count_stats,(Integer) key);
-                for(int i=1; i<count_stats; i++){
-                    Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) main_array_of_stats[i-1].getMap_of_Idplayer_stats().get(key));
-                    pstmt.setArray(i, arraystata);
+
+            for(Object key:mainstats[2].getMap_of_Idplayer_stats().keySet()){
+                //System.out.println((Integer) key);
+                pstmt.setInt(count_stats+1,(Integer) key);
+                for(int i=0; i<count_stats; i++){
+                    Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[i].getMap_of_Idplayer_stats().get(key));
+                    //System.out.println(arraystata.toString()+" "+(i+1));
+                    pstmt.setArray(i+1, arraystata);
                 }
+                System.out.println(pstmt.toString());
                 pstmt.addBatch();
             }
             assert pstmt != null;
-            pstmt.executeBatch();
-            //connect.commit();
+          int[]  r = pstmt.executeBatch();
+          for(int a:r) System.out.println(a);
+            connect_to_db.commit();
+            connect_to_db.setAutoCommit(true);
             System.out.println(" record stats time "+(System.currentTimeMillis()-start));
         } catch (SQLException e) {
             e.printStackTrace();
@@ -260,8 +271,8 @@ static String work_database;
         try {
             //stmt_of_db.executeUpdate(BEGIN);
             rs = stmt_of_db.executeQuery(query);
-            while (rs.next())
-            { Idplayer = rs.getInt("idplayers");
+            while (rs.next()) {
+                Idplayer = rs.getInt("idplayers");
                 Nick = rs.getString("nicks");
                 if(Idplayer!=0){ LocalNiksMap.put(Nick,Idplayer); }
             }
@@ -352,6 +363,7 @@ static String work_database;
         String delete = "DROP TABLE IF EXISTS work_idplayers_stats ";
         String copy = "CREATE TABLE work_idplayers_stats AS TABLE idplayers_stats ;";
 
+
         try {
             stmt_of_db.executeUpdate(delete);
             stmt_of_db.executeUpdate(copy);
@@ -361,6 +373,18 @@ static String work_database;
         }
         System.out.println("delete and copy");
 
+    }
+
+    static void test_delete_Table(){
+        String delete = "DROP TABLE IF EXISTS idplayers_stats ";
+        String createtable_idplayers_stats = "CREATE TABLE idplayers_stats (idplayers integer PRIMARY KEY);";
+        try {
+            stmt_of_db.executeUpdate(delete);
+            stmt_of_db.executeUpdate(createtable_idplayers_stats);
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     public static void close_DataBase(){
@@ -378,19 +402,20 @@ static String work_database;
         //delete_DataBase("fg_test_db1");
 
         new Work_DataBase();
-        List<CurrentHand.TempHand> list = get_list_TempHandsMinMaxTime(0,0);
+       /* List<CurrentHand.TempHand> list = get_list_TempHandsMinMaxTime(0,0);
         for (CurrentHand.TempHand tempHand:list){
             System.out.println("time "+tempHand.time_hand()+" cards "+get_str_Cards(tempHand.cards_hero())
                    // +" pos_hero "+tempHand.position_hero()
             );
-           /* for(int i=0; i<6; i++)
-                System.out.println("idplayer "+tempHand.idplayers()[i]+" stack "+tempHand.stacks()[i]);*/
-        }
+           *//* for(int i=0; i<6; i++)
+                System.out.println("idplayer "+tempHand.idplayers()[i]+" stack "+tempHand.stacks()[i]);*//*
+        }*/
         /*List<Long> times = new ArrayList<>();
         for (CurrentHand.TempHand tempHand:list){
             times
         }*/
-
+        //test_delete_Table();
+        //add_columns_in_TableIdplayersStats();
 
 
        /*long max = Collections.max(list.stream().map(CurrentHand.TempHand::time_hand).collect(Collectors.toList()));

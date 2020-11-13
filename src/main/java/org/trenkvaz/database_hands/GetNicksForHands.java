@@ -249,16 +249,17 @@ public class GetNicksForHands {
        return result.toString();
     }
 
-    static void reverse_MapIdplayersNicks(Map<String,Integer> map_idplayers_nicks){
-        reverse_map_idplayers_nicks = new HashMap<>();
+    static Map<Integer,String> reverse_MapIdplayersNicks(Map<String,Integer> map_idplayers_nicks){
+        Map<Integer,String> reverse_map_idplayers_nicks = new HashMap<>();
         for(Map.Entry<String,Integer> entry:map_idplayers_nicks.entrySet()){
             reverse_map_idplayers_nicks.put(entry.getValue(),entry.getKey());
         }
+        return reverse_map_idplayers_nicks;
     }
 
 
     public static void main(String[] args) {
-        reverse_MapIdplayersNicks(new Work_DataBase().get_map_IdPlayersNicks());
+        reverse_map_idplayers_nicks = reverse_MapIdplayersNicks(new Work_DataBase().get_map_IdPlayersNicks());
         start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\");
        /* System.out.println("count hands "+c);
         for (HandFromHistory hand:list_handsfromhistory)

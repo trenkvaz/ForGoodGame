@@ -723,7 +723,7 @@ public class Testing {
        /* int[] test = {3,4,5,1,2};
         String[] strings = {"1","2"};
         System.out.println(Arrays.asList(strings).indexOf("3"));*/
-        fill_MainArrayOfStatsFromDateBase();
+
 
         HashMap<Integer,Integer[][][]> arr = main_array_of_stats[0].getMap_of_Idplayer_stats();
         Integer[][][] tes = arr.get(6);
