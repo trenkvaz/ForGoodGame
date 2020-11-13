@@ -12,13 +12,13 @@ import java.sql.Array;
 import java.sql.SQLException;
 import java.util.*;
 
-import static org.trenkvaz.database_hands.GetNicksForHands.reverse_MapIdplayersNicks;
+//import static org.trenkvaz.database_hands.GetNicksForHands.reverse_MapIdplayersNicks;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.nick_hero;
 
 public class ReadHistoryGetStats {
 
-    static Map<String,Integer> map_nicks_idplayers;
+    //static Map<String,Integer> map_nicks_idplayers;
     static List<List<Float>> preflop_actions = new ArrayList<>(6);
     static String[] nicks = new String[6]; static float[] stacks = new float[6];
     static int[] id_players = new int[6];
@@ -65,11 +65,11 @@ public class ReadHistoryGetStats {
      float bb = read_BB(hand.get(1));
      read_StacksAndNicks(hand,bb);
      read_PreflopActions(hand,bb);
-     get_Idplayers();
-     int position_hero = Arrays.asList(nicks).indexOf(nick_hero);
-     if(position_hero!=-1)
+     //get_Idplayers();
+     /*int position_hero = Arrays.asList(nicks).indexOf(nick_hero);
+     if(position_hero!=-1)*/
      for(MainStats stats:mainstats)
-         stats.count_Stats_for_map(preflop_players_actions_in_raunds,id_players,stacks,position_hero,(byte) 6,posActions,false);
+         stats.count_Stats_for_map(preflop_players_actions_in_raunds,nicks,stacks,(byte) 6,posActions,false);
 
      // byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][][]posactions,boolean isAdditional
 
@@ -141,7 +141,7 @@ public class ReadHistoryGetStats {
 
 
 
-    private static void get_Idplayers(){ for(int i=0; i<6; i++) if(map_nicks_idplayers.containsKey(nicks[i])) id_players[i] = map_nicks_idplayers.get(nicks[i]); }
+    //private static void get_Idplayers(){ for(int i=0; i<6; i++) if(map_nicks_idplayers.containsKey(nicks[i])) id_players[i] = map_nicks_idplayers.get(nicks[i]); }
 
 
 
@@ -288,10 +288,9 @@ public class ReadHistoryGetStats {
 
     public static void main(String[] args) {
         Work_DataBase work_dataBase = new Work_DataBase();
-        map_nicks_idplayers = work_dataBase.get_map_IdPlayersNicks();
-        Map<Integer,String> reversmap = reverse_MapIdplayersNicks(map_nicks_idplayers);
+
         //for(Map.Entry<String,Integer> entry:map_nicks_idplayers.entrySet()) System.out.println(entry.getValue()+"   "+entry.getKey());
-        System.out.println(reversmap.get(3));
+
       /* List<Integer> sortlist = new ArrayList<>(map_nicks_idplayers.values());
        Collections.sort(sortlist);
         for(Integer a:sortlist) System.out.println(a);*/

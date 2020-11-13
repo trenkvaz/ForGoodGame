@@ -9,11 +9,11 @@ public class VpipPFR3bet extends MainStats {
 
 
     private static final int select_vpip_pfr = 0, vpip= 1, pfr= 2, select_3bet = 3, _3bet = 4;
-    private final HashMap<Integer,Integer[][]> map_of_Idplayer_stats = new HashMap<>();
+    private final HashMap<String,Integer[][]> map_of_Idplayer_stats = new HashMap<>();
     public String[] getName_of_stat(){ return new String[]{"vpip_pfr_3bet","integer[][]"}; }
-    public HashMap<Integer,Integer[][]> getMap_of_Idplayer_stats(){return map_of_Idplayer_stats;}
+    public HashMap<String,Integer[][]> getMap_of_Idplayer_stats(){return map_of_Idplayer_stats;}
 
-    public void setIdplayers_stats(Integer idplayer, Array statasql){
+    public void setIdplayers_stats(String idplayer, Array statasql){
         // от 0-5 позиционные статы 6 объедененные статы
         if(statasql==null){
             Integer[][] data = new Integer[7][5];
@@ -29,9 +29,9 @@ public class VpipPFR3bet extends MainStats {
             }
         }
     }
-    private void add_player_to_map_test(int[] idplayers){
-        for(int id:idplayers){
-            if(id==0)continue;
+    private void add_player_to_map_test(String[] idplayers){
+        for(String id:idplayers){
+            if(id==null)continue;
             if(map_of_Idplayer_stats.get(id)==null){
                 Integer[][] data = new Integer[7][5];
                 for (int p=0; p<7; p++)
@@ -41,7 +41,7 @@ public class VpipPFR3bet extends MainStats {
         }
     }
 
-    public void count_Stats_for_map(byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][]posactions,boolean isAdditional){
+    public void count_Stats_for_map(byte[][][] actions_hand,String[] idplayers,float[]stacks,byte Seaters,float[][]posactions,boolean isAdditional){
         //if(idhero==0)idhero=idHero;
         if(Seaters==2)return;
         if(!isAdditional)add_player_to_map_test(idplayers);
@@ -58,8 +58,9 @@ public class VpipPFR3bet extends MainStats {
                  }
              }
              for(int i:idplayers) System.out.println(" "+i);*/
-             int idplayer = idplayers[pos];
-             Integer[][] stata = map_of_Idplayer_stats.get(idplayer);
+
+             Integer[][] stata = map_of_Idplayer_stats.get(idplayers[pos]);
+             if(stata==null)continue;
             /*System.out.println("id "+idplayer);
             for(Integer[] A:stata){
                 if(A==null){
@@ -73,7 +74,7 @@ public class VpipPFR3bet extends MainStats {
                     if(actions_hand[pos][raund_1][action]!=FOLD&&actions_hand[pos][raund_1][action]!=CHEK){stata[pos][vpip]++;stata[6][vpip]++;}
                     if(actions_hand[pos][raund_1][action]>0&&actions_hand[pos][raund_1][action]<10){stata[pos][pfr]++;stata[6][pfr]++;}
 
-             map_of_Idplayer_stats.put(idplayer,stata);
+             map_of_Idplayer_stats.put(idplayers[pos],stata);
         }
     }
 

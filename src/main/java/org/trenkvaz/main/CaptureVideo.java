@@ -71,9 +71,9 @@ public class CaptureVideo implements Runnable{
 
 
 
-   static Map<String, Integer> map_idplayers_nicks;
+   /*static Map<String, Integer> map_idplayers_nicks;
    static int id_for_nick = 0;
-   public record IdPlayer_Nick(int idplayer,String nick){}
+   public record IdPlayer_Nick(int idplayer,String nick){}*/
 
 
 
@@ -81,8 +81,8 @@ public class CaptureVideo implements Runnable{
        for(int i=0; i<4; i++)use_tessearts[i] = new UseTesseract();
        //settings_capturevideo = new Settings();
        Settings.setting_cupture_video();
-       map_idplayers_nicks = work_dataBase.get_map_IdPlayersNicks();
-       if(!map_idplayers_nicks.isEmpty()) id_for_nick = Collections.max(map_idplayers_nicks.values());
+      /* map_idplayers_nicks = work_dataBase.get_map_IdPlayersNicks();
+       if(!map_idplayers_nicks.isEmpty()) id_for_nick = Collections.max(map_idplayers_nicks.values());*/
        //System.out.println("id_for_nick "+id_for_nick);
        canvasFrame = new CanvasFrame("Some Title");
        canvasFrame.setCanvasSize(600, 300);//задаем размер окна
@@ -412,7 +412,7 @@ public class CaptureVideo implements Runnable{
 
 
 
-    public static synchronized Integer[] get_and_write_NewIdPlayersForNicks(String[] nicks){
+   /* public static synchronized Integer[] get_and_write_NewIdPlayersForNicks(String[] nicks){
         Integer[] IdNiks = new Integer[6];
         int IDplyer = -1;
         List<IdPlayer_Nick> list_idplayer_nicks = new ArrayList<>(6);
@@ -432,7 +432,7 @@ public class CaptureVideo implements Runnable{
         if(!list_idplayer_nicks.isEmpty())work_dataBase.record_listrec_to_TableIdPlayersNicks(list_idplayer_nicks);
 
         return IdNiks;
-    }
+    }*/
 
 
 

@@ -8,33 +8,33 @@ import java.util.HashMap;
 public class Against3bet extends MainStats {
 
 
-    private final HashMap<Integer,Integer[][][]> map_of_Idplayer_stats = new HashMap<>();
+    private final HashMap<String,Integer[][][]> map_of_Idplayer_stats = new HashMap<>();
     private static final int select = 0, fold =1, _4bet = 2;
     private static final String[] action_query = new String[]{null,null,"fold","4bet"};
     public String[] getName_of_stat(){ return new String[]{"rfi_v_3bet","integer[][][]"}; }
-    public HashMap<Integer,Integer[][][]> getMap_of_Idplayer_stats(){return map_of_Idplayer_stats;}
+    public HashMap<String,Integer[][][]> getMap_of_Idplayer_stats(){return map_of_Idplayer_stats;}
 
-    public void setIdplayers_stats(Integer idplayer, Array statasql){
+    public void setIdplayers_stats(String nick, Array statasql){
         if(statasql==null){
             Integer[][][] data = new Integer[5][6][3];
             for(int a=1; a<6; a++)
                 for(int b=0; b<a; b++)
                     for (int i=0; i<3; i++) data[b][a][i]=0;
             for (int i=0; i<3; i++) data[0][0][i]=0;
-            map_of_Idplayer_stats.put(idplayer,data);
+            map_of_Idplayer_stats.put(nick,data);
         } else {
             try {
                 Integer[][][]    stata = (Integer[][][])statasql.getArray();
-                map_of_Idplayer_stats.put(idplayer,stata);
+                map_of_Idplayer_stats.put(nick,stata);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void count_Stats_for_map(byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][]posactions,boolean isAdditional){
+    public void count_Stats_for_map(byte[][][] actions_hand,String[] nicks,float[]stacks,byte Seaters,float[][]posactions,boolean isAdditional){
 
-        if(!isAdditional)add_player_to_map_test(idplayers);
+        if(!isAdditional)add_player_to_map_test(nicks);
 
         if(actions_hand[BB]==null||actions_hand[BB][raund_1][action]==0||actions_hand[BB][raund_1][indKolLimpers]>0
                 ||actions_hand[BB][raund_1][indPozRaiser]==0||actions_hand[BB][raund_1][indKolCallers]>0)return;
@@ -49,32 +49,32 @@ public class Against3bet extends MainStats {
                 for(int posAgainst_3bet = 0; posAgainst_3bet<pos_3beter; posAgainst_3bet++){
                     if(actions_hand[posAgainst_3bet]==null||actions_hand[posAgainst_3bet][raund_1][action]!=RAISE)continue;
                     if(actions_hand[posAgainst_3bet].length==1||actions_hand[posAgainst_3bet][raund_1][indKolCallers3beta]>0||actions_hand[posAgainst_3bet][raund_1][indPoz4betera]>0)break;
-                    int idplayer = idplayers[posAgainst_3bet];
-                    Integer[][][] stata = map_of_Idplayer_stats.get(idplayer);
+                    Integer[][][] stata = map_of_Idplayer_stats.get(nicks[posAgainst_3bet]);
+                    if(stata==null)continue;
                     stata[posAgainst_3bet][pos_3beter][select]++;
                     if(actions_hand[posAgainst_3bet][raund_2][action]==FOLD){ stata[posAgainst_3bet][pos_3beter][fold]++;}
                     if(actions_hand[posAgainst_3bet][raund_2][action]==_4BET){ stata[posAgainst_3bet][pos_3beter][_4bet]++;}
-                    map_of_Idplayer_stats.put(idplayer,stata);
+                    map_of_Idplayer_stats.put(nicks[posAgainst_3bet],stata);
                 }
                 break;
             }
         } else {
 
             if(actions_hand[BB][raund_1][action]!=_3BET)return;
-            int idplayer = idplayers[SB];
-            Integer[][][] stata = map_of_Idplayer_stats.get(idplayer);
+            Integer[][][] stata = map_of_Idplayer_stats.get(nicks[SB]);
+            if(stata==null)return;
             stata[0][0][select]++;
             if(actions_hand[SB][raund_2][action]==FOLD){ stata[0][0][fold]++;}
             if(actions_hand[SB][raund_2][action]==_4BET){ stata[0][0][_4bet]++;}
 
-            map_of_Idplayer_stats.put(idplayer,stata);
+            map_of_Idplayer_stats.put(nicks[SB],stata);
 
         }
     }
 
-    private void add_player_to_map_test(int[] idplayers){
-        for(int id:idplayers){
-            if(id==0)continue;
+    private void add_player_to_map_test(String[] idplayers){
+        for(String id:idplayers){
+            if(id==null)continue;
             if(map_of_Idplayer_stats.get(id)==null){
                 Integer[][][] data = new Integer[5][6][3];
                 for(int a=1; a<6; a++)

@@ -667,7 +667,7 @@ public class Testing {
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings.setting_cupture_video();
-        map_nicks_idplayers = new Work_DataBase().get_map_IdPlayersNicks();
+        //map_nicks_idplayers = new Work_DataBase().get_map_IdPlayersNicks();
 
         //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test\\_2_469"),0,0,70,11));
 
@@ -725,12 +725,6 @@ public class Testing {
         System.out.println(Arrays.asList(strings).indexOf("3"));*/
 
 
-        HashMap<Integer,Integer[][][]> arr = main_array_of_stats[0].getMap_of_Idplayer_stats();
-        Integer[][][] tes = arr.get(6);
-
-        if(tes==null) System.out.println("null");
-
-        //get_stata_one_player("trenkvaz","vpip_pfr_3bet");
 
 
 

@@ -172,3 +172,15 @@
                         }
 
                         show_HashShablonNumber(shablons_numbers_0_9_for_actions[4],6,9 );*/
+
+
+
+ /* List<Work_DataBase.TempHand2> list_temphands_for_select = get_list_TempHandsMinMaxTime_test(list_handsfromhistory.get(0).time_hand,
+                        list_handsfromhistory.get(list_handsfromhistory.size()-1).time_hand+30000);
+
+                for(Work_DataBase.TempHand2 hand2: list_temphands_for_select){
+
+                    String[] nicks = new String[6];
+                    for(int i=0; i<6; i++)nicks[i] = reverse_map_idplayers_nicks.get(hand2.nicks()[i]);
+                    record_rec_to_TableTempHands(new CurrentHand.TempHand(hand2.time_hand(),hand2.cards_hero(),hand2.position_hero(),hand2.stacks(),nicks));
+                }*/

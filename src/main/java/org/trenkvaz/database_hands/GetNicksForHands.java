@@ -11,17 +11,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.trenkvaz.database_hands.Work_DataBase.close_DataBase;
-import static org.trenkvaz.database_hands.Work_DataBase.get_list_TempHandsMinMaxTime;
+import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.Deck;
 
 public class GetNicksForHands {
 
     static final DateFormat formatter= new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss", Locale.US);
     static List<HistoryHand> list_handsfromhistory = new ArrayList<>();
-    static Map<Integer,String> reverse_map_idplayers_nicks;
+    //static Map<Integer,String> reverse_map_idplayers_nicks;
 
-    record HistoryHand(long time_hand, short cards_hero, short position_hero, float[] stacks, List<String> handfromhistory, int[] idplayers){
+    record HistoryHand(long time_hand, short cards_hero, short position_hero, float[] stacks, List<String> handfromhistory, String[] nicks){
         public String get_str_Cards(){
             int c = (cards_hero < 0) ? cards_hero+65536 : cards_hero;
             return Deck[c/1000]+" "+Deck[c%1000];
@@ -42,6 +41,7 @@ public class GetNicksForHands {
                 select_TempHandsForHistoryHand();
                 write_NewHistoryHandsWithNicks(folder,a.getName());
             }
+
             list_handsfromhistory.clear();
         }
     }
@@ -73,7 +73,7 @@ public class GetNicksForHands {
         c++;
         List<String> sublist_players = hand.subList(4,10);
         list_handsfromhistory.add(new HistoryHand(read_TimeHandForHistoryHand(hand.get(1)), read_CardsHeroForHistoryHand(hand.get(13)),
-                read_PositionHeroForHistoryHand(sublist_players), read_StacksForHistoryHand(sublist_players, read_BBforHistoryHand(hand.get(1))),hand,new int[6]));
+                read_PositionHeroForHistoryHand(sublist_players), read_StacksForHistoryHand(sublist_players, read_BBforHistoryHand(hand.get(1))),hand,new String[6]));
     }
 
 
@@ -112,6 +112,8 @@ public class GetNicksForHands {
         }
         return result;
     }
+
+
 
 
     private static short read_CardsHeroForHistoryHand(String line){ return (short)((byte)Arrays.asList(Deck).indexOf(line.subSequence(16,18))*1000+(byte)Arrays.asList(Deck).indexOf(line.subSequence(20,22)));}
@@ -164,7 +166,7 @@ public class GetNicksForHands {
             /*System.out.println(get_str_Date(handfromhistory.time_hand)+" "+get_str_Cards(handfromhistory.cards_hero)+"   "+
                     get_str_Date(selected_temphand.time_hand())+"   "+get_str_Cards(selected_temphand.cards_hero()));*/
            if(selected_temphand!=null){
-           for(int i=0; i<6; i++) handfromhistory.idplayers[i] = selected_temphand.idplayers()[i];
+           for(int i=0; i<6; i++) handfromhistory.nicks[i] = selected_temphand.nicks()[i];
 
            }
 
@@ -200,34 +202,27 @@ public class GetNicksForHands {
 
         try (OutputStream os = new FileOutputStream(folder+"\\output\\"+name_file,true)) {
             for(HistoryHand historyhand:list_handsfromhistory){
-             os.write((get_NewHistoryHandWithNicks(historyhand.handfromhistory,historyhand.idplayers)+"\r\n\r\n").getBytes(StandardCharsets.UTF_8));
+             os.write((get_NewHistoryHandWithNicks(historyhand.handfromhistory,historyhand.nicks)+"\r\n\r\n").getBytes(StandardCharsets.UTF_8));
                 //System.out.println(get_NewHistoryHandWithNicks(historyhand.handfromhistory,historyhand.idplayers)+"\r\n\r\n");
             }
         } catch (FileNotFoundException e) {
-            //ErrorLog("016 "+e);
-           /* try {
-                Thread.sleep(500);
-            } catch (InterruptedException e1) {
-                //ErrorLog("032"+e1);
-            }*/
         } catch (IOException s) {
-            //ErrorLog("017 "+s);
         }
     }
 
 
-   static String get_NewHistoryHandWithNicks(List<String> historyhand,int[] idplayers){
+   static String get_NewHistoryHandWithNicks(List<String> historyhand,String[] nicks){
        List<String> sublist_players = historyhand.subList(4,10);int position = -1;
        String[][] seat_nick = new String[6][2];
        // меняются плеер1 и т.д на ники в начале раздачи где они на своих местах
        for (int i=0; i<6; i++) {
            if(i<3)position = i+3;
            else position = i-3;
-           int id = idplayers[position];
-           if(id==0)continue;
+           //int id = idplayers[position];
+           if(nicks[position]==null)continue;
            String line = sublist_players.get(i);
            seat_nick[i][0] = line.substring(8,line.indexOf("(")-1);
-           seat_nick[i][1] = reverse_map_idplayers_nicks.get(id);
+           seat_nick[i][1] = nicks[position];
            sublist_players.set(i,line.replace(seat_nick[i][0],seat_nick[i][1]));
        }
        // меняются плеер1 и т.д на ники по ходу раздачи
@@ -240,8 +235,6 @@ public class GetNicksForHands {
                }
            }
        }
-
-
        StringBuilder result = new StringBuilder();
        for(String line:historyhand)
            result.append(line).append("\r\n");
@@ -249,17 +242,19 @@ public class GetNicksForHands {
        return result.toString();
     }
 
-    static Map<Integer,String> reverse_MapIdplayersNicks(Map<String,Integer> map_idplayers_nicks){
+
+   /* static Map<Integer,String> reverse_MapIdplayersNicks(Map<String,Integer> map_idplayers_nicks){
         Map<Integer,String> reverse_map_idplayers_nicks = new HashMap<>();
         for(Map.Entry<String,Integer> entry:map_idplayers_nicks.entrySet()){
             reverse_map_idplayers_nicks.put(entry.getValue(),entry.getKey());
         }
         return reverse_map_idplayers_nicks;
-    }
+    }*/
 
 
     public static void main(String[] args) {
-        reverse_map_idplayers_nicks = reverse_MapIdplayersNicks(new Work_DataBase().get_map_IdPlayersNicks());
+        new Work_DataBase();
+        //reverse_map_idplayers_nicks = reverse_MapIdplayersNicks(new Work_DataBase().get_map_IdPlayersNicks());
         start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\");
        /* System.out.println("count hands "+c);
         for (HandFromHistory hand:list_handsfromhistory)

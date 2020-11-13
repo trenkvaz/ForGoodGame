@@ -1,5 +1,7 @@
 package org.trenkvaz.main;
 
+import org.trenkvaz.database_hands.Work_DataBase;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -25,7 +27,7 @@ public class CurrentHand {
     Float[] stacks = new Float[6];
     //float[] first_round_preflop = new float[6];
     ArrayList<ArrayList<Float>> preflop_by_positions = new ArrayList<>(6);
-    public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, Integer[] idplayers){}
+    public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, String[] nicks){}
 
     CurrentHand(int table1){
         table = table1;
@@ -56,8 +58,8 @@ public class CurrentHand {
     public static synchronized void creat_HandForSaving(CurrentHand currentHand){
 
       controller_main_window.setMessage_work(currentHand.time_hand+"");
-      Integer[] idplayers = get_and_write_NewIdPlayersForNicks(currentHand.nicks);
-      work_dataBase.record_rec_to_TableTempHands(new TempHand(currentHand.time_hand,get_short_CardsHero(currentHand.cards_hero),(short)currentHand.poker_position_of_hero,currentHand.stacks,idplayers));
+      //Integer[] idplayers = get_and_write_NewIdPlayersForNicks(currentHand.nicks);
+      Work_DataBase.record_rec_to_TableTempHands(new TempHand(currentHand.time_hand,get_short_CardsHero(currentHand.cards_hero),(short)currentHand.poker_position_of_hero,currentHand.stacks,currentHand.nicks));
     /* for(int i=0; i<6; i++){if(nicks[i]==null)continue;
          System.out.println(nicks[i]+"  "+idplayers[i]);
      }*/
