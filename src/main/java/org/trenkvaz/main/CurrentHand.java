@@ -15,6 +15,7 @@ public class CurrentHand {
     int table;
     long time_hand;
     String[] nicks = new String[6];
+    boolean[] nicks_for_hud = new boolean[6];
     int[] poker_positions_by_pos_table_for_nicks;
     boolean is_nicks_filled = false;
     //boolean is_preflop_end = false;
@@ -28,6 +29,9 @@ public class CurrentHand {
     //float[] first_round_preflop = new float[6];
     ArrayList<ArrayList<Float>> preflop_by_positions = new ArrayList<>(6);
     public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, String[] nicks){}
+    CurrentStats current_Stats = new CurrentStats();
+
+
 
     CurrentHand(int table1){
         table = table1;
@@ -39,7 +43,11 @@ public class CurrentHand {
     }
 
     void setIs_nicks_filled(){
-        creatingHUD.send_current_hand_to_creating_hud(nicks,table);
+        current_Stats.set_Stats();
+        creatingHUD.send_current_hand_to_creating_hud(nicks,table,poker_positions_by_pos_table_for_nicks,current_Stats);
+        // отмечание ситуаций что ник был обработан, чтобы повторно не обращатся к получению стат
+        for(int i=0; i<6; i++){if(nicks[i]!=null)nicks_for_hud[i] = true;}
+        // проверка что все ники распознаны, чтобы не обращатся к методу распознавания ников
         for(int i=1; i<6; i++)if(nicks[i]==null){is_nicks_filled = false; return;}
         is_nicks_filled = true;
     }
@@ -67,5 +75,22 @@ public class CurrentHand {
     }
 
 
-    static short get_short_CardsHero(String[] cards_hero){ return (short) ((byte) Arrays.asList(Deck).indexOf(cards_hero[0])*1000+(byte) Arrays.asList(Deck).indexOf(cards_hero[1])); }
+    static short get_short_CardsHero(String[] cards_hero){ return (short)
+            ((byte) Arrays.asList(Deck).indexOf(cards_hero[0])*1000+(byte) Arrays.asList(Deck).indexOf(cards_hero[1])); }
+
+
+
+    public class CurrentStats {
+        // индексация стат по расположению ников на столе
+        Object[][][] stats_rfi = new Object[6][][];
+
+        void set_Stats(){
+            for(int player=0; player<6; player++){
+                if(nicks_for_hud[player]||nicks[player]==null)continue;
+                stats_rfi[player] =(Object[][]) current_map_stats[3].get("$ю$"+nicks[player]+"$ю$");
+            }
+        }
+
+
+    }
 }

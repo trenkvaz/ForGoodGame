@@ -131,8 +131,9 @@ public class HUD {
         Platform.runLater(() -> {
             for(int player = 0; player<6; player++){
                 if(arr_one_table_texts_huds_each_player[table][player]==null)continue;
+                anchorpanes_huds_each_player[table][player].getChildren().clear();
                 for(Text stata:arr_one_table_texts_huds_each_player[table][player]){
-                    anchorpanes_huds_each_player[table][player].getChildren().clear();
+                    if(stata==null)continue;
                     anchorpanes_huds_each_player[table][player].getChildren().add(stata);
                 }
             }

@@ -75,7 +75,7 @@ public class Against3bet extends MainStats {
     private void add_player_to_map_test(String[] idplayers){
         for(String id:idplayers){
             if(id==null)continue;
-            if(map_of_Idplayer_stats.get(id)==null){
+            if(!map_of_Idplayer_stats.containsKey(id)){
                 Integer[][][] data = new Integer[5][6][3];
                 for(int a=1; a<6; a++)
                     for(int b=0; b<a; b++)

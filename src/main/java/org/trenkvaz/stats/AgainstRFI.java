@@ -77,7 +77,7 @@ public class AgainstRFI extends MainStats {
     private void add_player_to_map_test(String[] idplayers){
         for(String id:idplayers){
             if(id==null)continue;
-            if(map_of_Idplayer_stats.get(id)==null){
+            if(!map_of_Idplayer_stats.containsKey(id)){
                 Integer[][][] data = new Integer[6][5][3];
                 for(int a=0; a<5; a++)
                     for(int b=a+1; b<6; b++)

@@ -3,6 +3,7 @@ package org.trenkvaz.main;
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
 import org.trenkvaz.database_hands.Work_DataBase;
+import org.trenkvaz.stats.MainStats;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -15,11 +16,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OCR.*;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
+import static org.trenkvaz.ui.StartAppLauncher.work_dataBase;
 
 public class Testing {
 
@@ -617,7 +620,7 @@ public class Testing {
 
 
     static final String[] positions_for_query = {null,"UTG","MP","CO","BU","SB","BB"};
-    static Map<String,Integer> map_nicks_idplayers;
+
 
     private static float procents(int stata, int select){
         if(select==0)return 0;
@@ -625,10 +628,9 @@ public class Testing {
     }
 
     private static void get_stata_one_player(String name, String stata){
-        int id = map_nicks_idplayers.get(name);
-        System.out.println(id);
+
         try {
-            if(stata.equals("vpip_pfr_3bet")){ Object[][] stats =(Object[][]) get_stats_of_one_player(id,stata).getArray();
+            if(stata.equals("vpip_pfr_3bet")){ Object[][] stats =(Object[][]) get_stats_of_one_player(name,stata).getArray();
                 System.out.println("name "+name+" stata "+stata);
                 for (int i=0; i<6; i++)
                     System.out.println(positions_for_query[i+1]+" vpip "+procents((int)stats[i][1],(int)stats[i][0])+" pfr "+procents((int)stats[i][2],(int)stats[i][0])+
@@ -637,12 +639,12 @@ public class Testing {
                         " 3_bet "+procents((int)stats[6][4],(int)stats[6][3])+" count pfr "+stats[6][2]+" count  select 3bet "+stats[6][3]+" count 3bet "+stats[6][4]+" count vpip "+stats[6][1]);
             }
 
-            if(stata.equals("rfi")){ Object[][] stats =(Object[][]) get_stats_of_one_player(id,stata).getArray();
+            if(stata.equals("rfi")){ Object[][] stats =(Object[][]) get_stats_of_one_player(name,stata).getArray();
                 System.out.println("name "+name+" stata "+stata);
                 for (int i=0; i<5; i++)
                     System.out.println(positions_for_query[i+1]+" select "+stats[i][0]+" rfi "+procents((int)stats[i][1],(int)stats[i][0])+" count rfi "+stats[i][1]);
             }
-            if(stata.equals("alliners")){ Object[][] stats =(Object[][]) get_stats_of_one_player(id,stata).getArray();
+            if(stata.equals("alliners")){ Object[][] stats =(Object[][]) get_stats_of_one_player(name,stata).getArray();
                 System.out.println("name "+name+" stata "+stata);
                 for(int v=0; v<3; v++){
                     for (int i=0; i<4; i++){
@@ -657,7 +659,16 @@ public class Testing {
 
     }
 
+    static Work_DataBase  work_dataBase;
 
+    static ConcurrentHashMap[] get_StatsFromDataBase(){
+
+        ConcurrentHashMap[] result = new ConcurrentHashMap[main_array_of_stats.length];
+        MainStats[] main_stats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
+        for(int i=0; i<main_array_of_stats.length; i++)
+            result[i] = new ConcurrentHashMap<> (main_stats[i].getMap_of_Idplayer_stats());
+        return result;
+    }
 
 
     public static void main(String[] args) throws Exception {
@@ -665,10 +676,10 @@ public class Testing {
         OCR ocr = new OCR();
         UseTesseract useTesseract = new UseTesseract();
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
-        CaptureVideo captureVideo = new CaptureVideo("");
-        Settings.setting_cupture_video();
+        //CaptureVideo captureVideo = new CaptureVideo("");
+        //Settings.setting_cupture_video();
         //map_nicks_idplayers = new Work_DataBase().get_map_IdPlayersNicks();
-
+        //work_dataBase = new Work_DataBase();
         //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test\\_2_469"),0,0,70,11));
 
 
@@ -725,10 +736,19 @@ public class Testing {
         System.out.println(Arrays.asList(strings).indexOf("3"));*/
 
 
+     //get_stata_one_player("$ю$qk roar$ю$","rfi");
+      /*ConcurrentHashMap[] concurrentHashMaps = get_StatsFromDataBase();
+        Object[][] stats =(Object[][]) concurrentHashMaps[3].get("$ю$qk roar$ю$");
+        //System.out.println("name "+name+" stata "+stata);
+        for (int i=0; i<5; i++)
+            System.out.println(positions_for_query[i+1]+" select "+stats[i][0]+" rfi "+procents((int)stats[i][1],(int)stats[i][0])+" count rfi "+stats[i][1]);
 
 
 
+     close_DataBase();*/
 
+        double value = 34.766674;
+        System.out.printf("%.1f",value);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }

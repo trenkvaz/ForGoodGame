@@ -32,7 +32,7 @@ public class VpipPFR3bet extends MainStats {
     private void add_player_to_map_test(String[] idplayers){
         for(String id:idplayers){
             if(id==null)continue;
-            if(map_of_Idplayer_stats.get(id)==null){
+            if(!map_of_Idplayer_stats.containsKey(id)){
                 Integer[][] data = new Integer[7][5];
                 for (int p=0; p<7; p++)
                     for (int i=0; i<5; i++) data[p][i]=0;

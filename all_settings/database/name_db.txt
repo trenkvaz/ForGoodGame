@@ -1,2 +1,1 @@
-fg_test_db1
-fg_test_db2nick W
+fg_test_db1 W

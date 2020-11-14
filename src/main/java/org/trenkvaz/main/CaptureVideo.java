@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /*import static org.bytedeco.javacpp.avformat.avformat_alloc_context;
@@ -22,7 +23,9 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgproc.*;*/
 //import static org.bytedeco.javacpp.opencv_videoio.cvCreateFileCapture;
 import org.bytedeco.ffmpeg.global.avutil;
+import org.trenkvaz.stats.MainStats;
 
+import static org.trenkvaz.database_hands.Work_DataBase.main_array_of_stats;
 import static org.trenkvaz.main.OCR.get_intGreyColor;
 import static org.trenkvaz.ui.Controller_main_window.*;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
@@ -68,6 +71,7 @@ public class CaptureVideo implements Runnable{
    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks = new TreeMap<>();
    static long[][] _long_arr_cards_for_compare,shablons_text_sittingout_allin, shablon_text_poker_terms;
    static int[][] shablons_numbers_0_9_for_stacks, shablons_numbers_0_9_for_actions;
+   public static ConcurrentHashMap[] current_map_stats;
 
 
 
@@ -451,7 +455,7 @@ public class CaptureVideo implements Runnable{
             shablons_numbers_0_9_for_actions = read_ObjectFromFile("shablons_numbers_0_9_for_actions");
             shablons_text_sittingout_allin = read_ObjectFromFile("shablons_text_sittingout_allin");
             shablon_text_poker_terms = read_ObjectFromFile("shablon_text_poker_terms");
-
+            current_map_stats = get_StatsFromDataBase();
         }
 
         private static void read_file_with_nicks_and_img_pixs(){
@@ -494,6 +498,16 @@ public class CaptureVideo implements Runnable{
             return type;
         }
 
+        static ConcurrentHashMap[] get_StatsFromDataBase(){
+
+            ConcurrentHashMap[] result = new ConcurrentHashMap[main_array_of_stats.length];
+            MainStats[] main_stats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
+            for(int i=0; i<main_array_of_stats.length; i++)
+                result[i] = new ConcurrentHashMap<> (main_stats[i].getMap_of_Idplayer_stats());
+
+
+            return result;
+        }
 
         public static synchronized void write_nicks_keys_img_pix(String nick,long key_in_treemap_img_pix,long[] imgs_pix_of_nick){
             StringBuilder line = new StringBuilder("*");
@@ -558,20 +572,7 @@ public class CaptureVideo implements Runnable{
 
 
 
-   /* public static synchronized void write_shablon(String term,BufferedImage image,long[] img_pix){
-       String[] terms = {"Posts SB","Posts BB","Call","Fold","Raise"};
-       int indx = Arrays.asList(terms).indexOf(term);
-       if(shablon_text_poker_terms[indx]!=null)return;
-       save_image(image,"test\\"+term);
 
-       shablon_text_poker_terms[indx] = Arrays.copyOfRange(img_pix,0,15);
-
-        System.err.println("TERM "+term);
-        for(long[] l:shablon_text_poker_terms)if(l==null)return;
-
-        Testing.save_ObjectInFile(shablon_text_poker_terms,"shablon_text_poker_terms");
-        System.err.println("SAVE SHABLON !!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    }*/
 
 
 

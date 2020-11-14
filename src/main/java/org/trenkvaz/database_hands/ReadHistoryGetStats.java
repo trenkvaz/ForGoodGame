@@ -288,23 +288,24 @@ public class ReadHistoryGetStats {
 
     public static void main(String[] args) {
         Work_DataBase work_dataBase = new Work_DataBase();
-
+        mainstats = main_array_of_stats;
         //for(Map.Entry<String,Integer> entry:map_nicks_idplayers.entrySet()) System.out.println(entry.getValue()+"   "+entry.getKey());
 
       /* List<Integer> sortlist = new ArrayList<>(map_nicks_idplayers.values());
        Collections.sort(sortlist);
         for(Integer a:sortlist) System.out.println(a);*/
-        mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
-        //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
+        //mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
+        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
         /*try {
             Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[0].getMap_of_Idplayer_stats().get(6));
             System.out.println(arraystata.toString());
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }*/
-        //record_MainArrayOfStatsToDateBase(mainstats);
-        HashMap<Integer,Integer[][]> arr = mainstats[2].getMap_of_Idplayer_stats();
-        Integer[][] stats = arr.get(2);
+        record_MainArrayOfStatsToDateBase(mainstats);
+        //mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
+        HashMap<String,Integer[][]> arr = mainstats[2].getMap_of_Idplayer_stats();
+        Integer[][] stats = arr.get("trenkvaz");
 
         if(stats==null) System.out.println("null");
 
