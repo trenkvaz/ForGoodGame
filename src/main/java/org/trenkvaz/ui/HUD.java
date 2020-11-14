@@ -17,6 +17,8 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.coord_left_up_of_tables;
 
@@ -28,10 +30,12 @@ public class HUD {
     private static double xOffset, yOffset;
     public boolean is_hud_on = false;
     Text[][][] arr_one_table_texts_huds_each_player = new Text[6][][];
+    List<List<List<Text>>> list_one_table_texts_huds_each_player = new ArrayList<>(6);
 
 
     public HUD(){
-       start_coords = CreatingHUD.Setting.read_coords_hud();
+        for(int i=0; i<6; i++) list_one_table_texts_huds_each_player.add(null);
+        start_coords = CreatingHUD.Setting.read_coords_hud();
     }
 
 
@@ -110,30 +114,35 @@ public class HUD {
 
 
 
-    public void set_hud(Text[][] arr_one_table_texts_huds_each_player,int table){
+    public void set_hud(List<List<Text>> arr_one_table_texts_huds_each_player, int table){
 
-       this.arr_one_table_texts_huds_each_player[table] = arr_one_table_texts_huds_each_player;
+       //this.arr_one_table_texts_huds_each_player[table] = arr_one_table_texts_huds_each_player;
+       list_one_table_texts_huds_each_player.set(table,arr_one_table_texts_huds_each_player);
        refresh_hud(table);
     }
 
     public void clear_hud(int table){
-        if(arr_one_table_texts_huds_each_player[table]==null)return;
+        //if(arr_one_table_texts_huds_each_player[table]==null)return;
+        if(list_one_table_texts_huds_each_player.get(table)==null) return;
         Platform.runLater(() -> {
             for(int player = 0; player<6; player++){
-                if(arr_one_table_texts_huds_each_player[table][player]==null)continue;
+                //if(arr_one_table_texts_huds_each_player[table][player]==null)continue;
+                if(list_one_table_texts_huds_each_player.get(table).get(player).isEmpty())continue;
                 anchorpanes_huds_each_player[table][player].getChildren().clear();
             }
         });
     }
 
     public void refresh_hud(int table){
-        if(arr_one_table_texts_huds_each_player[table]==null)return;
+        //if(arr_one_table_texts_huds_each_player[table]==null)return;
+        if(list_one_table_texts_huds_each_player.get(table)==null) return;
         Platform.runLater(() -> {
             for(int player = 0; player<6; player++){
-                if(arr_one_table_texts_huds_each_player[table][player]==null)continue;
+                //if(arr_one_table_texts_huds_each_player[table][player]==null)continue;
+                if(list_one_table_texts_huds_each_player.get(table).get(player).isEmpty())continue;
                 anchorpanes_huds_each_player[table][player].getChildren().clear();
-                for(Text stata:arr_one_table_texts_huds_each_player[table][player]){
-                    if(stata==null)continue;
+                for(Text stata:list_one_table_texts_huds_each_player.get(table).get(player)){
+                    //if(stata==null)continue;
                     anchorpanes_huds_each_player[table][player].getChildren().add(stata);
                 }
             }

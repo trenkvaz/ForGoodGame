@@ -6,6 +6,8 @@ import javafx.scene.text.Text;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.current_map_stats;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
@@ -23,15 +25,19 @@ public class CreatingHUD {
 
      public synchronized void send_current_hand_to_creating_hud(String[] nicks, int table, int[] inds_poker_pos_elements_places_table, CurrentHand.CurrentStats currentStats){
 
-         Text[][] arr_one_table_texts_huds_each_player = new Text[6][];
+        //Text[][] arr_one_table_texts_huds_each_player = new Text[6][];
+         List<List<Text>> list_one_table_texts_huds_each_player = new ArrayList<>(6);
          for(int player = 0; player<6; player++){
+             list_one_table_texts_huds_each_player.add(new ArrayList<>());
              if(nicks[player]==null)continue;
 
-             arr_one_table_texts_huds_each_player[player] =
+             /*arr_one_table_texts_huds_each_player[player] =
                      new Text[]{get_NickText(nicks[player]),
-                             get_RFI_by_positions(inds_poker_pos_elements_places_table,player,currentStats)};
+                             get_RFI_by_positions(inds_poker_pos_elements_places_table,player,currentStats)};*/
+             list_one_table_texts_huds_each_player.get(player).add(get_NickText(nicks[player]));
+             list_one_table_texts_huds_each_player.get(player).add(get_RFI_by_positions(get_ArrayIndex(inds_poker_pos_elements_places_table,player+1),player,currentStats));
          }
-         hud.set_hud(arr_one_table_texts_huds_each_player,table);
+         hud.set_hud(list_one_table_texts_huds_each_player,table);
      }
 
 
@@ -39,18 +45,19 @@ public class CreatingHUD {
 
 
       private static Text get_NickText(String nick){
+          if(nick.length()>5)nick = nick.substring(0,5);
           Text text_nick = new Text(1, 12, nick);
           text_nick.setFont(new Font(12));
           text_nick.setFill(Color.YELLOW);
           return text_nick;
       }
 
-      private static Text get_RFI_by_positions(int[] inds_poker_pos_elements_places_table, int place_table, CurrentHand.CurrentStats currentStats){
+      private static Text get_RFI_by_positions(int position, int place_table, CurrentHand.CurrentStats currentStats){
           String stats = "0";
-          int position = get_ArrayIndex(inds_poker_pos_elements_places_table,place_table+1);
+
           if(currentStats.stats_rfi[place_table]!=null&&position!=5) stats = String.format("%.1f",(procents((int)currentStats.stats_rfi[place_table][position][1],
                   (int)currentStats.stats_rfi[place_table][position][0])));
-          Text result = new Text(1, 12, stats );
+          Text result = new Text(1+50, 12, stats );
           result.setFont(new Font(12));
           result.setFill(Color.WHITE);
           return result;
