@@ -35,6 +35,7 @@ public class CurrentHand {
 
     CurrentHand(int table1,CreatingHUD creatingHUD1){
         creatingHUD = creatingHUD1;
+        creatingHUD.clear_MapStats();
         table = table1;
         for(int i=0; i<6; i++){
             preflop_by_positions.add(new ArrayList<Float>());
@@ -44,7 +45,7 @@ public class CurrentHand {
     }
 
     void setIs_nicks_filled(){
-        current_Stats.set_Stats();
+        //current_Stats.set_Stats();
         creatingHUD.send_current_hand_to_creating_hud(nicks,poker_positions_by_pos_table_for_nicks,nicks_for_hud,poker_position_of_hero);
         // отмечание ситуаций что ник был обработан, чтобы повторно не обращатся к получению стат
         for(int i=0; i<6; i++){if(nicks[i]!=null)nicks_for_hud[i] = true;}

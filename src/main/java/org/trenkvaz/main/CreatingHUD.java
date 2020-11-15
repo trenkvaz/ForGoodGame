@@ -19,9 +19,10 @@ import static org.trenkvaz.ui.StartAppLauncher.hud;
 public class CreatingHUD {
 
      int table = -1;
-     Map<Integer,Map<Integer,Object[]>> map_player_map_stats = new HashMap<>();
+     Map<Integer,Map<Integer,Object>> map_player_map_stats = new HashMap<>();
+     Map<Integer,Map<Integer,Integer>> map_controling_exists_stats = new HashMap<>();
      List<List<Text>> list_current_one_table_texts_huds_each_player = new ArrayList<>(6);
-     record SettingOneStata(String name_stata,int[] coord_text, int size_font, Paint value, int min_select, int condition_show, int befor_or_after_hero ){}
+     record SettingOneStata(String name_stata, int[] coord_text, int size_font, Paint color, int min_select, int condition_show, int befor_or_after_hero ){}
      static Map<String,Integer[]> map_descriptions_of_stats;
      static List<SettingOneStata> list_settings_one_stats;
 
@@ -32,29 +33,40 @@ public class CreatingHUD {
      }
 
      public void clear_MapStats(){
+         list_current_one_table_texts_huds_each_player.clear();
          for(int i=0; i<6; i++) {
              map_player_map_stats.put(i,new HashMap<>());
-             list_current_one_table_texts_huds_each_player.clear();
+             map_controling_exists_stats.put(i,new HashMap<>());
              list_current_one_table_texts_huds_each_player.add(new ArrayList<>());
          }
+
      }
 
      public void send_current_hand_to_creating_hud(String[] nicks, int[] inds_poker_pos_elements_places_table, boolean[] nicks_for_hud,int poker_position_of_hero){
 
         //Text[][] arr_one_table_texts_huds_each_player = new Text[6][];
          List<List<Text>> list_one_table_texts_huds_each_player = new ArrayList<>(6);
-         for(int table_place = 1; table_place<6; table_place++){
+         for(int table_place = 0; table_place<6; table_place++){
              list_one_table_texts_huds_each_player.add(new ArrayList<>());
              if(nicks[table_place]==null)continue;
 
            // если ник и статы уже были преобразованы в текст и сохранены в текущем списке, то они берутся для нового списка текста
              // ПОКА ТАК !!! так как это может в будущем мешать сделать изменяемый по улицам и действиям ХАД
              // по идеи тогда не нужен массив nicks_for_hud , так как проверяется тоже самое
+
+
            if(!list_current_one_table_texts_huds_each_player.get(table_place).isEmpty())
                list_one_table_texts_huds_each_player.set(table_place,list_current_one_table_texts_huds_each_player.get(table_place));
 
+           list_one_table_texts_huds_each_player.get(table_place).add(get_NickText(nicks[table_place]));
+
+           //List<Text> one_player_texts = list_one_table_texts_huds_each_player.get(table_place);
+
            add_StatsToListForHUD(nicks[table_place],list_one_table_texts_huds_each_player.get(table_place),
                    get_ArrayIndex(inds_poker_pos_elements_places_table,table_place+1),table_place,nicks_for_hud,poker_position_of_hero);
+
+           //list_one_table_texts_huds_each_player.set(table_place,one_player_texts);
+           list_current_one_table_texts_huds_each_player.set(table_place,list_one_table_texts_huds_each_player.get(table_place));
          }
          hud.set_hud(list_one_table_texts_huds_each_player,table);
      }
@@ -63,7 +75,7 @@ public class CreatingHUD {
 
 
 
-      private static Text get_NickText(String nick){
+      private Text get_NickText(String nick){
           if(nick.length()>5)nick = nick.substring(0,5);
           Text text_nick = new Text(1, 12, nick);
           text_nick.setFont(new Font(12));
@@ -94,16 +106,62 @@ public class CreatingHUD {
             //тоже самое, только первая поза находится до героя, а вторая после героя  также добавлена вероятность, что отображение статы не привязано к позе
             if((settingOneStata.condition_show==poker_position||settingOneStata.condition_show==6)&&settingOneStata.befor_or_after_hero==1&&poker_position_of_hero>poker_position)continue;
 
+            // можно заранее подготовить текст так как в любом случае будет хотя бы ноль
+            Text text = new Text(settingOneStata.coord_text[0], settingOneStata.coord_text[1],"" );
+            text.setFont(new Font(settingOneStata.size_font));
+            text.setFill(settingOneStata.color);
+
             Integer[] description = map_descriptions_of_stats.get(settingOneStata.name_stata);
-            Object[] main_stats = map_player_map_stats.get(table_place).get(description[0]);
-            if(main_stats==null){
-                main_stats =(Object[])current_map_stats[description[0]].get("$ю$"+nick+"$ю$");
-                Map<Integer,Object[]> old_map = map_player_map_stats.get(table_place);
-                old_map.put(description[0],main_stats);
-                map_player_map_stats.put(table_place,old_map);
+
+            Integer control = map_controling_exists_stats.get(table_place).get(description[0]);
+            Object main_stats = null;
+            // если сонтрол нулл то значит самое первое обращение тогда обращение к главной мапе
+
+            if(control==null) {
+                main_stats =current_map_stats[description[0]].get("$ю$"+nick+"$ю$");
+
+                // статы может не быть в таком случае нужно выставить ноль в текст тогда по этому игроку не будет больше попыток получить стату так как сохранится текст
+                // также нужно в контрольную мапу нужно добавить некое значение пусть 0, показывающее, что не нужно пытаться получить эту стату
+                if(main_stats==null) {
+                    text.setText("0"); list_text_hud_one_player.add(text);
+                    //System.out.println("stata no ");
+                    Map<Integer,Integer> _control_map = map_controling_exists_stats.get(table_place);
+                    _control_map.put(description[0],0);
+                    map_controling_exists_stats.put(table_place,_control_map);
+                    continue;
+                }
+                // если стата определилась то в контрольную заносится 1 чтобы потом было обращение в текущую мапу
+                Map<Integer,Integer> _control_map = map_controling_exists_stats.get(table_place);
+                _control_map.put(description[0],1);
+                map_controling_exists_stats.put(table_place,_control_map);
+
+                // заполнение текущей мапы если стата получена из главной
+                Map<Integer,Object> _new_map = map_player_map_stats.get(table_place);
+                _new_map.put(description[0],main_stats);
+                map_player_map_stats.put(table_place,_new_map);
+
             }
+            else if(control==0){
+                //System.out.println("stata zero ");
+                text.setText("0"); list_text_hud_one_player.add(text); continue;
+            }
+            else if(control==1)main_stats = map_player_map_stats.get(table_place).get(description[0]);
+
+              // ДОПИСАТЬ приведение для разных размерностей массивов стат
 
 
+                Object[][] casting_stata =(Object[][]) main_stats;
+                // проверка выборки
+                if((int)casting_stata[description[3]][description[1]]<10){
+                    //System.out.println("stata select ");
+                    text.setText("0"); list_text_hud_one_player.add(text); continue; }
+                // итог добавление статы
+
+                //System.out.println("stata total");
+                text.setText(String.format("%.1f",(procents((int)casting_stata[description[3]][description[2]],
+                        (int)casting_stata[description[3]][description[1]]))));
+
+                list_text_hud_one_player.add(text);
 
 
 
@@ -185,7 +243,7 @@ public class CreatingHUD {
         public static Map<String,Integer[]> get_map_DescriptionsOfStats(){
             Map<String,Integer[]> map_descriptions_of_stats = new HashMap<>();
             // {new AgainstRFI(),new Against3bet(),new VpipPFR3bet(),new RFI(),new Alliners()};
-            // Integer: 0 - индекс статы в конкурентмапе всех стат, 1 индекс выборки статы, 2 индекс статы, 3 позиция героя,
+            // Integer: 0 - индекс статы в конкурентмапе всех стат, 1 индекс выборки статы, 2 индекс статы, 3 позиция героя или индекс общей статы,
             // 4 возможные позиции оппонентов складываются результаты против нескольких позиций выборка тоже складывается
             // может вообще не быть ни одного индекса, это значит, что стата специфичная или только важна поза героя
 
@@ -202,10 +260,10 @@ public class CreatingHUD {
 
         public static List<SettingOneStata> get_list_SettingOneStata(){
             List<SettingOneStata> result_list = new ArrayList<>();
-            //SettingOneStata(String name_stata,int[] coord_text, int size_font, Paint value, int min_select, int condition_show, int befor_or_after_hero )
+            //SettingOneStata(String name_stata,int[] coord_text, int size_font, Paint color, int min_select, int condition_show, int befor_or_after_hero )
             // condition_show 0-5 при нахождении на позиции 6 всегда  befor_or_after_hero -1 до героя 0 всегда 1 после героя
             result_list.add(new SettingOneStata("VPIP",new int[]{50,12},12,Color.WHITE,10,6,0));
-            result_list.add(new SettingOneStata("PFR",new int[]{65,12},12,Color.WHITE,10,6,0));
+            result_list.add(new SettingOneStata("PFR",new int[]{75,12},12,Color.WHITE,10,6,0));
             return result_list;
         }
 
