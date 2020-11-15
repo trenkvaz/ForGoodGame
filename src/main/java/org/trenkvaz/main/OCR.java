@@ -41,7 +41,7 @@ public class OCR implements Runnable {
     long[][][] current_id_nicks_for_choose = new long[6][3][16];
     long[] zeros_for_clear_current_id = new long[16];
     int[] count_nicks = new int[6];
-
+    CreatingHUD creatingHUD;
 
     // test
 
@@ -55,6 +55,7 @@ public class OCR implements Runnable {
     //Queue<Integer> testquer = new LinkedList<>();
 
     public OCR(int table){
+        creatingHUD = new CreatingHUD(table);
         this.coord_of_table = coord_left_up_of_tables[table];
         this.table = table+1;
         main_queue_with_frames = new LinkedBlockingQueue<>();
@@ -188,7 +189,7 @@ public class OCR implements Runnable {
             //list_test_numberhands.clear();
             //list_test_cards.clear();
 
-            currentHand = new CurrentHand(table-1);
+            currentHand = new CurrentHand(table-1,creatingHUD);
             for(int i=0; i<6; i++)list_by_poker_pos_current_list_arrnums_actions.get(i).clear();
 
             currentHand.position_bu_on_table = current_bu;

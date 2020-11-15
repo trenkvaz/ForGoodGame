@@ -29,7 +29,7 @@ public class HUD {
     Stage[][] stages_huds_each_player;
     private static double xOffset, yOffset;
     public boolean is_hud_on = false;
-    Text[][][] arr_one_table_texts_huds_each_player = new Text[6][][];
+    //Text[][][] arr_one_table_texts_huds_each_player = new Text[6][][];
     List<List<List<Text>>> list_one_table_texts_huds_each_player = new ArrayList<>(6);
 
 
@@ -114,7 +114,7 @@ public class HUD {
 
 
 
-    public void set_hud(List<List<Text>> arr_one_table_texts_huds_each_player, int table){
+    public synchronized void set_hud(List<List<Text>> arr_one_table_texts_huds_each_player, int table){
 
        //this.arr_one_table_texts_huds_each_player[table] = arr_one_table_texts_huds_each_player;
        list_one_table_texts_huds_each_player.set(table,arr_one_table_texts_huds_each_player);

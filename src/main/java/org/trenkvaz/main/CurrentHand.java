@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.ui.Controller_main_window.controller_main_window;
-import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
+//import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
 import static org.trenkvaz.ui.StartAppLauncher.work_dataBase;
 
 public class CurrentHand {
@@ -30,10 +30,11 @@ public class CurrentHand {
     ArrayList<ArrayList<Float>> preflop_by_positions = new ArrayList<>(6);
     public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, String[] nicks){}
     CurrentStats current_Stats = new CurrentStats();
+    CreatingHUD creatingHUD;
 
 
-
-    CurrentHand(int table1){
+    CurrentHand(int table1,CreatingHUD creatingHUD1){
+        creatingHUD = creatingHUD1;
         table = table1;
         for(int i=0; i<6; i++){
             preflop_by_positions.add(new ArrayList<Float>());
@@ -44,7 +45,7 @@ public class CurrentHand {
 
     void setIs_nicks_filled(){
         current_Stats.set_Stats();
-        creatingHUD.send_current_hand_to_creating_hud(nicks,table,poker_positions_by_pos_table_for_nicks,current_Stats);
+        creatingHUD.send_current_hand_to_creating_hud(nicks,poker_positions_by_pos_table_for_nicks,nicks_for_hud,poker_position_of_hero);
         // отмечание ситуаций что ник был обработан, чтобы повторно не обращатся к получению стат
         for(int i=0; i<6; i++){if(nicks[i]!=null)nicks_for_hud[i] = true;}
         // проверка что все ники распознаны, чтобы не обращатся к методу распознавания ников
