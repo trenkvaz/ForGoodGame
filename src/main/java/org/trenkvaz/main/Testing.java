@@ -10,6 +10,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -747,9 +749,9 @@ public class Testing {
 
      close_DataBase();*/
 
-        double value = 34.766674;
-        System.out.printf("%.1f",value);
-
+      float  g = BigDecimal.valueOf(35.4).setScale(0, RoundingMode.HALF_UP).floatValue();
+      int a =(int) g;
+        System.out.println(a);
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 }

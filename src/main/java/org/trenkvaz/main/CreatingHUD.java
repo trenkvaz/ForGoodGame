@@ -6,11 +6,12 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.*;
 
 import static org.trenkvaz.main.CaptureVideo.current_map_stats;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
@@ -19,60 +20,61 @@ import static org.trenkvaz.ui.StartAppLauncher.hud;
 public class CreatingHUD {
 
      int table = -1;
-     Map<Integer,Map<Integer,Object>> map_player_map_stats = new HashMap<>();
-     Map<Integer,Map<Integer,Integer>> map_controling_exists_stats = new HashMap<>();
-     List<List<Text>> list_current_one_table_texts_huds_each_player = new ArrayList<>(6);
-     record SettingOneStata(String name_stata, int[] coord_text, int size_font, Paint color, int min_select, int condition_show, int befor_or_after_hero ){}
+     Object[][] arr_player_indstat_stata = new Object[6][];
+     List<List<Text>> list_current_one_table_texts_huds_each_player;
+     record SettingOneStata(String name_stata, int[] coord_text, int size_font, RangeColor rangeColor, int min_select, int condition_show, int befor_or_after_hero ){}
+     record RangeColor(int[] diapazon, Paint[] colors){}
      static Map<String,Integer[]> map_descriptions_of_stats;
      static List<SettingOneStata> list_settings_one_stats;
 
+
+    static DecimalFormat notZeroFormat = (DecimalFormat)NumberFormat.getNumberInstance(Locale.UK);
+
+
      public CreatingHUD(int table1){
          table = table1;
-         //for(int i=0; i<6; i++) map_player_map_stats.put(i,new HashMap<>());
+         //for(int i=0; i<6; i++) arr_player_indstat_stata[i] = new Object[current_map_stats.length][];
+         list_current_one_table_texts_huds_each_player = set_ListCurrentOneTableTextsHudsEachPlayer();
          Setting.setting_CreatingHUD();
      }
 
-     public void clear_MapStats(){
-         list_current_one_table_texts_huds_each_player.clear();
-         for(int i=0; i<6; i++) {
-             map_player_map_stats.put(i,new HashMap<>());
-             map_controling_exists_stats.put(i,new HashMap<>());
-             list_current_one_table_texts_huds_each_player.add(new ArrayList<>());
-         }
 
+     private List<List<Text>> set_ListCurrentOneTableTextsHudsEachPlayer(){
+         List<List<Text>> result = new ArrayList<>(6); for(int i=0; i<6; i++)result.add(new ArrayList<>());return result; }
+
+
+
+     public void clear_MapStats(){
+         for(int i=0; i<6; i++) { arr_player_indstat_stata[i] = new Object[current_map_stats.length][];list_current_one_table_texts_huds_each_player.get(i).clear(); }
      }
 
-     public void send_current_hand_to_creating_hud(String[] nicks, int[] inds_poker_pos_elements_places_table, boolean[] nicks_for_hud,int poker_position_of_hero){
 
-        //Text[][] arr_one_table_texts_huds_each_player = new Text[6][];
-         List<List<Text>> list_one_table_texts_huds_each_player = new ArrayList<>(6);
+
+     public void send_current_hand_to_creating_hud(String[] nicks, int[] inds_poker_pos_elements_places_table,int poker_position_of_hero){
+
          for(int table_place = 0; table_place<6; table_place++){
-             list_one_table_texts_huds_each_player.add(new ArrayList<>());
              if(nicks[table_place]==null)continue;
-
            // если ник и статы уже были преобразованы в текст и сохранены в текущем списке, то они берутся для нового списка текста
              // ПОКА ТАК !!! так как это может в будущем мешать сделать изменяемый по улицам и действиям ХАД
              // по идеи тогда не нужен массив nicks_for_hud , так как проверяется тоже самое
+             if(!list_current_one_table_texts_huds_each_player.get(table_place).isEmpty())continue;
+             list_current_one_table_texts_huds_each_player.get(table_place).add(get_NickText(nicks[table_place]));
 
-
-           if(!list_current_one_table_texts_huds_each_player.get(table_place).isEmpty())
-               list_one_table_texts_huds_each_player.set(table_place,list_current_one_table_texts_huds_each_player.get(table_place));
-
-           list_one_table_texts_huds_each_player.get(table_place).add(get_NickText(nicks[table_place]));
-
-           //List<Text> one_player_texts = list_one_table_texts_huds_each_player.get(table_place);
-
-           add_StatsToListForHUD(nicks[table_place],list_one_table_texts_huds_each_player.get(table_place),
-                   get_ArrayIndex(inds_poker_pos_elements_places_table,table_place+1),table_place,nicks_for_hud,poker_position_of_hero);
-
-           //list_one_table_texts_huds_each_player.set(table_place,one_player_texts);
-           list_current_one_table_texts_huds_each_player.set(table_place,list_one_table_texts_huds_each_player.get(table_place));
+           add_StatsToListForHUD(nicks[table_place],list_current_one_table_texts_huds_each_player.get(table_place),
+                   get_ArrayIndex(inds_poker_pos_elements_places_table,table_place+1),table_place,poker_position_of_hero);
          }
-         hud.set_hud(list_one_table_texts_huds_each_player,table);
+         hud.set_hud(copy_ListCreatingHUDtoListHUD(list_current_one_table_texts_huds_each_player),table);
      }
 
 
-
+    private List<List<Text>> copy_ListCreatingHUDtoListHUD(List<List<Text>> arr_one_table_texts_huds_each_player){
+       List<List<Text>> result = new ArrayList<>(6);
+        for(int player=0; player<6; player++){
+            List<Text> copylist = new ArrayList<>(arr_one_table_texts_huds_each_player.get(player));
+            result.add(copylist);
+        }
+        return result;
+    }
 
 
       private Text get_NickText(String nick){
@@ -83,20 +85,9 @@ public class CreatingHUD {
           return text_nick;
       }
 
-      private static Text get_RFI_by_positions(int position, int place_table, CurrentHand.CurrentStats currentStats){
-          String stats = "0";
-
-          if(currentStats.stats_rfi[place_table]!=null&&position!=5) stats = String.format("%.1f",(procents((int)currentStats.stats_rfi[place_table][position][1],
-                  (int)currentStats.stats_rfi[place_table][position][0])));
-          Text result = new Text(1+50, 12, stats );
-          result.setFont(new Font(12));
-          result.setFill(Color.WHITE);
-          return result;
-      }
 
 
-
-      private void add_StatsToListForHUD(String nick,List<Text> list_text_hud_one_player, int poker_position, int table_place, boolean[] nicks_for_hud,int poker_position_of_hero){
+      private void add_StatsToListForHUD(String nick,List<Text> list_text_hud_one_player, int poker_position, int table_place,int poker_position_of_hero){
 
         for(SettingOneStata settingOneStata:list_settings_one_stats){
             // если отображение статы привязано к позиции, но она не совпадает с текущей позой то пропускается
@@ -109,59 +100,55 @@ public class CreatingHUD {
             // можно заранее подготовить текст так как в любом случае будет хотя бы ноль
             Text text = new Text(settingOneStata.coord_text[0], settingOneStata.coord_text[1],"" );
             text.setFont(new Font(settingOneStata.size_font));
-            text.setFill(settingOneStata.color);
+
 
             Integer[] description = map_descriptions_of_stats.get(settingOneStata.name_stata);
 
-            Integer control = map_controling_exists_stats.get(table_place).get(description[0]);
-            Object main_stats = null;
-            // если сонтрол нулл то значит самое первое обращение тогда обращение к главной мапе
-
-            if(control==null) {
+            Object main_stats = arr_player_indstat_stata[table_place][description[0]];
+            if(main_stats==null){
                 main_stats =current_map_stats[description[0]].get("$ю$"+nick+"$ю$");
-
                 // статы может не быть в таком случае нужно выставить ноль в текст тогда по этому игроку не будет больше попыток получить стату так как сохранится текст
-                // также нужно в контрольную мапу нужно добавить некое значение пусть 0, показывающее, что не нужно пытаться получить эту стату
+                // также нужно в текущий массив со статами нужно добавить некое значение ПУСТЫШКУ пусть Object[0], показывающее, что не нужно пытаться получить эту стату
                 if(main_stats==null) {
-                    text.setText("0"); list_text_hud_one_player.add(text);
-                    //System.out.println("stata no ");
-                    Map<Integer,Integer> _control_map = map_controling_exists_stats.get(table_place);
-                    _control_map.put(description[0],0);
-                    map_controling_exists_stats.put(table_place,_control_map);
+                    text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text);
+                    arr_player_indstat_stata[table_place][description[0]] =  new Object[0];
                     continue;
                 }
-                // если стата определилась то в контрольную заносится 1 чтобы потом было обращение в текущую мапу
-                Map<Integer,Integer> _control_map = map_controling_exists_stats.get(table_place);
-                _control_map.put(description[0],1);
-                map_controling_exists_stats.put(table_place,_control_map);
-
-                // заполнение текущей мапы если стата получена из главной
-                Map<Integer,Object> _new_map = map_player_map_stats.get(table_place);
-                _new_map.put(description[0],main_stats);
-                map_player_map_stats.put(table_place,_new_map);
-
+                arr_player_indstat_stata[table_place][description[0]] = main_stats;
             }
-            else if(control==0){
-                //System.out.println("stata zero ");
-                text.setText("0"); list_text_hud_one_player.add(text); continue;
-            }
-            else if(control==1)main_stats = map_player_map_stats.get(table_place).get(description[0]);
+             // проверка на пустышку в текущем массиве стат
+            if(main_stats instanceof Object[]&&((Object[]) main_stats).length==0){ text.setText("--");  text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue; }
 
               // ДОПИСАТЬ приведение для разных размерностей массивов стат
 
+            if(main_stats instanceof Object[][] casting_stata){
 
-                Object[][] casting_stata =(Object[][]) main_stats;
-                // проверка выборки
-                if((int)casting_stata[description[3]][description[1]]<10){
-                    //System.out.println("stata select ");
-                    text.setText("0"); list_text_hud_one_player.add(text); continue; }
+                // общая стата может быть но по конкретной стате 0 выборки значит считай тоже нет
+                if((int)casting_stata[description[3]][description[1]]==0){ text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue; }
+
+
                 // итог добавление статы
+               float stata = BigDecimal.valueOf(procents((int) casting_stata[description[3]][description[2]],
+                        (int) casting_stata[description[3]][description[1]])).setScale(1, RoundingMode.HALF_UP).floatValue();
+                // для отображения двузначных чисел целыми, а однозначных с дробью, плюс 0 без дроби и 100 как 99
 
-                //System.out.println("stata total");
-                text.setText(String.format("%.1f",(procents((int)casting_stata[description[3]][description[2]],
-                        (int)casting_stata[description[3]][description[1]]))));
+                if(stata>=10)text.setText((stata>=99)? "99":Integer.toString(Math.round(stata)));
+                else  text.setText((stata==0)? "0":notZeroFormat.format(stata));
+
 
                 list_text_hud_one_player.add(text);
+                //System.out.println(stata+"   lengh text "+text.textProperty().length().get()+" ");
+                // проверка выборки
+                if((int)casting_stata[description[3]][description[1]]<settingOneStata.min_select){
+                    // если выборка меньше порога то справа от статы отображается маленькое число выборка для этого нужна длина текста статы
+                    int text_length = text.textProperty().length().get();
+                    text = new Text(settingOneStata.coord_text[0]+text_length*7, settingOneStata.coord_text[1]+3,"" );
+                    text.setFont(new Font(settingOneStata.size_font-4));
+                    text.setFill(Color.GRAY);
+                    text.setText(Integer.toString((int)casting_stata[description[3]][description[1]]));
+                    list_text_hud_one_player.add(text);
+                }
+            }
 
 
 
@@ -172,7 +159,9 @@ public class CreatingHUD {
 
       }
 
-
+     private static Paint get_ColorByRangeOfStata(RangeColor rangeColor){
+         return null;
+     }
 
 
 
@@ -238,7 +227,12 @@ public class CreatingHUD {
         public static void setting_CreatingHUD(){
             map_descriptions_of_stats = get_map_DescriptionsOfStats();
             list_settings_one_stats = get_list_SettingOneStata();
+            notZeroFormat.applyPattern("0.0");
         }
+
+
+
+
 
         public static Map<String,Integer[]> get_map_DescriptionsOfStats(){
             Map<String,Integer[]> map_descriptions_of_stats = new HashMap<>();
@@ -262,10 +256,17 @@ public class CreatingHUD {
             List<SettingOneStata> result_list = new ArrayList<>();
             //SettingOneStata(String name_stata,int[] coord_text, int size_font, Paint color, int min_select, int condition_show, int befor_or_after_hero )
             // condition_show 0-5 при нахождении на позиции 6 всегда  befor_or_after_hero -1 до героя 0 всегда 1 после героя
-            result_list.add(new SettingOneStata("VPIP",new int[]{50,12},12,Color.WHITE,10,6,0));
-            result_list.add(new SettingOneStata("PFR",new int[]{75,12},12,Color.WHITE,10,6,0));
+            result_list.add(new SettingOneStata("VPIP",new int[]{50,12},14,Color.WHITE,10,6,0));
+            result_list.add(new SettingOneStata("PFR",new int[]{75,12},14,Color.WHITE,10,6,0));
+            result_list.add(new SettingOneStata("RFI_UTG",new int[]{1,25},14,Color.WHITE,10,6,0));
+            result_list.add(new SettingOneStata("RFI_MP",new int[]{23,25},14,Color.WHITE,10,6,0));
+            result_list.add(new SettingOneStata("RFI_CO",new int[]{45,25},14,Color.WHITE,10,6,0));
+            result_list.add(new SettingOneStata("RFI_BU",new int[]{67,25},14,Color.WHITE,10,6,0));
+            result_list.add(new SettingOneStata("RFI_SB",new int[]{89,25},14,Color.WHITE,10,6,0));
             return result_list;
         }
+
+
 
     }
 
