@@ -749,9 +749,11 @@ public class Testing {
 
      close_DataBase();*/
 
-      float  g = BigDecimal.valueOf(35.4).setScale(0, RoundingMode.HALF_UP).floatValue();
-      int a =(int) g;
-        System.out.println(a);
+     Object a = new Object[2][3][];
+        if(a instanceof Object[][]b) System.out.println(2);
+        if(a instanceof Object[][][] b) System.out.println(3);
+
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 }

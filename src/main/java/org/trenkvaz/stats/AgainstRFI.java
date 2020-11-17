@@ -8,7 +8,7 @@ public class AgainstRFI extends MainStats {
 
 
     private static final String[] v_rfi = {"v_rfi","integer[][][]"};
-    private static final int select=0, fold=0,_3bet = 2;
+    private static final int select=0, fold=1,_3bet = 2;
     private final HashMap<String,Integer[][][]> map_of_Idplayer_stats = new HashMap<>();
 
  //19,39,59,79,99,150,200

@@ -22,8 +22,18 @@ public class CreatingHUD {
      int table = -1;
      Object[][] arr_player_indstat_stata = new Object[6][];
      List<List<Text>> list_current_one_table_texts_huds_each_player;
-     record SettingOneStata(String name_stata, int[] coord_text, int size_font, RangeColor rangeColor, int min_select, int condition_show, int befor_or_after_hero ){}
-     record RangeColor(int[] diapazon, Paint[] colors){}
+     record SettingOneStata(String name_stata, int[] coord_text, int size_font, RangeColor rangeColor, int min_select, int condition_show, int[] show_on_poses_hero ){
+         public Paint get_ColorByRangeOfStata(float stata){
+             int range= -1;
+             for(int i_range=0; i_range<rangeColor.ranges.length; i_range++){ if(rangeColor.ranges[i_range]<stata){range++; continue;}break; }
+             return rangeColor.colors[range];
+         }
+         public boolean let_ShowStataOfPositionsHero(int position_hero){
+             for(int pos:show_on_poses_hero)if(pos==position_hero)return true;
+             return false;
+         }
+     }
+     record RangeColor(int[] ranges, Paint[] colors){}
      static Map<String,Integer[]> map_descriptions_of_stats;
      static List<SettingOneStata> list_settings_one_stats;
 
@@ -90,12 +100,12 @@ public class CreatingHUD {
       private void add_StatsToListForHUD(String nick,List<Text> list_text_hud_one_player, int poker_position, int table_place,int poker_position_of_hero){
 
         for(SettingOneStata settingOneStata:list_settings_one_stats){
+            //if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.out.println("start");
             // если отображение статы привязано к позиции, но она не совпадает с текущей позой то пропускается
             if(settingOneStata.condition_show<6&&settingOneStata.condition_show!=poker_position)continue;
             //если отображение статы привязано к позиции, и она совпадает с текущей позой, но не соотвествует отображению относительно позы героя то пропускается
-            if((settingOneStata.condition_show==poker_position||settingOneStata.condition_show==6)&&settingOneStata.befor_or_after_hero==-1&&poker_position_of_hero<poker_position)continue;
-            //тоже самое, только первая поза находится до героя, а вторая после героя  также добавлена вероятность, что отображение статы не привязано к позе
-            if((settingOneStata.condition_show==poker_position||settingOneStata.condition_show==6)&&settingOneStata.befor_or_after_hero==1&&poker_position_of_hero>poker_position)continue;
+            if((settingOneStata.condition_show==poker_position||settingOneStata.condition_show==6)&&(!settingOneStata.let_ShowStataOfPositionsHero(poker_position_of_hero)))continue;
+
 
             // можно заранее подготовить текст так как в любом случае будет хотя бы ноль
             Text text = new Text(settingOneStata.coord_text[0], settingOneStata.coord_text[1],"" );
@@ -110,6 +120,7 @@ public class CreatingHUD {
                 // статы может не быть в таком случае нужно выставить ноль в текст тогда по этому игроку не будет больше попыток получить стату так как сохранится текст
                 // также нужно в текущий массив со статами нужно добавить некое значение ПУСТЫШКУ пусть Object[0], показывающее, что не нужно пытаться получить эту стату
                 if(main_stats==null) {
+                    //if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.err.println("NULL  pos "+poker_position+" hero "+poker_position_of_hero+" table "+table);
                     text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text);
                     arr_player_indstat_stata[table_place][description[0]] =  new Object[0];
                     continue;
@@ -117,9 +128,47 @@ public class CreatingHUD {
                 arr_player_indstat_stata[table_place][description[0]] = main_stats;
             }
              // проверка на пустышку в текущем массиве стат
-            if(main_stats instanceof Object[]&&((Object[]) main_stats).length==0){ text.setText("--");  text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue; }
+            if(main_stats instanceof Object[]&&((Object[]) main_stats).length==0){
+                //if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.err.println("NULL 222  pos "+poker_position+" hero "+poker_position_of_hero+" table "+table);
+                text.setText("--");  text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue;
+            }
 
               // ДОПИСАТЬ приведение для разных размерностей массивов стат
+
+            if(main_stats instanceof Object[][][] casting_stata){
+
+                // общая стата может быть но по конкретной стате 0 выборки значит считай тоже нет
+                if((int)casting_stata[description[3]][description[4]][description[1]]==0){ text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue; }
+
+
+                // итог добавление статы
+                float stata = BigDecimal.valueOf(procents((int) casting_stata[description[3]][description[4]][description[2]],
+                        (int) casting_stata[description[3]][description[4]][description[1]])).setScale(1, RoundingMode.HALF_UP).floatValue();
+                // для отображения двузначных чисел целыми, а однозначных с дробью, плюс 0 без дроби и 100 как 99
+
+                if(stata>=10)text.setText((stata>=99)? "99":Integer.toString(Math.round(stata)));
+                else  text.setText((stata==0)? "0":notZeroFormat.format(stata));
+                if(stata==0)text.setFill(Color.WHITE);else text.setFill(settingOneStata.get_ColorByRangeOfStata(stata));
+
+                list_text_hud_one_player.add(text);
+                //System.out.println(stata+"   lengh text "+text.textProperty().length().get()+" ");
+                //if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.err.println("---------------      BUvCO "+text.getText()+"   stata "+stata+" table "+table);
+                // проверка выборки
+                if((int)casting_stata[description[3]][description[4]][description[1]]<settingOneStata.min_select){
+                    // если выборка меньше порога то справа от статы отображается маленькое число выборка для этого нужна длина текста статы
+                    int text_length = text.textProperty().length().get();
+                    text = new Text(settingOneStata.coord_text[0]+text_length*7, settingOneStata.coord_text[1]+3,"" );
+                    text.setFont(new Font(settingOneStata.size_font-4));
+                    text.setFill(Color.GRAY);
+                    text.setText(Integer.toString((int)casting_stata[description[3]][description[4]][description[1]]));
+
+                    /*if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.err.println("SELECT    ---------------      BUvCO "+text.getText()+"  select "
+                            +(int)(casting_stata[description[3]][description[4]][description[1]])+" table "+table);*/
+                    list_text_hud_one_player.add(text);
+                }
+                continue;
+            }
+
 
             if(main_stats instanceof Object[][] casting_stata){
 
@@ -128,13 +177,13 @@ public class CreatingHUD {
 
 
                 // итог добавление статы
-               float stata = BigDecimal.valueOf(procents((int) casting_stata[description[3]][description[2]],
+                float stata = BigDecimal.valueOf(procents((int) casting_stata[description[3]][description[2]],
                         (int) casting_stata[description[3]][description[1]])).setScale(1, RoundingMode.HALF_UP).floatValue();
                 // для отображения двузначных чисел целыми, а однозначных с дробью, плюс 0 без дроби и 100 как 99
 
                 if(stata>=10)text.setText((stata>=99)? "99":Integer.toString(Math.round(stata)));
                 else  text.setText((stata==0)? "0":notZeroFormat.format(stata));
-
+                if(stata==0)text.setFill(Color.WHITE);else text.setFill(settingOneStata.get_ColorByRangeOfStata(stata));
 
                 list_text_hud_one_player.add(text);
                 //System.out.println(stata+"   lengh text "+text.textProperty().length().get()+" ");
@@ -153,15 +202,12 @@ public class CreatingHUD {
 
 
 
-
         }
 
 
       }
 
-     private static Paint get_ColorByRangeOfStata(RangeColor rangeColor){
-         return null;
-     }
+
 
 
 
@@ -248,6 +294,13 @@ public class CreatingHUD {
             map_descriptions_of_stats.put("RFI_CO",new Integer[]{3,0,1,2});
             map_descriptions_of_stats.put("RFI_BU",new Integer[]{3,0,1,3});
             map_descriptions_of_stats.put("RFI_SB",new Integer[]{3,0,1,4});
+            map_descriptions_of_stats.put("fold_to_steal_BUvCO",new Integer[]{0,0,1,3,2});
+            map_descriptions_of_stats.put("fold_to_steal_SBvCO",new Integer[]{0,0,1,4,2});
+            map_descriptions_of_stats.put("fold_to_steal_BBvCO",new Integer[]{0,0,1,5,2});
+
+            map_descriptions_of_stats.put("fold_to_steal_SBvBU",new Integer[]{0,0,1,4,3});
+            map_descriptions_of_stats.put("fold_to_steal_BBvBU",new Integer[]{0,0,1,5,3});
+            map_descriptions_of_stats.put("fold_to_steal_BBvSB",new Integer[]{0,0,1,5,4});
             return map_descriptions_of_stats;
         }
 
@@ -255,14 +308,39 @@ public class CreatingHUD {
         public static List<SettingOneStata> get_list_SettingOneStata(){
             List<SettingOneStata> result_list = new ArrayList<>();
             //SettingOneStata(String name_stata,int[] coord_text, int size_font, Paint color, int min_select, int condition_show, int befor_or_after_hero )
-            // condition_show 0-5 при нахождении на позиции 6 всегда  befor_or_after_hero -1 до героя 0 всегда 1 после героя
-            result_list.add(new SettingOneStata("VPIP",new int[]{50,12},14,Color.WHITE,10,6,0));
-            result_list.add(new SettingOneStata("PFR",new int[]{75,12},14,Color.WHITE,10,6,0));
-            result_list.add(new SettingOneStata("RFI_UTG",new int[]{1,25},14,Color.WHITE,10,6,0));
-            result_list.add(new SettingOneStata("RFI_MP",new int[]{23,25},14,Color.WHITE,10,6,0));
-            result_list.add(new SettingOneStata("RFI_CO",new int[]{45,25},14,Color.WHITE,10,6,0));
-            result_list.add(new SettingOneStata("RFI_BU",new int[]{67,25},14,Color.WHITE,10,6,0));
-            result_list.add(new SettingOneStata("RFI_SB",new int[]{89,25},14,Color.WHITE,10,6,0));
+            // condition_show 0-5 при нахождении на позиции 6 всегда  , массив позиций херо который показывает когда можно показывать стату позы помечены своими номерами
+            RangeColor vpipRangeColor = new RangeColor(new int[]{0,15,35,50,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN,Color.PURPLE});
+            RangeColor pfrRangeColor = new RangeColor(new int[]{0,12,25,35,101},new Paint[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE});
+            RangeColor rfiUtgRangeColor = new RangeColor(new int[]{0,10,20,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
+            RangeColor rfiMpRangeColor = new RangeColor(new int[]{0,12,22,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
+            RangeColor rfiCoRangeColor = new RangeColor(new int[]{0,22,30,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
+            RangeColor rfiBuRangeColor = new RangeColor(new int[]{0,30,45,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
+            RangeColor rfiSbRangeColor = new RangeColor(new int[]{0,32,45,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
+            RangeColor foldToStealBUvCORangeColor = new RangeColor(new int[]{0,80,101},new Paint[]{Color.RED,Color.GREEN});
+            RangeColor foldToStealSBvCORangeColor = new RangeColor(new int[]{0,80,101},new Paint[]{Color.RED,Color.GREEN});
+            RangeColor foldToStealBBvCORangeColor = new RangeColor(new int[]{0,80,101},new Paint[]{Color.RED,Color.GREEN});
+            RangeColor foldToStealSBvBURangeColor = new RangeColor(new int[]{0,75,101},new Paint[]{Color.RED,Color.GREEN});
+            RangeColor foldToStealBBvBURangeColor = new RangeColor(new int[]{0,70,101},new Paint[]{Color.RED,Color.GREEN});
+            RangeColor foldToStealBBvSBRangeColor = new RangeColor(new int[]{0,65,101},new Paint[]{Color.RED,Color.GREEN});
+            int[] allPositionsHero = {0,1,2,3,4,5};
+            int[] coPosHero = {-1,-1,2,-1,-1,-1};
+            int[] buPosHero = {-1,-1,-1,3,-1,-1};
+            int[] sbPosHero = {-1,-1,-1,-1,4,-1};
+            result_list.add(new SettingOneStata("VPIP",new int[]{50,12},14,vpipRangeColor,10,6,allPositionsHero));
+            result_list.add(new SettingOneStata("PFR",new int[]{75,12},14,pfrRangeColor,10,6,allPositionsHero));
+            result_list.add(new SettingOneStata("RFI_UTG",new int[]{1,25},14,rfiUtgRangeColor,10,6,allPositionsHero));
+            result_list.add(new SettingOneStata("RFI_MP",new int[]{23,25},14,rfiMpRangeColor,10,6,allPositionsHero));
+            result_list.add(new SettingOneStata("RFI_CO",new int[]{45,25},14,rfiCoRangeColor,10,6,allPositionsHero));
+            result_list.add(new SettingOneStata("RFI_BU",new int[]{67,25},14,rfiBuRangeColor,10,6,allPositionsHero));
+            result_list.add(new SettingOneStata("RFI_SB",new int[]{89,25},14,rfiSbRangeColor,10,6,allPositionsHero));
+            result_list.add(new SettingOneStata("fold_to_steal_BUvCO",new int[]{1,38},14,foldToStealBUvCORangeColor,10,3,coPosHero));
+
+            result_list.add(new SettingOneStata("fold_to_steal_SBvCO",new int[]{1,38},14,foldToStealSBvCORangeColor,10,4,coPosHero));
+            result_list.add(new SettingOneStata("fold_to_steal_BBvCO",new int[]{1,38},14,foldToStealBBvCORangeColor,10,5,coPosHero));
+            result_list.add(new SettingOneStata("fold_to_steal_SBvBU",new int[]{1,38},14,foldToStealSBvBURangeColor,10,4,buPosHero));
+
+            result_list.add(new SettingOneStata("fold_to_steal_BBvBU",new int[]{1,38},14,foldToStealBBvBURangeColor,10,5,buPosHero));
+            result_list.add(new SettingOneStata("fold_to_steal_BBvSB",new int[]{1,38},14,foldToStealBBvSBRangeColor,10,5,sbPosHero));
             return result_list;
         }
 
