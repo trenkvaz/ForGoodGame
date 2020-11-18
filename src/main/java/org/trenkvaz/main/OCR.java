@@ -154,7 +154,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     private void main_work_on_table(){
-        //if(table!=5)return;
+        if(table!=4)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -184,7 +184,7 @@ public class OCR implements Runnable {
                 //creat_HandForSaving(this.currentHand);
 
                 show_test_total_hand(this);
-
+                currentHand.creat_ActionsInHandForCountStats();
             }
             //list_test_numberhands.clear();
             //list_test_cards.clear();
@@ -647,6 +647,7 @@ public class OCR implements Runnable {
     }
 
     int C = 0;
+    int pos = -1;
     void get_start_stacks_and_preflop(){
        C++;
         //System.out.println("get stacks");
@@ -692,7 +693,7 @@ public class OCR implements Runnable {
 
             //if(currentHand.cards_hero[0].equals("8d")&&poker_position==0)save_image(frame[0].getSubimage(xa,ya,wa,ha),"test2\\_act3_"+(c++));
 
-            List<int[]> nums = get_list_intarr_HashNumberImg(frame[0],xa,ya+1,70,9,200,0,2,6,2);
+            List<int[]> nums = get_list_intarr_HashNumberImg(frame[0],xa,ya+1,70,9,205,0,2,6,2);
 
             if(nums==null) {  if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1f;
 
@@ -713,8 +714,14 @@ public class OCR implements Runnable {
                 list_by_poker_pos_current_list_arrnums_actions.set(poker_position,nums);
             }
 
-
+            // test
+            //pos = poker_position;
             float actions = get_OcrNum(nums,10,"actions");
+
+           /* if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("Qh")
+            )Testing.save_image(frame[0].getSubimage(xa,ya,wa,ha),"test2\\KdQh\\_table_"+(++c)+"_"+actions);*/
+
+
              // если не смолго определится, и стек также еще не определен, то стек также не определяется до следующего раза поэтому -1
             if(actions==-1) {if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1f; continue;}
             // если список действий пустой то добавляется новое определенное действие
@@ -867,6 +874,10 @@ public class OCR implements Runnable {
                 show_shortarr_HashShablonNumber(list_hash_nums.get(hash_num));
                 System.out.println("++++++++++++++++++++++++++++++");*/
                     total_error+= get_AmountOneBitInInt(shablons[number][ind_num]^list_hash_nums.get(hash_num)[ind_num]);
+
+                    /*if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("Qh")&&type_shablon.equals("actions")&&pos==3)
+                        System.err.println("TOTAL ERROR "+total_error+" number "+number+" minerr "+min_error);*/
+
                     //System.out.println("total "+total_error);
                     if(total_error>=max_error){ continue out;  }
                 }
@@ -876,13 +887,22 @@ public class OCR implements Runnable {
                     min_error = total_error;
                     number_with_min_error = number;
                 }
-                //System.err.println("TOTAL ERROR "+total_error+" number "+number+" minerr "+min_error);
+
+
             }
-            //System.out.println("num "+number_with_min_error);
+            /*if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("Qh")&&type_shablon.equals("actions")&&pos==3){
+                System.out.println("num "+number_with_min_error);
+                //if(number_with_min_error==-1)
+                Testing.show_HashShablonNumber(list_hash_nums.get(hash_num),6,9);
+            }*/
             if(number_with_min_error==-1)return -1;
             res+=number_with_min_error;
         }
-        //System.out.println(res);
+       /* if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("Qh")&&type_shablon.equals("actions")&&pos==3)
+        System.out.println("res "+res);*/
+
+
+
         float result = -1;
         try{
             result = Float.parseFloat(res);

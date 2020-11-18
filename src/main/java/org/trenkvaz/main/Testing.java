@@ -547,7 +547,14 @@ public class Testing {
     }
 
 
+    static void show_intListHashes(List<int[]> list,int W,int H){
+       for(int[] hash:list){
+           if(hash==null) {System.out.println("|||||||||||||||||");continue;}
+           show_HashShablonNumber(hash,W,H);
+           System.out.println("===========================================================");
+       }
 
+    }
 
 
     static int get_intGreyColor(BufferedImage img,int x, int y){
@@ -749,10 +756,9 @@ public class Testing {
 
      close_DataBase();*/
 
-     Object a = new Object[2][3][];
-        if(a instanceof Object[][]b) System.out.println(2);
-        if(a instanceof Object[][][] b) System.out.println(3);
+        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("test2\\KdQh\\_table_499_-1.0"),true),50),"Mtest\\num-1");
 
+        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("test2\\KdQh\\_table_497_145.5"),true),50),"Mtest\\numg");
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }

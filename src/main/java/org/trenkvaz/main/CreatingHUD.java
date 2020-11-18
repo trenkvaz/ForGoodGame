@@ -134,76 +134,51 @@ public class CreatingHUD {
             }
 
               // ДОПИСАТЬ приведение для разных размерностей массивов стат
-
+            float stata = -1;int select = -1;
             if(main_stats instanceof Object[][][] casting_stata){
-
                 // общая стата может быть но по конкретной стате 0 выборки значит считай тоже нет
-                if((int)casting_stata[description[3]][description[4]][description[1]]==0){ text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue; }
-
-
+                select = (int)casting_stata[description[3]][description[4]][description[1]];
+                if(select==0){ text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue; }
                 // итог добавление статы
-                float stata = BigDecimal.valueOf(procents((int) casting_stata[description[3]][description[4]][description[2]],
+                stata = BigDecimal.valueOf(procents((int) casting_stata[description[3]][description[4]][description[2]],
                         (int) casting_stata[description[3]][description[4]][description[1]])).setScale(1, RoundingMode.HALF_UP).floatValue();
                 // для отображения двузначных чисел целыми, а однозначных с дробью, плюс 0 без дроби и 100 как 99
-
                 if(stata>=10)text.setText((stata>=99)? "99":Integer.toString(Math.round(stata)));
                 else  text.setText((stata==0)? "0":notZeroFormat.format(stata));
                 if(stata==0)text.setFill(Color.WHITE);else text.setFill(settingOneStata.get_ColorByRangeOfStata(stata));
-
-                list_text_hud_one_player.add(text);
-                //System.out.println(stata+"   lengh text "+text.textProperty().length().get()+" ");
-                //if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.err.println("---------------      BUvCO "+text.getText()+"   stata "+stata+" table "+table);
-                // проверка выборки
-                if((int)casting_stata[description[3]][description[4]][description[1]]<settingOneStata.min_select){
-                    // если выборка меньше порога то справа от статы отображается маленькое число выборка для этого нужна длина текста статы
-                    int text_length = text.textProperty().length().get();
-                    text = new Text(settingOneStata.coord_text[0]+text_length*7, settingOneStata.coord_text[1]+3,"" );
-                    text.setFont(new Font(settingOneStata.size_font-4));
-                    text.setFill(Color.GRAY);
-                    text.setText(Integer.toString((int)casting_stata[description[3]][description[4]][description[1]]));
-
-                    /*if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.err.println("SELECT    ---------------      BUvCO "+text.getText()+"  select "
-                            +(int)(casting_stata[description[3]][description[4]][description[1]])+" table "+table);*/
-                    list_text_hud_one_player.add(text);
-                }
-                continue;
             }
 
-
-            if(main_stats instanceof Object[][] casting_stata){
-
+            if(stata==-1&&select==-1) {
+                Object[][] casting_stata = (Object[][]) main_stats;
+                select = (int)casting_stata[description[3]][description[1]];
                 // общая стата может быть но по конкретной стате 0 выборки значит считай тоже нет
-                if((int)casting_stata[description[3]][description[1]]==0){ text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue; }
-
-
+                if(select==0){ text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue; }
                 // итог добавление статы
-                float stata = BigDecimal.valueOf(procents((int) casting_stata[description[3]][description[2]],
+                stata = BigDecimal.valueOf(procents((int) casting_stata[description[3]][description[2]],
                         (int) casting_stata[description[3]][description[1]])).setScale(1, RoundingMode.HALF_UP).floatValue();
                 // для отображения двузначных чисел целыми, а однозначных с дробью, плюс 0 без дроби и 100 как 99
-
                 if(stata>=10)text.setText((stata>=99)? "99":Integer.toString(Math.round(stata)));
                 else  text.setText((stata==0)? "0":notZeroFormat.format(stata));
                 if(stata==0)text.setFill(Color.WHITE);else text.setFill(settingOneStata.get_ColorByRangeOfStata(stata));
-
-                list_text_hud_one_player.add(text);
-                //System.out.println(stata+"   lengh text "+text.textProperty().length().get()+" ");
-                // проверка выборки
-                if((int)casting_stata[description[3]][description[1]]<settingOneStata.min_select){
-                    // если выборка меньше порога то справа от статы отображается маленькое число выборка для этого нужна длина текста статы
-                    int text_length = text.textProperty().length().get();
-                    text = new Text(settingOneStata.coord_text[0]+text_length*7, settingOneStata.coord_text[1]+3,"" );
-                    text.setFont(new Font(settingOneStata.size_font-4));
-                    text.setFill(Color.GRAY);
-                    text.setText(Integer.toString((int)casting_stata[description[3]][description[1]]));
-                    list_text_hud_one_player.add(text);
-                }
             }
 
 
-
-
+            list_text_hud_one_player.add(text);
+            //System.out.println(stata+"   lengh text "+text.textProperty().length().get()+" ");
+            //if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.err.println("---------------      BUvCO "+text.getText()+"   stata "+stata+" table "+table);
+            // проверка выборки
+            if(select<settingOneStata.min_select){
+                // если выборка меньше порога то справа от статы отображается маленькое число выборка для этого нужна длина текста статы
+                int text_length = text.textProperty().length().get();
+                text = new Text(settingOneStata.coord_text[0]+text_length*7, settingOneStata.coord_text[1]+3,"" );
+                text.setFont(new Font(settingOneStata.size_font-4));
+                text.setFill(Color.GRAY);
+                text.setText(Integer.toString(select));
+                    /*if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.err.println("SELECT    ---------------      BUvCO "+text.getText()+"  select "
+                            +(int)(casting_stata[description[3]][description[4]][description[1]])+" table "+table);*/
+                list_text_hud_one_player.add(text);
+            }
         }
-
 
       }
 
@@ -323,9 +298,9 @@ public class CreatingHUD {
             RangeColor foldToStealBBvBURangeColor = new RangeColor(new int[]{0,70,101},new Paint[]{Color.RED,Color.GREEN});
             RangeColor foldToStealBBvSBRangeColor = new RangeColor(new int[]{0,65,101},new Paint[]{Color.RED,Color.GREEN});
             int[] allPositionsHero = {0,1,2,3,4,5};
-            int[] coPosHero = {-1,-1,2,-1,-1,-1};
-            int[] buPosHero = {-1,-1,-1,3,-1,-1};
-            int[] sbPosHero = {-1,-1,-1,-1,4,-1};
+            int[] coPosHero = {2};
+            int[] buPosHero = {3};
+            int[] sbPosHero = {4};
             result_list.add(new SettingOneStata("VPIP",new int[]{50,12},14,vpipRangeColor,10,6,allPositionsHero));
             result_list.add(new SettingOneStata("PFR",new int[]{75,12},14,pfrRangeColor,10,6,allPositionsHero));
             result_list.add(new SettingOneStata("RFI_UTG",new int[]{1,25},14,rfiUtgRangeColor,10,6,allPositionsHero));

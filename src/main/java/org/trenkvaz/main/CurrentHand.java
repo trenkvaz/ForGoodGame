@@ -4,6 +4,7 @@ import org.trenkvaz.database_hands.Work_DataBase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.ui.Controller_main_window.controller_main_window;
@@ -78,4 +79,65 @@ public class CurrentHand {
 
 
 
+
+
+
+    public void creat_ActionsInHandForCountStats(){
+        List<List<Float>> preflop_actions_for_stats = new ArrayList<>(6);
+        for(int f=0; f<6; f++){preflop_actions_for_stats.add(new ArrayList<Float>()); preflop_actions_for_stats.get(f).add(0.0f);}
+
+
+        if(!is_start_flop){
+            // ситуация когда херо не сделал никаких действий
+           /*if(((poker_position_of_hero==4||poker_position_of_hero==5)&&
+                   preflop_by_positions.get(poker_position_of_hero).size()==1)||preflop_by_positions.get(poker_position_of_hero).isEmpty()||
+                   ((poker_position_of_hero==4||poker_position_of_hero==5)&&
+                           preflop_by_positions.get(poker_position_of_hero).size()==2&&preflop_by_positions.get(poker_position_of_hero).get(1)<2)){*/
+               System.out.println("START count");
+            float size_raise = 1; float befor_action =1;
+            for(int pos=0; pos<6; pos++){
+                if(pos==poker_position_of_hero) {
+                    if(preflop_by_positions.get(pos).isEmpty())preflop_actions_for_stats.get(poker_position_of_hero).add(Float.NEGATIVE_INFINITY);
+                    if(befor_action>1)preflop_actions_for_stats.get(poker_position_of_hero).add(Float.NEGATIVE_INFINITY);
+
+
+                    continue;
+                }
+                if(pos<4&&!preflop_by_positions.get(pos).isEmpty()){
+                    float action = preflop_by_positions.get(pos).get(0);
+                    System.out.println("p "+pos+" act "+action);
+                    if(action==1000000){preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);continue;}
+                    float current_size_raise = action-befor_action;
+                    if(current_size_raise>=size_raise){preflop_actions_for_stats.get(pos).add(action); size_raise = current_size_raise;  befor_action = action;  continue;}
+                    preflop_actions_for_stats.get(pos).add(-action);
+                } else if(pos==4&&preflop_by_positions.get(pos).size()>1) {
+                    float action = preflop_by_positions.get(pos).get(1);
+                    if(action==1000000){preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);continue;}
+                    float current_size_raise = action-befor_action;
+                    if(current_size_raise>=size_raise){preflop_actions_for_stats.get(pos).add(action); size_raise = current_size_raise;  befor_action = action;continue;}
+                    preflop_actions_for_stats.get(pos).add(-action);
+                }
+            }
+
+
+
+          // }
+
+
+           for(int i=0; i<6; i++){
+               System.out.print("pos "+i+" ");
+               if(nicks[i]==null)continue;
+               System.out.print(nicks[i]+"   ");
+            for(int a=0; a<preflop_actions_for_stats.get(i).size(); a++)
+                System.out.print(preflop_actions_for_stats.get(i).get(a)+" ");
+            System.out.println();
+        }
+
+
+        System.out.println("===============================================");
+        }
+
+
+
+    }
 }
