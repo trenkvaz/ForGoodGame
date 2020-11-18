@@ -144,7 +144,7 @@ public class OCR implements Runnable {
         }
 
         System.out.println("******************************************");
-
+        ocr.currentHand.creat_ActionsInHandForCountStats();
         //if(!error)creat_HandForSaving(ocr.currentHand);
 
         /*int f =0;
@@ -154,7 +154,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     private void main_work_on_table(){
-        if(table!=4)return;
+        if(table!=1)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -183,8 +183,8 @@ public class OCR implements Runnable {
                 currentHand.set_NicksByPositions();
                 //creat_HandForSaving(this.currentHand);
 
-                show_test_total_hand(this);
-                currentHand.creat_ActionsInHandForCountStats();
+               if(!currentHand.is_start_flop) show_test_total_hand(this);
+
             }
             //list_test_numberhands.clear();
             //list_test_cards.clear();

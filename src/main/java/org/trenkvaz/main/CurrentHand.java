@@ -38,6 +38,7 @@ public class CurrentHand {
         table = table1;
         for(int i=0; i<6; i++){
             preflop_by_positions.add(new ArrayList<Float>());
+            if(i<4)preflop_by_positions.get(i).add(0f);
             stacks[i] = 0f;
         }
         time_hand =  get_HandTime();
@@ -84,44 +85,44 @@ public class CurrentHand {
 
     public void creat_ActionsInHandForCountStats(){
         List<List<Float>> preflop_actions_for_stats = new ArrayList<>(6);
-        for(int f=0; f<6; f++){preflop_actions_for_stats.add(new ArrayList<Float>()); preflop_actions_for_stats.get(f).add(0.0f);}
+        for(int f=0; f<6; f++){
+            preflop_actions_for_stats.add(new ArrayList<Float>()); preflop_actions_for_stats.get(f).add(0f);
+            if(preflop_by_positions.get(f).size()==1)preflop_by_positions.get(f).add(0.0f);
+        }
 
 
         if(!is_start_flop){
-            // ситуация когда херо не сделал никаких действий
-           /*if(((poker_position_of_hero==4||poker_position_of_hero==5)&&
-                   preflop_by_positions.get(poker_position_of_hero).size()==1)||preflop_by_positions.get(poker_position_of_hero).isEmpty()||
-                   ((poker_position_of_hero==4||poker_position_of_hero==5)&&
-                           preflop_by_positions.get(poker_position_of_hero).size()==2&&preflop_by_positions.get(poker_position_of_hero).get(1)<2)){*/
-               System.out.println("START count");
+               System.err.println("START count");
             float size_raise = 1; float befor_action =1;
-            for(int pos=0; pos<6; pos++){
-                if(pos==poker_position_of_hero) {
-                    if(preflop_by_positions.get(pos).isEmpty())preflop_actions_for_stats.get(poker_position_of_hero).add(Float.NEGATIVE_INFINITY);
-                    if(befor_action>1)preflop_actions_for_stats.get(poker_position_of_hero).add(Float.NEGATIVE_INFINITY);
+           int round = 0; boolean run = true;
+         while(run){ round++;
+             run = false;
+             System.out.println("RAUND "+round);
+             for(int pos=0; pos<6; pos++){
+
+                 if(preflop_by_positions.get(pos).size()<round+1)continue;
+                 run = true;
+                 float action = preflop_by_positions.get(pos).get(round);
+                 //System.out.println("size "+preflop_by_positions.get(pos).size()+"  raund+1 "+(round+1)+" act "+action);
+                 if(pos==poker_position_of_hero){
+                     if(action==0||action==1_000_000)preflop_actions_for_stats.get(poker_position_of_hero).add(Float.NEGATIVE_INFINITY);
+                     float current_size_raise = action-befor_action;
+                     if(current_size_raise>=size_raise){preflop_actions_for_stats.get(pos).add(action); size_raise = current_size_raise;  befor_action = action;  continue;}
+                     if(pos!=5&&action<2&&action>0)preflop_actions_for_stats.get(pos).add(-action);
+                 } else {
+                     if(action==1000000){preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);continue;}
+                     float current_size_raise = action-befor_action;
+                     if(current_size_raise>=size_raise){preflop_actions_for_stats.get(pos).add(action); size_raise = current_size_raise;  befor_action = action;continue;}
+                     if(action!=0)preflop_actions_for_stats.get(pos).add(-action);
+                 }
+
+                 System.out.println("befor size "+preflop_by_positions.get(pos).size()+"  raund "+(round)+" run "+run);
+             }
+             System.out.println("run "+run);
+         }
 
 
-                    continue;
-                }
-                if(pos<4&&!preflop_by_positions.get(pos).isEmpty()){
-                    float action = preflop_by_positions.get(pos).get(0);
-                    System.out.println("p "+pos+" act "+action);
-                    if(action==1000000){preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);continue;}
-                    float current_size_raise = action-befor_action;
-                    if(current_size_raise>=size_raise){preflop_actions_for_stats.get(pos).add(action); size_raise = current_size_raise;  befor_action = action;  continue;}
-                    preflop_actions_for_stats.get(pos).add(-action);
-                } else if(pos==4&&preflop_by_positions.get(pos).size()>1) {
-                    float action = preflop_by_positions.get(pos).get(1);
-                    if(action==1000000){preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);continue;}
-                    float current_size_raise = action-befor_action;
-                    if(current_size_raise>=size_raise){preflop_actions_for_stats.get(pos).add(action); size_raise = current_size_raise;  befor_action = action;continue;}
-                    preflop_actions_for_stats.get(pos).add(-action);
-                }
-            }
 
-
-
-          // }
 
 
            for(int i=0; i<6; i++){

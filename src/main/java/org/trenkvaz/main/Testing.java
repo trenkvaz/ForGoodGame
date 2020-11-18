@@ -756,9 +756,14 @@ public class Testing {
 
      close_DataBase();*/
 
-        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("test2\\KdQh\\_table_499_-1.0"),true),50),"Mtest\\num-1");
 
-        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("test2\\KdQh\\_table_497_145.5"),true),50),"Mtest\\numg");
+        List<Integer> test = new ArrayList<>();
+        test.add(0);
+        test.add(2);
+        test.add(0,1);
+        test.forEach(System.out::println);
+
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
