@@ -761,10 +761,10 @@ public class Testing {
         test.add(0);
         test.add(2);
         test.add(0,1);
-        test.forEach(System.out::println);
+        //test.forEach(System.out::println);
 
-
-
+        int[]round_action = {0,1,2,3,0,0};
+        System.out.println(Arrays.stream(round_action).filter(c->c>0).count());
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 }

@@ -154,7 +154,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     private void main_work_on_table(){
-        if(table!=1)return;
+        if(table!=5)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -183,7 +183,8 @@ public class OCR implements Runnable {
                 currentHand.set_NicksByPositions();
                 //creat_HandForSaving(this.currentHand);
 
-               if(!currentHand.is_start_flop) show_test_total_hand(this);
+               //if(!currentHand.is_start_flop)
+                   show_test_total_hand(this);
 
             }
             //list_test_numberhands.clear();
@@ -657,7 +658,7 @@ public class OCR implements Runnable {
         for(int poker_position=0; poker_position<6; poker_position++){
             // проверка последнего действия на префлопе на фолд берется последний индекс
             if(!currentHand.preflop_by_positions.get(poker_position).isEmpty())
-            if(currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1)==1_000_000)continue;
+            if(currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1)==-10)continue;
 
             //if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("7c"))save_image(frame[0],"test\\"+(c++)+"_"+poker_position);
 
@@ -668,7 +669,7 @@ public class OCR implements Runnable {
                /*if(currentHand.preflop_by_positions.get(poker_position).size()==1&&!(currentHand.preflop_by_positions.get(poker_position).get(0)>0))
                 currentHand.preflop_by_positions.get(poker_position).set(0,1_000_000f);
             else */
-                currentHand.preflop_by_positions.get(poker_position).add(1_000_000f);
+                currentHand.preflop_by_positions.get(poker_position).add(-10f);
             }
 
             int xa = coords_actions[poker_positions_index_with_numbering_on_table[poker_position]-1][0];
@@ -792,14 +793,14 @@ public class OCR implements Runnable {
                 }
 
                 // если первое действие фолд или пустое
-                if(currentHand.preflop_by_positions.get(poker_position).isEmpty()||currentHand.preflop_by_positions.get(poker_position).get(0)==1_000_000)
+                if(currentHand.preflop_by_positions.get(poker_position).isEmpty()||currentHand.preflop_by_positions.get(poker_position).get(0)==-10)
                 {currentHand.stacks[poker_position] = stack_without_action;
                 count_filled_stacks++;
                 continue;}    // fold = -10
                 //System.out.println("p "+poker_position+" "+currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1));
                 // если есть действия и возможно фолд, фолд пропускается берется последний рейз и прибавляется к стеку
                 for(int actions = currentHand.preflop_by_positions.get(poker_position).size()-1; actions>-1; actions-- ){
-                    if(currentHand.preflop_by_positions.get(poker_position).get(actions)==1_000_000)continue;
+                    if(currentHand.preflop_by_positions.get(poker_position).get(actions)==-10)continue;
                     currentHand.stacks[poker_position] = stack_without_action+currentHand.preflop_by_positions.get(poker_position).get(actions);
                     count_filled_stacks++;
                     break;
