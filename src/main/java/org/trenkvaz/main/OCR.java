@@ -109,6 +109,10 @@ public class OCR implements Runnable {
 
 
     static synchronized void show_test_total_hand(OCR ocr){
+        if(!ocr.currentHand.creat_ActionsInHandForCountStats())return;
+
+
+
         Date d = new Date();
         DateFormat formatter= new SimpleDateFormat("HH.mm.ss");
         String Z = formatter.format(d);
@@ -137,18 +141,29 @@ public class OCR implements Runnable {
 
             }
 
-
-            for(Float a:ocr.currentHand.preflop_by_positions.get(i)) System.out.print(a+"  ");
+            for (int a=1; a<ocr.currentHand.preflop_by_positions.get(i).size(); a++) System.out.print(ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ");
+            System.out.print("    _______________         ");
+            for(int a=1; a<ocr.currentHand.preflop_actions_for_stats.get(i).size(); a++) System.out.print(ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
             System.out.println();
 
         }
 
         System.out.println("******************************************");
-        ocr.currentHand.creat_ActionsInHandForCountStats();
+
         //if(!error)creat_HandForSaving(ocr.currentHand);
 
         /*int f =0;
         if(error)for(BufferedImage img:cadres)Testing.save_image(img,"test5\\"+hand+"\\frame_"+(f++));*/
+
+        /*for(int i=0; i<6; i++){
+            System.out.print("pos "+i+" ");
+            if(ocr.currentHand.nicks[i]==null)continue;
+            System.out.print(ocr.currentHand.nicks[i]+"   ");
+            for(int a=1; a<ocr.currentHand.preflop_actions_for_stats.get(i).size(); a++)
+                System.out.print(ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
+            System.out.println();
+        }*/
+
     }
 
     boolean startlog = false;
@@ -183,7 +198,7 @@ public class OCR implements Runnable {
                 currentHand.set_NicksByPositions();
                 //creat_HandForSaving(this.currentHand);
 
-               //if(!currentHand.is_start_flop)
+               //if(currentHand.is_start_flop)
                    show_test_total_hand(this);
 
             }
@@ -245,6 +260,8 @@ public class OCR implements Runnable {
         //if(currentHand.is_nicks_filled){
         if(!currentHand.is_start_flop)check_start_flop();
         if(!currentHand.is_start_flop)get_start_stacks_and_preflop();
+
+        if(currentHand.is_start_flop&&!currentHand.is_preflop_end){ currentHand.arr_continue_player_flop = get_arr_PositionsWithContinuePlayer(); currentHand.is_preflop_end = true; }
         //}
 
 
@@ -255,18 +272,11 @@ public class OCR implements Runnable {
     }
 
 
-
-
-
     void get_nicks(){
 
-        //System.out.println("get nicks");
-        //int p = 0;
         int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
-        int w = 86;
-        int h = 14;
-        // test
-        boolean test_is_ocr = true;
+        int w = 86, h = 14;
+
         for(int i=1; i<6; i++){
             //test_is_ocr = false;
             if(currentHand.nicks[i]!=null)continue;
@@ -279,30 +289,27 @@ public class OCR implements Runnable {
 
             if(get_int_CompareLongHashesToShablons(img_pix,shablon_text_poker_terms)!=-1)continue;
             //BufferedImage test_nick = frame[0].getSubimage(x,y,w,h);;
-
             if(count_nicks[i]<3){
+                // набор трех изображений ников
                 System.arraycopy(img_pix, 0, current_id_nicks_for_choose[i][count_nicks[i]], 0, 16);
                 count_nicks[i]++;
                 if(count_nicks[i]<3)continue;
             }
             if(count_nicks[i]==3){
                 boolean same_nicks = false;
-                //for(int c=0; c<3; c++)
+                // когда набрано три изображения ника то сравниваются все между собой и выбирается тот который в двух похожих экземплярах
                     for(int c1=1; c1<3; c1++)
                         if(compare_LongHashes(current_id_nicks_for_choose[i][0],current_id_nicks_for_choose[i][c1],10)){same_nicks =true; break;}
-
-                    if(same_nicks){
-                        System.arraycopy(current_id_nicks_for_choose[i][0], 0, img_pix , 0, 16);
-                    } else
-                        System.arraycopy(current_id_nicks_for_choose[i][1], 0, img_pix , 0, 16);
+                    if(same_nicks){ System.arraycopy(current_id_nicks_for_choose[i][0], 0, img_pix , 0, 16);
+                    } else System.arraycopy(current_id_nicks_for_choose[i][1], 0, img_pix , 0, 16);
             }
-
 
             long[] id_img_pix = get_number_img_nicks(img_pix,10);
             //System.out.println("time id "+(System.currentTimeMillis()-s));
             //System.out.println("id "+i+"    "+id_img_pix[0]);
             int id_img_pix_length = id_img_pix.length;
             c++;
+            // ид ника найдено в базе изображений ников и поэтому текст ника берется в мапе по ид
             if(id_img_pix[0]>0&&id_img_pix_length==1){
                     while (true){
                         currentHand.nicks[i] = set_get_nicks_in_hashmap(id_img_pix[0],null);
@@ -321,7 +328,6 @@ public class OCR implements Runnable {
 
     // если нет похожих изображений в базе массивов изображений
             // и надо распознать, то возвращает два числа, первое ИД, второе ключ для сортированного массива, чтобы его можно было записать в файл
-
             if(id_img_pix[0]<0){
                 int attempt = 0;
                 BufferedImage cheked_img = frame[0].getSubimage(x,y,w,h);
@@ -346,7 +352,6 @@ public class OCR implements Runnable {
                 //System.out.println("id "+-id_img_pix[0]+" id in arr "+img_pix[16]);
                    // save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),limit_grey),"id_nicks\\"+currentHand.nicks[i]+" "+(-id_img_pix[0]));
                 save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),105),"id_nicks\\"+currentHand.nicks[i]+" "+(-id_img_pix[0])+"_"+c+""+table);
-
 
                 //test_is_ocr = true;
                 //test_nick= cheked_img;
@@ -381,23 +386,14 @@ public class OCR implements Runnable {
             for(long d:id_img_pix) { n++;     save_image(cheked_img,"dublicats_nicks\\"+str_nicks[n]+"_"+d); }
                 System.out.println("**********************************");
             }
-
-
             }
 
             //save_image(get_white_black_image(set_grey_and_inverse_or_no(frame[0].getSubimage(x-3,y,w+5,h),true),105),"test4\\"+currentHand.nicks[i]+"_"+i+"_"+c+"_"+table);
-
-
          if(count_nicks[i]==3&&currentHand.nicks[i]==null){
              Settings.ErrorLog(" i "+i+" NOT CHOOSED "+table);
              //count_nicks[i]=0;
          }
-
-
         }
-
-
-
         currentHand.setIs_nicks_filled();
         /*if(currentHand.cards_hero[0].equals("Qc")&&currentHand.cards_hero[1].equals("2h")&&table==3){
             for(String n:currentHand.nicks) { if(n==null){
@@ -410,8 +406,6 @@ public class OCR implements Runnable {
 
         //if(currentHand.cards_hero[0].equals("Qc")&&currentHand.cards_hero[1].equals("2h")) System.out.println("NICKS");;
     }
-
-
 
 
 
@@ -662,8 +656,6 @@ public class OCR implements Runnable {
 
             //if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("7c"))save_image(frame[0],"test\\"+(c++)+"_"+poker_position);
 
-
-
            // если фолд то добавляется фолд
            if(is_Fold(poker_position)){
                /*if(currentHand.preflop_by_positions.get(poker_position).size()==1&&!(currentHand.preflop_by_positions.get(poker_position).get(0)>0))
@@ -812,6 +804,13 @@ public class OCR implements Runnable {
         //test_list_imgStacks.add(imgStacks);
         //System.out.println("************************************");
 
+    }
+
+
+    int[] get_arr_PositionsWithContinuePlayer(){
+        int[] result = new int[6];
+        for(int poker_position=0; poker_position<6; poker_position++)if(!is_Fold(poker_position))result[poker_position]=1;
+        return result;
     }
 
 

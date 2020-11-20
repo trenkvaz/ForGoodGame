@@ -16,18 +16,24 @@ public class CurrentHand {
     int table;
     long time_hand;
     String[] nicks = new String[6];
-    int[] poker_positions_by_pos_table_for_nicks;
-    boolean is_nicks_filled = false;
-    //boolean is_preflop_end = false;
-    boolean is_start_flop = false;
-    boolean is_stacks_filled = false;
-
-    int position_bu_on_table = 0;
-    int poker_position_of_hero = -1;
     String[] cards_hero = {"",""};
     Float[] stacks = new Float[6];
+    int poker_position_of_hero = -1;
+
+    int[] poker_positions_by_pos_table_for_nicks;
+    boolean is_nicks_filled = false;
+    boolean is_preflop_end = false;
+    boolean is_start_flop = false;
+    boolean is_stacks_filled = false;
+    int position_bu_on_table = 0;
+    int[] arr_continue_player_flop;
+
+
+
     //float[] first_round_preflop = new float[6];
     ArrayList<ArrayList<Float>> preflop_by_positions = new ArrayList<>(6);
+
+    List<List<Float>> preflop_actions_for_stats = new ArrayList<>(6);
     public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, String[] nicks){}
     CreatingHUD creatingHUD;
 
@@ -83,14 +89,14 @@ public class CurrentHand {
 
 
 
-    public void creat_ActionsInHandForCountStats(){
-        List<List<Float>> preflop_actions_for_stats = new ArrayList<>(6);
+    public boolean creat_ActionsInHandForCountStats(){
+
         for(int f=0; f<6; f++){
             preflop_actions_for_stats.add(new ArrayList<Float>()); preflop_actions_for_stats.get(f).add(0f);
             if(preflop_by_positions.get(f).size()==1)preflop_by_positions.get(f).add(0.0f);
         }
 
-        boolean run = true;int count_round = 0;float size_raise = 1; float befor_action =1; int number_raise = 1, limp = 0;
+        boolean run = true;int count_round = 0; float befor_action =1; int number_raise = 1, limp = 0;
         boolean rules_1_round_limps = false, rules_1_round_raise = false;
         List<int[]> raunds = new ArrayList<>();
         while (true){ count_round++;
@@ -101,7 +107,7 @@ public class CurrentHand {
                     //System.out.println(nicks[pos]+" p "+pos+" act "+action);
                     if(action==0)continue;
                     if(action==befor_action){ if(number_raise==1)rules_1_round_limps=true; round_action[pos]=-number_raise; continue;}
-                    if(action==-10){round_action[pos] =-10; preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY); continue;}
+                    if(action==-10){round_action[pos] =-10; if(count_round==1)preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY); continue;}
                     if(action>befor_action){    round_action[pos] = ++number_raise; befor_action = action;
                       if(count_round==1)rules_1_round_raise=true;
                         //System.out.println(nicks[pos]+" p "+pos+" act "+action+" raise "+round_action[pos]);
@@ -109,8 +115,8 @@ public class CurrentHand {
                 }
             }
             raunds.add(round_action);
-           /* for(int a:round_action) System.out.print(a+" ");
-            System.out.println();*/
+            for(int a:round_action) System.out.print(a+" ");
+            System.out.println();
 
             if(count_round==1&&((rules_1_round_limps&&number_raise>1)||number_raise>2))continue;
             if(count_round>2&&Arrays.stream(round_action).filter(c->c>0).count()>1) continue;
@@ -119,32 +125,40 @@ public class CurrentHand {
            break;
          }
         System.out.println("+++++++++++++++++++++++++++++++++++++");
+        System.out.println("raunds "+raunds.size());
         for(int[] r:raunds){
             for(int a:r) System.out.print(a+" ");
             System.out.println();
         }
 
         System.out.println("+++++++++++++++++++++++++++++++++++++");
-
+        befor_action =1; float size_raise = 1;
         if(raunds.size()==1){
             // проверка на все фолды до бб где херо
-            if(poker_position_of_hero==5&&raunds.get(0)[5]!=-10&&Arrays.stream(raunds.get(0)).filter(c->c==-10).count()==5){ return;}
+            //if(poker_position_of_hero==5&&raunds.get(0)[5]!=-10&&Arrays.stream(raunds.get(0)).filter(c->c==-10).count()==5){ return;}
+
             // проверка на лимпы до бб чтобы выставить чек бб херо может быть на любой позе главное не фолдить
-            if((rules_1_round_limps&&!rules_1_round_raise)&&(poker_position_of_hero==5||preflop_by_positions.get(poker_position_of_hero).get(1)!=-10)){
-                preflop_actions_for_stats.get(5).add(Float.POSITIVE_INFINITY);
+            boolean limp_bank = false;
+            if((rules_1_round_limps&&!rules_1_round_raise)){
+                if(poker_position_of_hero==5||preflop_by_positions.get(poker_position_of_hero).get(1)==1)preflop_actions_for_stats.get(5).add(Float.POSITIVE_INFINITY);
                 for(int pos=0; pos<5; pos++){
                     float action = preflop_by_positions.get(pos).get(1);
+                    if(action==0&&pos==poker_position_of_hero){preflop_actions_for_stats.get(poker_position_of_hero).add(Float.NEGATIVE_INFINITY);break;}
                     if(action==-10){continue;}
                     if(action==1){ // игрок на сб лимпит размером меньше бб
-                        if(pos==4) preflop_actions_for_stats.get(pos).add(action-preflop_by_positions.get(pos).get(0));
+                        preflop_actions_for_stats.get(pos).add(-(action-preflop_by_positions.get(pos).get(0)));
                     }
                 }
-                return;
+              //  return;
+                limp_bank = true;
             }
-            befor_action =1;
-            if(!is_start_flop){if(preflop_by_positions.get(poker_position_of_hero).get(1)==0||preflop_by_positions.get(poker_position_of_hero).get(1)==-10) {
-                preflop_actions_for_stats.get(poker_position_of_hero).add(Float.POSITIVE_INFINITY);
-                for(int pos=0; pos<5; pos++){
+
+
+            if(!is_start_flop&&!limp_bank){
+                // без флопа ситуация когда херо фолдит действия оппов в таком случае только до херо
+                if(preflop_by_positions.get(poker_position_of_hero).get(1)==0||preflop_by_positions.get(poker_position_of_hero).get(1)==-10) {
+                preflop_actions_for_stats.get(poker_position_of_hero).add(Float.NEGATIVE_INFINITY);
+                for(int pos=0; pos<6; pos++){
                     if(pos==poker_position_of_hero)continue;
                     float action = preflop_by_positions.get(pos).get(1);
                     if(action==0||action==-10)continue;
@@ -157,12 +171,88 @@ public class CurrentHand {
                         preflop_actions_for_stats.get(pos).add(-(action-preflop_by_positions.get(pos).get(0))); befor_action = action;
                     }
                 }
+             //   return;
+            }
+            // также без флопа но херо рейзит
+
+                if(preflop_by_positions.get(poker_position_of_hero).get(1)>0){
+
+                    for(int pos=0; pos<6; pos++){
+                        //if(pos==poker_position_of_hero)continue;
+                        float action = preflop_by_positions.get(pos).get(1);
+                        if(action==-10)continue;
+                        if(action==0){preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);continue;}
+                        // на основе шага рейза понять был рейз или кол если рейз то ставка также вносится
+                        float current_size_raise = action-befor_action;
+                        //System.out.println(nicks[pos]+"  "+current_size_raise+"  act "+action);
+                        if(current_size_raise>=size_raise){preflop_actions_for_stats.get(pos).add(action); size_raise = current_size_raise;  befor_action = action;}
+                        else {
+                            // если был кол а он может быть и больше последней ставки но так как меньше шага рейза то считается за кол
+                            // ставку кол записывается как действие минус уже вложенные деньги особенно на блайндах
+                            preflop_actions_for_stats.get(pos).add(-(action-preflop_by_positions.get(pos).get(0))); befor_action = action;
+                        }
+                    }
+                }
             }
 
 
+            if(is_start_flop&&!limp_bank){
 
+                for(int pos=0; pos<6; pos++){
+                    //if(pos==poker_position_of_hero)continue;
+                    float action = preflop_by_positions.get(pos).get(1);
+                    if(action==-10)continue;
+                    if(action==0){ // если игрок не играет на флопе то отсутствие действия на префлопе трактуестя как фолд
+                        if(arr_continue_player_flop[pos]==0) preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
+                        else {
+                            // если игрок играет флоп то отсутствие действия на префлопе трактуется как кол
+                            // также проверяется чтобы кол был в рамкам стека так как с флопом уже могут быть оллины и стек может быть меньше предидущего рейза
+                            if(befor_action<=stacks[pos]) preflop_actions_for_stats.get(pos).add(-(befor_action-preflop_by_positions.get(pos).get(0)));
+                            else preflop_actions_for_stats.get(pos).add(-(stacks[pos]-preflop_by_positions.get(pos).get(0)));
+                        }
+                        continue;
+                    }
+                    // на основе шага рейза понять был рейз или кол если рейз то ставка также вносится
+                    float current_size_raise = action-befor_action;
+                    //System.out.println(nicks[pos]+"  "+current_size_raise+"  act "+action);
+                    if(current_size_raise>=size_raise){preflop_actions_for_stats.get(pos).add(action); size_raise = current_size_raise;  befor_action = action;}
+                    else {
+                        // если был кол а он может быть и больше последней ставки но так как меньше шага рейза то считается за кол
+                        // ставку кол записывается как действие минус уже вложенные деньги особенно на блайндах
+                        preflop_actions_for_stats.get(pos).add(-(action-preflop_by_positions.get(pos).get(0))); befor_action = action;
+                    }
+                }
+
+
+                 //return true;
             }
 
+        }
+        else {
+
+            if(!is_start_flop){
+                //System.out.println("flop "+is_start_flop);
+                for(int raund =0; raund<raunds.size(); raund++)
+                    for(int pos=0; pos<6; pos++){
+                        //if(pos==poker_position_of_hero)continue;
+                        if(raunds.get(raund)[pos]==0){ if(pos==poker_position_of_hero)preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
+                        continue;
+                        }
+                        float action = preflop_by_positions.get(pos).get(raund+1);
+                        if(action==-10){if(raund>0)preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY); continue;}
+                        //if(action==0){ if(pos==poker_position_of_hero)preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);continue;}
+                        // на основе шага рейза понять был рейз или кол если рейз то ставка также вносится
+                        float current_size_raise = action-befor_action;
+                        //System.out.println(nicks[pos]+"  "+current_size_raise+"  act "+action);
+                        if(current_size_raise>=size_raise){preflop_actions_for_stats.get(pos).add(action); size_raise = current_size_raise;  befor_action = action;}
+                        else {
+                            // если был кол а он может быть и больше последней ставки но так как меньше шага рейза то считается за кол
+                            // ставку кол записывается как действие минус уже вложенные деньги особенно на блайндах
+                            preflop_actions_for_stats.get(pos).add(-(action-preflop_by_positions.get(pos).get(raund))); befor_action = action;
+                        }
+                    }
+                return true;
+            }
 
 
 
@@ -171,11 +261,7 @@ public class CurrentHand {
 
 
 
-        for(int[] raund:raunds)
-            for(int pos=0; pos<6; pos++){
 
-
-            }
 
 
 
@@ -259,6 +345,6 @@ public class CurrentHand {
         }*/
 
 
-
+    return false;
     }
 }
