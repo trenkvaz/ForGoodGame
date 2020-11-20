@@ -12,6 +12,7 @@ import java.awt.image.RescaleOp;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -82,6 +83,22 @@ public class Testing {
         }
       return type;
     }
+
+
+    static void write_LogTest(String test){
+
+
+        try {
+            OutputStream  os = new FileOutputStream(home_folder+"\\test\\logtest.txt", true);
+            os.write(test.getBytes(StandardCharsets.UTF_8));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
     static void write_TextToFile(List<String> strings,String name_file){
         int index = name_file.lastIndexOf("\\");

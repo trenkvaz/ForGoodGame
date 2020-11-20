@@ -115,8 +115,8 @@ public class CurrentHand {
                 }
             }
             raunds.add(round_action);
-            for(int a:round_action) System.out.print(a+" ");
-            System.out.println();
+            /*for(int a:round_action) System.out.print(a+" ");
+            System.out.println();*/
 
             if(count_round==1&&((rules_1_round_limps&&number_raise>1)||number_raise>2))continue;
             if(count_round>2&&Arrays.stream(round_action).filter(c->c>0).count()>1) continue;
@@ -124,14 +124,15 @@ public class CurrentHand {
 
            break;
          }
+
         System.out.println("+++++++++++++++++++++++++++++++++++++");
         System.out.println("raunds "+raunds.size());
         for(int[] r:raunds){
             for(int a:r) System.out.print(a+" ");
             System.out.println();
         }
-
         System.out.println("+++++++++++++++++++++++++++++++++++++");
+
         befor_action =1; float size_raise = 1;
         if(raunds.size()==1){
             // проверка на все фолды до бб где херо
@@ -233,10 +234,16 @@ public class CurrentHand {
             if(!is_start_flop){
                 //System.out.println("flop "+is_start_flop);
                 for(int raund =0; raund<raunds.size(); raund++)
-                    for(int pos=0; pos<6; pos++){
+                 out: for(int pos=0; pos<6; pos++){
                         //if(pos==poker_position_of_hero)continue;
-                        if(raunds.get(raund)[pos]==0){ if(pos==poker_position_of_hero)preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
-                        continue;
+                        if(raunds.get(raund)[pos]==0){
+                            for(int i=0; i<raunds.size(); i++)if(raunds.get(i)[pos]==-10)continue out;
+                            preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
+                            continue;
+                        }
+                        // проверка что в раунде только
+                        if(raund>0&&raunds.get(raund)[pos]>0){
+                            //if()
                         }
                         float action = preflop_by_positions.get(pos).get(raund+1);
                         if(action==-10){if(raund>0)preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY); continue;}
@@ -253,6 +260,44 @@ public class CurrentHand {
                     }
                 return true;
             }
+            else {
+                for(int raund =0; raund<raunds.size(); raund++)
+                  out:for(int pos=0; pos<6; pos++){
+                        //if(pos==poker_position_of_hero)continue;
+
+                        if(raunds.get(raund)[pos]==0){
+                            // проверка сделал ли игрок на предидущих раундах фолд, чтобы обработать его на последнем раунде
+                            for(int i=0; i<raunds.size(); i++)if(raunds.get(i)[pos]==-10)continue out;
+                            // если игрок не играет на флопе то отсутствие действия на префлопе трактуестя как фолд
+                            if(arr_continue_player_flop[pos]==0) preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
+                            else {
+                                // если игрок играет флоп то отсутствие действия на префлопе трактуется как кол
+                                // также проверяется чтобы кол был в рамкам стека так как с флопом уже могут быть оллины и стек может быть меньше предидущего рейза
+                                if(befor_action<=stacks[pos]) preflop_actions_for_stats.get(pos).add(-(befor_action-preflop_by_positions.get(pos).get(0)));
+                                else preflop_actions_for_stats.get(pos).add(-(stacks[pos]-preflop_by_positions.get(pos).get(0)));
+                            }
+                            continue;
+                        }
+
+                        float action = preflop_by_positions.get(pos).get(raund+1);
+                        if(action==-10){if(raund>0)preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY); continue;}
+                        //if(action==0){ if(pos==poker_position_of_hero)preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);continue;}
+                        // на основе шага рейза понять был рейз или кол если рейз то ставка также вносится
+                        float current_size_raise = action-befor_action;
+                        //System.out.println(nicks[pos]+"  "+current_size_raise+"  act "+action);
+                        if(current_size_raise>=size_raise){preflop_actions_for_stats.get(pos).add(action); size_raise = current_size_raise;  befor_action = action;}
+                        else {
+                            // если был кол а он может быть и больше последней ставки но так как меньше шага рейза то считается за кол
+                            // ставку кол записывается как действие минус уже вложенные деньги особенно на блайндах
+                            preflop_actions_for_stats.get(pos).add(-(action-preflop_by_positions.get(pos).get(raund))); befor_action = action;
+                        }
+                    }
+
+
+
+            }
+
+
 
 
 

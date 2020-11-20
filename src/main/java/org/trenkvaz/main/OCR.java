@@ -122,12 +122,16 @@ public class OCR implements Runnable {
         System.out.println(Z+"  "+ocr.currentHand.time_hand+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
                 " bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table);
 
+        String logtest = Z+"  "+ocr.currentHand.time_hand+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
+                " bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table+" \r\n";
 
         boolean error = false;
         boolean is_save_test_list = false;
 
         for(int i=0; i<6; i++) {
+            logtest += ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ";
             System.out.print(ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ");
+
             if(ocr.currentHand.nicks[i]==null) { error = true;                   Settings.ErrorLog(" NO NICK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i);
             /*for(BufferedImage image:testRecPlayers[i].imges_nick)
             Testing.save_image(image,     "test5\\"+hand+"\\nick_"+i);*/
@@ -141,15 +145,24 @@ public class OCR implements Runnable {
 
             }
 
-            for (int a=1; a<ocr.currentHand.preflop_by_positions.get(i).size(); a++) System.out.print(ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ");
+            for (int a=1; a<ocr.currentHand.preflop_by_positions.get(i).size(); a++) {
+                logtest+=ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ";
+                System.out.print(ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ");
+            }
+            logtest+="    _______________         ";
             System.out.print("    _______________         ");
-            for(int a=1; a<ocr.currentHand.preflop_actions_for_stats.get(i).size(); a++) System.out.print(ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
+            for(int a=1; a<ocr.currentHand.preflop_actions_for_stats.get(i).size(); a++) {
+                logtest+=ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ";
+                System.out.print(ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
+            }
+            logtest+="\r\n";
             System.out.println();
 
         }
 
         System.out.println("******************************************");
-
+        logtest+="****************************************** \r\n";
+        Testing.write_LogTest(logtest);
         //if(!error)creat_HandForSaving(ocr.currentHand);
 
         /*int f =0;
@@ -169,7 +182,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     private void main_work_on_table(){
-        if(table!=5)return;
+        if(table!=1)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
