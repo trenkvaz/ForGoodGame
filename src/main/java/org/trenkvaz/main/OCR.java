@@ -145,7 +145,7 @@ public class OCR implements Runnable {
 
             }
 
-            for (int a=1; a<ocr.currentHand.preflop_by_positions.get(i).size(); a++) {
+            for (int a=0; a<ocr.currentHand.preflop_by_positions.get(i).size(); a++) {
                 logtest+=ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ";
                 System.out.print(ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ");
             }
@@ -182,7 +182,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     private void main_work_on_table(){
-        if(table!=1)return;
+        if(table!=4)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -271,6 +271,7 @@ public class OCR implements Runnable {
         }*/
         if(!currentHand.is_nicks_filled)get_nicks();
         //if(currentHand.is_nicks_filled){
+        //if(currentHand.cards_hero[0].equals("7c")&&currentHand.cards_hero[1].equals("7h"))
         if(!currentHand.is_start_flop)check_start_flop();
         if(!currentHand.is_start_flop)get_start_stacks_and_preflop();
 
@@ -667,7 +668,7 @@ public class OCR implements Runnable {
             if(!currentHand.preflop_by_positions.get(poker_position).isEmpty())
             if(currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1)==-10)continue;
 
-            //if(currentHand.cards_hero[0].equals("Kd")&&currentHand.cards_hero[1].equals("7c"))save_image(frame[0],"test\\"+(c++)+"_"+poker_position);
+            //if(currentHand.cards_hero[0].equals("7c")&&currentHand.cards_hero[1].equals("7h")&&poker_position==5)save_image(frame[0],"test\\"+(c++)+"_"+poker_position);
 
            // если фолд то добавляется фолд
            if(is_Fold(poker_position)){
@@ -1028,17 +1029,16 @@ public class OCR implements Runnable {
         // проверка что херо не делал ход, кроме когда находится на ББ, где возможен чек, если не делал, то проверки на флоп нет
         if(currentHand.preflop_by_positions.get(currentHand.poker_position_of_hero).isEmpty()&&currentHand.poker_position_of_hero !=5) return;
         //System.out.print("check flop ");
-        /*int x1 = coord_of_table[0]+coord_2_3_cards_flop[0][0];
-        int x2 = coord_of_table[0]+coord_2_3_cards_flop[1][0];
-        int y = coord_of_table[1]+coord_2_3_cards_flop[0][1];*/
         int x1 = coord_2_3_cards_flop[0][0];
         int x2 = coord_2_3_cards_flop[1][0];
         int y = coord_2_3_cards_flop[0][1];
+        if(get_int_MaxBrightnessMiddleImg(frame[0],x1,y,17,17)>190
+                &&get_int_MaxBrightnessMiddleImg(frame[0],x2,y,17,17)>190)currentHand.is_start_flop = true;
 
-        if(get_int_MaxBrightnessMiddleImg(frame[0],x1,y,17,17)>200
-                &&get_int_MaxBrightnessMiddleImg(frame[0],x2,y,17,17)>200)currentHand.is_start_flop = true;
-        //System.out.println(currentHand.is_start_flop+"  c1 "+get_int_MaxBrightnessMiddleImg(frame[0],x1,y,17,17)+" c2 "+get_int_MaxBrightnessMiddleImg(frame[0],x2,y,17,17));
-        //if(currentHand.is_start_flop){save_image(frame[0].getSubimage(x1,y,17,17),"test2\\c1"); save_image(frame[0].getSubimage(x2,y,17,17),"test2\\c2"); }
+       /* System.out.println(currentHand.is_start_flop+"  c1 "+get_int_MaxBrightnessMiddleImg(frame[0],x1,y,17,17)+
+                " c2 "+get_int_MaxBrightnessMiddleImg(frame[0],x2,y,17,17));
+        if(currentHand.is_start_flop){save_image(frame[0].getSubimage(x1,y,17,17),"test2\\c1");
+        save_image(frame[0].getSubimage(x2,y,17,17),"test2\\c2"); }*/
     }
 
 

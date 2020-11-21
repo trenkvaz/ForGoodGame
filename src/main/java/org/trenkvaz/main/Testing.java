@@ -773,15 +773,20 @@ public class Testing {
 
      close_DataBase();*/
 
+      ConcurrentHashMap<String,Object[]>test = new ConcurrentHashMap<>();
+      test.put("t",new Object[]{1,2});
+      Map<String,Integer[]> test2 = new HashMap<>();
+      Object[] fromtes = test.get("t");
+      Integer[] tomap =new Integer[fromtes.length];
+      for(int i=0; i<fromtes.length; i++)tomap[i] = (int)fromtes[i];
+     test2.put("t",tomap);
+     Integer[] w = test2.get("t");
+     w[0] = 3; test2.put("t",w);
+        test.put("t",w);
+        System.out.println(test.get("t")[0]);
 
-        List<Integer> test = new ArrayList<>();
-        test.add(0);
-        test.add(2);
-        test.add(0,1);
-        //test.forEach(System.out::println);
 
-        int[]round_action = {0,1,2,3,0,0};
-        System.out.println(Arrays.stream(round_action).filter(c->c>0).count());
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 }

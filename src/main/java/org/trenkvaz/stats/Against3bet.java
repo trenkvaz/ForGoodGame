@@ -24,13 +24,31 @@ public class Against3bet extends MainStats {
             map_of_Idplayer_stats.put(nick,data);
         } else {
             try {
-                Integer[][][]    stata = (Integer[][][])statasql.getArray();
+               Integer[][][]    stata = (Integer[][][])statasql.getArray();
                 map_of_Idplayer_stats.put(nick,stata);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
     }
+
+    public void setIdplayers_stats(String nick, Object[] obstata){
+        if(obstata != null && obstata.length==0){
+            Integer[][][] data = new Integer[5][6][3];
+            for(int a=1; a<6; a++)
+                for(int b=0; b<a; b++)
+                    for (int i=0; i<3; i++) data[b][a][i]=0;
+            for (int i=0; i<3; i++) data[0][0][i]=0;
+            map_of_Idplayer_stats.put(nick,data);
+        } else {
+                Integer[][][]    stata = (Integer[][][])obstata;
+                map_of_Idplayer_stats.put(nick,stata);
+
+        }
+    }
+
+
+
 
     public void count_Stats_for_map(byte[][][] actions_hand,String[] nicks,float[]stacks,byte Seaters,float[][]posactions,boolean isAdditional){
 
