@@ -1,5 +1,6 @@
 package org.trenkvaz.main;
 
+import org.trenkvaz.database_hands.ReadHistoryGetStats;
 import org.trenkvaz.database_hands.Work_DataBase;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.List;
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.ui.Controller_main_window.controller_main_window;
 //import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
-import static org.trenkvaz.ui.StartAppLauncher.work_dataBase;
+
 
 public class CurrentHand {
 
@@ -334,16 +335,20 @@ public class CurrentHand {
 
 
 
-        System.out.println("+++++++++++++++++++++++++++++++++++++");
+        /*System.out.println("+++++++++++++++++++++++++++++++++++++");
         System.out.println("raunds "+raunds.size());
         for(int[] r:raunds){
             for(int a:r) System.out.print(a+" ");
             System.out.println();
         }
-        System.out.println("+++++++++++++++++++++++++++++++++++++");
+        System.out.println("+++++++++++++++++++++++++++++++++++++");*/
+    float[] stacks = new float[6];
+    for(int i=0; i<6; i++){
+        if(this.stacks[i]==null)continue;
+        stacks[i]=this.stacks[i];
+    }
 
-
-
+    ReadHistoryGetStats.count_StatsCurrentGame(current_map_stats, work_main_stats,nicks,stacks,preflop_actions_for_stats);
     return true;
     }
 }

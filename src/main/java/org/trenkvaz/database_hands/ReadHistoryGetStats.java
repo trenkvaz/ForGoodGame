@@ -11,6 +11,7 @@ import java.math.RoundingMode;
 import java.sql.Array;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 //import static org.trenkvaz.database_hands.GetNicksForHands.reverse_MapIdplayersNicks;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
@@ -31,11 +32,18 @@ public class ReadHistoryGetStats {
 
 
     static void start_ReadFilesInFolder(String folder){
+        Work_DataBase work_dataBase = new Work_DataBase();
+        mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase("main_nicks_stats");
+
         for(File a: Objects.requireNonNull(new File(folder).listFiles())){
             if(a.isFile()&&a.getName().endsWith(".txt")){
                 read_File(a.getPath());
             }
         }
+
+        record_MainArrayOfStatsToDateBase(mainstats);
+        delete_and_copy_WorkNicksStats();
+        close_DataBase();
     }
 
 
@@ -68,6 +76,12 @@ public class ReadHistoryGetStats {
      //get_Idplayers();
      /*int position_hero = Arrays.asList(nicks).indexOf(nick_hero);
      if(position_hero!=-1)*/
+        for(int i=0; i<6; i++){
+            if(nicks[i]==null)continue;
+            nicks[i] = "$ю$"+nicks[i]+"$ю$";
+        }
+
+
      for(MainStats stats:mainstats)
          stats.count_Stats_for_map(preflop_players_actions_in_raunds,nicks,stacks,(byte) 6,posActions,false);
 
@@ -286,11 +300,48 @@ public class ReadHistoryGetStats {
     }
 
 
+    public static synchronized void count_StatsCurrentGame(ConcurrentHashMap[] current_map_stats,MainStats[] main_stats,String[] nicks,
+                                                           float[] stacks, List<List<Float>> preflop_actions_for_stats){
+        System.out.println("CREATE STATS");
+       /* for(int i=0; i<6; i++){
+            System.out.print(nicks[i]+"   ");
+        for(int a=1; a<preflop_actions_for_stats.get(i).size(); a++) {
+            System.out.print(preflop_actions_for_stats.get(i).get(a)+" ");
+        }
+            System.out.println();
+        }*/
+       for(int i=0; i<6; i++){
+           if(nicks[i]==null)continue;
+           nicks[i] = "$ю$"+nicks[i]+"$ю$";
+       }
 
+
+        float[][] posActions = new float[6][];
+        for (int v=0; v<6; v++){
+            if(preflop_actions_for_stats.get(v)!=null){
+                if(preflop_actions_for_stats.get(v).size()==0) {posActions[v] = null; continue;}
+                posActions[v] = new float[preflop_actions_for_stats.get(v).size()];
+                for (int p=0; p<preflop_actions_for_stats.get(v).size(); p++) posActions[v][p] = preflop_actions_for_stats.get(v).get(p);
+            }
+        }
+
+
+
+        for(int stata=0; stata<main_stats.length; stata++){
+            main_stats[stata].count_Stats_for_map(precount_to_PreflopActions(6,posActions),nicks,stacks,(byte) 6,posActions,false);
+            for(int player=0; player<6; player++){
+            if(nicks[player]==null)continue;
+            current_map_stats[stata].put(nicks[player],main_stats[stata].getMap_of_Idplayer_stats().get(nicks[player]));
+            }
+        }
+
+        record_StatsCurrentGame(main_stats,nicks);
+
+    }
 
     public static void main(String[] args) {
-        Work_DataBase work_dataBase = new Work_DataBase();
-        mainstats = main_array_of_stats;
+
+        //mainstats = main_array_of_stats;
         //for(Map.Entry<String,Integer> entry:map_nicks_idplayers.entrySet()) System.out.println(entry.getValue()+"   "+entry.getKey());
 
       /* List<Integer> sortlist = new ArrayList<>(map_nicks_idplayers.values());
@@ -304,9 +355,9 @@ public class ReadHistoryGetStats {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }*/
-        record_MainArrayOfStatsToDateBase(mainstats);
+
         //mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
-        HashMap<String,Integer[][]> arr = mainstats[2].getMap_of_Idplayer_stats();
+       /* HashMap<String,Integer[][]> arr = mainstats[2].getMap_of_Idplayer_stats();
         Integer[][] stats = arr.get("trenkvaz");
 
         if(stats==null) System.out.println("null");
@@ -316,15 +367,10 @@ public class ReadHistoryGetStats {
             System.out.println(positions_for_query[i+1]+" vpip "+procents(stats[i][1], stats[i][0])+" pfr "+procents(stats[i][2], stats[i][0])+
                     " 3_bet "+procents(stats[i][4], stats[i][3])+" count pfr "+stats[i][2]+" count  select 3bet "+stats[i][3]+" count 3bet "+stats[i][4]+" count vpip "+stats[i][1]);
         System.out.println("Total vpip "+procents(stats[6][1], stats[6][0])+" pfr "+procents(stats[6][2], stats[6][0])+
-                " 3_bet "+procents(stats[6][4], stats[6][3])+" count pfr "+stats[6][2]+" count  select 3bet "+stats[6][3]+" count 3bet "+stats[6][4]+" count vpip "+stats[6][1]);
+                " 3_bet "+procents(stats[6][4], stats[6][3])+" count pfr "+stats[6][2]+" count  select 3bet "+stats[6][3]+" count 3bet "+stats[6][4]+" count vpip "+stats[6][1]);*/
 
 
 
-        //delete_and_copy_WorkIdplayersStats();
-       /* System.out.println("count hands "+c);
-        for (HandFromHistory hand:list_handsfromhistory)
-            System.out.println(hand.time_hand+"  "+get_str_Cards(hand.cards_hero));*/
 
-        close_DataBase();
     }
 }

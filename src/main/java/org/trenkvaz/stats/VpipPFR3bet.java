@@ -31,12 +31,15 @@ public class VpipPFR3bet extends MainStats {
     }
     private void add_player_to_map_test(String[] idplayers){
         for(String id:idplayers){
+            //if(id.equals("$ю$AKYLA17$ю$")) System.out.println("AKYLA17");
             if(id==null)continue;
             if(!map_of_Idplayer_stats.containsKey(id)){
                 Integer[][] data = new Integer[7][5];
                 for (int p=0; p<7; p++)
                     for (int i=0; i<5; i++) data[p][i]=0;
                 map_of_Idplayer_stats.put(id,data);
+                /*if(id.equals("$ю$AKYLA17$ю$"))if(map_of_Idplayer_stats.get("$ю$AKYLA17$ю$")==null) {System.out.println("NULL AKULA");}else
+                    System.out.println("YES AKULA");*/
             }
         }
     }
@@ -49,15 +52,16 @@ public class VpipPFR3bet extends MainStats {
         for(int pos=0; pos<6; pos++){
 
              if(actions_hand[pos]==null||actions_hand[pos][raund_1][action]==0)continue;
-             /*for(int p=0; p<6; p++){
-                 System.out.print(" "+p);
-                 for (byte [] r:actions_hand[p]){if(r==null){
+
+                 /*System.out.print(idplayers[pos]+"  ");
+
+                 for (byte [] r:actions_hand[pos]){if(r==null){
                      System.out.println("null r");continue;}
                     for(byte a:r) System.out.print(" "+a);
                      System.out.println();
-                 }
-             }
-             for(int i:idplayers) System.out.println(" "+i);*/
+                 }*/
+
+
 
              Integer[][] stata = map_of_Idplayer_stats.get(idplayers[pos]);
              if(stata==null)continue;

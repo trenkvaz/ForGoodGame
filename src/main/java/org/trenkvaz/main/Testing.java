@@ -689,9 +689,10 @@ public class Testing {
 
     static ConcurrentHashMap[] get_StatsFromDataBase(){
 
-        ConcurrentHashMap[] result = new ConcurrentHashMap[main_array_of_stats.length];
-        MainStats[] main_stats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
-        for(int i=0; i<main_array_of_stats.length; i++)
+
+        MainStats[] main_stats = work_dataBase.fill_MainArrayOfStatsFromDateBase("main_nicks_stata");
+        ConcurrentHashMap[] result = new ConcurrentHashMap[main_stats.length];
+        for(int i=0; i<main_stats.length; i++)
             result[i] = new ConcurrentHashMap<> (main_stats[i].getMap_of_Idplayer_stats());
         return result;
     }
@@ -781,8 +782,10 @@ public class Testing {
       for(int i=0; i<fromtes.length; i++)tomap[i] = (int)fromtes[i];
      test2.put("t",tomap);
      Integer[] w = test2.get("t");
-     w[0] = 3; test2.put("t",w);
-        test.put("t",w);
+     w[0] = 3; test.put("t",w);
+
+     Integer[] v = new Integer[]{10,10};
+        test.put("t",v);
         System.out.println(test.get("t")[0]);
 
 

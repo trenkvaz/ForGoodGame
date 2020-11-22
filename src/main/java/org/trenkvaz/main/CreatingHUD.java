@@ -147,10 +147,14 @@ public class CreatingHUD {
                 else  text.setText((stata==0)? "0":notZeroFormat.format(stata));
                 if(stata==0)text.setFill(Color.WHITE);else text.setFill(settingOneStata.get_ColorByRangeOfStata(stata));
             }
-
+            // если было уже приведение к Объекту[][][] то стата и селект не будут -1 поэтому возможно приведение
             if(stata==-1&&select==-1) {
                 Object[][] casting_stata = (Object[][]) main_stats;
                 select = (int)casting_stata[description[3]][description[1]];
+
+
+
+
                 // общая стата может быть но по конкретной стате 0 выборки значит считай тоже нет
                 if(select==0){ text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue; }
                 // итог добавление статы
@@ -173,6 +177,17 @@ public class CreatingHUD {
                 text = new Text(settingOneStata.coord_text[0]+text_length*7, settingOneStata.coord_text[1]+3,"" );
                 text.setFont(new Font(settingOneStata.size_font-4));
                 text.setFill(Color.GRAY);
+                text.setText(Integer.toString(select));
+                    /*if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.err.println("SELECT    ---------------      BUvCO "+text.getText()+"  select "
+                            +(int)(casting_stata[description[3]][description[4]][description[1]])+" table "+table);*/
+                list_text_hud_one_player.add(text);
+            }
+            //{2,0,1,6}
+            // TEST
+            if(description[0]==2&&description[1]==0&&description[2]==1){
+                text = new Text(20,38,"" );
+                text.setFont(new Font(14));
+                text.setFill(Color.WHITE);
                 text.setText(Integer.toString(select));
                     /*if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.err.println("SELECT    ---------------      BUvCO "+text.getText()+"  select "
                             +(int)(casting_stata[description[3]][description[4]][description[1]])+" table "+table);*/

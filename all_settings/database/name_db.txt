@@ -1,1 +1,3 @@
-fg_test_db1 W
+fg_test_db2
+fg_test2
+fg_test3 W

@@ -25,7 +25,7 @@ import static org.bytedeco.javacpp.opencv_imgproc.*;*/
 import org.bytedeco.ffmpeg.global.avutil;
 import org.trenkvaz.stats.MainStats;
 
-import static org.trenkvaz.database_hands.Work_DataBase.main_array_of_stats;
+//import static org.trenkvaz.database_hands.Work_DataBase.main_array_of_stats;
 import static org.trenkvaz.main.OCR.get_intGreyColor;
 import static org.trenkvaz.ui.Controller_main_window.*;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
@@ -72,7 +72,7 @@ public class CaptureVideo implements Runnable{
    static long[][] _long_arr_cards_for_compare,shablons_text_sittingout_allin, shablon_text_poker_terms;
    static int[][] shablons_numbers_0_9_for_stacks, shablons_numbers_0_9_for_actions;
    public static ConcurrentHashMap[] current_map_stats;
-
+   public static MainStats[] work_main_stats;
 
 
    /*static Map<String, Integer> map_idplayers_nicks;
@@ -500,10 +500,11 @@ public class CaptureVideo implements Runnable{
 
         static ConcurrentHashMap[] get_StatsFromDataBase(){
 
-            ConcurrentHashMap[] result = new ConcurrentHashMap[main_array_of_stats.length];
-            MainStats[] main_stats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
-            for(int i=0; i<main_array_of_stats.length; i++)
-                result[i] = new ConcurrentHashMap<> (main_stats[i].getMap_of_Idplayer_stats());
+
+            work_main_stats = work_dataBase.fill_MainArrayOfStatsFromDateBase("work_nicks_stats");
+            ConcurrentHashMap[] result = new ConcurrentHashMap[work_main_stats.length];
+            for(int i = 0; i< work_main_stats.length; i++)
+                result[i] = new ConcurrentHashMap<> (work_main_stats[i].getMap_of_Idplayer_stats());
 
 
             return result;
