@@ -6,6 +6,8 @@ import org.trenkvaz.main.CreatingHUD;
 
 public class StartAppLauncher {
 
+    public static final String RESET = "\u001b[0m" , RED = "\u001b[31m", BLUE = "\u001b[34m";
+
     public static final String home_folder = System.getProperty("user.dir");
     public static CaptureVideo captureVideo;
     public static Work_DataBase work_dataBase;

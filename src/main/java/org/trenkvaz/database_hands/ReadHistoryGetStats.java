@@ -310,9 +310,10 @@ public class ReadHistoryGetStats {
         }
             System.out.println();
         }*/
+       String[] ercanning_nicks = new String[6];
        for(int i=0; i<6; i++){
            if(nicks[i]==null)continue;
-           nicks[i] = "$ю$"+nicks[i]+"$ю$";
+           ercanning_nicks[i] = "$ю$"+nicks[i]+"$ю$";
        }
 
 
@@ -328,14 +329,14 @@ public class ReadHistoryGetStats {
 
 
         for(int stata=0; stata<main_stats.length; stata++){
-            main_stats[stata].count_Stats_for_map(precount_to_PreflopActions(6,posActions),nicks,stacks,(byte) 6,posActions,false);
+            main_stats[stata].count_Stats_for_map(precount_to_PreflopActions(6,posActions),ercanning_nicks,stacks,(byte) 6,posActions,false);
             for(int player=0; player<6; player++){
-            if(nicks[player]==null)continue;
-            current_map_stats[stata].put(nicks[player],main_stats[stata].getMap_of_Idplayer_stats().get(nicks[player]));
+            if(ercanning_nicks[player]==null)continue;
+            current_map_stats[stata].put(ercanning_nicks[player],main_stats[stata].getMap_of_Idplayer_stats().get(ercanning_nicks[player]));
             }
         }
 
-        record_StatsCurrentGame(main_stats,nicks);
+        record_StatsCurrentGame(main_stats,ercanning_nicks);
 
     }
 

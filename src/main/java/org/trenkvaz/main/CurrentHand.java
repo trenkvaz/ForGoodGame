@@ -46,6 +46,8 @@ public class CurrentHand {
         for(int i=0; i<6; i++){
             preflop_by_positions.add(new ArrayList<Float>());
             if(i<4)preflop_by_positions.get(i).add(0f);
+            if(i==4)preflop_by_positions.get(i).add(0.5f);
+            if(i==5)preflop_by_positions.get(i).add(1f);
             stacks[i] = 0f;
         }
         time_hand =  get_HandTime();
@@ -342,6 +344,8 @@ public class CurrentHand {
             System.out.println();
         }
         System.out.println("+++++++++++++++++++++++++++++++++++++");*/
+
+    // Float[] to float[]
     float[] stacks = new float[6];
     for(int i=0; i<6; i++){
         if(this.stacks[i]==null)continue;

@@ -24,8 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OCR.*;
-import static org.trenkvaz.ui.StartAppLauncher.home_folder;
-import static org.trenkvaz.ui.StartAppLauncher.work_dataBase;
+import static org.trenkvaz.ui.StartAppLauncher.*;
 
 public class Testing {
 
@@ -783,10 +782,10 @@ public class Testing {
      test2.put("t",tomap);
      Integer[] w = test2.get("t");
      w[0] = 3; test.put("t",w);
-
+      String RED = "\u001b[31m";
      Integer[] v = new Integer[]{10,10};
         test.put("t",v);
-        System.out.println(test.get("t")[0]);
+        System.out.println(BLUE+"   "+test.get("t")[0]);
 
 
 

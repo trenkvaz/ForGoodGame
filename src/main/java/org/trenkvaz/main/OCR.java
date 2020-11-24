@@ -21,8 +21,7 @@ import static org.bytedeco.javacpp.opencv_core.cvResetImageROI;*/
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.CaptureVideo.shablons_numbers_0_9_for_stacks;
 import static org.trenkvaz.main.CurrentHand.creat_HandForSaving;
-import static org.trenkvaz.ui.StartAppLauncher.home_folder;
-import static org.trenkvaz.ui.StartAppLauncher.hud;
+import static org.trenkvaz.ui.StartAppLauncher.*;
 //import static org.trenkvaz.main.Settings.write_nicks_keys_img_pix;
 
 public class OCR implements Runnable {
@@ -110,18 +109,18 @@ public class OCR implements Runnable {
 
     static synchronized void show_test_total_hand(OCR ocr){
 
-
+        if(!ocr.currentHand.creat_ActionsInHandForCountStats())return;
 
 
         Date d = new Date();
         DateFormat formatter= new SimpleDateFormat("HH.mm.ss");
         String Z = formatter.format(d);
 
-
+        if(ocr.currentHand.cards_hero[0].equals("7c")&&ocr.currentHand.cards_hero[1].equals("7h")) System.err.println("===================================================");
 
         System.out.println(Z+"  "+ocr.currentHand.time_hand+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
                 " bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table);
-        if(!ocr.currentHand.creat_ActionsInHandForCountStats())return;
+
         String logtest = Z+"  "+ocr.currentHand.time_hand+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
                 " bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table+" \r\n";
 
@@ -129,8 +128,9 @@ public class OCR implements Runnable {
         boolean is_save_test_list = false;
 
         for(int i=0; i<6; i++) {
-           /* logtest += ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ";
-            System.out.print(ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ");*/
+            logtest += ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ";
+            if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ");
+            else System.out.print(ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ");
 
             if(ocr.currentHand.nicks[i]==null) { error = true;                   Settings.ErrorLog(" NO NICK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i);
             /*for(BufferedImage image:testRecPlayers[i].imges_nick)
@@ -145,24 +145,31 @@ public class OCR implements Runnable {
 
             }
 
-           /* for (int a=0; a<ocr.currentHand.preflop_by_positions.get(i).size(); a++) {
+            for (int a=0; a<ocr.currentHand.preflop_by_positions.get(i).size(); a++) {
                 logtest+=ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ";
-                System.out.print(ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ");
+                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.preflop_by_positions.get(i).get(a)+" ");
+                else System.out.print(ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ");
             }
             logtest+="    _______________         ";
-            System.out.print("    _______________         ");
+
+            if(ocr.currentHand.poker_position_of_hero==i)System.out.print(BLUE+"    _______________         ");
+            else System.out.print("    _______________         ");
+
             for(int a=1; a<ocr.currentHand.preflop_actions_for_stats.get(i).size(); a++) {
                 logtest+=ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ";
-                System.out.print(ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
+                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
+                else System.out.print(ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
             }
             logtest+="\r\n";
-            System.out.println();*/
+            /*if(ocr.currentHand.poker_position_of_hero==i)System.out.println(BLUE);
+            else */
+                System.out.println(RESET);
 
         }
 
-        /*System.out.println("******************************************");
+        System.out.println(RESET+"******************************************");
         logtest+="****************************************** \r\n";
-        Testing.write_LogTest(logtest);*/
+        Testing.write_LogTest(logtest);
 
 
 
@@ -673,7 +680,7 @@ public class OCR implements Runnable {
             if(!currentHand.preflop_by_positions.get(poker_position).isEmpty())
             if(currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1)==-10)continue;
 
-            //if(currentHand.cards_hero[0].equals("7c")&&currentHand.cards_hero[1].equals("7h")&&poker_position==5)save_image(frame[0],"test\\"+(c++)+"_"+poker_position);
+            //if(currentHand.cards_hero[0].equals("7c")&&currentHand.cards_hero[1].equals("7h")&&poker_position==5)save_image(frame[0],"test\\"+(c++)+"_"+poker_position+"_t_"+table);
 
            // если фолд то добавляется фолд
            if(is_Fold(poker_position)){
@@ -736,13 +743,16 @@ public class OCR implements Runnable {
 
              // если не смолго определится, и стек также еще не определен, то стек также не определяется до следующего раза поэтому -1
             if(actions==-1) {if(currentHand.stacks[poker_position]==0)currentHand.stacks[poker_position]=-1f; continue;}
-            // если список действий пустой то добавляется новое определенное действие
-            if(currentHand.preflop_by_positions.get(poker_position).isEmpty()) currentHand.preflop_by_positions.get(poker_position).add(actions);
-            else {
+
+            // если список действий пустой то добавляется новое определенное действие ЭТО в версии когда блайнды пусты
+            /*if(currentHand.preflop_by_positions.get(poker_position).isEmpty()) currentHand.preflop_by_positions.get(poker_position).add(actions);
+            else {*/
+
+
                 // если не пустой проверяется если последнее действие равно новое, то продолжение цикла, если не равно то вносится новое определенное действие
                 if(currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1)==actions)continue;
                 else currentHand.preflop_by_positions.get(poker_position).add(actions);
-            }
+           // }
 
             /*System.out.println(C+" "+(poker_positions_index_with_numbering_on_table[poker_position])+" act "+currentHand.preflop_by_positions.get(poker_position).get(0)
                     +" stack "+currentHand.stacks[poker_position]);*/
