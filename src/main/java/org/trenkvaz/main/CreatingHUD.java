@@ -22,20 +22,23 @@ public class CreatingHUD {
      int table = -1;
      Object[][] arr_player_indstat_stata = new Object[6][];
      List<List<Text>> list_current_one_table_texts_huds_each_player;
-     record SettingOneStata(String name_stata, int[] coord_text, int size_font, RangeColor rangeColor, int min_select, int condition_show, int[] show_on_poses_hero ){
+     record SettingOneStata(String name_stata, int[] coord_text, int size_font, RangeColor rangeColor, int min_select, int[][] show_on_poses_player_hero){
          public Paint get_ColorByRangeOfStata(float stata){
              int range= -1;
              for(int i_range=0; i_range<rangeColor.ranges.length; i_range++){ if(rangeColor.ranges[i_range]<stata){range++; continue;}break; }
              return rangeColor.colors[range];
          }
-         public boolean let_ShowStataOfPositionsHero(int position_hero){
-             for(int pos:show_on_poses_hero)if(pos==position_hero)return true;
-             return false;
+         public boolean let_ShowStataOfPositionsHero(int position_player,int position_hero){
+             boolean is_player = false, is_hero = false;
+             for(int pos:show_on_poses_player_hero[0])if(pos==position_player){is_player = true;break;}
+             for(int pos:show_on_poses_player_hero[1])if(pos==position_hero){is_hero = true;break;}
+             return is_player&&is_hero;
          }
      }
      record RangeColor(int[] ranges, Paint[] colors){}
-     static Map<String,Integer[]> map_descriptions_of_stats;
+     static Map<String,Integer[][]> map_descriptions_of_stats;
      static List<SettingOneStata> list_settings_one_stats;
+     static final int UTG = 0, MP = 1, CO = 2, BU = 3, SB = 4, BB = 5;
 
 
     static DecimalFormat notZeroFormat = (DecimalFormat)NumberFormat.getNumberInstance(Locale.UK);
@@ -101,10 +104,9 @@ public class CreatingHUD {
 
         for(SettingOneStata settingOneStata:list_settings_one_stats){
             //if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.out.println("start");
-            // если отображение статы привязано к позиции, но она не совпадает с текущей позой то пропускается
-            if(settingOneStata.condition_show<6&&settingOneStata.condition_show!=poker_position)continue;
-            //если отображение статы привязано к позиции, и она совпадает с текущей позой, но не соотвествует отображению относительно позы героя то пропускается
-            if((settingOneStata.condition_show==poker_position||settingOneStata.condition_show==6)&&(!settingOneStata.let_ShowStataOfPositionsHero(poker_position_of_hero)))continue;
+
+            //проверка позиций игрока и херо на возможность отображения статы
+            if((!settingOneStata.let_ShowStataOfPositionsHero(poker_position,poker_position_of_hero)))continue;
 
 
             // можно заранее подготовить текст так как в любом случае будет хотя бы ноль
@@ -112,20 +114,20 @@ public class CreatingHUD {
             text.setFont(new Font(settingOneStata.size_font));
 
 
-            Integer[] description = map_descriptions_of_stats.get(settingOneStata.name_stata);
+            Integer[][] description = map_descriptions_of_stats.get(settingOneStata.name_stata);
 
-            Object main_stats = arr_player_indstat_stata[table_place][description[0]];
+            Object main_stats = arr_player_indstat_stata[table_place][description[0][0]];
             if(main_stats==null){
-                main_stats =current_map_stats[description[0]].get("$ю$"+nick+"$ю$");
+                main_stats =current_map_stats[description[0][0]].get("$ю$"+nick+"$ю$");
                 // статы может не быть в таком случае нужно выставить ноль в текст тогда по этому игроку не будет больше попыток получить стату так как сохранится текст
                 // также нужно в текущий массив со статами нужно добавить некое значение ПУСТЫШКУ пусть Object[0], показывающее, что не нужно пытаться получить эту стату
                 if(main_stats==null) {
                     //if(settingOneStata.name_stata.equals("fold_to_steal_BUvCO")) System.err.println("NULL  pos "+poker_position+" hero "+poker_position_of_hero+" table "+table);
                     text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text);
-                    arr_player_indstat_stata[table_place][description[0]] =  new Object[0];
+                    arr_player_indstat_stata[table_place][description[0][0]] =  new Object[0];
                     continue;
                 }
-                arr_player_indstat_stata[table_place][description[0]] = main_stats;
+                arr_player_indstat_stata[table_place][description[0][0]] = main_stats;
             }
              // проверка на пустышку в текущем массиве стат
             if(main_stats instanceof Object[]&&((Object[]) main_stats).length==0){
@@ -136,28 +138,20 @@ public class CreatingHUD {
               // ДОПИСАТЬ приведение для разных размерностей массивов стат
             float stata = -1;int select = -1;
             if(main_stats instanceof Object[][][] casting_stata){
-                // общая стата может быть но по конкретной стате 0 выборки значит считай тоже нет
-                if(description.length==5){
 
-                select = (int)casting_stata[description[3]][description[4]][description[1]];
-                if(select==0){ text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue; }
-                // итог добавление статы
-                stata = BigDecimal.valueOf(procents((int) casting_stata[description[3]][description[4]][description[2]],
-                        (int) casting_stata[description[3]][description[4]][description[1]])).setScale(1, RoundingMode.HALF_UP).floatValue();}
-                else {
-                    // если нужно сложить статы нескольких позиций оппонентов
                     select = 0; stata = 0;
-                    for(int pos_opp = 4; pos_opp<description.length; pos_opp++){
-                        select+=(int)casting_stata[description[3]][description[pos_opp]][description[1]];
+                    // пробегание по всем сочетаниям складываемых стат
+                    for(int pos_player = 0; pos_player<description[1].length; pos_player++)
+                    for(int pos_opp = 0; pos_opp<description[2].length; pos_opp++){
+                        select+=(int)casting_stata[description[1][pos_player]][description[2][pos_opp]][description[0][1]];
                     }
                     if(select==0){ text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue; }
 
-                    for(int pos_opp = 4; pos_opp<description.length; pos_opp++){
-                        stata+=(int)casting_stata[description[3]][description[pos_opp]][description[2]];
+                    for(int pos_player = 0; pos_player<description[1].length; pos_player++)
+                    for(int pos_opp = 0; pos_opp<description[2].length; pos_opp++){
+                        stata+=(int)casting_stata[description[1][pos_player]][description[2][pos_opp]][description[0][2]];
                     }
                     stata = BigDecimal.valueOf(procents((int) stata, select)).setScale(1, RoundingMode.HALF_UP).floatValue();
-                }
-
 
 
                 // для отображения двузначных чисел целыми, а однозначных с дробью, плюс 0 без дроби и 100 как 99
@@ -168,16 +162,19 @@ public class CreatingHUD {
             // если было уже приведение к Объекту[][][] то стата и селект не будут -1 поэтому возможно приведение
             if(stata==-1&&select==-1) {
                 Object[][] casting_stata = (Object[][]) main_stats;
-                select = (int)casting_stata[description[3]][description[1]];
 
+                select = 0; stata = 0;
+                for(int pos_player = 0; pos_player<description[1].length; pos_player++)
+                        select+=(int)casting_stata[description[1][pos_player]][description[0][1]];
 
-
-
-                // общая стата может быть но по конкретной стате 0 выборки значит считай тоже нет
                 if(select==0){ text.setText("--"); text.setFill(Color.WHITE); list_text_hud_one_player.add(text); continue; }
-                // итог добавление статы
-                stata = BigDecimal.valueOf(procents((int) casting_stata[description[3]][description[2]],
-                        (int) casting_stata[description[3]][description[1]])).setScale(1, RoundingMode.HALF_UP).floatValue();
+
+                for(int pos_player = 0; pos_player<description[1].length; pos_player++)
+                    stata+=(int)casting_stata[description[1][pos_player]][description[0][2]];
+
+                stata = BigDecimal.valueOf(procents((int) stata, select)).setScale(1, RoundingMode.HALF_UP).floatValue();
+
+
                 // для отображения двузначных чисел целыми, а однозначных с дробью, плюс 0 без дроби и 100 как 99
                 if(stata>=10)text.setText((stata>=99)? "99":Integer.toString(Math.round(stata)));
                 else  text.setText((stata==0)? "0":notZeroFormat.format(stata));
@@ -288,40 +285,54 @@ public class CreatingHUD {
 
 
 
-        public static Map<String,Integer[]> get_map_DescriptionsOfStats(){
-            Map<String,Integer[]> map_descriptions_of_stats = new HashMap<>();
+        public static Map<String,Integer[][]> get_map_DescriptionsOfStats(){
+            Map<String,Integer[][]> map_descriptions_of_stats = new HashMap<>();
             // {new AgainstRFI(),new Against3bet(),new VpipPFR3bet(),new RFI(),new Alliners()};
-            // Integer: 0 - индекс статы в конкурентмапе всех стат, 1 индекс выборки статы, 2 индекс статы, 3 позиция героя или индекс общей статы,
-            // 4 возможные позиции оппонентов складываются результаты против нескольких позиций выборка тоже складывается
-            // может вообще не быть ни одного индекса, это значит, что стата специфичная или только важна поза героя
-
-            map_descriptions_of_stats.put("VPIP",new Integer[]{2,0,1,6});
-            map_descriptions_of_stats.put("PFR",new Integer[]{2,0,2,6});
-            map_descriptions_of_stats.put("RFI_UTG",new Integer[]{3,0,1,0});
-            map_descriptions_of_stats.put("RFI_MP",new Integer[]{3,0,1,1});
-            map_descriptions_of_stats.put("RFI_CO",new Integer[]{3,0,1,2});
-            map_descriptions_of_stats.put("RFI_BU",new Integer[]{3,0,1,3});
-            map_descriptions_of_stats.put("RFI_SB",new Integer[]{3,0,1,4});
-            map_descriptions_of_stats.put("fold_to_steal_BUvCO",new Integer[]{0,0,1,3,2});
-            map_descriptions_of_stats.put("fold_to_steal_SBvCO",new Integer[]{0,0,1,4,2});
-            map_descriptions_of_stats.put("fold_to_steal_BBvCO",new Integer[]{0,0,1,5,2});
-            map_descriptions_of_stats.put("fold_to_steal_SBvBU",new Integer[]{0,0,1,4,3});
-            map_descriptions_of_stats.put("fold_to_steal_BBvBU",new Integer[]{0,0,1,5,3});
-            map_descriptions_of_stats.put("fold_to_steal_BBvSB",new Integer[]{0,0,1,5,4});
+            // Integer 0: 0 - индекс статы в конкурентмапе всех стат, 1 индекс выборки статы, 2 индекс статы
+            // Integer 1: позиции статы или индекс общей статы
+            // Integer 2: позиции оппонентов
 
 
-            map_descriptions_of_stats.put("fold_to_3bet_UTGvMP",new Integer[]{1,0,1,0,1});
-            map_descriptions_of_stats.put("fold_to_3bet_UTGvCO_BU",new Integer[]{1,0,1,0,2,3});
-            map_descriptions_of_stats.put("fold_to_3bet_UTGvSB_BB",new Integer[]{1,0,1,0,4,5});
-            map_descriptions_of_stats.put("fold_to_3bet_MPvCO",new Integer[]{1,0,1,1,2});
-            map_descriptions_of_stats.put("fold_to_3bet_MPvBU",new Integer[]{1,0,1,1,3});
-            map_descriptions_of_stats.put("fold_to_3bet_MPvSB_BB",new Integer[]{1,0,1,1,4,5});
-            map_descriptions_of_stats.put("fold_to_3bet_COvBU",new Integer[]{1,0,1,2,3});
-            map_descriptions_of_stats.put("fold_to_3bet_COvSB",new Integer[]{1,0,1,2,4});
-            map_descriptions_of_stats.put("fold_to_3bet_COvBB",new Integer[]{1,0,1,2,5});
-            map_descriptions_of_stats.put("fold_to_3bet_BUvSB",new Integer[]{1,0,1,3,4});
-            map_descriptions_of_stats.put("fold_to_3bet_BUvBB",new Integer[]{1,0,1,3,5});
-            map_descriptions_of_stats.put("fold_to_3bet_SBvBB",new Integer[]{1,0,1,4,5});
+
+            map_descriptions_of_stats.put("VPIP",new Integer[][]{{2,0,1},{6}});
+            map_descriptions_of_stats.put("PFR",new Integer[][]{{2,0,2},{6}});
+            map_descriptions_of_stats.put("RFI_UTG",new Integer[][]{{3,0,1}, {UTG}});
+            map_descriptions_of_stats.put("RFI_MP",new Integer[][]{{3,0,1},{MP}});
+            map_descriptions_of_stats.put("RFI_CO",new Integer[][]{{3,0,1},{CO}});
+            map_descriptions_of_stats.put("RFI_BU",new Integer[][]{{3,0,1},{BU}});
+            map_descriptions_of_stats.put("RFI_SB",new Integer[][]{{3,0,1},{SB}});
+            map_descriptions_of_stats.put("fold_to_steal_BUvCO",new Integer[][]{{0,0,1},{BU},{CO}});
+            map_descriptions_of_stats.put("fold_to_steal_SBvCO",new Integer[][]{{0,0,1},{SB},{CO}});
+            map_descriptions_of_stats.put("fold_to_steal_BBvCO",new Integer[][]{{0,0,1},{BB},{CO}});
+            map_descriptions_of_stats.put("fold_to_steal_SBvBU",new Integer[][]{{0,0,1},{SB},{BU}});
+            map_descriptions_of_stats.put("fold_to_steal_BBvBU",new Integer[][]{{0,0,1},{BB},{BU}});
+            map_descriptions_of_stats.put("fold_to_steal_BBvSB",new Integer[][]{{0,0,1},{BB},{SB}});
+
+
+            map_descriptions_of_stats.put("fold_to_3bet_UTGvMP",new Integer[][]{{1,0,1},{UTG},{MP}});
+            map_descriptions_of_stats.put("fold_to_3bet_UTGvCO_BU",new Integer[][]{{1,0,1},{UTG},{CO,BU}});
+            map_descriptions_of_stats.put("fold_to_3bet_UTGvSB_BB",new Integer[][]{{1,0,1},{UTG},{SB,BB}});
+            map_descriptions_of_stats.put("fold_to_3bet_MPvCO",new Integer[][]{{1,0,1},{MP},{CO}});
+            map_descriptions_of_stats.put("fold_to_3bet_MPvBU",new Integer[][]{{1,0,1},{MP},{BU}});
+            map_descriptions_of_stats.put("fold_to_3bet_MPvSB_BB",new Integer[][]{{1,0,1},{MP},{SB,BB}});
+            map_descriptions_of_stats.put("fold_to_3bet_COvBU",new Integer[][]{{1,0,1},{CO},{BU}});
+            map_descriptions_of_stats.put("fold_to_3bet_COvSB",new Integer[][]{{1,0,1},{CO},{SB}});
+            map_descriptions_of_stats.put("fold_to_3bet_COvBB",new Integer[][]{{1,0,1},{CO},{BB}});
+            map_descriptions_of_stats.put("fold_to_3bet_BUvSB",new Integer[][]{{1,0,1},{BU},{SB}});
+            map_descriptions_of_stats.put("fold_to_3bet_BUvBB",new Integer[][]{{1,0,1},{BU},{BB}});
+            map_descriptions_of_stats.put("fold_to_3bet_SBvBB",new Integer[][]{{1,0,1},{SB},{BB}});
+
+            map_descriptions_of_stats.put("3bet_MPvUTG",new Integer[][]{{0,0,2},{MP},{UTG}});
+            map_descriptions_of_stats.put("3bet_CO_BUvUTG",new Integer[][]{{0,0,2},{CO,BU},{UTG}});
+            map_descriptions_of_stats.put("3bet_SB_BBvUTG",new Integer[][]{{0,0,2},{SB,BB},{UTG}});
+            map_descriptions_of_stats.put("3bet_CO_BUvMP",new Integer[][]{{0,0,2},{CO,BU},{MP}});
+            map_descriptions_of_stats.put("3bet_SB_BBvMP",new Integer[][]{{0,0,2},{SB,BB},{MP}});
+            map_descriptions_of_stats.put("3bet_BUvCO",new Integer[][]{{0,0,2},{BU},{CO}});
+            map_descriptions_of_stats.put("3bet_SBvCO",new Integer[][]{{0,0,2},{SB},{CO}});
+            map_descriptions_of_stats.put("3bet_BBvCO",new Integer[][]{{0,0,2},{BB},{CO}});
+            map_descriptions_of_stats.put("3bet_SBvBU",new Integer[][]{{0,0,2},{SB},{BU}});
+            map_descriptions_of_stats.put("3bet_BBvBU",new Integer[][]{{0,0,2},{BB},{BU}});
+            map_descriptions_of_stats.put("3bet_BBvSB",new Integer[][]{{0,0,2},{BB},{SB}});
 
             return map_descriptions_of_stats;
         }
@@ -344,42 +355,61 @@ public class CreatingHUD {
             RangeColor foldToStealSBvBURangeColor = new RangeColor(new int[]{0,75,101},new Paint[]{Color.RED,Color.GREEN});
             RangeColor foldToStealBBvBURangeColor = new RangeColor(new int[]{0,70,101},new Paint[]{Color.RED,Color.GREEN});
             RangeColor foldToStealBBvSBRangeColor = new RangeColor(new int[]{0,65,101},new Paint[]{Color.RED,Color.GREEN});
-
             RangeColor foldTo3betRangeColor = new RangeColor(new int[]{0,68,101},new Paint[]{Color.RED,Color.GREEN});
-            int[] allPositionsHero = {0,1,2,3,4,5};
-            int[] mpPosHero = {1};
-            int[] coPosHero = {2};
-            int[] buPosHero = {3};
-            int[] sbPosHero = {4};
-            int[] bbPosHero = {5};
-            int[] co_buPosHero = {2,3};
-            int[] sb_bbPosHero = {4,5};
-            result_list.add(new SettingOneStata("VPIP",new int[]{50,12},14,vpipRangeColor,10,6,allPositionsHero));
-            result_list.add(new SettingOneStata("PFR",new int[]{75,12},14,pfrRangeColor,10,6,allPositionsHero));
-            result_list.add(new SettingOneStata("RFI_UTG",new int[]{1,25},14,rfiUtgRangeColor,10,6,allPositionsHero));
-            result_list.add(new SettingOneStata("RFI_MP",new int[]{23,25},14,rfiMpRangeColor,10,6,allPositionsHero));
-            result_list.add(new SettingOneStata("RFI_CO",new int[]{45,25},14,rfiCoRangeColor,10,6,allPositionsHero));
-            result_list.add(new SettingOneStata("RFI_BU",new int[]{67,25},14,rfiBuRangeColor,10,6,allPositionsHero));
-            result_list.add(new SettingOneStata("RFI_SB",new int[]{89,25},14,rfiSbRangeColor,10,6,allPositionsHero));
-            result_list.add(new SettingOneStata("fold_to_steal_BUvCO",new int[]{1,38},14,foldToStealBUvCORangeColor,10,3,coPosHero));
-            result_list.add(new SettingOneStata("fold_to_steal_SBvCO",new int[]{1,38},14,foldToStealSBvCORangeColor,10,4,coPosHero));
-            result_list.add(new SettingOneStata("fold_to_steal_BBvCO",new int[]{1,38},14,foldToStealBBvCORangeColor,10,5,coPosHero));
-            result_list.add(new SettingOneStata("fold_to_steal_SBvBU",new int[]{1,38},14,foldToStealSBvBURangeColor,10,4,buPosHero));
-            result_list.add(new SettingOneStata("fold_to_steal_BBvBU",new int[]{1,38},14,foldToStealBBvBURangeColor,10,5,buPosHero));
-            result_list.add(new SettingOneStata("fold_to_steal_BBvSB",new int[]{1,38},14,foldToStealBBvSBRangeColor,10,5,sbPosHero));
 
-            result_list.add(new SettingOneStata("fold_to_3bet_UTGvMP",new int[]{1,38},14,foldTo3betRangeColor,10,0,mpPosHero));
-            result_list.add(new SettingOneStata("fold_to_3bet_UTGvCO_BU",new int[]{1,38},14,foldTo3betRangeColor,10,0,co_buPosHero));
-            result_list.add(new SettingOneStata("fold_to_3bet_UTGvSB_BB",new int[]{1,38},14,foldTo3betRangeColor,10,0,sb_bbPosHero));
-            result_list.add(new SettingOneStata("fold_to_3bet_MPvCO",new int[]{1,38},14,foldTo3betRangeColor,10,1,coPosHero));
-            result_list.add(new SettingOneStata("fold_to_3bet_MPvBU",new int[]{1,38},14,foldTo3betRangeColor,10,1,buPosHero));
-            result_list.add(new SettingOneStata("fold_to_3bet_MPvSB_BB",new int[]{1,38},14,foldTo3betRangeColor,10,1,sb_bbPosHero));
-            result_list.add(new SettingOneStata("fold_to_3bet_COvBU",new int[]{1,38},14,foldTo3betRangeColor,10,2,buPosHero));
-            result_list.add(new SettingOneStata("fold_to_3bet_COvSB",new int[]{1,38},14,foldTo3betRangeColor,10,2,sbPosHero));
-            result_list.add(new SettingOneStata("fold_to_3bet_COvBB",new int[]{1,38},14,foldTo3betRangeColor,10,2,bbPosHero));
-            result_list.add(new SettingOneStata("fold_to_3bet_BUvSB",new int[]{1,38},14,foldTo3betRangeColor,10,3,sbPosHero));
-            result_list.add(new SettingOneStata("fold_to_3bet_BUvBB",new int[]{1,38},14,foldTo3betRangeColor,10,3,bbPosHero));
-            result_list.add(new SettingOneStata("fold_to_3bet_SBvBB",new int[]{1,38},14,foldTo3betRangeColor,10,4,bbPosHero));
+            Paint[] RedOrangePurpule = new Paint[]{Color.RED,Color.ORANGE,Color.PURPLE};
+
+
+
+            int[] allPositions = {0,1,2,3,4,5};
+
+
+            /*int[] co_buPosHero = {2,3};
+            int[] sb_bbPosHero = {4,5};*/
+            result_list.add(new SettingOneStata("VPIP",new int[]{50,12},14,vpipRangeColor,10,new int[][]{allPositions,allPositions}));
+            result_list.add(new SettingOneStata("PFR",new int[]{75,12},14,pfrRangeColor,10,new int[][]{allPositions,allPositions}));
+            result_list.add(new SettingOneStata("RFI_UTG",new int[]{1,25},14,rfiUtgRangeColor,10,new int[][]{allPositions,allPositions}));
+            result_list.add(new SettingOneStata("RFI_MP",new int[]{23,25},14,rfiMpRangeColor,10,new int[][]{allPositions,allPositions}));
+            result_list.add(new SettingOneStata("RFI_CO",new int[]{45,25},14,rfiCoRangeColor,10,new int[][]{allPositions,allPositions}));
+            result_list.add(new SettingOneStata("RFI_BU",new int[]{67,25},14,rfiBuRangeColor,10,new int[][]{allPositions,allPositions}));
+            result_list.add(new SettingOneStata("RFI_SB",new int[]{89,25},14,rfiSbRangeColor,10,new int[][]{allPositions,allPositions}));
+            result_list.add(new SettingOneStata("fold_to_steal_BUvCO",new int[]{45,38},14,foldToStealBUvCORangeColor,10,new int[][]{{BU},{CO}}));
+            result_list.add(new SettingOneStata("fold_to_steal_SBvCO",new int[]{45,38},14,foldToStealSBvCORangeColor,10,new int[][]{{SB},{CO}}));
+            result_list.add(new SettingOneStata("fold_to_steal_BBvCO",new int[]{45,38},14,foldToStealBBvCORangeColor,10,new int[][]{{BB},{CO}}));
+            result_list.add(new SettingOneStata("fold_to_steal_SBvBU",new int[]{45,38},14,foldToStealSBvBURangeColor,10,new int[][]{{SB},{BU}}));
+            result_list.add(new SettingOneStata("fold_to_steal_BBvBU",new int[]{45,38},14,foldToStealBBvBURangeColor,10,new int[][]{{BB},{BU}}));
+            result_list.add(new SettingOneStata("fold_to_steal_BBvSB",new int[]{45,38},14,foldToStealBBvSBRangeColor,10,new int[][]{{BB},{SB}}));
+
+            result_list.add(new SettingOneStata("fold_to_3bet_UTGvMP",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{UTG},{MP}}));
+            result_list.add(new SettingOneStata("fold_to_3bet_UTGvCO_BU",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{UTG},{CO, BU}}));
+            result_list.add(new SettingOneStata("fold_to_3bet_UTGvSB_BB",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{UTG},{SB, BB}}));
+            result_list.add(new SettingOneStata("fold_to_3bet_MPvCO",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{MP},{CO}}));
+            result_list.add(new SettingOneStata("fold_to_3bet_MPvBU",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{MP},{BU}}));
+            result_list.add(new SettingOneStata("fold_to_3bet_MPvSB_BB",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{MP},{SB, BB}}));
+            result_list.add(new SettingOneStata("fold_to_3bet_COvBU",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{CO},{BU}}));
+            result_list.add(new SettingOneStata("fold_to_3bet_COvSB",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{CO},{SB}}));
+            result_list.add(new SettingOneStata("fold_to_3bet_COvBB",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{CO},{BB}}));
+            result_list.add(new SettingOneStata("fold_to_3bet_BUvSB",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{BU},{SB}}));
+            result_list.add(new SettingOneStata("fold_to_3bet_BUvBB",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{BU},{BB}}));
+            result_list.add(new SettingOneStata("fold_to_3bet_SBvBB",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{SB},{BB}}));
+
+
+            result_list.add(new SettingOneStata("3bet_MPvUTG",new int[]{23,38},14,new RangeColor(new int[]{0,2,3,101},RedOrangePurpule),10,new int[][]{{MP},{UTG}}));
+            result_list.add(new SettingOneStata("3bet_CO_BUvUTG",new int[]{23,38},14,new RangeColor(new int[]{0,3,4,101},RedOrangePurpule),10,new int[][]{{CO,BU},{UTG}}));
+            result_list.add(new SettingOneStata("3bet_SB_BBvUTG",new int[]{23,38},14,new RangeColor(new int[]{0,3,4,101},RedOrangePurpule),10,new int[][]{{SB,BB},{UTG}}));
+            result_list.add(new SettingOneStata("3bet_CO_BUvMP",new int[]{23,38},14,new RangeColor(new int[]{0,3,5,101},RedOrangePurpule),10,new int[][]{{CO,BU},{MP}}));
+            result_list.add(new SettingOneStata("3bet_SB_BBvMP",new int[]{23,38},14,new RangeColor(new int[]{0,3,5,101},RedOrangePurpule),10,new int[][]{{SB,BB},{MP}}));
+            result_list.add(new SettingOneStata("3bet_BUvCO",new int[]{23,38},14, new RangeColor(new int[]{0,5,10,101},RedOrangePurpule),10,new int[][]{{BU},{CO}}));
+            result_list.add(new SettingOneStata("3bet_SBvCO",new int[]{23,38},14,new RangeColor(new int[]{0,5,10,101},RedOrangePurpule),10,new int[][]{{SB},{CO}}));
+            result_list.add(new SettingOneStata("3bet_BBvCO",new int[]{23,38},14,new RangeColor(new int[]{0,5,7,101},RedOrangePurpule),10,new int[][]{{BB},{CO}}));
+            result_list.add(new SettingOneStata("3bet_SBvBU",new int[]{23,38},14,new RangeColor(new int[]{0,5,12,101},RedOrangePurpule),10,new int[][]{{SB},{BU,BB}}));
+            result_list.add(new SettingOneStata("3bet_BBvBU",new int[]{23,38},14,new RangeColor(new int[]{0,5,11,101},RedOrangePurpule),10,new int[][]{{BB},{BU}}));
+            result_list.add(new SettingOneStata("3bet_BBvSB",new int[]{23,38},14,new RangeColor(new int[]{0,5,10,101},RedOrangePurpule),10,new int[][]{{BB},{SB}}));
+
+
+
+
+
             return result_list;
         }
 
