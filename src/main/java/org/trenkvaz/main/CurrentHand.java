@@ -1,5 +1,6 @@
 package org.trenkvaz.main;
 
+import javafx.scene.paint.Color;
 import org.trenkvaz.database_hands.ReadHistoryGetStats;
 import org.trenkvaz.database_hands.Work_DataBase;
 
@@ -74,7 +75,7 @@ public class CurrentHand {
 
     public static synchronized void creat_HandForSaving(CurrentHand currentHand){
 
-      controller_main_window.setMessage_work(currentHand.time_hand+"");
+      controller_main_window.setMessage_work(currentHand.time_hand+"", Color.BLUE);
       //Integer[] idplayers = get_and_write_NewIdPlayersForNicks(currentHand.nicks);
       Work_DataBase.record_rec_to_TableTempHands(new TempHand(currentHand.time_hand,get_short_CardsHero(currentHand.cards_hero),(short)currentHand.poker_position_of_hero,currentHand.stacks,currentHand.nicks));
     /* for(int i=0; i<6; i++){if(nicks[i]==null)continue;

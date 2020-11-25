@@ -320,41 +320,6 @@ static String work_database;
     }
 
 
-   /*public Map<String, Integer> get_map_IdPlayersNicks(){
-        Map<String, Integer> LocalNiksMap = new HashMap<>();
-        String query = "SELECT idplayers, nicks FROM idplayers_nicks ;";
-        int Idplayer = 0; String Nick = null;
-        ResultSet rs = null;
-        try {
-            //stmt_of_db.executeUpdate(BEGIN);
-            rs = stmt_of_db.executeQuery(query);
-            while (rs.next()) {
-                Idplayer = rs.getInt("idplayers");
-                Nick = rs.getString("nicks");
-                if(Idplayer!=0){ LocalNiksMap.put(Nick,Idplayer); }
-            }
-            //stmt_of_db.executeUpdate(COMMIT);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return LocalNiksMap;
-    }*/
-
-
-    /*public void record_listrec_to_TableIdPlayersNicks(List<CaptureVideo.IdPlayer_Nick> rec){
-
-        try {
-            //stmt_of_db.executeUpdate(BEGIN);
-            for(CaptureVideo.IdPlayer_Nick item :  rec){
-                String record = "INSERT INTO idplayers_nicks VALUES ("+item.idplayer()+",$ю$"+item.nick()+"$ю$);";
-                stmt_of_db.addBatch(record);
-            }
-            stmt_of_db.executeBatch();
-            //stmt_of_db.executeUpdate(COMMIT);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }*/
 
 
     public static void record_rec_to_TableTempHands(CurrentHand.TempHand temphand){

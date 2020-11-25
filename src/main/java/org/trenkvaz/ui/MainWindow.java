@@ -11,6 +11,7 @@ import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import org.trenkvaz.database_hands.Work_DataBase;
 
+import static org.trenkvaz.ui.Controller_main_window.controller_main_window;
 import static org.trenkvaz.ui.Controller_main_window.mytimer;
 import static org.trenkvaz.ui.StartAppLauncher.hud;
 import static org.trenkvaz.ui.StartAppLauncher.work_dataBase;
@@ -51,7 +52,8 @@ public class MainWindow extends Application {
             @Override
             public void handle(WindowEvent t) {
                 Work_DataBase.close_DataBase();
-                mytimer.stop_timer();
+                //mytimer.stop_timer();
+                controller_main_window.stop_CaptureVideo();
                 Platform.exit();
                 System.exit(0);
             }

@@ -206,7 +206,7 @@ public class OCR implements Runnable {
             // обработка стоп сигнала для завершения последней раздачи
             if(count_stop_signal==200&&currentHand!=null) {
                 currentHand.set_NicksByPositions();
-                //creat_HandForSaving(this.currentHand);
+                if(let_SaveTempHands)creat_HandForSaving(this.currentHand);
                   show_test_total_hand(this);
                  currentHand = null;
             }
@@ -221,7 +221,7 @@ public class OCR implements Runnable {
                 }*/
 
                 currentHand.set_NicksByPositions();
-                //creat_HandForSaving(this.currentHand);
+                if(let_SaveTempHands)creat_HandForSaving(this.currentHand);
 
                //if(currentHand.is_start_flop)
                    show_test_total_hand(this);

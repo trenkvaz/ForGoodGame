@@ -2,6 +2,7 @@ package org.trenkvaz.main;
 
 
 //import org.bytedeco.javacpp.opencv_core.IplImage;
+import javafx.scene.paint.Color;
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
 
@@ -28,10 +29,9 @@ import org.trenkvaz.stats.MainStats;
 //import static org.trenkvaz.database_hands.Work_DataBase.main_array_of_stats;
 import static org.trenkvaz.main.OCR.get_intGreyColor;
 import static org.trenkvaz.ui.Controller_main_window.*;
-import static org.trenkvaz.ui.StartAppLauncher.home_folder;
-import static org.trenkvaz.ui.StartAppLauncher.work_dataBase;
+import static org.trenkvaz.ui.StartAppLauncher.*;
 
-public class CaptureVideo implements Runnable{
+public class CaptureVideo {
 
    static final int[][] coords_places_of_nicks = {{298,320},{15,253},{15,120},{264,67},{543,120},{543,253}};
 
@@ -55,13 +55,13 @@ public class CaptureVideo implements Runnable{
 
 
 
-   public List<OCR> ocrList_1;
-   final int COUNT_TABLES = 6;
-   boolean is_run = true;
+   public static List<OCR> ocrList_1;
+   static final int COUNT_TABLES = 6;
+   /*boolean is_run = true;
    Thread thread;
-   boolean is_getting_frame = true;
-   FFmpegFrameGrabber grabber;
-   CanvasFrame canvasFrame;
+   boolean is_getting_frame = true;*/
+   static FFmpegFrameGrabber grabber;
+   static CanvasFrame canvasFrame;
 
 
    static final UseTesseract[] use_tessearts = new UseTesseract[4];
@@ -73,11 +73,7 @@ public class CaptureVideo implements Runnable{
    static int[][] shablons_numbers_0_9_for_stacks, shablons_numbers_0_9_for_actions;
    public static ConcurrentHashMap[] current_map_stats;
    public static MainStats[] work_main_stats;
-
-
-   /*static Map<String, Integer> map_idplayers_nicks;
-   static int id_for_nick = 0;
-   public record IdPlayer_Nick(int idplayer,String nick){}*/
+   public static boolean let_SaveTempHands = false;
 
 
 
@@ -91,11 +87,12 @@ public class CaptureVideo implements Runnable{
        canvasFrame = new CanvasFrame("Some Title");
        canvasFrame.setCanvasSize(600, 300);//задаем размер окна
        canvasFrame.setBounds(100,100,600,300);
+       avutil.av_log_set_level (avutil.AV_LOG_ERROR);
    }
 
+    public CaptureVideo(String a){}
 
-
-   public void start_thread(){
+  /* public void start_thread(){
        ocrList_1 = new ArrayList<>();
        for(int i=0; i<COUNT_TABLES; i++){
            ocrList_1.add(new OCR(i));
@@ -105,12 +102,13 @@ public class CaptureVideo implements Runnable{
    }
 
 
-   public CaptureVideo(String a){}
+
 
    public void run(){
 
        avutil.av_log_set_level (avutil.AV_LOG_ERROR);
        while (is_run){
+           System.out.println("START CAPTURE");
          grabber = connect_stream();
            if(grabber!=null){
                screen2(grabber);
@@ -129,9 +127,48 @@ public class CaptureVideo implements Runnable{
         is_run = false;
         is_getting_frame = false;
 
+   }*/
+   static boolean is_getting_frame = false;
+
+   public class StartStopCapture implements Runnable{
+       boolean is_run = true;
+
+
+       public StartStopCapture(){
+           ocrList_1 = new ArrayList<>();
+           for(int i=0; i<COUNT_TABLES; i++){
+               ocrList_1.add(new OCR(i));
+           }
+           new Thread(this).start();
+       }
+
+       public void run(){
+
+           while (is_run){
+               System.out.println("START CAPTURE");
+               grabber = connect_stream();
+               if(grabber!=null){
+                   screen2(grabber);
+               }
+               try {
+                   Thread.sleep(1000);
+               } catch (InterruptedException e) {
+                   e.printStackTrace();
+               }
+           }
+       }
+
+
+       public synchronized  void stop_tread(){
+
+           is_run = false;
+           is_getting_frame = false;
+
+       }
+
    }
 
-    FFmpegFrameGrabber connect_stream(){
+   static FFmpegFrameGrabber connect_stream(){
 
         //FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(System.getProperty("user.dir")+"\\test_video9.avi");
         FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("rtmp://127.0.0.1/live/test");
@@ -145,13 +182,13 @@ public class CaptureVideo implements Runnable{
         return grabber;
     }
 
-   void screen2(FFmpegFrameGrabber grabber){
+   static void screen2(FFmpegFrameGrabber grabber){
        Frame frame = null;
        is_getting_frame = true;
        try {
            System.out.println(grabber.getFrameRate());
            System.out.println("start");
-           controller_main_window.setMessage_work("start");
+           controller_main_window.setMessage_work("Start capture", Color.GREEN);
 
            while(is_getting_frame){
                frame = grabber.grabImage();
@@ -165,7 +202,7 @@ public class CaptureVideo implements Runnable{
        } catch (FrameGrabber.Exception e) {
            e.printStackTrace();
        }
-       controller_main_window.setMessage_work("stop");
+       controller_main_window.setMessage_work("Stop capture",Color.RED);
        System.out.println("stop");
        //canvasFrame.dispose();
    }
@@ -266,11 +303,11 @@ public class CaptureVideo implements Runnable{
    static int c =0;
 
 
-   BufferedImage bufferedImageframe;
+   static BufferedImage bufferedImageframe;
 
 
 
-   void find_tables(Frame frame){
+   static void find_tables(Frame frame){
 
 
        if(bufferedImageframe==null)
@@ -360,7 +397,7 @@ public class CaptureVideo implements Runnable{
 
 
 
-   private BufferedImage cut_SubImage(BufferedImage image_window,int X, int Y, int W, int H){
+   private static BufferedImage cut_SubImage(BufferedImage image_window,int X, int Y, int W, int H){
        BufferedImage img = image_window.getSubimage(X, Y, W, H);
        BufferedImage cut_subimage = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_RGB);
        Graphics g = cut_subimage.createGraphics();
@@ -369,7 +406,7 @@ public class CaptureVideo implements Runnable{
    }
 
 
-    private BufferedImage createBufferedImage(Frame frame, BufferedImage image) {
+    private static BufferedImage createBufferedImage(Frame frame, BufferedImage image) {
             ByteBuffer buffer = (ByteBuffer) frame.image[0].position(0);
             WritableRaster wr = image.getRaster();
             byte[] bufferPixels = ((DataBufferByte) wr.getDataBuffer()).getData();
@@ -414,29 +451,6 @@ public class CaptureVideo implements Runnable{
         //return frame.getSubimage(X+25,Y+3,26,5);
     }
 
-
-
-   /* public static synchronized Integer[] get_and_write_NewIdPlayersForNicks(String[] nicks){
-        Integer[] IdNiks = new Integer[6];
-        int IDplyer = -1;
-        List<IdPlayer_Nick> list_idplayer_nicks = new ArrayList<>(6);
-        for (int n = 0; n < 6; n++) {
-            if (nicks[n] != null) {
-                if (!map_idplayers_nicks.containsKey(nicks[n])) {
-                    id_for_nick++;
-                    map_idplayers_nicks.put(nicks[n], id_for_nick);
-                    IdNiks[n] = id_for_nick;
-                    list_idplayer_nicks.add(new IdPlayer_Nick(id_for_nick,nicks[n]));
-                } else {
-                    IDplyer = map_idplayers_nicks.get(nicks[n]);
-                    IdNiks[n] = IDplyer;
-                }
-            } else IdNiks[n] = 0;
-        }
-        if(!list_idplayer_nicks.isEmpty())work_dataBase.record_listrec_to_TableIdPlayersNicks(list_idplayer_nicks);
-
-        return IdNiks;
-    }*/
 
 
 
@@ -608,26 +622,7 @@ public class CaptureVideo implements Runnable{
        //test_cam2();
        for(Map.Entry<Integer,String> entry:hashcodes_nicks_hashmap.entrySet())
            System.out.println(entry.getValue()+"    "+entry.getKey());*/
-        CaptureVideo captureVideo = null;
-        String name = null;
-        Scanner in = new Scanner(System.in);
-        System.out.print("Start y/n ");
-        do {
-            name = in.nextLine();
-            if (name.equals("y")) {
-                captureVideo = new CaptureVideo();
-                captureVideo.start_thread();
-            }
-            if (name.equals("n")) System.exit(0);
-            System.out.println("if stop push s");
-            System.out.print("Start y/n ");
-            if (name.equals("s") && captureVideo != null) {
-                captureVideo.stop_tread();
-                for (OCR ocr : captureVideo.ocrList_1) ocr.stop();
-                //for(OCR ocr:captureVideo.ocrList_2)ocr.stop();
-                System.out.println("stop");
-            }
-        } while (!name.equals("c"));
+
 
 
 

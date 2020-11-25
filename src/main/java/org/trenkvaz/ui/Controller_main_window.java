@@ -4,6 +4,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import org.trenkvaz.main.CaptureVideo;
 import org.trenkvaz.main.OCR;
@@ -13,21 +15,23 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimerTask;
 
+import static org.trenkvaz.main.CaptureVideo.let_SaveTempHands;
 import static org.trenkvaz.ui.StartAppLauncher.captureVideo;
 import static org.trenkvaz.ui.StartAppLauncher.hud;
 
 public class Controller_main_window {
 
-    @FXML public Button start_stop_capture_video, show_hide_hud;
+    @FXML public Button start_stop_capture_video, show_hide_hud, savehands;
     @FXML public Label message_work,timer;
     //CaptureVideo captureVideo;
     public static Controller_main_window controller_main_window;
     public static MyTimer mytimer;
+    CaptureVideo.StartStopCapture startStopCapture;
 
     @FXML public void initialize() {
         //captureVideo = new CaptureVideo();
         controller_main_window = this;
-        mytimer = new MyTimer();
+        //mytimer = new MyTimer();
        // new HUD();
     }
 
@@ -35,18 +39,17 @@ public class Controller_main_window {
     @FXML public void capture_video(){
 
           if(start_stop_capture_video.getText().equals("Start")){ start_stop_capture_video.setText("Stop");
-           captureVideo.start_thread();
-
+           startStopCapture= captureVideo.new StartStopCapture();
           }
-          else {start_stop_capture_video.setText("Start");
-           captureVideo.stop_tread();
-              for(OCR ocr:captureVideo.ocrList_1)ocr.stop();
-              //for(OCR ocr:captureVideo.ocrList_2)ocr.stop();
-              System.out.println("stop");
+          else {start_stop_capture_video.setText("Start"); stop_CaptureVideo(); }
+    }
 
-
-
-          }
+    public void stop_CaptureVideo(){
+        if(startStopCapture!=null){
+        startStopCapture.stop_tread();
+        for(OCR ocr: CaptureVideo.ocrList_1)ocr.stop();}
+        //for(OCR ocr:captureVideo.ocrList_2)ocr.stop();
+        System.out.println("stop");
     }
 
     @FXML public void set_show_hud(){
@@ -64,11 +67,27 @@ public class Controller_main_window {
         }
     }
 
-    public void setMessage_work(String message){
+    public void setMessage_work(String message, Paint color){
         Platform.runLater(() -> {
+            message_work.setTextFill(color);
             message_work.setText(message);
         });
     }
+
+
+    @FXML public void on_off_savehands(){
+        if(savehands.getText().equals("Not saving hands")){
+            savehands.setTextFill(Color.GREEN);
+            savehands.setText("Saving hands");
+            let_SaveTempHands = true;
+        } else {
+            savehands.setTextFill(Color.RED);
+            savehands.setText("Not saving hands");
+            let_SaveTempHands = false;
+        }
+    }
+
+
 
 
     class MyTimer implements Runnable {
