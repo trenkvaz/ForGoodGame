@@ -100,7 +100,7 @@ public class CurrentHand {
             if(preflop_by_positions.get(f).size()==1)preflop_by_positions.get(f).add(0.0f);
         }
 
-        boolean run = true;int count_round = 0; float befor_action =1; int number_raise = 1, last_max_raise_position = -1, max_raise = 0, folders_to_bb=0;
+        int count_round = 0; float befor_action =1; int number_raise = 1, last_max_raise_position = -1, max_raise = 0, folders_to_bb=0;
         boolean rules_1_round_limps = false, rules_1_round_raise = false;
         List<int[]> raunds = new ArrayList<>();
         while (true){ count_round++;
@@ -114,7 +114,7 @@ public class CurrentHand {
                     if(action==befor_action){ if(number_raise==1)rules_1_round_limps=true; round_action[pos]=-number_raise; continue;}
                     if(action==-10){round_action[pos] =-10; if(count_round==1){ preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);}continue; }
                     if(action>befor_action){    round_action[pos] = ++number_raise; befor_action = action;
-                        // нужно знать кто рейзил последний херо или оппы, чтобы в многораундовой раздаче правильно расставить неотмеченные фолды
+                        // нужно знать кто рейзил последний, чтобы в многораундовой раздаче правильно расставить неотмеченные фолды
                         if(round_action[pos]>max_raise){max_raise = round_action[pos]; last_max_raise_position = pos;}
 
                       if(count_round==1)rules_1_round_raise=true;
@@ -125,7 +125,7 @@ public class CurrentHand {
             raunds.add(round_action);
             /*for(int a:round_action) System.out.print(a+" ");
             System.out.println();*/
-
+            // проверка на возможность второго раунда
             if(count_round==1&&((rules_1_round_limps&&number_raise>1)||number_raise>2))continue;
             if(count_round>2&&Arrays.stream(round_action).filter(c->c>0).count()>1) continue;
 
@@ -144,7 +144,7 @@ public class CurrentHand {
 
 
 
-        befor_action =1; float size_raise = 1;
+        befor_action =1;
         if(raunds.size()==1){
             // проверка на все фолды до бб где херо
             //if(poker_position_of_hero==5&&raunds.get(0)[5]!=-10&&Arrays.stream(raunds.get(0)).filter(c->c==-10).count()==5){ return;}
@@ -297,8 +297,6 @@ public class CurrentHand {
                             else {
 
                                // последний рейзящий пропускается его пустышка ноль не обрабатывается
-                               /* if(last_max_raise_position==poker_position_of_hero){if(pos==poker_position_of_hero) continue;}
-                                else if(last_max_raise_position==pos)continue;*/
                                 if(last_max_raise_position==pos)continue;
                                 // проверка что на предидущем раунде уже был кол последнего рейза
                                 if(max_raise==Math.abs(raunds.get(raund-1)[pos]))continue;
@@ -313,14 +311,10 @@ public class CurrentHand {
 
                         float action = preflop_by_positions.get(pos).get(raund+1);
                         if(action==-10){if(raund>0)preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY); continue;}
-                        //if(action==0){ if(pos==poker_position_of_hero)preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);continue;}
-                        // на основе шага рейза понять был рейз или кол если рейз то ставка также вносится
-                        //float current_size_raise = action-befor_action;
-                        //System.out.println(nicks[pos]+"  "+current_size_raise+"  act "+action);
+                        // если действие больше последнего предидущего то это рейз
                         if(action>befor_action){preflop_actions_for_stats.get(pos).add(action);}
                         else {
-                            // если был кол а он может быть и больше последней ставки но так как меньше шага рейза то считается за кол
-                            // ставку кол записывается как действие минус уже вложенные деньги особенно на блайндах
+                            // если действие равно или меньше то это кол минус предидущее вложение игрока
                             preflop_actions_for_stats.get(pos).add(-(action-Math.abs(preflop_by_positions.get(pos).get(raund))));
                         }
                         befor_action = action;

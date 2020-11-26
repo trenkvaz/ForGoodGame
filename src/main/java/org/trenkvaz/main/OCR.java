@@ -668,7 +668,7 @@ public class OCR implements Runnable {
     }
 
     int C = 0;
-    int pos = -1;
+    int pos = -1, gxa = -1, gya = -1, gwa = -1, gha = -1;
     void get_start_stacks_and_preflop(){
        C++;
         //System.out.println("get stacks");
@@ -728,6 +728,9 @@ public class OCR implements Runnable {
             if(list_by_poker_pos_current_list_arrnums_actions.get(poker_position).isEmpty()) list_by_poker_pos_current_list_arrnums_actions.set(poker_position,nums);
             else {
                 // если в листе есть число то сравнивает его с текущим числом если они одинаковые, то значит не нужно распознавать в цикл продолжается
+                //TEST
+                //pos = poker_position;
+                gwa =wa; gha = ha; gxa = xa; gya = ya;
                 if(compare_CurrentListNumsAndNewListNums(list_by_poker_pos_current_list_arrnums_actions.get(poker_position),nums,10))continue;
                 // если же числа разные, то старое число меняется на новое и распознается
                 list_by_poker_pos_current_list_arrnums_actions.set(poker_position,nums);
@@ -1147,6 +1150,7 @@ public class OCR implements Runnable {
             if(current_list_nums.get(ind_nums)==null){ if(_new_list_nums.get(ind_nums)==null)continue; else return false; }
             int total_error_in_num = 0;
             for(int ind_of_num=0; ind_of_num<2; ind_of_num++){
+                if(_new_list_nums.get(ind_nums)==null) {  save_image(frame[0].getSubimage(gxa,gya,gwa,gha),"test5\\_"+(c++)); return false;}
                 total_error_in_num += get_AmountOneBitInInt(current_list_nums.get(ind_nums)[ind_of_num]^_new_list_nums.get(ind_nums)[ind_of_num]);
                 if(total_error_in_num>limit_error)return false;
             }

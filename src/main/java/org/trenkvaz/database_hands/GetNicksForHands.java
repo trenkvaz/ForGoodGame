@@ -128,11 +128,11 @@ public class GetNicksForHands {
 
         List<CurrentHand.TempHand> list_temphands_for_select = get_list_TempHandsMinMaxTime(list_handsfromhistory.get(0).time_hand,
                 list_handsfromhistory.get(list_handsfromhistory.size()-1).time_hand+30000);
-        /*for (CurrentHand.TempHand tempHand:list_temphands_for_select){
-            System.out.println("time "+get_str_Date(tempHand.time_hand())+" cards "+get_str_Cards(tempHand.cards_hero())
+        for (CurrentHand.TempHand tempHand:list_temphands_for_select){
+            System.out.println("time   cards "+get_str_Cards(tempHand.cards_hero())
                     // +" pos_hero "+tempHand.position_hero()
             );
-        }*/
+        }
 
         List<CurrentHand.TempHand> list_selected_temphands = new ArrayList<>();
 
@@ -166,7 +166,9 @@ public class GetNicksForHands {
             /*System.out.println(get_str_Date(handfromhistory.time_hand)+" "+get_str_Cards(handfromhistory.cards_hero)+"   "+
                     get_str_Date(selected_temphand.time_hand())+"   "+get_str_Cards(selected_temphand.cards_hero()));*/
            if(selected_temphand!=null){
-           for(int i=0; i<6; i++) handfromhistory.nicks[i] = selected_temphand.nicks()[i];
+           for(int i=0; i<6; i++) {handfromhistory.nicks[i] = selected_temphand.nicks()[i];
+               //System.out.println(selected_temphand.nicks()[i]);
+           }
 
            }
 
@@ -213,6 +215,9 @@ public class GetNicksForHands {
 
    static String get_NewHistoryHandWithNicks(List<String> historyhand,String[] nicks){
        List<String> sublist_players = historyhand.subList(4,10);int position = -1;
+       System.out.println();
+      /* for(String line:historyhand) System.out.println(line);
+       for(String line:nicks) System.out.println(line);*/
        String[][] seat_nick = new String[6][2];
        // меняются плеер1 и т.д на ники в начале раздачи где они на своих местах
        for (int i=0; i<6; i++) {
@@ -236,8 +241,9 @@ public class GetNicksForHands {
            }
        }
        StringBuilder result = new StringBuilder();
-       for(String line:historyhand)
-           result.append(line).append("\r\n");
+       for(String line:historyhand){
+          // System.out.println(line);
+           result.append(line).append("\r\n");}
 
        return result.toString();
     }

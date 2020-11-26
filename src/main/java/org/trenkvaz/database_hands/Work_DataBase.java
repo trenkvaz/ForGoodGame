@@ -327,7 +327,7 @@ static String work_database;
         try {
             //stmt_of_db.executeUpdate(BEGIN);
 //         long time_hand, short cards_hero, short position_hero, float[] stacks, int[] idplayers
-            String record = "INSERT INTO temphands_nicks VALUES (?,?,?,?,?);";
+            String record = "INSERT INTO temphands VALUES (?,?,?,?,?);";
             PreparedStatement pstmt = connect_to_db.prepareStatement(record);
             pstmt.setLong(1,temphand.time_hand());
             pstmt.setShort(2,temphand.cards_hero());
@@ -371,7 +371,7 @@ static String work_database;
 
 
     public static List<CurrentHand.TempHand> get_list_TempHandsMinMaxTime(long min, long max){
-        String query = "SELECT * FROM temphands_nicks WHERE time_hand>"+min+" AND time_hand<"+max+";";
+        String query = "SELECT * FROM temphands WHERE time_hand>"+min+" AND time_hand<"+max+";";
         List<CurrentHand.TempHand> result = new ArrayList<>();
         try {
             //stmt_of_db.executeUpdate(BEGIN);
