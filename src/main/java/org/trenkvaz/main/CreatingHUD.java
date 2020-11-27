@@ -75,9 +75,22 @@ public class CreatingHUD {
 
            add_StatsToListForHUD(nicks[table_place],list_current_one_table_texts_huds_each_player.get(table_place),
                    get_ArrayIndex(inds_poker_pos_elements_places_table,table_place+1),table_place,poker_position_of_hero);
+
+           check_LinesOfTexts(list_current_one_table_texts_huds_each_player.get(table_place));
          }
+
          hud.set_hud(copy_ListCreatingHUDtoListHUD(list_current_one_table_texts_huds_each_player),table);
      }
+
+
+    private void check_LinesOfTexts(List<Text> list_text_hud_one_player){
+
+         for (Text text:list_text_hud_one_player){ if(text.getY()==38)return; }
+         for (Text text:list_text_hud_one_player){ if(text.getY()==51) text.setY(38);
+             if(text.getY()==54) text.setY(41);
+         }
+
+    }
 
 
     private List<List<Text>> copy_ListCreatingHUDtoListHUD(List<List<Text>> arr_one_table_texts_huds_each_player){
@@ -333,7 +346,23 @@ public class CreatingHUD {
             map_descriptions_of_stats.put("3bet_SBvBU",new Integer[][]{{0,0,2},{SB},{BU}});
             map_descriptions_of_stats.put("3bet_BBvBU",new Integer[][]{{0,0,2},{BB},{BU}});
             map_descriptions_of_stats.put("3bet_BBvSB",new Integer[][]{{0,0,2},{BB},{SB}});
-            
+
+            map_descriptions_of_stats.put("4bet_UTGvMP",new Integer[][]{{1,0,2},{UTG},{MP}});
+
+            map_descriptions_of_stats.put("4bet_UTGvCO_BU",new Integer[][]{{1,0,2},{UTG},{CO,BU}});
+            map_descriptions_of_stats.put("4bet_UTGvSB_BB",new Integer[][]{{1,0,2},{UTG},{SB,BB}});
+            map_descriptions_of_stats.put("4bet_MPvCO",new Integer[][]{{1,0,2},{MP},{CO}});
+            map_descriptions_of_stats.put("4bet_MPvBU",new Integer[][]{{1,0,2},{MP},{BU}});
+            map_descriptions_of_stats.put("4bet_MPvSB_BB",new Integer[][]{{1,0,2},{MP},{SB,BB}});
+            map_descriptions_of_stats.put("4bet_COvBU",new Integer[][]{{1,0,2},{CO},{BU}});
+            map_descriptions_of_stats.put("4bet_COvSB",new Integer[][]{{1,0,2},{CO},{SB}});
+            map_descriptions_of_stats.put("4bet_COvBB",new Integer[][]{{1,0,2},{CO},{BB}});
+            map_descriptions_of_stats.put("4bet_BUvSB",new Integer[][]{{1,0,2},{BU},{SB}});
+            map_descriptions_of_stats.put("4bet_BUvBB",new Integer[][]{{1,0,2},{BU},{BB}});
+            map_descriptions_of_stats.put("4bet_SBvBB",new Integer[][]{{1,0,2},{SB},{BB}});
+
+
+
             return map_descriptions_of_stats;
         }
 
@@ -356,7 +385,7 @@ public class CreatingHUD {
             RangeColor foldToStealBBvBURangeColor = new RangeColor(new int[]{0,70,101},new Paint[]{Color.RED,Color.GREEN});
             RangeColor foldToStealBBvSBRangeColor = new RangeColor(new int[]{0,65,101},new Paint[]{Color.RED,Color.GREEN});
             RangeColor foldTo3betRangeColor = new RangeColor(new int[]{0,68,101},new Paint[]{Color.RED,Color.GREEN});
-
+            RangeColor _4bet = new RangeColor(new int[]{0,101},new Paint[]{Color.BLUE});
             Paint[] RedOrangePurpule = new Paint[]{Color.RED,Color.ORANGE,Color.PURPLE};
 
 
@@ -373,12 +402,12 @@ public class CreatingHUD {
             result_list.add(new SettingOneStata("RFI_CO",new int[]{45,25},14,rfiCoRangeColor,10,new int[][]{allPositions,allPositions}));
             result_list.add(new SettingOneStata("RFI_BU",new int[]{67,25},14,rfiBuRangeColor,10,new int[][]{allPositions,allPositions}));
             result_list.add(new SettingOneStata("RFI_SB",new int[]{89,25},14,rfiSbRangeColor,10,new int[][]{allPositions,allPositions}));
-            result_list.add(new SettingOneStata("fold_to_steal_BUvCO",new int[]{45,38},14,foldToStealBUvCORangeColor,10,new int[][]{{BU},{CO}}));
-            result_list.add(new SettingOneStata("fold_to_steal_SBvCO",new int[]{45,38},14,foldToStealSBvCORangeColor,10,new int[][]{{SB},{CO}}));
-            result_list.add(new SettingOneStata("fold_to_steal_BBvCO",new int[]{45,38},14,foldToStealBBvCORangeColor,10,new int[][]{{BB},{CO}}));
-            result_list.add(new SettingOneStata("fold_to_steal_SBvBU",new int[]{45,38},14,foldToStealSBvBURangeColor,10,new int[][]{{SB},{BU}}));
-            result_list.add(new SettingOneStata("fold_to_steal_BBvBU",new int[]{45,38},14,foldToStealBBvBURangeColor,10,new int[][]{{BB},{BU}}));
-            result_list.add(new SettingOneStata("fold_to_steal_BBvSB",new int[]{45,38},14,foldToStealBBvSBRangeColor,10,new int[][]{{BB},{SB}}));
+            result_list.add(new SettingOneStata("fold_to_steal_BUvCO",new int[]{45,51},14,foldToStealBUvCORangeColor,10,new int[][]{{BU},{CO}}));
+            result_list.add(new SettingOneStata("fold_to_steal_SBvCO",new int[]{45,51},14,foldToStealSBvCORangeColor,10,new int[][]{{SB},{CO}}));
+            result_list.add(new SettingOneStata("fold_to_steal_BBvCO",new int[]{45,51},14,foldToStealBBvCORangeColor,10,new int[][]{{BB},{CO}}));
+            result_list.add(new SettingOneStata("fold_to_steal_SBvBU",new int[]{45,51},14,foldToStealSBvBURangeColor,10,new int[][]{{SB},{BU}}));
+            result_list.add(new SettingOneStata("fold_to_steal_BBvBU",new int[]{45,51},14,foldToStealBBvBURangeColor,10,new int[][]{{BB},{BU}}));
+            result_list.add(new SettingOneStata("fold_to_steal_BBvSB",new int[]{45,51},14,foldToStealBBvSBRangeColor,10,new int[][]{{BB},{SB}}));
 
             result_list.add(new SettingOneStata("fold_to_3bet_UTGvMP",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{UTG},{MP}}));
             result_list.add(new SettingOneStata("fold_to_3bet_UTGvCO_BU",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{UTG},{CO, BU}}));
@@ -394,20 +423,31 @@ public class CreatingHUD {
             result_list.add(new SettingOneStata("fold_to_3bet_SBvBB",new int[]{1,38},14,foldTo3betRangeColor,10,new int[][]{{SB},{BB}}));
 
 
-            result_list.add(new SettingOneStata("3bet_MPvUTG",new int[]{23,38},14,new RangeColor(new int[]{0,2,3,101},RedOrangePurpule),10,new int[][]{{MP},{UTG}}));
-            result_list.add(new SettingOneStata("3bet_CO_BUvUTG",new int[]{23,38},14,new RangeColor(new int[]{0,3,4,101},RedOrangePurpule),10,new int[][]{{CO,BU},{UTG}}));
-            result_list.add(new SettingOneStata("3bet_SB_BBvUTG",new int[]{23,38},14,new RangeColor(new int[]{0,3,4,101},RedOrangePurpule),10,new int[][]{{SB,BB},{UTG}}));
-            result_list.add(new SettingOneStata("3bet_CO_BUvMP",new int[]{23,38},14,new RangeColor(new int[]{0,3,5,101},RedOrangePurpule),10,new int[][]{{CO,BU},{MP}}));
-            result_list.add(new SettingOneStata("3bet_SB_BBvMP",new int[]{23,38},14,new RangeColor(new int[]{0,3,5,101},RedOrangePurpule),10,new int[][]{{SB,BB},{MP}}));
-            result_list.add(new SettingOneStata("3bet_BUvCO",new int[]{23,38},14, new RangeColor(new int[]{0,5,10,101},RedOrangePurpule),10,new int[][]{{BU},{CO}}));
-            result_list.add(new SettingOneStata("3bet_SBvCO",new int[]{23,38},14,new RangeColor(new int[]{0,5,10,101},RedOrangePurpule),10,new int[][]{{SB},{CO}}));
-            result_list.add(new SettingOneStata("3bet_BBvCO",new int[]{23,38},14,new RangeColor(new int[]{0,5,7,101},RedOrangePurpule),10,new int[][]{{BB},{CO}}));
-            result_list.add(new SettingOneStata("3bet_SBvBU",new int[]{23,38},14,new RangeColor(new int[]{0,5,12,101},RedOrangePurpule),10,new int[][]{{SB},{BU,BB}}));
-            result_list.add(new SettingOneStata("3bet_BBvBU",new int[]{23,38},14,new RangeColor(new int[]{0,5,11,101},RedOrangePurpule),10,new int[][]{{BB},{BU}}));
-            result_list.add(new SettingOneStata("3bet_BBvSB",new int[]{23,38},14,new RangeColor(new int[]{0,5,10,101},RedOrangePurpule),10,new int[][]{{BB},{SB}}));
+            result_list.add(new SettingOneStata("3bet_MPvUTG",new int[]{23,51},14,new RangeColor(new int[]{0,2,3,101},RedOrangePurpule),10,new int[][]{{MP},{UTG}}));
+            result_list.add(new SettingOneStata("3bet_CO_BUvUTG",new int[]{23,51},14,new RangeColor(new int[]{0,3,4,101},RedOrangePurpule),10,new int[][]{{CO,BU},{UTG}}));
+            result_list.add(new SettingOneStata("3bet_SB_BBvUTG",new int[]{23,51},14,new RangeColor(new int[]{0,3,4,101},RedOrangePurpule),10,new int[][]{{SB,BB},{UTG}}));
+            result_list.add(new SettingOneStata("3bet_CO_BUvMP",new int[]{23,51},14,new RangeColor(new int[]{0,3,5,101},RedOrangePurpule),10,new int[][]{{CO,BU},{MP}}));
+            result_list.add(new SettingOneStata("3bet_SB_BBvMP",new int[]{23,51},14,new RangeColor(new int[]{0,3,5,101},RedOrangePurpule),10,new int[][]{{SB,BB},{MP}}));
+            result_list.add(new SettingOneStata("3bet_BUvCO",new int[]{23,51},14, new RangeColor(new int[]{0,5,10,101},RedOrangePurpule),10,new int[][]{{BU},{CO}}));
+            result_list.add(new SettingOneStata("3bet_SBvCO",new int[]{23,51},14,new RangeColor(new int[]{0,5,10,101},RedOrangePurpule),10,new int[][]{{SB},{CO}}));
+            result_list.add(new SettingOneStata("3bet_BBvCO",new int[]{23,51},14,new RangeColor(new int[]{0,5,7,101},RedOrangePurpule),10,new int[][]{{BB},{CO}}));
+            result_list.add(new SettingOneStata("3bet_SBvBU",new int[]{23,51},14,new RangeColor(new int[]{0,5,12,101},RedOrangePurpule),10,new int[][]{{SB},{BU,BB}}));
+            result_list.add(new SettingOneStata("3bet_BBvBU",new int[]{23,51},14,new RangeColor(new int[]{0,5,11,101},RedOrangePurpule),10,new int[][]{{BB},{BU}}));
+            result_list.add(new SettingOneStata("3bet_BBvSB",new int[]{23,51},14,new RangeColor(new int[]{0,5,10,101},RedOrangePurpule),10,new int[][]{{BB},{SB}}));
 
 
-
+            result_list.add(new SettingOneStata("4bet_UTGvMP",new int[]{23,38},14,_4bet,10,new int[][]{{UTG},{MP}}));
+            result_list.add(new SettingOneStata("4bet_UTGvCO_BU",new int[]{23,38},14,_4bet,10,new int[][]{{UTG},{CO, BU}}));
+            result_list.add(new SettingOneStata("4bet_UTGvSB_BB",new int[]{23,38},14,_4bet,10,new int[][]{{UTG},{SB, BB}}));
+            result_list.add(new SettingOneStata("4bet_MPvCO",new int[]{23,38},14,_4bet,10,new int[][]{{MP},{CO}}));
+            result_list.add(new SettingOneStata("4bet_MPvBU",new int[]{23,38},14,_4bet,10,new int[][]{{MP},{BU}}));
+            result_list.add(new SettingOneStata("4bet_MPvSB_BB",new int[]{23,38},14,_4bet,10,new int[][]{{MP},{SB, BB}}));
+            result_list.add(new SettingOneStata("4bet_COvBU",new int[]{23,38},14,_4bet,10,new int[][]{{CO},{BU}}));
+            result_list.add(new SettingOneStata("4bet_COvSB",new int[]{23,38},14,_4bet,10,new int[][]{{CO},{SB}}));
+            result_list.add(new SettingOneStata("4bet_COvBB",new int[]{23,38},14,_4bet,10,new int[][]{{CO},{BB}}));
+            result_list.add(new SettingOneStata("4bet_BUvSB",new int[]{23,38},14,_4bet,10,new int[][]{{BU},{SB}}));
+            result_list.add(new SettingOneStata("4bet_BUvBB",new int[]{23,38},14,_4bet,10,new int[][]{{BU},{BB}}));
+            result_list.add(new SettingOneStata("4bet_SBvBB",new int[]{23,38},14,_4bet,10,new int[][]{{SB},{BB}}));
 
 
             return result_list;

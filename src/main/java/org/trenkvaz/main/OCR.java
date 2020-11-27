@@ -1150,7 +1150,10 @@ public class OCR implements Runnable {
             if(current_list_nums.get(ind_nums)==null){ if(_new_list_nums.get(ind_nums)==null)continue; else return false; }
             int total_error_in_num = 0;
             for(int ind_of_num=0; ind_of_num<2; ind_of_num++){
-                if(_new_list_nums.get(ind_nums)==null) {  save_image(frame[0].getSubimage(gxa,gya,gwa,gha),"test5\\_"+(c++)); return false;}
+                if(_new_list_nums.get(ind_nums)==null) {
+                    // TEST
+                    save_image(frame[0].getSubimage(gxa,gya,gwa,gha),"test5\\_"+(c++));
+                return false;}
                 total_error_in_num += get_AmountOneBitInInt(current_list_nums.get(ind_nums)[ind_of_num]^_new_list_nums.get(ind_nums)[ind_of_num]);
                 if(total_error_in_num>limit_error)return false;
             }
