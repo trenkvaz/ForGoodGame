@@ -109,14 +109,14 @@ public class OCR implements Runnable {
 
     static synchronized void show_test_total_hand(OCR ocr){
 
-        if(!ocr.currentHand.creat_ActionsInHandForCountStats())return;
+        if(!ocr.currentHand.creat_PreflopActionsInHandForCountStats())return;
 
 
         Date d = new Date();
         DateFormat formatter= new SimpleDateFormat("HH.mm.ss");
         String Z = formatter.format(d);
 
-        if(ocr.currentHand.cards_hero[0].equals("7c")&&ocr.currentHand.cards_hero[1].equals("7h")) System.err.println("===================================================");
+        //if(ocr.currentHand.cards_hero[0].equals("7c")&&ocr.currentHand.cards_hero[1].equals("7h")) System.err.println("===================================================");
 
         System.out.println(Z+"  "+ocr.currentHand.time_hand+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
                 " bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table);
@@ -163,11 +163,18 @@ public class OCR implements Runnable {
             logtest+="\r\n";
             /*if(ocr.currentHand.poker_position_of_hero==i)System.out.println(BLUE);
             else */
+            if(ocr.currentHand.is_start_flop&&ocr.currentHand.arr_continue_players_flop[i]==1) System.out.print(GREEN+"    "+ocr.currentHand.stacks_flop[i]);
+
+
+
                 System.out.println(RESET);
 
         }
-
+        if(ocr.allinpreflop) {System.out.println(RED+"ALLIN PREFLOP ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+            Settings.ErrorLog("ALLIN PREFLOP "+ocr.currentHand.time_hand+" t "+ocr.table+" p ");
+        }
         System.out.println(RESET+"******************************************");
+
         logtest+="****************************************** \r\n";
         Testing.write_LogTest(logtest);
 
@@ -193,6 +200,8 @@ public class OCR implements Runnable {
 
     boolean startlog = false;
     int count_cadres = 0;
+
+    boolean allinpreflop = false;
     private void main_work_on_table(){
         //if(table!=4)return;
         if(!startlog){
@@ -246,7 +255,7 @@ public class OCR implements Runnable {
                     System.arraycopy(zeros_for_clear_current_id,0,current_id_nicks_for_choose[i][n],0,16);
                     //for(int h=0; h<16; h++)current_id_nicks_for_choose[i][n][h] = 0;
 
-
+            allinpreflop = false;
             // TEST
 
        /*     for(int i=0; i<6; i++){
@@ -287,7 +296,11 @@ public class OCR implements Runnable {
         if(!currentHand.is_start_flop)check_start_flop();
         if(!currentHand.is_start_flop)get_start_stacks_and_preflop();
 
-        if(currentHand.is_start_flop&&!currentHand.is_preflop_end){ currentHand.arr_continue_player_flop = get_arr_PositionsWithContinuePlayer(); currentHand.is_preflop_end = true; }
+        if(currentHand.is_start_flop&&!currentHand.is_preflop_end){
+            set_arrs_PositionsWithContinueAndAllinerPlayers(currentHand.arr_continue_players_flop,currentHand.arr_alliner_players_flop,"flop");
+            currentHand.is_preflop_end = true;
+           allinpreflop = currentHand.check_All_in("flop");
+        }
         //}
 
 
@@ -610,7 +623,7 @@ public class OCR implements Runnable {
     int get_number_hand(){
 
         if(frame[0]!=null&&frame[1]==null){
-            // если стол есть, но нет хода раздачи, то хад очищается от текста, но такая ситуация еще говорит о том, что раздача завершена и это сигнал стопа
+            // если стол есть, но нет номера раздачи, то хад очищается от текста, но такая ситуация еще говорит о том, что раздача завершена и это сигнал стопа
             if(!stop_show_text_in_hud){
                 // но такая ситуация еще говорит о том, что раздача завершена и это сигнал стопа, начало счетчика
                 count_stop_signal = 0;stop_show_text_in_hud = true;show_text_in_hud = false; hud.clear_hud(table-1);
@@ -626,7 +639,7 @@ public class OCR implements Runnable {
         // если есть номер раздачи то хад включается
         else {
             if(!start_hud){ end_hud = false;start_hud = true;hud.show_hud(table-1); }
-            // если стол есть, но нет хода раздачи, то хад очищается от текста
+            // если номер есть, но нет хода раздачи, то хад очищается от текста
             if(frame[0]==null) {
                 if(!stop_show_text_in_hud){ stop_show_text_in_hud = true;show_text_in_hud = false;hud.clear_hud(table-1); }
                 return 0;
@@ -730,7 +743,7 @@ public class OCR implements Runnable {
                 // если в листе есть число то сравнивает его с текущим числом если они одинаковые, то значит не нужно распознавать в цикл продолжается
                 //TEST
                 //pos = poker_position;
-                gwa =wa; gha = ha; gxa = xa; gya = ya;
+                //gwa =wa; gha = ha; gxa = xa; gya = ya;
                 if(compare_CurrentListNumsAndNewListNums(list_by_poker_pos_current_list_arrnums_actions.get(poker_position),nums,10))continue;
                 // если же числа разные, то старое число меняется на новое и распознается
                 list_by_poker_pos_current_list_arrnums_actions.set(poker_position,nums);
@@ -817,7 +830,7 @@ public class OCR implements Runnable {
                 }
 
                 // если первое действие фолд или пустое
-                if(currentHand.preflop_by_positions.get(poker_position).isEmpty()||currentHand.preflop_by_positions.get(poker_position).get(0)==-10)
+                if(currentHand.preflop_by_positions.get(poker_position).get(0)==-10)
                 {currentHand.stacks[poker_position] = stack_without_action;
                 count_filled_stacks++;
                 continue;}    // fold = -10
@@ -839,10 +852,25 @@ public class OCR implements Runnable {
     }
 
 
-    int[] get_arr_PositionsWithContinuePlayer(){
-        int[] result = new int[6];
-        for(int poker_position=0; poker_position<6; poker_position++)if(!is_Fold(poker_position))result[poker_position]=1;
-        return result;
+    private void set_arrs_PositionsWithContinueAndAllinerPlayers(int[] arrContinuePlayers,int[] arrAllinPlayers,String street){
+        float max_raise =0, raise =0;
+        for(int poker_position=0; poker_position<6; poker_position++){
+            if(!is_Fold(poker_position)){arrContinuePlayers[poker_position]=1;
+            if(street.equals("flop"))raise = currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1);
+            if(raise>max_raise)max_raise=raise;
+            }
+        }
+
+        for(int poker_position=0; poker_position<6; poker_position++){
+            if(arrContinuePlayers[poker_position]==1){
+                if(street.equals("flop")){
+                    if(currentHand.stacks[poker_position]>max_raise)currentHand.stacks_flop[poker_position] = currentHand.stacks[poker_position]-max_raise;
+
+                    if(currentHand.stacks_flop[poker_position]==0)arrAllinPlayers[poker_position] =1;
+                }
+            }
+        }
+
     }
 
 
@@ -1082,26 +1110,26 @@ public class OCR implements Runnable {
     }
 
 
-    BufferedImage get_scale_image(BufferedImage img,double scale){
+    /*BufferedImage get_scale_image(BufferedImage img,double scale){
         try {
             return Thumbnails.of(img).scale(scale).asBufferedImage();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
-    }
+    }*/
 
 
     BufferedImage get_scale_image(BufferedImage img, int size){ return Scalr.resize(img, Scalr.Method.ULTRA_QUALITY, img.getWidth()*size,img.getHeight()*size); }
 
 
 
-    BufferedImage check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,int cutX1, int cutY1,int cutX2, int cutY2){
+   /* BufferedImage check_free_of_kursor(int X, int Y, int w, int h, int limit_grey,int cutX1, int cutY1,int cutX2, int cutY2){
 
         if(!is_noCursorInterferenceImage(frame[0],X,Y,w,h,limit_grey))return null;
         // System.out.println();
         return frame[0].getSubimage(X+cutX1,Y+cutY1,w+cutX2,h+cutY2);
-    }
+    }*/
 
 
     BufferedImage set_grey_and_inverse_or_no(BufferedImage  source, boolean isnverse){
@@ -1132,6 +1160,7 @@ public class OCR implements Runnable {
         return true;
     }
 
+
     static boolean is_GoodImageForOcrStack(BufferedImage image,int X, int Y, int W, int H, int limit_grey){
         int count_permit_error =0;
         for(int x=X; x<W+X; x++) for(int y=Y; y<H+Y; y+=H-1) {
@@ -1141,6 +1170,7 @@ public class OCR implements Runnable {
         for(int y=Y; y<H+Y; y++) for(int x=X; x<W+X; x+=W-1) if(get_intGreyColor(image,x,y)>limit_grey)return false;
         return true;
     }
+
 
     boolean compare_CurrentListNumsAndNewListNums(List<int[]> current_list_nums,List<int[]> _new_list_nums, int limit_error){
 
@@ -1152,7 +1182,7 @@ public class OCR implements Runnable {
             for(int ind_of_num=0; ind_of_num<2; ind_of_num++){
                 if(_new_list_nums.get(ind_nums)==null) {
                     // TEST
-                    save_image(frame[0].getSubimage(gxa,gya,gwa,gha),"test5\\_"+(c++));
+                    //save_image(frame[0].getSubimage(gxa,gya,gwa,gha),"test5\\_"+(c++));
                 return false;}
                 total_error_in_num += get_AmountOneBitInInt(current_list_nums.get(ind_nums)[ind_of_num]^_new_list_nums.get(ind_nums)[ind_of_num]);
                 if(total_error_in_num>limit_error)return false;
@@ -1161,6 +1191,7 @@ public class OCR implements Runnable {
         //System.out.println("true "+error);
         return true;
     }
+
 
     boolean compare_LongHashes(long[] current_list_nums,long[] _new_list_nums, int limit_error){
 
@@ -1178,20 +1209,6 @@ public class OCR implements Runnable {
         return true;
     }
 
-
-
-    boolean compare_part_of_buffred_images(BufferedImage current_image,BufferedImage _new_image,int x,int y, int w, int h){
-        int error = 0;
-        for (int i = x; i < w; i++) {
-            for (int j = y; j < h; j++) {
-                int rgb = Math.abs(current_image.getRGB(i, j) - _new_image.getRGB(i, j));
-                if (rgb != 0) {
-                   error++;
-                }
-            }
-        }
-        return error <= 1;
-    }
 
 
     BufferedImage get_white_black_image(BufferedImage  source,int limit_grey){
@@ -1218,36 +1235,8 @@ public class OCR implements Runnable {
     }
 
 
-    int[] compute_right_gray_for_white_black(BufferedImage image_from_file,BufferedImage image_from_table){
-        int min_error = 272;
-        int error = 0;
-        int result = 0;
-        BufferedImage wb_image_from_file = null, wb_image_from_table = null;
-        for(int a=100; a<200; a++){
-            wb_image_from_file = get_white_black_image(image_from_file,a);
-            wb_image_from_table = get_white_black_image(image_from_table,a);
-            for (int i = 0; i < wb_image_from_file.getWidth(); i++) {
-                for (int j = 0; j < wb_image_from_file.getHeight(); j++) {
-                    int rgb = Math.abs(wb_image_from_file.getRGB(i, j) - wb_image_from_table.getRGB(i, j));
-                    if (rgb != 0) {
-                        error++;
-                    }
-                }
-            }
-            System.out.println("error "+error+" result "+a);
-            if(error<min_error){min_error=error; result = a;}
-            if(min_error==error)result =a;
-            error = 0;
-        }
-        return new int[]{result,min_error};
-    }
 
 
-    private int get_ArrayIndex(int[] arr,int value) {
-        for(int i=0;i<arr.length;i++)
-            if(arr[i]==value) return i;
-        return -1;
-    }
     public synchronized void stop(){
         is_run = false;
         notify();

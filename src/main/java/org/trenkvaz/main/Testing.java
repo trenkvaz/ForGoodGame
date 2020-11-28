@@ -773,21 +773,8 @@ public class Testing {
 
      close_DataBase();*/
 
-      ConcurrentHashMap<String,Object[]>test = new ConcurrentHashMap<>();
-      test.put("t",new Object[]{1,2});
-      Map<String,Integer[]> test2 = new HashMap<>();
-      Object[] fromtes = test.get("t");
-      Integer[] tomap =new Integer[fromtes.length];
-      for(int i=0; i<fromtes.length; i++)tomap[i] = (int)fromtes[i];
-     test2.put("t",tomap);
-     Integer[] w = test2.get("t");
-     w[0] = 3; test.put("t",w);
-      String RED = "\u001b[31m";
-     Integer[] v = new Integer[]{10,10};
-        test.put("t",v);
-        System.out.println(BLUE+"   "+test.get("t")[0]);
 
-
+        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("test5\\_40509"),true),50),"Mtest\\_40509bw");
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }

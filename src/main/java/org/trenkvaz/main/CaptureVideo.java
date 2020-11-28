@@ -388,7 +388,7 @@ public class CaptureVideo {
               }
 
            }
-           ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{null, null});
+           else ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{null, null});
            //if(is_correct_number_hand==null) save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),"tables_img\\t_nokurs"+(++c));
            //if(is_correct_number_hand==null)countcheks[index_table]++;
        }

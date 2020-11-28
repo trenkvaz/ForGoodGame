@@ -28,7 +28,9 @@ public class CurrentHand {
     boolean is_start_flop = false;
     boolean is_stacks_filled = false;
     int position_bu_on_table = 0;
-    int[] arr_continue_player_flop;
+    int[] arr_continue_players_flop = new int[6];
+    int[] arr_alliner_players_flop = new int[6];
+    float[] stacks_flop = new float[6];
 
 
 
@@ -51,8 +53,10 @@ public class CurrentHand {
             if(i==5)preflop_by_positions.get(i).add(1f);
             stacks[i] = 0f;
         }
+
         time_hand =  get_HandTime();
     }
+
 
     void setIs_nicks_filled(){
         //current_Stats.set_Stats();
@@ -61,6 +65,7 @@ public class CurrentHand {
         for(int i=1; i<6; i++)if(nicks[i]==null){is_nicks_filled = false; return;}
         is_nicks_filled = true;
     }
+
 
     public void set_NicksByPositions(){
         // расстановка ников по покерным позициям
@@ -72,6 +77,7 @@ public class CurrentHand {
         }
         nicks = nicks_by_positions;
     }
+
 
     public static synchronized void creat_HandForSaving(CurrentHand currentHand){
 
@@ -90,10 +96,31 @@ public class CurrentHand {
 
 
 
+    public boolean check_All_in(String street){
+
+        if(street.equals("flop")){
+            // сравинивается количество игроков с аллинерами на флопе, если разница меньше чем 2 игрока это значит что на префлопе был оллин
+            return Arrays.stream(arr_continue_players_flop).filter(c -> c > 0).count() - Arrays.stream(arr_alliner_players_flop).filter(c -> c > 0).count() < 2;
+        }
 
 
 
-    public boolean creat_ActionsInHandForCountStats(){
+
+
+
+
+
+
+
+
+
+
+        return false;
+    }
+
+
+
+    public boolean creat_PreflopActionsInHandForCountStats(){
 
         for(int f=0; f<6; f++){
             preflop_actions_for_stats.add(new ArrayList<Float>()); preflop_actions_for_stats.get(f).add(0f);
@@ -128,11 +155,8 @@ public class CurrentHand {
             // проверка на возможность второго раунда
             if(count_round==1&&((rules_1_round_limps&&number_raise>1)||number_raise>2))continue;
             if(count_round>2&&Arrays.stream(round_action).filter(c->c>0).count()>1) continue;
-
-
            break;
          }
-
 
        /* if(raunds.size()>1)
         for (int[] raund:raunds)
@@ -140,9 +164,6 @@ public class CurrentHand {
                 if(raund[pos]>max_raise){max_raise = raund[pos]; last_max_raise_position = pos;}
 
             }*/
-
-
-
 
         befor_action =1;
         if(raunds.size()==1){
@@ -189,7 +210,6 @@ public class CurrentHand {
              //   return;
             }
             // также без флопа но херо рейзит
-
                 if(preflop_by_positions.get(poker_position_of_hero).get(1)>0){
 
                     for(int pos=0; pos<6; pos++){
@@ -210,8 +230,6 @@ public class CurrentHand {
                     }
                 }
             }
-
-
             if(is_start_flop&&!limp_bank){
 
                 for(int pos=0; pos<6; pos++){
@@ -219,7 +237,7 @@ public class CurrentHand {
                     float action = preflop_by_positions.get(pos).get(1);
                     if(action==-10)continue;
                     if(action==0){ // если игрок не играет на флопе то отсутствие действия на префлопе трактуестя как фолд
-                        if(arr_continue_player_flop[pos]==0) preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
+                        if(arr_continue_players_flop[pos]==0) preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
                         else {
                             // если игрок играет флоп то отсутствие действия на префлопе трактуется как кол
                             // также проверяется чтобы кол был в рамкам стека так как с флопом уже могут быть оллины и стек может быть меньше предидущего рейза
@@ -239,19 +257,10 @@ public class CurrentHand {
                     }
                     befor_action = action;
                 }
-
-
-                 //return true;
             }
-
         }
         else {
-
-
             if(!is_start_flop){
-
-
-
             outer_cycle: for(int raund =0; raund<raunds.size(); raund++)
                  inside_cycle: for(int pos=0; pos<6; pos++){
                         //if(pos==poker_position_of_hero)continue;
@@ -280,11 +289,8 @@ public class CurrentHand {
                         }
                         befor_action = action;
                     }
-
             }
             else {
-
-
                 for(int raund =0; raund<raunds.size(); raund++)
                   out:for(int pos=0; pos<6; pos++){
                         //if(pos==poker_position_of_hero)continue;
@@ -293,7 +299,7 @@ public class CurrentHand {
                             // проверка сделал ли игрок на предидущих раундах фолд, чтобы обработать его на последнем раунде
                             for (int[] ints : raunds) if (ints[pos] == -10) continue out;
                             // если игрок не играет на флопе то отсутствие действия на префлопе трактуестя как фолд
-                            if(arr_continue_player_flop[pos]==0) preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
+                            if(arr_continue_players_flop[pos]==0) preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
                             else {
 
                                // последний рейзящий пропускается его пустышка ноль не обрабатывается
@@ -319,15 +325,7 @@ public class CurrentHand {
                         }
                         befor_action = action;
                     }
-
-                //return true;
-
             }
-
-
-
-
-
         }
 
 

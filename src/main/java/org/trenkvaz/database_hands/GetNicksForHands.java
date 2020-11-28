@@ -215,7 +215,7 @@ public class GetNicksForHands {
 
    static String get_NewHistoryHandWithNicks(List<String> historyhand,String[] nicks){
        List<String> sublist_players = historyhand.subList(4,10);int position = -1;
-       System.out.println();
+       
       /* for(String line:historyhand) System.out.println(line);
        for(String line:nicks) System.out.println(line);*/
        String[][] seat_nick = new String[6][2];
