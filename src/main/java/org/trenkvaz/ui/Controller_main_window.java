@@ -6,16 +6,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.text.Text;
 import org.trenkvaz.main.CaptureVideo;
 import org.trenkvaz.main.OCR;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Locale;
-import java.util.TimerTask;
 
-import static org.trenkvaz.main.CaptureVideo.let_SaveTempHands;
+import static org.trenkvaz.main.CaptureVideo.let_SaveTempHandsAndCountStatsCurrentGame;
 import static org.trenkvaz.ui.StartAppLauncher.captureVideo;
 import static org.trenkvaz.ui.StartAppLauncher.hud;
 
@@ -79,11 +76,11 @@ public class Controller_main_window {
         if(savehands.getText().equals("Not saving hands")){
             savehands.setTextFill(Color.GREEN);
             savehands.setText("Saving hands");
-            let_SaveTempHands = true;
+            let_SaveTempHandsAndCountStatsCurrentGame = true;
         } else {
             savehands.setTextFill(Color.RED);
             savehands.setText("Not saving hands");
-            let_SaveTempHands = false;
+            let_SaveTempHandsAndCountStatsCurrentGame = false;
         }
     }
 

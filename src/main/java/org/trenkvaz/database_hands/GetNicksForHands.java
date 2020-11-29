@@ -128,11 +128,12 @@ public class GetNicksForHands {
 
         List<CurrentHand.TempHand> list_temphands_for_select = get_list_TempHandsMinMaxTime(list_handsfromhistory.get(0).time_hand,
                 list_handsfromhistory.get(list_handsfromhistory.size()-1).time_hand+30000);
-        for (CurrentHand.TempHand tempHand:list_temphands_for_select){
+        //TEST
+      /*  for (CurrentHand.TempHand tempHand:list_temphands_for_select){
             System.out.println("time   cards "+get_str_Cards(tempHand.cards_hero())
                     // +" pos_hero "+tempHand.position_hero()
             );
-        }
+        }*/
 
         List<CurrentHand.TempHand> list_selected_temphands = new ArrayList<>();
 

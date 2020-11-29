@@ -105,7 +105,7 @@ public class HUD {
 
 
     public void stop_show_hud(int table){
-        if(!is_hud_on)
+        //if(!is_hud_on)
             Platform.runLater(() -> {
                 for(Stage playerstage:stages_huds_each_player[table])playerstage.hide();
             });

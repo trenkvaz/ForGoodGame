@@ -235,7 +235,7 @@ static String work_database;
                     pstmt.setArray(i, arraystata);
                     pstmt.setArray(i+count_stats, arraystata);
                 }
-                System.out.println(pstmt.toString());
+                //System.out.println(pstmt.toString());
                 pstmt.addBatch();
             }
             assert pstmt != null;

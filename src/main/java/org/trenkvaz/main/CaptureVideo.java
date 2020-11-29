@@ -73,7 +73,7 @@ public class CaptureVideo {
    static int[][] shablons_numbers_0_9_for_stacks, shablons_numbers_0_9_for_actions;
    public static ConcurrentHashMap[] current_map_stats;
    public static MainStats[] work_main_stats;
-   public static boolean let_SaveTempHands = false;
+   public static boolean let_SaveTempHandsAndCountStatsCurrentGame = false;
 
 
 

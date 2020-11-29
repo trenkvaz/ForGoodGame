@@ -773,9 +773,14 @@ public class Testing {
 
      close_DataBase();*/
 
+   // 347 168 363 212
 
-        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("test5\\_40509"),true),50),"Mtest\\_40509bw");
 
+        save_image(read_image("Mtest\\wincards").getSubimage(347+45,168,15,10),"Mtest\\river1");
+        save_image(read_image("Mtest\\wincards").getSubimage(363+45,212,15,10),"Mtest\\river2");
+
+        System.out.println(get_max_brightness(read_image("Mtest\\wincards").getSubimage(347+45,168,15,10)));
+        System.out.println(get_max_brightness(read_image("Mtest\\wincards").getSubimage(363+45,212,15,10)));
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 }

@@ -1,6 +1,5 @@
 package org.trenkvaz.main;
 
-import net.coobird.thumbnailator.Thumbnails;
 //import org.bytedeco.javacpp.opencv_core.IplImage;
 //import org.bytedeco.opencv.opencv_core.IplImage;
 import org.imgscalr.Scalr;
@@ -41,7 +40,7 @@ public class OCR implements Runnable {
     long[] zeros_for_clear_current_id = new long[16];
     int[] count_nicks = new int[6];
     CreatingHUD creatingHUD;
-
+    static final int FLOP =1, TURN = 2, RIVER = 3;
     // test
 
     record TestRecPlayer(List<BufferedImage> imges_nick,List<BufferedImage> imges_stack){}
@@ -110,23 +109,25 @@ public class OCR implements Runnable {
     static synchronized void show_test_total_hand(OCR ocr){
 
         if(!ocr.currentHand.creat_PreflopActionsInHandForCountStats())return;
-
+        //TEST
+        //if(!ocr.currentHand.is_start_turn)return;
 
         Date d = new Date();
         DateFormat formatter= new SimpleDateFormat("HH.mm.ss");
         String Z = formatter.format(d);
 
         //if(ocr.currentHand.cards_hero[0].equals("7c")&&ocr.currentHand.cards_hero[1].equals("7h")) System.err.println("===================================================");
-
+        if(ocr.currentHand.is_start_turn) System.out.print(RED);
+        else System.out.print(RESET);
         System.out.println(Z+"  "+ocr.currentHand.time_hand+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
                 " bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table);
 
         String logtest = Z+"  "+ocr.currentHand.time_hand+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
-                " bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table+" \r\n";
+                " turn "+ocr.currentHand.is_start_turn+" bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table+" \r\n";
 
         boolean error = false;
         boolean is_save_test_list = false;
-
+        System.out.print(RESET);
         for(int i=0; i<6; i++) {
             logtest += ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ";
             if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ");
@@ -160,18 +161,19 @@ public class OCR implements Runnable {
                 if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
                 else System.out.print(ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
             }
-            logtest+="\r\n";
+
             /*if(ocr.currentHand.poker_position_of_hero==i)System.out.println(BLUE);
             else */
             if(ocr.currentHand.is_start_flop&&ocr.currentHand.arr_continue_players_flop[i]==1) System.out.print(GREEN+"    "+ocr.currentHand.stacks_flop[i]);
 
-
+            if(ocr.currentHand.is_start_turn&&ocr.currentHand.arr_continue_players_turn[i]==1) System.out.print(GREEN+"    "+ocr.currentHand.stacks_turn[i]);
 
                 System.out.println(RESET);
-
+            logtest+="\r\n";
         }
-        if(ocr.allinpreflop) {System.out.println(RED+"ALLIN PREFLOP ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+        if(ocr.currentHand.is_allin) {System.out.println(RED+"ALLIN PREFLOP ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
             Settings.ErrorLog("ALLIN PREFLOP "+ocr.currentHand.time_hand+" t "+ocr.table+" p ");
+            logtest+="ALLIN PREFLOP |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\r\n";
         }
         System.out.println(RESET+"******************************************");
 
@@ -200,10 +202,10 @@ public class OCR implements Runnable {
 
     boolean startlog = false;
     int count_cadres = 0;
+    boolean TEST = true;
 
-    boolean allinpreflop = false;
     private void main_work_on_table(){
-        //if(table!=4)return;
+        //if(table!=2)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -215,7 +217,7 @@ public class OCR implements Runnable {
             // обработка стоп сигнала для завершения последней раздачи
             if(count_stop_signal==200&&currentHand!=null) {
                 currentHand.set_NicksByPositions();
-                if(let_SaveTempHands)creat_HandForSaving(this.currentHand);
+                if(let_SaveTempHandsAndCountStatsCurrentGame)creat_HandForSaving(this.currentHand);
                   show_test_total_hand(this);
                  currentHand = null;
             }
@@ -230,7 +232,7 @@ public class OCR implements Runnable {
                 }*/
 
                 currentHand.set_NicksByPositions();
-                if(let_SaveTempHands)creat_HandForSaving(this.currentHand);
+                if(let_SaveTempHandsAndCountStatsCurrentGame)creat_HandForSaving(this.currentHand);
 
                //if(currentHand.is_start_flop)
                    show_test_total_hand(this);
@@ -255,7 +257,7 @@ public class OCR implements Runnable {
                     System.arraycopy(zeros_for_clear_current_id,0,current_id_nicks_for_choose[i][n],0,16);
                     //for(int h=0; h<16; h++)current_id_nicks_for_choose[i][n][h] = 0;
 
-            allinpreflop = false;
+
             // TEST
 
        /*     for(int i=0; i<6; i++){
@@ -293,14 +295,30 @@ public class OCR implements Runnable {
         if(!currentHand.is_nicks_filled)get_nicks();
         //if(currentHand.is_nicks_filled){
         //if(currentHand.cards_hero[0].equals("7c")&&currentHand.cards_hero[1].equals("7h"))
-        if(!currentHand.is_start_flop)check_start_flop();
+        if(!currentHand.is_start_flop)check_StartPostFlop(FLOP);
         if(!currentHand.is_start_flop)get_start_stacks_and_preflop();
 
         if(currentHand.is_start_flop&&!currentHand.is_preflop_end){
-            set_arrs_PositionsWithContinueAndAllinerPlayers(currentHand.arr_continue_players_flop,currentHand.arr_alliner_players_flop,"flop");
+            set_arrs_PositionsWithContinueAndAllinerPlayers(currentHand.arr_continue_players_flop,currentHand.arr_alliner_players_flop,FLOP);
             currentHand.is_preflop_end = true;
-           allinpreflop = currentHand.check_All_in("flop");
+            currentHand.is_allin = currentHand.check_All_in(FLOP);
         }
+
+
+
+        if(!currentHand.is_allin){
+            if(currentHand.is_start_flop&&!currentHand.is_start_turn)check_StartPostFlop(TURN);
+
+            if(currentHand.is_start_turn&&!currentHand.is_flop_end){
+                set_arrs_PositionsWithContinueAndAllinerPlayers(currentHand.arr_continue_players_turn,currentHand.arr_alliner_players_turn,TURN);
+                currentHand.is_flop_end = true;
+                currentHand.is_allin = currentHand.check_All_in(TURN);
+            }
+
+
+        }
+
+
         //}
 
 
@@ -623,6 +641,7 @@ public class OCR implements Runnable {
     int get_number_hand(){
 
         if(frame[0]!=null&&frame[1]==null){
+            //System.out.println(RED+"IS TABLE NO NUMBER |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
             // если стол есть, но нет номера раздачи, то хад очищается от текста, но такая ситуация еще говорит о том, что раздача завершена и это сигнал стопа
             if(!stop_show_text_in_hud){
                 // но такая ситуация еще говорит о том, что раздача завершена и это сигнал стопа, начало счетчика
@@ -633,11 +652,13 @@ public class OCR implements Runnable {
         }
         // если нет номера раздачи, то есть нет вообще стола хад выключается
         if(frame[1]==null){
+            //System.out.println("NO NUMBER");
             if(!end_hud){ end_hud = true;start_hud = false;hud.stop_show_hud(table-1); }
             return 0;
         }
         // если есть номер раздачи то хад включается
         else {
+            //System.out.println(GREEN+" IS NUMBER |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
             if(!start_hud){ end_hud = false;start_hud = true;hud.show_hud(table-1); }
             // если номер есть, но нет хода раздачи, то хад очищается от текста
             if(frame[0]==null) {
@@ -852,23 +873,42 @@ public class OCR implements Runnable {
     }
 
 
-    private void set_arrs_PositionsWithContinueAndAllinerPlayers(int[] arrContinuePlayers,int[] arrAllinPlayers,String street){
+    private void set_arrs_PositionsWithContinueAndAllinerPlayers(int[] arrContinuePlayers,int[] arrAllinPlayers,int street){
         float max_raise =0, raise =0;
         for(int poker_position=0; poker_position<6; poker_position++){
-            if(!is_Fold(poker_position)){arrContinuePlayers[poker_position]=1;
-            if(street.equals("flop"))raise = currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1);
-            if(raise>max_raise)max_raise=raise;
+            // определение продолжающих играть на основе Нет Фолда для любой улицы, так как поступает свой массив ПродолжающихИграть
+            if(is_Fold(poker_position))continue;
+            arrContinuePlayers[poker_position]=1;
+            // нужно получить максимальный рейз на улице, чтобы по нему определить потом оллинеров
+            if(street==FLOP)raise = currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1);
+            if(street==TURN){ // на улице может быть чек чек значит нет действий
+                if(currentHand.flop_by_positions.get(poker_position).isEmpty())continue;
+                raise = currentHand.flop_by_positions.get(poker_position).get(currentHand.flop_by_positions.get(poker_position).size()-1);
             }
+            if(raise>max_raise)max_raise=raise;
+
         }
 
         for(int poker_position=0; poker_position<6; poker_position++){
-            if(arrContinuePlayers[poker_position]==1){
-                if(street.equals("flop")){
-                    if(currentHand.stacks[poker_position]>max_raise)currentHand.stacks_flop[poker_position] = currentHand.stacks[poker_position]-max_raise;
+            if(arrContinuePlayers[poker_position]==0)continue;
 
-                    if(currentHand.stacks_flop[poker_position]==0)arrAllinPlayers[poker_position] =1;
-                }
+            if(street==FLOP){
+                //  определение остатка стека у продолжающих играть для следующей улицы после действий на предидущей на основе максимальноге рейза
+                //  если стек больше такого рейза то расчитывается разница рейза и стека как остаток для последеующих действий
+                if(currentHand.stacks[poker_position]>max_raise)currentHand.stacks_flop[poker_position] = currentHand.stacks[poker_position]-max_raise;
+                // если стек меньше или равен макс рейзу то это значит, что игрок в оллине
+                if(currentHand.stacks_flop[poker_position]==0)arrAllinPlayers[poker_position] =1;
+                continue;
             }
+            if(street==TURN){
+                //  определение остатка стека у продолжающих играть для следующей улицы после действий на предидущей на основе максимальноге рейза
+                //  если стек больше такого рейза то расчитывается разница рейза и стека как остаток для последеующих действий
+                if(currentHand.stacks_flop[poker_position]>max_raise)currentHand.stacks_turn[poker_position] = currentHand.stacks_flop[poker_position]-max_raise;
+                // если стек меньше или равен макс рейзу то это значит, что игрок в оллине
+                if(currentHand.stacks_turn[poker_position]==0)arrAllinPlayers[poker_position] =1;
+                continue;
+            }
+
         }
 
     }
@@ -1085,6 +1125,33 @@ public class OCR implements Runnable {
                 " c2 "+get_int_MaxBrightnessMiddleImg(frame[0],x2,y,17,17));
         if(currentHand.is_start_flop){save_image(frame[0].getSubimage(x1,y,17,17),"test2\\c1");
         save_image(frame[0].getSubimage(x2,y,17,17),"test2\\c2"); }*/
+    }
+
+    private void check_StartPostFlop(int street){
+        switch (street){
+            case  1 -> {
+                //System.out.println("check_start_flop");
+                // проверка что херо не делал ход, кроме когда находится на ББ, где возможен чек, если не делал, то проверки на флоп нет
+                if(currentHand.preflop_by_positions.get(currentHand.poker_position_of_hero).isEmpty()&&currentHand.poker_position_of_hero !=5) return;
+                //System.out.print("check flop ");
+                int x1 = coord_2_3_cards_flop[0][0];
+                int x2 = coord_2_3_cards_flop[1][0];
+                int y = coord_2_3_cards_flop[0][1];
+                if(get_int_MaxBrightnessMiddleImg(frame[0],x1,y,17,17)>190
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],x2,y,17,17)>190)currentHand.is_start_flop = true; }
+
+            case 2 -> { if(get_int_MaxBrightnessMiddleImg(frame[0],347,168,15,10)>175
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],363,212,15,10)>175)currentHand.is_start_turn = true;
+
+                /*System.out.println("TURN "+currentHand.is_start_turn+"  "+get_int_MaxBrightnessMiddleImg(frame[0],347,168,15,10)+"  "
+                +get_int_MaxBrightnessMiddleImg(frame[0],363,212,15,10));*/
+            }
+
+            case 3 -> { if(get_int_MaxBrightnessMiddleImg(frame[0],392,168,15,10)>175
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],408,212,15,10)>175)currentHand.is_start_river = true; }
+        }
+
+
     }
 
 
