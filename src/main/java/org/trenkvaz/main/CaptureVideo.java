@@ -80,13 +80,13 @@ public class CaptureVideo {
    public CaptureVideo(){
        for(int i=0; i<4; i++)use_tessearts[i] = new UseTesseract();
        //settings_capturevideo = new Settings();
-       Settings.setting_cupture_video();
+       Settings.setting_capture_video();
       /* map_idplayers_nicks = work_dataBase.get_map_IdPlayersNicks();
        if(!map_idplayers_nicks.isEmpty()) id_for_nick = Collections.max(map_idplayers_nicks.values());*/
        //System.out.println("id_for_nick "+id_for_nick);
-       canvasFrame = new CanvasFrame("Some Title");
+       /*canvasFrame = new CanvasFrame("Some Title");
        canvasFrame.setCanvasSize(600, 300);//задаем размер окна
-       canvasFrame.setBounds(100,100,600,300);
+       canvasFrame.setBounds(100,100,600,300);*/
        avutil.av_log_set_level (avutil.AV_LOG_ERROR);
    }
 
@@ -163,6 +163,7 @@ public class CaptureVideo {
 
            is_run = false;
            is_getting_frame = false;
+           //canvasFrame.dispose();
 
        }
 
@@ -221,7 +222,7 @@ public class CaptureVideo {
    }
 
 
-    static synchronized long[] get_number_img_nicks(long[] img_nick_for_compare,int privat_error){
+    static synchronized long get_number_img_nicks(long[] img_nick_for_compare,int privat_error){
         // img_nick_for_compare 15 чисел изо, 16-у количество черных пикселей
         // умножается на миллион, чтобы получить индексы в сортируемом мепе, по ним будет отбираться диапазон по количеству черных пикселей
 
@@ -232,18 +233,26 @@ public class CaptureVideo {
         Map<Long,long[]> submap_imgs_with_min_error = sortedmap_all_imgs_pix_of_nicks.subMap(min,max);
 
         List<long[]> equal_imgs = new ArrayList<>(); int first_of_pair_error = 0, second_of_pair_error = 0;
+        int total_error = 0, min_error = 500;
+        long[] img_with_min_error = null;
        out: for(long[] img_min_error:submap_imgs_with_min_error.values()){
-
+           total_error = 0;
             //boolean is_equal = true;
             for(int i=0; i<15; i++){
                 /*count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
                 if(count_error_in_compare>privat_error){is_equal = false; break;}*/
                 if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
                 if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
-                if(i>0&&(first_of_pair_error+second_of_pair_error)>privat_error){ continue out;  }
+                int local_error = first_of_pair_error+second_of_pair_error;
+                if(i>0&&local_error>privat_error){ continue out;  }
+                else total_error+=local_error;
             }
             //if(!is_equal)continue;
-            equal_imgs.add(img_min_error);
+           if(total_error<min_error){
+               min_error = total_error;
+               img_with_min_error = img_min_error;
+           }
+            //equal_imgs.add(img_min_error);
         }
 
        /* System.out.println("**********************************************************************");
@@ -255,7 +264,7 @@ public class CaptureVideo {
 
 
        // если не нашлось в мепе такого же изо, то создается новый ИД для изо и записывается на место количества черных пикселей
-        if(equal_imgs.isEmpty()){long id_img_pix = get_HandTime(); img_nick_for_compare[15]= id_img_pix;
+        if(img_with_min_error==null){//long id_img_pix = get_HandTime();
             // проверка наличия изо с таким же количеством пикселей и индексом если есть то добавляется единица и снова проверяется, пока такого индекса не будет в списке,
             // тогда он присваевается новому изо
             boolean is_contain = true;
@@ -265,20 +274,19 @@ public class CaptureVideo {
                 }
                 else {
                     //System.out.println("id record "+img_nick_for_compare[15]);
+                    img_nick_for_compare[15]= count_pix_in_;
                     sortedmap_all_imgs_pix_of_nicks.put(count_pix_in_,img_nick_for_compare); break; }
             }
 
-            return new long[]{-id_img_pix,count_pix_in_};}
+            return -count_pix_in_;
+        }
 
         //for(long r:equal_imgs.get(0)) System.out.println(r);
 
         // если нашлось похожее изо, то берется его ИД на вывод
-        int size = equal_imgs.size();
-        long[] result = new long[size];
-        for(int i=0; i<size; i++)
-            result[i] = equal_imgs.get(i)[15];
 
-        return result;
+
+        return img_with_min_error[15];
     }
 
 
@@ -461,7 +469,7 @@ public class CaptureVideo {
 
         private static File file_with_nicks;
 
-        public static void setting_cupture_video(){
+        public static void setting_capture_video(){
             read_file_with_nicks_and_img_pixs();
             _long_arr_cards_for_compare = read_ObjectFromFile("_long_arr_cards_for_compare");
             shablons_numbers_0_9_for_stacks = read_ObjectFromFile("shablons_numbers_0_9");
@@ -469,10 +477,11 @@ public class CaptureVideo {
             shablons_numbers_0_9_for_actions = read_ObjectFromFile("shablons_numbers_0_9_for_actions");
             shablons_text_sittingout_allin = read_ObjectFromFile("shablons_text_sittingout_allin");
             shablon_text_poker_terms = read_ObjectFromFile("shablon_text_poker_terms");
+
             current_map_stats = get_StatsFromDataBase();
         }
 
-        private static void read_file_with_nicks_and_img_pixs(){
+        public static void read_file_with_nicks_and_img_pixs(){
             file_with_nicks = new File(home_folder+"\\all_settings\\capture_video\\nicks_img.txt");
             if(!file_with_nicks.isFile())return;
             try {
@@ -482,12 +491,12 @@ public class CaptureVideo {
                     if(!(line.startsWith("*")&&line.endsWith("*")))break;
                     String[] arr_line = line.substring(1,line.length()-1).split("%");
                     //System.out.println("line "+arr_line.length);
-                    hashmap_id_img_pix_nick.put(Long.parseLong(arr_line[17]),arr_line[0]);
+                    hashmap_id_img_pix_nick.put(Long.parseLong(arr_line[16]),arr_line[0]);
                     long[] img_pix = new long[16];
-                    for(int i=2; i<18; i++){
-                        img_pix[i-2] = Long.parseLong(arr_line[i]);
+                    for(int i=1; i<17; i++){
+                        img_pix[i-1] = Long.parseLong(arr_line[i]);
                     }
-                    sortedmap_all_imgs_pix_of_nicks.put(Long.parseLong(arr_line[1]),img_pix);
+                    sortedmap_all_imgs_pix_of_nicks.put(img_pix[15],img_pix);
                 }
                 br.close();
             } catch (IOException e) {
@@ -524,9 +533,9 @@ public class CaptureVideo {
             return result;
         }
 
-        public static synchronized void write_nicks_keys_img_pix(String nick,long key_in_treemap_img_pix,long[] imgs_pix_of_nick){
+        public static synchronized void write_nicks_keys_img_pix(String nick,long[] imgs_pix_of_nick){
             StringBuilder line = new StringBuilder("*");
-            line.append(nick);line.append('%');line.append(key_in_treemap_img_pix);line.append('%');
+            line.append(nick);line.append('%');
             for(long pixs:imgs_pix_of_nick){
                 line.append(pixs);
                 line.append('%');

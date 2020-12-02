@@ -13,6 +13,8 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import static org.trenkvaz.main.CaptureVideo.let_SaveTempHandsAndCountStatsCurrentGame;
+import static org.trenkvaz.ui.MainWindow.anchorPane;
+import static org.trenkvaz.ui.MainWindow.stage;
 import static org.trenkvaz.ui.StartAppLauncher.captureVideo;
 import static org.trenkvaz.ui.StartAppLauncher.hud;
 
@@ -62,6 +64,7 @@ public class Controller_main_window {
                 hud.stop_show_hud(i);
             }
         }
+        anchorPane.requestFocus();
     }
 
     public void setMessage_work(String message, Paint color){

@@ -41,6 +41,8 @@ public class OCR implements Runnable {
     int[] count_nicks = new int[6];
     CreatingHUD creatingHUD;
     static final int FLOP =1, TURN = 2, RIVER = 3;
+    List<List<long[]>> list_of_lists_current_id_nicks_for_choose = new ArrayList<>(6);
+
     // test
 
     record TestRecPlayer(List<BufferedImage> imges_nick,List<BufferedImage> imges_stack){}
@@ -57,8 +59,10 @@ public class OCR implements Runnable {
         this.coord_of_table = coord_left_up_of_tables[table];
         this.table = table+1;
         main_queue_with_frames = new LinkedBlockingQueue<>();
-        for(int i=0; i<6; i++)
+        for(int i=0; i<6; i++){
             list_by_poker_pos_current_list_arrnums_actions.add(new ArrayList<>());
+            list_of_lists_current_id_nicks_for_choose.add(new ArrayList<>());
+        }
 
 
         //test
@@ -205,7 +209,7 @@ public class OCR implements Runnable {
     boolean TEST = true;
 
     private void main_work_on_table(){
-        //if(table!=2)return;
+        if(table!=1)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -242,7 +246,9 @@ public class OCR implements Runnable {
             //list_test_cards.clear();
 
             currentHand = new CurrentHand(table-1,creatingHUD);
-            for(int i=0; i<6; i++)list_by_poker_pos_current_list_arrnums_actions.get(i).clear();
+            for(int i=0; i<6; i++){list_by_poker_pos_current_list_arrnums_actions.get(i).clear();
+                list_of_lists_current_id_nicks_for_choose.get(i).clear();
+            }
 
             currentHand.position_bu_on_table = current_bu;
             currentHand.nicks[0] = nick_hero;
@@ -271,7 +277,7 @@ public class OCR implements Runnable {
             //save_image(frame[0],"test5\\"+(c++));
             //count_cadres = 0;
         }
-
+        //save_image(frame[0],"test5\\_"+(++c));
         /* count_cadres++;
          if(count_cadres<4) cadres.add(frame[0]);
          else {
@@ -346,30 +352,38 @@ public class OCR implements Runnable {
 
             if(get_int_CompareLongHashesToShablons(img_pix,shablon_text_poker_terms)!=-1)continue;
             //BufferedImage test_nick = frame[0].getSubimage(x,y,w,h);;
+
             if(count_nicks[i]<3){
-                // набор трех изображений ников
-                System.arraycopy(img_pix, 0, current_id_nicks_for_choose[i][count_nicks[i]], 0, 16);
+                // набор трех id изображений ников и добавление еще одного если ников два
+                list_of_lists_current_id_nicks_for_choose.get(i).add(img_pix);
                 count_nicks[i]++;
                 if(count_nicks[i]<3)continue;
             }
             if(count_nicks[i]==3){
-                boolean same_nicks = false;
-                // когда набрано три изображения ника то сравниваются все между собой и выбирается тот который в двух похожих экземплярах
-                    for(int c1=1; c1<3; c1++)
-                        if(compare_LongHashes(current_id_nicks_for_choose[i][0],current_id_nicks_for_choose[i][c1],10)){same_nicks =true; break;}
-                    if(same_nicks){ System.arraycopy(current_id_nicks_for_choose[i][0], 0, img_pix , 0, 16);
-                    } else System.arraycopy(current_id_nicks_for_choose[i][1], 0, img_pix , 0, 16);
+                boolean same_nicks = true;
+                // когда набрано три изображения ника то сравниваются все между собой если равны то идет определение ника если нет удаляется первый ид и цикл продолжается
+                for(int c1=1; c1<3; c1++){
+                    if(compare_LongHashes(list_of_lists_current_id_nicks_for_choose.get(i).get(0),list_of_lists_current_id_nicks_for_choose.get(i).get(c1),10))continue;
+                    same_nicks = false; break;
+                }
+                if(same_nicks){ System.arraycopy(list_of_lists_current_id_nicks_for_choose.get(i).get(0), 0, img_pix , 0, 16);
+                } else {
+                    list_of_lists_current_id_nicks_for_choose.get(i).remove(0);
+                    count_nicks[i]--;
+                    continue;
+                }
             }
 
-            long[] id_img_pix = get_number_img_nicks(img_pix,10);
+
+            long id_img_pix = get_number_img_nicks(img_pix,10);
             //System.out.println("time id "+(System.currentTimeMillis()-s));
             //System.out.println("id "+i+"    "+id_img_pix[0]);
-            int id_img_pix_length = id_img_pix.length;
+            //int id_img_pix_length = id_img_pix.length;
             c++;
             // ид ника найдено в базе изображений ников и поэтому текст ника берется в мапе по ид
-            if(id_img_pix[0]>0&&id_img_pix_length==1){
-                    while (true){
-                        currentHand.nicks[i] = set_get_nicks_in_hashmap(id_img_pix[0],null);
+            if(id_img_pix>0){
+                    while (true){ // могло прийти одновременно несколько одинаковых ника первый идет на распознание, другие сюда и получают распознаный ник это может занять время поэтому цикл
+                        currentHand.nicks[i] = set_get_nicks_in_hashmap(id_img_pix,null);
                         //System.out.println("campare  "+currentHand.nicks[i]);
                         //save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),limit_grey),"test\\"+currentHand.nicks[i]+" "+id_img_pix[0]);
                         //save_image(set_grey_and_inverse_or_no(cheked_img,true),"test\\"+currentHand.nicks[i]+"_"+id_img_pix[0]+"_"+limit_grey);
@@ -385,7 +399,7 @@ public class OCR implements Runnable {
 
     // если нет похожих изображений в базе массивов изображений
             // и надо распознать, то возвращает два числа, первое ИД, второе ключ для сортированного массива, чтобы его можно было записать в файл
-            if(id_img_pix[0]<0){
+            if(id_img_pix<0){
                 int attempt = 0;
                 BufferedImage cheked_img = frame[0].getSubimage(x,y,w,h);
                     while (true){
@@ -396,54 +410,24 @@ public class OCR implements Runnable {
 
                         if(currentHand.nicks[i]!=null)break;
                         // проверка на невозможность распознования, дается несколько попыток, если все равно приходит нулл, то присваивается ник в виде текущего ИД
-                        if(attempt>2){ currentHand.nicks[i]=Long.toString(-id_img_pix[0]); break; }
+                        if(attempt>2){ currentHand.nicks[i]=Long.toString(-id_img_pix); break; }
                         try {
                             Thread.sleep(10);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
-                    set_get_nicks_in_hashmap(-id_img_pix[0],currentHand.nicks[i]);
+                    set_get_nicks_in_hashmap(-id_img_pix,currentHand.nicks[i]);
 
-                    CaptureVideo.Settings.write_nicks_keys_img_pix(currentHand.nicks[i],id_img_pix[1],img_pix);
+                    CaptureVideo.Settings.write_nicks_keys_img_pix(currentHand.nicks[i],img_pix);
                 //System.out.println("id "+-id_img_pix[0]+" id in arr "+img_pix[16]);
                    // save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),limit_grey),"id_nicks\\"+currentHand.nicks[i]+" "+(-id_img_pix[0]));
-                save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),105),"id_nicks\\"+currentHand.nicks[i]+" "+(-id_img_pix[0])+"_"+c+""+table);
+                save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),105),"id_nicks\\"+currentHand.nicks[i]+" "+(-id_img_pix)+"_"+table);
 
                 //test_is_ocr = true;
                 //test_nick= cheked_img;
             }
 
-            if(id_img_pix[0]>0&&id_img_pix_length>1) {
-                // если пришло больше одного ИД, проверка, что у них одинаковый ник, если ники разные сообщение об ошибки
-                String[] str_nicks = new String[id_img_pix_length];
-                while (true){
-                    for(int n=0; n<id_img_pix_length; n++){
-                        if(str_nicks[n]!=null)continue;
-                        str_nicks[n] = set_get_nicks_in_hashmap(id_img_pix[n],null);
-                    }
-                    //System.out.println("campare  "+currentHand.nicks[i]);
-                    //save_image(get_white_black_image(set_grey_and_inverse_or_no(cheked_img,true),limit_grey),"test\\"+currentHand.nicks[i]+" "+id_img_pix[0]);
-                    if(!Arrays.asList(str_nicks).contains(null))break;
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                currentHand.nicks[i]=str_nicks[0];
-                for(int n=1; n<id_img_pix_length; n++){
-                    if(!str_nicks[0].equals(str_nicks[n])){currentHand.nicks[i]=null; break;}
-                }
-
-            if(currentHand.nicks[i]==null) {
-                Settings.ErrorLog("DUBLIKATS IMG_PIX_NICK "+table);
-                BufferedImage cheked_img = frame[0].getSubimage(x,y,w,h);
-            int n=-1;
-            for(long d:id_img_pix) { n++;     save_image(cheked_img,"dublicats_nicks\\"+str_nicks[n]+"_"+d); }
-                System.out.println("**********************************");
-            }
-            }
 
             //save_image(get_white_black_image(set_grey_and_inverse_or_no(frame[0].getSubimage(x-3,y,w+5,h),true),105),"test4\\"+currentHand.nicks[i]+"_"+i+"_"+c+"_"+table);
          if(count_nicks[i]==3&&currentHand.nicks[i]==null){

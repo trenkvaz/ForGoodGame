@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.coord_left_up_of_tables;
+import static org.trenkvaz.ui.MainWindow.anchorPane;
+import static org.trenkvaz.ui.MainWindow.stage;
 
 public class HUD {
 
@@ -98,6 +100,7 @@ public class HUD {
         if(is_hud_on)
             Platform.runLater(() -> {
                 for(Stage playerstage:stages_huds_each_player[table])playerstage.show();
+                anchorPane.requestFocus();
             });
 
     }
@@ -108,6 +111,7 @@ public class HUD {
         //if(!is_hud_on)
             Platform.runLater(() -> {
                 for(Stage playerstage:stages_huds_each_player[table])playerstage.hide();
+                anchorPane.requestFocus();
             });
 
     }
@@ -130,6 +134,7 @@ public class HUD {
                 if(list_one_table_texts_huds_each_player.get(table).get(player).isEmpty())continue;
                 anchorpanes_huds_each_player[table][player].getChildren().clear();
             }
+            anchorPane.requestFocus();
         });
     }
 
@@ -146,6 +151,7 @@ public class HUD {
                     anchorpanes_huds_each_player[table][player].getChildren().add(stata);
                 }
             }
+            anchorPane.requestFocus();
         });
 
     }
