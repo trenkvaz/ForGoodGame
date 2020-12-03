@@ -66,7 +66,7 @@ public class CaptureVideo {
 
    static final UseTesseract[] use_tessearts = new UseTesseract[4];
 
-   static byte[] count_one_in_numbers;
+   public static byte[] count_one_in_numbers;
    static HashMap<Long,String> hashmap_id_img_pix_nick = new HashMap<>();
    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks = new TreeMap<>();
    static long[][] _long_arr_cards_for_compare,shablons_text_sittingout_allin, shablon_text_poker_terms;
@@ -291,7 +291,7 @@ public class CaptureVideo {
 
 
 
-    static int get_AmountOneBitInLong(long lng){
+    public static int get_AmountOneBitInLong(long lng){
         return (count_one_in_numbers[(short)(lng>>48)+32768]+count_one_in_numbers[(short)(lng>>32)+32768]
                 +count_one_in_numbers[(short)(lng>>16)+32768]+count_one_in_numbers[(short)(lng)+32768]);
     }
@@ -478,7 +478,7 @@ public class CaptureVideo {
             shablons_text_sittingout_allin = read_ObjectFromFile("shablons_text_sittingout_allin");
             shablon_text_poker_terms = read_ObjectFromFile("shablon_text_poker_terms");
 
-            current_map_stats = get_StatsFromDataBase();
+            //current_map_stats = get_StatsFromDataBase();
         }
 
         public static void read_file_with_nicks_and_img_pixs(){
@@ -506,7 +506,7 @@ public class CaptureVideo {
 
 
 
-        static <T> T read_ObjectFromFile(String name_file){
+        public static <T> T read_ObjectFromFile(String name_file){
             T type = null;
             try {	FileInputStream file=new FileInputStream(home_folder+"\\all_settings\\capture_video\\"+name_file+".file");
                 ObjectInput out = new ObjectInputStream(file);
@@ -546,14 +546,7 @@ public class CaptureVideo {
             try (OutputStream os = new FileOutputStream(file_with_nicks,true)) {
                 os.write(line.toString().getBytes(StandardCharsets.UTF_8));
             } catch (FileNotFoundException e) {
-                //ErrorLog("016 "+e);
-            /*try {
-                Thread.sleep(500);
-            } catch (InterruptedException e1) {
-                //ErrorLog("032"+e1);
-            }*/
             } catch (IOException s) {
-                //ErrorLog("017 "+s);
             }
         }
 

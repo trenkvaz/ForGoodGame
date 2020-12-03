@@ -153,12 +153,12 @@ public class Testing {
         for(int i=0; i<15; i++){
 
 
-            /*if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
+            if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
             if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
-            System.out.println((first_of_pair_error+second_of_pair_error));
+            //System.out.println((first_of_pair_error+second_of_pair_error));
             if(i>0&&(first_of_pair_error+second_of_pair_error)>privat_error){ return false;  }
-            System.out.println("one "+get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]));*/
-            errors = arr_AmountAmountOneBitInLongByShort(img_min_error[i],img_nick_for_compare[i]);
+            //System.out.println("one "+get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]));
+           /* errors = arr_AmountAmountOneBitInLongByShort(img_min_error[i],img_nick_for_compare[i]);
             result_errors[i] = errors;
             for(int a:errors){
                //if(show) System.out.print(a+" ");
@@ -167,7 +167,7 @@ public class Testing {
                     //if(show)System.out.println();
                     result = false;
                 }
-            }
+            }*/
             //if(show)System.out.println();
 
             //if(get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i])>privat_error)return false;
@@ -727,6 +727,30 @@ public class Testing {
         return result;
     }
 
+    static HashMap<Long,String> hashmap_id_img_pix_nick_old = new HashMap<>();
+    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks_old = new TreeMap<>();
+
+    public static void read_file_with_nicks_and_img_pixs(){
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(home_folder+"\\arhive_nicks\\nicks_img.txt")));
+            String line;
+            while ((line = br.readLine()) != null) {
+                if(!(line.startsWith("*")&&line.endsWith("*")))break;
+                String[] arr_line = line.substring(1,line.length()-1).split("%");
+                //System.out.println("line "+arr_line.length);
+                hashmap_id_img_pix_nick_old.put(Long.parseLong(arr_line[1]),arr_line[0]);
+                long[] img_pix = new long[16];
+                for(int i=2; i<17; i++){
+                    img_pix[i-2] = Long.parseLong(arr_line[i]);
+                }
+                img_pix[15] = Long.parseLong(arr_line[1]);
+                sortedmap_all_imgs_pix_of_nicks_old.put(img_pix[15],img_pix);
+            }
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -815,47 +839,51 @@ public class Testing {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         //compare_arrlong(sortedmap_all_imgs_pix_of_nicks.get(189000009L),sortedmap_all_imgs_pix_of_nicks.get(188000013L));
+
+        read_file_with_nicks_and_img_pixs();
+
         int[][] result  = new int[15][];
-        System.out.println(compare_arrlong(sortedmap_all_imgs_pix_of_nicks.get(236000003L),sortedmap_all_imgs_pix_of_nicks.get(187000008L),5,result));
+        //System.out.println(compare_arrlong(sortedmap_all_imgs_pix_of_nicks.get(236000003L),sortedmap_all_imgs_pix_of_nicks.get(187000008L),5,result));
         /*for(int[] a:result)
             for(int b:a) System.out.print(b+" ");
         System.out.println();*/
         long[] showlong = new long[15];
-                System.arraycopy(sortedmap_all_imgs_pix_of_nicks.get(125000003L),0,showlong,0,15);
-        show_HashShablonNumber(showlong,86,11);
+       /*         System.arraycopy(sortedmap_all_imgs_pix_of_nicks.get(125000003L),0,showlong,0,15);
+        show_HashShablonNumber(showlong,86,11);*/
         System.out.println();
         showlong = new long[15];
-        System.arraycopy(sortedmap_all_imgs_pix_of_nicks.get(112000002L),0,showlong,0,15);
+        System.arraycopy(sortedmap_all_imgs_pix_of_nicks_old.get(167000000L),0,showlong,0,15);
         show_HashShablonNumber(showlong,86,11);
-        System.out.println(ocr.compare_LongHashes(sortedmap_all_imgs_pix_of_nicks.get(125000003L),sortedmap_all_imgs_pix_of_nicks.get(112000002L),10));
+        System.out.println(hashmap_id_img_pix_nick_old.get(167000000L));
+        //System.out.println(ocr.compare_LongHashes(sortedmap_all_imgs_pix_of_nicks.get(125000003L),sortedmap_all_imgs_pix_of_nicks.get(112000002L),10));
         /*System.out.println(hashmap_id_img_pix_nick.get(sortedmap_all_imgs_pix_of_nicks.get(155000006L)[15]));
         System.out.println(hashmap_id_img_pix_nick.get(sortedmap_all_imgs_pix_of_nicks.get(165000013L)[15]));*/
        /* System.out.println(hashmap_id_img_pix_nick.get(sortedmap_all_imgs_pix_of_nicks.get(224000003L)[15]));
         System.out.println(hashmap_id_img_pix_nick.get(sortedmap_all_imgs_pix_of_nicks.get(226000005L)[15]));*/
         boolean printid = false; int c =0;
-        /*for(long id:sortedmap_all_imgs_pix_of_nicks.keySet()){
+        for(long id:sortedmap_all_imgs_pix_of_nicks.keySet()){
 
             if(printid)System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++");
             printid = false;
-            String nid = hashmap_id_img_pix_nick.get(sortedmap_all_imgs_pix_of_nicks.get(id)[15]);
-            for (long id2:sortedmap_all_imgs_pix_of_nicks.keySet()){
-                if(id==id2)continue;
-                result = new int[15][];
-                if(!compare_arrlong(sortedmap_all_imgs_pix_of_nicks.get(id),sortedmap_all_imgs_pix_of_nicks.get(id2),10,result))continue;
-                result = new int[15][];
-                if(compare_arrlong(sortedmap_all_imgs_pix_of_nicks.get(id),sortedmap_all_imgs_pix_of_nicks.get(id2),6,result))continue;
-                String nid2 = hashmap_id_img_pix_nick.get(sortedmap_all_imgs_pix_of_nicks.get(id2)[15]);
-                if(!nid.equals(nid2))continue;
+            String nid = hashmap_id_img_pix_nick.get(id);
+            for (long id2:sortedmap_all_imgs_pix_of_nicks_old.keySet()){
+                //if(id==id2)continue;
+                //result = new int[15][];
+                if(!compare_arrlong(sortedmap_all_imgs_pix_of_nicks.get(id),sortedmap_all_imgs_pix_of_nicks_old.get(id2),10,result))continue;
+                //result = new int[15][];
+                //if(compare_arrlong(sortedmap_all_imgs_pix_of_nicks.get(id),sortedmap_all_imgs_pix_of_nicks.get(id2),6,result))continue;
+                String nid2 = hashmap_id_img_pix_nick_old.get(id2);
+                if(nid.equals(nid2))continue;
                 if(!printid){
                     System.out.println((++c)+"  "+id+" : "+ nid+"  "); printid = true;}
                 System.out.println(id2+" "+nid2+" ");
-                for(int[] a:result)
-                    for(int b:a) System.out.print(b+" ");
+                /*for(int[] a:result)
+                    for(int b:a) System.out.print(b+" ");*/
                 System.out.println();
             }
         }
         System.out.println();
-        System.out.println("count "+c);*/
+        System.out.println("count "+c);
 
 
     }

@@ -237,7 +237,6 @@ public class GetNicksForHands {
                if(seat_nick[i_seat][0]==null)continue;
                if(historyhand.get(i_line).contains(seat_nick[i_seat][0])){
                    historyhand.set(i_line,historyhand.get(i_line).replace(seat_nick[i_seat][0],seat_nick[i_seat][1]));
-               break;
                }
            }
        }

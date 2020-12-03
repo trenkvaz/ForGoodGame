@@ -425,6 +425,28 @@ static String work_database;
 
     }
 
+    public static void delete_LinesByNick(List<String> nicks_for_delete){
+        try {
+            connect_to_db.setAutoCommit(false);
+            PreparedStatement pstmt = connect_to_db.prepareStatement("DELETE FROM main_nicks_stats WHERE nicks= ? ");
+            for(String nick: nicks_for_delete){
+                if(nick==null)continue;
+                pstmt.setString(1,"$ю$"+nick+"$ю$");
+                pstmt.addBatch();
+            }
+            assert pstmt != null;
+          int[]  r = pstmt.executeBatch();
+          for(int a:r) System.out.println(a);
+            pstmt.executeBatch();
+            connect_to_db.commit();
+            connect_to_db.setAutoCommit(true);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+
+    }
+
     public static void close_DataBase(){
             try {
                 if(connect_to_db!=null)connect_to_db.close();

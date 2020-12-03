@@ -209,7 +209,7 @@ public class OCR implements Runnable {
     boolean TEST = true;
 
     private void main_work_on_table(){
-        if(table!=1)return;
+        //if(table!=1)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
