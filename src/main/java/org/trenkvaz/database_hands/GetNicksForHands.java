@@ -20,7 +20,7 @@ public class GetNicksForHands {
     static List<HistoryHand> list_handsfromhistory = new ArrayList<>();
     //static Map<Integer,String> reverse_map_idplayers_nicks;
 
-    record HistoryHand(long time_hand, short cards_hero, short position_hero, float[] stacks, List<String> handfromhistory, String[] nicks){
+    record HistoryHand(long time_hand, short cards_hero, short position_hero, float[] stacks, List<String> handfromhistory, String[] nicks, Long[] timefromtemphand){
         public String get_str_Cards(){
             int c = (cards_hero < 0) ? cards_hero+65536 : cards_hero;
             return Deck[c/1000]+" "+Deck[c%1000];
@@ -73,7 +73,7 @@ public class GetNicksForHands {
         c++;
         List<String> sublist_players = hand.subList(4,10);
         list_handsfromhistory.add(new HistoryHand(read_TimeHandForHistoryHand(hand.get(1)), read_CardsHeroForHistoryHand(hand.get(13)),
-                read_PositionHeroForHistoryHand(sublist_players), read_StacksForHistoryHand(sublist_players, read_BBforHistoryHand(hand.get(1))),hand,new String[6]));
+                read_PositionHeroForHistoryHand(sublist_players), read_StacksForHistoryHand(sublist_players, read_BBforHistoryHand(hand.get(1))),hand,new String[6],new Long[1]));
     }
 
 
@@ -170,7 +170,7 @@ public class GetNicksForHands {
            for(int i=0; i<6; i++) {handfromhistory.nicks[i] = selected_temphand.nicks()[i];
                //System.out.println(selected_temphand.nicks()[i]);
            }
-
+             handfromhistory.timefromtemphand[0] = selected_temphand.time_hand();
            }
 
            list_selected_temphands.clear();
@@ -205,7 +205,8 @@ public class GetNicksForHands {
 
         try (OutputStream os = new FileOutputStream(folder+"\\output\\"+name_file,true)) {
             for(HistoryHand historyhand:list_handsfromhistory){
-             os.write((get_NewHistoryHandWithNicks(historyhand.handfromhistory,historyhand.nicks)+"\r\n\r\n").getBytes(StandardCharsets.UTF_8));
+
+             os.write((get_NewHistoryHandWithNicks(historyhand.handfromhistory,historyhand.nicks,historyhand.timefromtemphand)+"\r\n\r\n").getBytes(StandardCharsets.UTF_8));
                 //System.out.println(get_NewHistoryHandWithNicks(historyhand.handfromhistory,historyhand.idplayers)+"\r\n\r\n");
             }
         } catch (FileNotFoundException e) {
@@ -214,9 +215,13 @@ public class GetNicksForHands {
     }
 
 
-   static String get_NewHistoryHandWithNicks(List<String> historyhand,String[] nicks){
+   static String get_NewHistoryHandWithNicks(List<String> historyhand,String[] nicks,Long[] time){
+
        List<String> sublist_players = historyhand.subList(4,10);int position = -1;
-       
+
+
+       if(time[0]!=null)historyhand.set(0,historyhand.get(0).substring(0,28)+time[0]);
+
       /* for(String line:historyhand) System.out.println(line);
        for(String line:nicks) System.out.println(line);*/
        String[][] seat_nick = new String[6][2];

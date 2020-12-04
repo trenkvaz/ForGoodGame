@@ -44,7 +44,7 @@ public class CorrectNicksStats {
 
     public static void read_OLDfile_with_nicks_and_img_pixs(){
         try {
-            BufferedReader br = new BufferedReader(new FileReader(new File(home_folder+"\\arhive_nicks\\nicks_img.txt")));
+            BufferedReader br = new BufferedReader(new FileReader(new File(home_folder+"\\arhive_nicks\\nicks_img_deleted.txt")));
             String line;
             while ((line = br.readLine()) != null) {
                 if(!(line.startsWith("*")&&line.endsWith("*")))break;
@@ -112,11 +112,11 @@ public class CorrectNicksStats {
 
 
         // удаление неправильных дубликатов из списка старых ников
-      out:for(Map.Entry<Long,String> entry:hashmap_id_img_pix_OLDnick.entrySet()){
+      /*out:for(Map.Entry<Long,String> entry:hashmap_id_img_pix_OLDnick.entrySet()){
             for(List<String> deletednick:main_map_newnick_oldnicks.values())
                 if(deletednick.contains(entry.getValue()))continue out;
           rewrite_nicks_keys_img_pix(entry.getValue(),sortedmap_all_imgs_pix_of_OLDnicks.get(entry.getKey()));
-        }
+        }*/
     }
 
 

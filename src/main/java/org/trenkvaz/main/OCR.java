@@ -277,52 +277,24 @@ public class OCR implements Runnable {
             //save_image(frame[0],"test5\\"+(c++));
             //count_cadres = 0;
         }
-        //save_image(frame[0],"test5\\_"+(++c));
-        /* count_cadres++;
-         if(count_cadres<4) cadres.add(frame[0]);
-         else {
-             cadres.poll();
-             cadres.add(frame[0]);
-         }*/
+        boolean rit = false;
 
-        /*if(currentHand.cards_hero[0].equals("Qc")&&currentHand.cards_hero[1].equals("2h")
-        )Testing.save_image(frame[0],"test2\\Qc2h\\_table_"+(++c));*/
-
-
-        //if(currentHand.position_bu_on_table >0&&!(currentHand.cards_hero[0].equals("")||currentHand.cards_hero[1].equals(""))&&!currentHand.is_nicks_filled) {get_nicks();}
-
-
-
-        /*if(currentHand.position_bu_on_table >0&&!(currentHand.cards_hero[0].equals("")||currentHand.cards_hero[1].equals(""))
-                &&currentHand.is_nicks_filled) {
-
-
-        }*/
-        if(!currentHand.is_nicks_filled)get_nicks();
+        /*if(!currentHand.is_nicks_filled)get_nicks();
         //if(currentHand.is_nicks_filled){
         //if(currentHand.cards_hero[0].equals("7c")&&currentHand.cards_hero[1].equals("7h"))
-        if(!currentHand.is_start_flop)check_StartPostFlop(FLOP);
-        if(!currentHand.is_start_flop)get_start_stacks_and_preflop();
+        if(!currentHand.is_start_flop) rit = check_StartNewStreetANDreturnIsRIT(FLOP);
+        if(!currentHand.is_start_flop&&!rit)get_start_stacks_and_preflop();
 
-        if(currentHand.is_start_flop&&!currentHand.is_preflop_end){
+        if(currentHand.is_start_flop&&!currentHand.is_preflop_end&&!rit){
             set_arrs_PositionsWithContinueAndAllinerPlayers(currentHand.arr_continue_players_flop,currentHand.arr_alliner_players_flop,FLOP);
             currentHand.is_preflop_end = true;
             currentHand.is_allin = currentHand.check_All_in(FLOP);
-        }
+        }*/
+        if(!currentHand.is_preflop_end)worksPreflop();
+
+        if(!currentHand.is_allin&&currentHand.is_start_flop&&!currentHand.is_flop_end)worksFlop();
 
 
-
-        if(!currentHand.is_allin){
-            if(currentHand.is_start_flop&&!currentHand.is_start_turn)check_StartPostFlop(TURN);
-
-            if(currentHand.is_start_turn&&!currentHand.is_flop_end){
-                set_arrs_PositionsWithContinueAndAllinerPlayers(currentHand.arr_continue_players_turn,currentHand.arr_alliner_players_turn,TURN);
-                currentHand.is_flop_end = true;
-                currentHand.is_allin = currentHand.check_All_in(TURN);
-            }
-
-
-        }
 
 
         //}
@@ -331,6 +303,40 @@ public class OCR implements Runnable {
        /* if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3)
             System.out.println("MAIN ---------------------------------------  "+currentHand.nicks[4]);*/
         //System.out.println("bu "+currentHand.position_of_bu+" cards "+currentHand.cards_hero+" allnicks "+currentHand.is_nicks_filled);
+
+    }
+
+
+    private void worksPreflop(){
+        if(!currentHand.is_nicks_filled)get_nicks();
+        //if(currentHand.is_nicks_filled){
+        //if(currentHand.cards_hero[0].equals("7c")&&currentHand.cards_hero[1].equals("7h"))
+        if(!currentHand.is_start_flop) currentHand.is_allin = check_StartNewStreetANDreturnIsRIT(FLOP);
+        if(currentHand.is_allin)return;
+        if(!currentHand.is_start_flop)get_start_stacks_and_preflop();
+
+        if(currentHand.is_start_flop){
+        set_arrs_PositionsWithContinueAndAllinerPlayers(currentHand.arr_continue_players_flop,currentHand.arr_alliner_players_flop,FLOP);
+        currentHand.is_preflop_end = true;
+        currentHand.is_allin = currentHand.check_All_in(FLOP);
+        }
+
+    }
+
+
+    private void worksFlop(){
+
+
+            currentHand.is_allin = check_StartNewStreetANDreturnIsRIT(TURN);
+            if(currentHand.is_allin)return;
+
+
+            if(currentHand.is_start_turn){
+                set_arrs_PositionsWithContinueAndAllinerPlayers(currentHand.arr_continue_players_turn,currentHand.arr_alliner_players_turn,TURN);
+                currentHand.is_flop_end = true;
+                currentHand.is_allin = currentHand.check_All_in(TURN);
+            }
+
 
     }
 
@@ -675,7 +681,7 @@ public class OCR implements Runnable {
            if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1]))return -1;
                  else return 0;}
        // если БУ определилась, то проверяет совпадение новых карт со старыми если да, то считается текущая раздача, если карты разные, то считается началом новой раздачи
-       if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1])&&bu==current_bu){
+       if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1])&&bu==current_bu&&currentHand!=null){
            return -1;
        } else {
            current_hero_cards[0] = hero_cards[0];current_hero_cards[1] = hero_cards[1];
@@ -1111,12 +1117,20 @@ public class OCR implements Runnable {
         save_image(frame[0].getSubimage(x2,y,17,17),"test2\\c2"); }*/
     }
 
-    private void check_StartPostFlop(int street){
+    private boolean check_StartNewStreetANDreturnIsRIT(int street){
+
+        int xfloprit1 = 318, yfloprit1 = 179, xfloprit2 = 300, yfloprit2 = 200; // bright 150  correct_cards = 46;
+
+
         switch (street){
             case  1 -> {
                 //System.out.println("check_start_flop");
                 // проверка что херо не делал ход, кроме когда находится на ББ, где возможен чек, если не делал, то проверки на флоп нет
-                if(currentHand.preflop_by_positions.get(currentHand.poker_position_of_hero).isEmpty()&&currentHand.poker_position_of_hero !=5) return;
+                if(currentHand.preflop_by_positions.get(currentHand.poker_position_of_hero).isEmpty()&&currentHand.poker_position_of_hero !=5) return false;
+
+                if(get_int_MaxBrightnessMiddleImg(frame[0],xfloprit1,yfloprit1,17,17)>150
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],xfloprit2,yfloprit2,17,17)>150)return true;
+
                 //System.out.print("check flop ");
                 int x1 = coord_2_3_cards_flop[0][0];
                 int x2 = coord_2_3_cards_flop[1][0];
@@ -1124,18 +1138,26 @@ public class OCR implements Runnable {
                 if(get_int_MaxBrightnessMiddleImg(frame[0],x1,y,17,17)>190
                         &&get_int_MaxBrightnessMiddleImg(frame[0],x2,y,17,17)>190)currentHand.is_start_flop = true; }
 
-            case 2 -> { if(get_int_MaxBrightnessMiddleImg(frame[0],347,168,15,10)>175
+            case 2 -> {
+                if(get_int_MaxBrightnessMiddleImg(frame[0],364,yfloprit1,17,17)>150
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],346,yfloprit2,17,17)>150)return true;
+
+                if(get_int_MaxBrightnessMiddleImg(frame[0],347,168,15,10)>175
                         &&get_int_MaxBrightnessMiddleImg(frame[0],363,212,15,10)>175)currentHand.is_start_turn = true;
 
                 /*System.out.println("TURN "+currentHand.is_start_turn+"  "+get_int_MaxBrightnessMiddleImg(frame[0],347,168,15,10)+"  "
                 +get_int_MaxBrightnessMiddleImg(frame[0],363,212,15,10));*/
             }
 
-            case 3 -> { if(get_int_MaxBrightnessMiddleImg(frame[0],392,168,15,10)>175
+            case 3 -> {
+                if(get_int_MaxBrightnessMiddleImg(frame[0],410,yfloprit1,17,17)>150
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],392,yfloprit2,17,17)>150)return true;
+
+                if(get_int_MaxBrightnessMiddleImg(frame[0],392,168,15,10)>175
                         &&get_int_MaxBrightnessMiddleImg(frame[0],408,212,15,10)>175)currentHand.is_start_river = true; }
         }
 
-
+        return false;
     }
 
 

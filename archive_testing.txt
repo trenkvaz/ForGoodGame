@@ -184,3 +184,10 @@
                     for(int i=0; i<6; i++)nicks[i] = reverse_map_idplayers_nicks.get(hand2.nicks()[i]);
                     record_rec_to_TableTempHands(new CurrentHand.TempHand(hand2.time_hand(),hand2.cards_hero(),hand2.position_hero(),hand2.stacks(),nicks));
                 }*/
+
+
+
+                showlong = new long[15];
+                        System.arraycopy(sortedmap_all_imgs_pix_of_nicks_old.get(167000000L),0,showlong,0,15);                           // ПОЛУЧЕНИЕ МАССИВА ИЗО И ЕГО ОТОБРАЖЕНИЕ
+                        show_HashShablonNumber(showlong,86,11);
+                        System.out.println(hashmap_id_img_pix_nick_old.get(167000000L));

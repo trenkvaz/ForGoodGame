@@ -477,8 +477,7 @@ public class CaptureVideo {
             shablons_numbers_0_9_for_actions = read_ObjectFromFile("shablons_numbers_0_9_for_actions");
             shablons_text_sittingout_allin = read_ObjectFromFile("shablons_text_sittingout_allin");
             shablon_text_poker_terms = read_ObjectFromFile("shablon_text_poker_terms");
-
-            //current_map_stats = get_StatsFromDataBase();
+            current_map_stats = get_StatsFromDataBase();
         }
 
         public static void read_file_with_nicks_and_img_pixs(){

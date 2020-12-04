@@ -758,7 +758,7 @@ public class Testing {
         UseTesseract useTesseract = new UseTesseract();
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         //CaptureVideo captureVideo = new CaptureVideo("");
-        Settings.setting_capture_video();
+        //Settings.setting_capture_video();
         //map_nicks_idplayers = new Work_DataBase().get_map_IdPlayersNicks();
         //work_dataBase = new Work_DataBase();
         //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test\\_2_469"),0,0,70,11));
@@ -829,61 +829,30 @@ public class Testing {
      close_DataBase();*/
 
    // 347 168 363 212
+        int xfloprit1 = 318, yfloprit1 = 179, xfloprit2 = 300, yfloprit2 = 200, correct_cards = 46; // bright 150
 
 
-       /* save_image(read_image("Mtest\\wincards").getSubimage(347+45,168,15,10),"Mtest\\river1");
-        save_image(read_image("Mtest\\wincards").getSubimage(363+45,212,15,10),"Mtest\\river2");
 
-        System.out.println(get_max_brightness(read_image("Mtest\\wincards").getSubimage(347+45,168,15,10)));
-        System.out.println(get_max_brightness(read_image("Mtest\\wincards").getSubimage(363+45,212,15,10)));*/
+        int xflop = 300, yflop =200, correct_x = 16, correct_y = 44;
+        int corr_y_rit = 30, corr_x_card = 45;
+        save_image(read_image("Mtest\\wincards").getSubimage(640,0,639,468),"Mtest\\emptycard");
+
+        save_image(read_image("Mtest\\tablerit").getSubimage(xflop+16,yflop-20,15,10),"Mtest\\floprit1");
+        save_image(read_image("Mtest\\tablerit").getSubimage(xflop,yflop,15,10),"Mtest\\floprit2");
+
+
+        save_image(read_image("Mtest\\wincards").getSubimage(xflop+16,yflop-20,15,10),"Mtest\\plflop1");
+        save_image(read_image("Mtest\\wincards").getSubimage(xflop,yflop,15,10),"Mtest\\plflop2");
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        //compare_arrlong(sortedmap_all_imgs_pix_of_nicks.get(189000009L),sortedmap_all_imgs_pix_of_nicks.get(188000013L));
-
-        read_file_with_nicks_and_img_pixs();
-
-        int[][] result  = new int[15][];
-        //System.out.println(compare_arrlong(sortedmap_all_imgs_pix_of_nicks.get(236000003L),sortedmap_all_imgs_pix_of_nicks.get(187000008L),5,result));
-        /*for(int[] a:result)
-            for(int b:a) System.out.print(b+" ");
-        System.out.println();*/
-        long[] showlong = new long[15];
-       /*         System.arraycopy(sortedmap_all_imgs_pix_of_nicks.get(125000003L),0,showlong,0,15);
-        show_HashShablonNumber(showlong,86,11);*/
-        System.out.println();
-        showlong = new long[15];
-        System.arraycopy(sortedmap_all_imgs_pix_of_nicks_old.get(167000000L),0,showlong,0,15);
-        show_HashShablonNumber(showlong,86,11);
-        System.out.println(hashmap_id_img_pix_nick_old.get(167000000L));
-        //System.out.println(ocr.compare_LongHashes(sortedmap_all_imgs_pix_of_nicks.get(125000003L),sortedmap_all_imgs_pix_of_nicks.get(112000002L),10));
-        /*System.out.println(hashmap_id_img_pix_nick.get(sortedmap_all_imgs_pix_of_nicks.get(155000006L)[15]));
-        System.out.println(hashmap_id_img_pix_nick.get(sortedmap_all_imgs_pix_of_nicks.get(165000013L)[15]));*/
-       /* System.out.println(hashmap_id_img_pix_nick.get(sortedmap_all_imgs_pix_of_nicks.get(224000003L)[15]));
-        System.out.println(hashmap_id_img_pix_nick.get(sortedmap_all_imgs_pix_of_nicks.get(226000005L)[15]));*/
-        boolean printid = false; int c =0;
-        for(long id:sortedmap_all_imgs_pix_of_nicks.keySet()){
-
-            if(printid)System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++");
-            printid = false;
-            String nid = hashmap_id_img_pix_nick.get(id);
-            for (long id2:sortedmap_all_imgs_pix_of_nicks_old.keySet()){
-                //if(id==id2)continue;
-                //result = new int[15][];
-                if(!compare_arrlong(sortedmap_all_imgs_pix_of_nicks.get(id),sortedmap_all_imgs_pix_of_nicks_old.get(id2),10,result))continue;
-                //result = new int[15][];
-                //if(compare_arrlong(sortedmap_all_imgs_pix_of_nicks.get(id),sortedmap_all_imgs_pix_of_nicks.get(id2),6,result))continue;
-                String nid2 = hashmap_id_img_pix_nick_old.get(id2);
-                if(nid.equals(nid2))continue;
-                if(!printid){
-                    System.out.println((++c)+"  "+id+" : "+ nid+"  "); printid = true;}
-                System.out.println(id2+" "+nid2+" ");
-                /*for(int[] a:result)
-                    for(int b:a) System.out.print(b+" ");*/
-                System.out.println();
-            }
+        int c = 0;
+        for(int i=0; i<3; i++){
+            save_image(read_image("Mtest\\wincards").getSubimage(xfloprit1+c,yfloprit1,15,10),"Mtest\\rit1"+i);
+            save_image(read_image("Mtest\\wincards").getSubimage(xfloprit2+c,yfloprit2,15,10),"Mtest\\rit2"+i);
+            System.out.println(get_max_brightness(read_image("Mtest\\wincards").getSubimage(xfloprit1+c,yfloprit1,15,10)));
+            System.out.println(get_max_brightness(read_image("Mtest\\wincards").getSubimage(xfloprit2+c,yfloprit2,15,10)));
+            c+=46;
         }
-        System.out.println();
-        System.out.println("count "+c);
 
 
     }
