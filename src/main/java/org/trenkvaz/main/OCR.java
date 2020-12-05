@@ -175,9 +175,17 @@ public class OCR implements Runnable {
                 System.out.println(RESET);
             logtest+="\r\n";
         }
-        if(ocr.currentHand.is_allin) {System.out.println(RED+"ALLIN PREFLOP ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
-            Settings.ErrorLog("ALLIN PREFLOP "+ocr.currentHand.time_hand+" t "+ocr.table+" p ");
-            logtest+="ALLIN PREFLOP |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\r\n";
+        if(ocr.currentHand.is_allin) {
+
+            if(ocr.testRIT){
+                System.out.println(RED+"RIT ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+                Settings.ErrorLog("RIT "+ocr.currentHand.time_hand+" t "+ocr.table+" p ");
+                logtest+="RIT |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\r\n";
+            } else {
+                System.out.println(RED+"ALLIN PREFLOP ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+                Settings.ErrorLog("ALLIN PREFLOP "+ocr.currentHand.time_hand+" t "+ocr.table+" p ");
+                logtest+="ALLIN PREFLOP |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\r\n";
+            }
         }
         System.out.println(RESET+"******************************************");
 
@@ -207,7 +215,7 @@ public class OCR implements Runnable {
     boolean startlog = false;
     int count_cadres = 0;
     boolean TEST = true;
-
+    boolean testRIT = false;
     private void main_work_on_table(){
         //if(table!=1)return;
         if(!startlog){
@@ -276,8 +284,11 @@ public class OCR implements Runnable {
             //cadres.clear();
             //save_image(frame[0],"test5\\"+(c++));
             //count_cadres = 0;
+            testRIT = false;
         }
-        boolean rit = false;
+
+        if(counttest<6)save_image(frame[0],"test5\\_"+table+"_"+(++c));
+        counttest++;
 
         /*if(!currentHand.is_nicks_filled)get_nicks();
         //if(currentHand.is_nicks_filled){
@@ -499,7 +510,7 @@ public class OCR implements Runnable {
          out: for(int nominal_ind_list = 0; nominal_ind_list<52; nominal_ind_list++){
                 // сравнение количества черных пикселей между хешем_имдж из массива номиналы_карт с хешем_имдж со стола
                 //System.out.println("i "+i+" nom "+nominals_cards[nominal_ind_list/4]+"  err "+abs(_long_arr_cards_for_compare[nominal_ind_list][3]-card_hash_from_table[3]));
-                if(abs(_long_arr_cards_for_compare[nominal_ind_list][3]-card_hash_from_table[3])>=limit_error)continue;
+                if(Math.abs(_long_arr_cards_for_compare[nominal_ind_list][3]-card_hash_from_table[3])>=limit_error)continue;
 
                 total_error = 0;
 
@@ -549,7 +560,7 @@ public class OCR implements Runnable {
     }
 
 
-    private long abs(long a) { return (a < 0) ? -a : a; }
+
 
 
     public long[] get_longarr_HashImage(BufferedImage image,int X, int Y, int W, int H, int amount_64nums, int limit_grey){
@@ -687,9 +698,15 @@ public class OCR implements Runnable {
            current_hero_cards[0] = hero_cards[0];current_hero_cards[1] = hero_cards[1];
            if(bu!=current_bu){ current_bu = bu; set_PokerPositionsIndexWithNumberingOnTable(bu); }
            hud.clear_hud(table-1);
+           counttest = 0;
+
            return 1;
+
        }
     }
+
+    int counttest = 0;
+
 
     int C = 0;
     int pos = -1, gxa = -1, gya = -1, gwa = -1, gha = -1;
@@ -1100,22 +1117,7 @@ public class OCR implements Runnable {
     static int get_AmountOneBitInInt(int lng){ return count_one_in_numbers[(short)(lng>>16)+32768]+count_one_in_numbers[(short)(lng)+32768]; }
 
 
-    void check_start_flop(){
-        //System.out.println("check_start_flop");
-        // проверка что херо не делал ход, кроме когда находится на ББ, где возможен чек, если не делал, то проверки на флоп нет
-        if(currentHand.preflop_by_positions.get(currentHand.poker_position_of_hero).isEmpty()&&currentHand.poker_position_of_hero !=5) return;
-        //System.out.print("check flop ");
-        int x1 = coord_2_3_cards_flop[0][0];
-        int x2 = coord_2_3_cards_flop[1][0];
-        int y = coord_2_3_cards_flop[0][1];
-        if(get_int_MaxBrightnessMiddleImg(frame[0],x1,y,17,17)>190
-                &&get_int_MaxBrightnessMiddleImg(frame[0],x2,y,17,17)>190)currentHand.is_start_flop = true;
 
-       /* System.out.println(currentHand.is_start_flop+"  c1 "+get_int_MaxBrightnessMiddleImg(frame[0],x1,y,17,17)+
-                " c2 "+get_int_MaxBrightnessMiddleImg(frame[0],x2,y,17,17));
-        if(currentHand.is_start_flop){save_image(frame[0].getSubimage(x1,y,17,17),"test2\\c1");
-        save_image(frame[0].getSubimage(x2,y,17,17),"test2\\c2"); }*/
-    }
 
     private boolean check_StartNewStreetANDreturnIsRIT(int street){
 
@@ -1129,7 +1131,7 @@ public class OCR implements Runnable {
                 if(currentHand.preflop_by_positions.get(currentHand.poker_position_of_hero).isEmpty()&&currentHand.poker_position_of_hero !=5) return false;
 
                 if(get_int_MaxBrightnessMiddleImg(frame[0],xfloprit1,yfloprit1,17,17)>150
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],xfloprit2,yfloprit2,17,17)>150)return true;
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],xfloprit2,yfloprit2,17,17)>150){ testRIT = true; return true;}
 
                 //System.out.print("check flop ");
                 int x1 = coord_2_3_cards_flop[0][0];
@@ -1140,7 +1142,7 @@ public class OCR implements Runnable {
 
             case 2 -> {
                 if(get_int_MaxBrightnessMiddleImg(frame[0],364,yfloprit1,17,17)>150
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],346,yfloprit2,17,17)>150)return true;
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],346,yfloprit2,17,17)>150){ testRIT = true; return true;}
 
                 if(get_int_MaxBrightnessMiddleImg(frame[0],347,168,15,10)>175
                         &&get_int_MaxBrightnessMiddleImg(frame[0],363,212,15,10)>175)currentHand.is_start_turn = true;
@@ -1151,7 +1153,7 @@ public class OCR implements Runnable {
 
             case 3 -> {
                 if(get_int_MaxBrightnessMiddleImg(frame[0],410,yfloprit1,17,17)>150
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],392,yfloprit2,17,17)>150)return true;
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],392,yfloprit2,17,17)>150){ testRIT = true; return true;}
 
                 if(get_int_MaxBrightnessMiddleImg(frame[0],392,168,15,10)>175
                         &&get_int_MaxBrightnessMiddleImg(frame[0],408,212,15,10)>175)currentHand.is_start_river = true; }
@@ -1270,7 +1272,7 @@ public class OCR implements Runnable {
 
         //if(current_list_nums.size()!=_new_list_nums.size())return false;
         //System.out.println(current_list_nums[15]+" "+_new_list_nums[15]);
-        if(abs(current_list_nums[15]-_new_list_nums[15])>15)return false;
+        if(Math.abs(current_list_nums[15]-_new_list_nums[15])>15)return false;
         int first_of_pair_error = 0, second_of_pair_error = 0;
       for(int ind_nums = 0; ind_nums<15; ind_nums++){
             if(ind_nums%2==0)first_of_pair_error = get_AmountOneBitInLong(current_list_nums[ind_nums]^_new_list_nums[ind_nums]);

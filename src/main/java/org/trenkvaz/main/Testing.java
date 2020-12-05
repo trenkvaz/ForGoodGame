@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.io.*;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -829,7 +830,7 @@ public class Testing {
      close_DataBase();*/
 
    // 347 168 363 212
-        int xfloprit1 = 318, yfloprit1 = 179, xfloprit2 = 300, yfloprit2 = 200, correct_cards = 46; // bright 150
+        /*int xfloprit1 = 318, yfloprit1 = 179, xfloprit2 = 300, yfloprit2 = 200, correct_cards = 46; // bright 150
 
 
 
@@ -852,8 +853,30 @@ public class Testing {
             System.out.println(get_max_brightness(read_image("Mtest\\wincards").getSubimage(xfloprit1+c,yfloprit1,15,10)));
             System.out.println(get_max_brightness(read_image("Mtest\\wincards").getSubimage(xfloprit2+c,yfloprit2,15,10)));
             c+=46;
+        }*/
+        double res = 1;
+      for(int i=1; i<6; i++){
+        res*=(1-((double) i /15912.0));
+      }
+      //15912.0
+        /*String number = String.valueOf(res);
+        System.out.println(number);
+        String t = new BigDecimal("1.9514487299588554E-26").toString();
+        System.out.println(t);*/
+        System.out.println(((1-res)*100));
+
+        System.out.println((1.0/15912.0)*100);
+        int m = 0;
+        int n = 0;
+        for(int i=0; i<1_000; i++){
+            int num = (int) (Math.random()*(2));
+            int num2 = (int) (Math.random()*(2));
+
+            if(num==num2&&num==0)m++; //System.out.println(RED+num+" "+num2);
+            //else System.out.println(RESET+num+" "+num2);
+
+            //System.out.println(num);
         }
-
-
+        System.out.println(m);
     }
 }
