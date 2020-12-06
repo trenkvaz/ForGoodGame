@@ -20,6 +20,8 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.trenkvaz.database_hands.CorrectNicksStats.read_Newfile_with_nicks_and_img_pixs;
+import static org.trenkvaz.database_hands.CorrectNicksStats.sortedmap_all_imgs_pix_of_NEWnicks;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.ui.StartAppLauncher.*;
@@ -148,7 +150,7 @@ public class Testing {
 
     }
 
-    static boolean compare_arrlong(long[] img_min_error, long[] img_nick_for_compare,int privat_error,int[][] result_errors){
+    static boolean compare_arrlong(long[] img_min_error, long[] img_nick_for_compare,int privat_error){
         int first_of_pair_error = 0, second_of_pair_error = 0; //int privat_error =20;
         boolean result = true; int[] errors;
         for(int i=0; i<15; i++){
@@ -156,7 +158,7 @@ public class Testing {
 
             if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
             if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
-            //System.out.println((first_of_pair_error+second_of_pair_error));
+            System.out.println((first_of_pair_error+second_of_pair_error));
             if(i>0&&(first_of_pair_error+second_of_pair_error)>privat_error){ return false;  }
             //System.out.println("one "+get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]));
            /* errors = arr_AmountAmountOneBitInLongByShort(img_min_error[i],img_nick_for_compare[i]);
@@ -758,8 +760,8 @@ public class Testing {
         OCR ocr = new OCR();
         UseTesseract useTesseract = new UseTesseract();
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
-        //CaptureVideo captureVideo = new CaptureVideo("");
-        //Settings.setting_capture_video();
+        CaptureVideo captureVideo = new CaptureVideo("");
+        Settings.setting_capture_video();
         //map_nicks_idplayers = new Work_DataBase().get_map_IdPlayersNicks();
         //work_dataBase = new Work_DataBase();
         //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test\\_2_469"),0,0,70,11));
@@ -768,8 +770,8 @@ public class Testing {
 
         int table = 4, nick = 2;
         int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
-        int x_of_nick = coord_left_up_of_tables[table][0]+coords_places_of_nicks[nick][0]+correction_for_place_of_nicks[nick]-5;
-        int y_of_nick = coord_left_up_of_tables[table][1]+coords_places_of_nicks[nick][1]+1;
+        /*int x_of_nick = coord_left_up_of_tables[table][0]+coords_places_of_nicks[nick][0]+correction_for_place_of_nicks[nick]-5;
+        int y_of_nick = coord_left_up_of_tables[table][1]+coords_places_of_nicks[nick][1]+1;*/
 
        /* save_image(read_image("testM\\longnick2").getSubimage(x_of_nick-3,y_of_nick,87+4,14),"testM\\ln2");
 
@@ -854,29 +856,52 @@ public class Testing {
             System.out.println(get_max_brightness(read_image("Mtest\\wincards").getSubimage(xfloprit2+c,yfloprit2,15,10)));
             c+=46;
         }*/
-        double res = 1;
-      for(int i=1; i<6; i++){
-        res*=(1-((double) i /15912.0));
-      }
-      //15912.0
-        /*String number = String.valueOf(res);
-        System.out.println(number);
-        String t = new BigDecimal("1.9514487299588554E-26").toString();
-        System.out.println(t);*/
-        System.out.println(((1-res)*100));
-
-        System.out.println((1.0/15912.0)*100);
-        int m = 0;
-        int n = 0;
-        for(int i=0; i<1_000; i++){
-            int num = (int) (Math.random()*(2));
-            int num2 = (int) (Math.random()*(2));
-
-            if(num==num2&&num==0)m++; //System.out.println(RED+num+" "+num2);
-            //else System.out.println(RESET+num+" "+num2);
-
-            //System.out.println(num);
+        boolean is_correct_hero_nick = false, is_correct_nicks = true; int  width_nick = 91, height_nick = 14;
+        BufferedImage tableimg = read_image("Mtest\\_1_147319");
+        for(int img_nicks=0; img_nicks<6; img_nicks++ ){
+            //if(img_nicks!=5)continue;
+            int x_of_nick = coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5-3;
+            int y_of_nick = coords_places_of_nicks[img_nicks][1]+1;
+            //checknicktest_nick.add("++++++++++++++++++++++++++++++++++++"+img_nicks);
+            if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,
+                    200,200,210,tableimg))
+            { if(img_nicks==0){is_correct_hero_nick = true;} continue; }
+            //if(index_table==4)
+             /*      c++;
+                      save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no
+                              (bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),true),35),"test3\\"+(c)+"_a_"+img_nicks);
+                 *//* save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no
+                          (bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),true),105),"test3\\"+(c)+"_b_"+img_nicks);*//*
+                  save_image(bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),"test3\\"+(c)+"_b_"+img_nicks);*/
+            is_correct_nicks = false;
+            break;
         }
-        System.out.println(m);
+        int x_of_number_hand = 579,y_of_number_hand = 56;
+
+        save_image(cut_SubImage(tableimg,x_of_number_hand+25,
+                y_of_number_hand+3,26,5),"Mtest\\nhand");
+
+        int x = coords_places_of_nicks[3][0]
+                +3+correction_for_place_of_nicks[3];
+        int y = coords_places_of_nicks[3][1]+17;
+       long[] number = ocr.get_longarr_HashImage(read_image("Mtest\\sitingout"),x,y+1,72,12,14,175);
+        show_HashShablonNumber(number,72,12);
+        System.out.println();
+        System.out.println("hero "+is_correct_hero_nick+" players "+is_correct_nicks);
+        /*read_Newfile_with_nicks_and_img_pixs();
+        long cor = sortedmap_all_imgs_pix_of_NEWnicks.get(228000001L)[14]<<14;
+        sortedmap_all_imgs_pix_of_NEWnicks.get(228000001L)[14] = cor;
+        System.out.println(compare_arrlong(sortedmap_all_imgs_pix_of_NEWnicks.get(228000001L),sortedmap_all_imgs_pix_of_NEWnicks.get(228000004L),10));
+
+        show_HashShablonNumber(sortedmap_all_imgs_pix_of_NEWnicks.get(228000001L),86,11);
+        System.out.println();
+        show_HashShablonNumber(sortedmap_all_imgs_pix_of_NEWnicks.get(228000004L),86,11);*/
+        for(int i=0; i<shablons_text_sittingout_allin.length; i++){
+            show_HashShablonNumber(shablons_text_sittingout_allin[i],72,12);
+            System.out.println();
+        }
+
+
+        System.out.println(ocr.get_int_CompareLongHashesToShablons(number,shablons_text_sittingout_allin));
     }
 }

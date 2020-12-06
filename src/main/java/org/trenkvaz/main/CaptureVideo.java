@@ -27,6 +27,7 @@ import org.bytedeco.ffmpeg.global.avutil;
 import org.trenkvaz.stats.MainStats;
 
 //import static org.trenkvaz.database_hands.Work_DataBase.main_array_of_stats;
+import static org.trenkvaz.main.CaptureVideo.Settings.get_StatsFromDataBase;
 import static org.trenkvaz.main.OCR.get_intGreyColor;
 import static org.trenkvaz.ui.Controller_main_window.*;
 import static org.trenkvaz.ui.StartAppLauncher.*;
@@ -81,6 +82,7 @@ public class CaptureVideo {
        for(int i=0; i<4; i++)use_tessearts[i] = new UseTesseract();
        //settings_capturevideo = new Settings();
        Settings.setting_capture_video();
+       current_map_stats = get_StatsFromDataBase();
       /* map_idplayers_nicks = work_dataBase.get_map_IdPlayersNicks();
        if(!map_idplayers_nicks.isEmpty()) id_for_nick = Collections.max(map_idplayers_nicks.values());*/
        //System.out.println("id_for_nick "+id_for_nick);
@@ -324,7 +326,7 @@ public class CaptureVideo {
        //System.out.println((System.currentTimeMillis()-start));
         createBufferedImage(frame, bufferedImageframe);
        BufferedImage image_number_hand = null;
-       int x_of_number_hand = 579,y_of_number_hand = 56,width_of_number_hand = 53,height_of_number_hand = 11, width_nick = 87+4, height_nick = 14;
+       int x_of_number_hand = 579,y_of_number_hand = 56,width_of_number_hand = 53,height_of_number_hand = 11, width_nick = 91, height_nick = 14;
        boolean is_correct_number_hand = false, is_correct_nicks = false, is_correct_hero_nick = false;
 
        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
@@ -405,7 +407,7 @@ public class CaptureVideo {
 
 
 
-   private static BufferedImage cut_SubImage(BufferedImage image_window,int X, int Y, int W, int H){
+   public static BufferedImage cut_SubImage(BufferedImage image_window,int X, int Y, int W, int H){
        BufferedImage img = image_window.getSubimage(X, Y, W, H);
        BufferedImage cut_subimage = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_RGB);
        Graphics g = cut_subimage.createGraphics();
@@ -433,7 +435,7 @@ public class CaptureVideo {
             for(int y=Y; y<h+Y; y+=h-1){ p++;
                 if(p==2) { move1 = 3; move2 = 2; }
                 for(int x=X+move1; x<w+X-move2; x++){
-                //System.out.println("1 grey "+grey);
+                //System.out.println("1 grey "+get_intGreyColor(frame,x,y));
                 //checknicktest_nick.add("1 "+grey);
                 if(get_intGreyColor(frame,x,y)>brightness_of_perimeter_up_down)return false;
             }
@@ -441,10 +443,11 @@ public class CaptureVideo {
         // правые и левые линии периметра ограничены на 10 пикселй снизу
             for(int x=X; x<w+X; x+=w-1)
                 for(int y=Y; y<h+Y-10; y++){
-                //System.out.println("2 grey "+grey);
+                    //System.out.println("2 grey "+get_intGreyColor(frame,x,y));
                 //checknicktest_nick.add("2 "+grey);
                 if(get_intGreyColor(frame,x,y)>brightness_of_perimeter_left_right)return false;
             }
+      //System.out.println("=========================================");
        // проверка яркости текста
         int max = 0, y = Y+h/2;
         for(int x=X; x<w+X; x++){
@@ -477,7 +480,7 @@ public class CaptureVideo {
             shablons_numbers_0_9_for_actions = read_ObjectFromFile("shablons_numbers_0_9_for_actions");
             shablons_text_sittingout_allin = read_ObjectFromFile("shablons_text_sittingout_allin");
             shablon_text_poker_terms = read_ObjectFromFile("shablon_text_poker_terms");
-            current_map_stats = get_StatsFromDataBase();
+
         }
 
         public static void read_file_with_nicks_and_img_pixs(){

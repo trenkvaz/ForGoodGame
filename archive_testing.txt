@@ -187,7 +187,7 @@
 
 
 
-                showlong = new long[15];
+                        showlong = new long[15];
                         System.arraycopy(sortedmap_all_imgs_pix_of_nicks_old.get(167000000L),0,showlong,0,15);                           // ПОЛУЧЕНИЕ МАССИВА ИЗО И ЕГО ОТОБРАЖЕНИЕ
                         show_HashShablonNumber(showlong,86,11);
                         System.out.println(hashmap_id_img_pix_nick_old.get(167000000L));

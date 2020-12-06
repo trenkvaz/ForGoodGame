@@ -14,10 +14,17 @@ import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 public class CorrectNicksStats {
 
     static HashMap<Long,String> hashmap_id_img_pix_NEWnick = new HashMap<>();
-    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_NEWnicks = new TreeMap<>();
+    public static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_NEWnicks = new TreeMap<>();
     static HashMap<Long,String> hashmap_id_img_pix_OLDnick = new HashMap<>();
     static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_OLDnicks = new TreeMap<>();
 
+
+    // берет хеш изо в новом списке ников и в старом корректируемом списке называемом делет
+    // находит одинаковые хеши, но разные ники это значит, что игроки одинаковые, но распознаные по разному можно объеденить их статы и удалить из старого списка такой ник
+    // берет статы по старому нику и прибавляет их к статам по новому нику
+    // дальше удаляет из списка старых ников такие дубликаты и удаляет эти ники их статы из базы
+
+    // МЕНЯТЬ НАЗВАНИЯ ФАЙЛОВ чтение последнее число и запись новое число в конце !!!!!!!!!!!
 
     public static void read_Newfile_with_nicks_and_img_pixs(){
         try {
@@ -44,8 +51,8 @@ public class CorrectNicksStats {
 
     public static void read_OLDfile_with_nicks_and_img_pixs(){
         try {
-            BufferedReader br = new BufferedReader(new FileReader(new File(home_folder+"\\arhive_nicks\\nicks_img_deleted.txt")));
-            String line;
+            BufferedReader br = new BufferedReader(new FileReader(new File(home_folder+"\\arhive_nicks\\nicks_img_deleted2.txt")));
+            /*String line;
             while ((line = br.readLine()) != null) {
                 if(!(line.startsWith("*")&&line.endsWith("*")))break;
                 String[] arr_line = line.substring(1,line.length()-1).split("%");
@@ -56,6 +63,20 @@ public class CorrectNicksStats {
                     img_pix[i-2] = Long.parseLong(arr_line[i]);
                 }
                 img_pix[15] = Long.parseLong(arr_line[1]);
+                sortedmap_all_imgs_pix_of_OLDnicks.put(img_pix[15],img_pix);
+            }
+            br.close();*/
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                if(!(line.startsWith("*")&&line.endsWith("*")))break;
+                String[] arr_line = line.substring(1,line.length()-1).split("%");
+                //System.out.println("line "+arr_line.length);
+                hashmap_id_img_pix_OLDnick.put(Long.parseLong(arr_line[16]),arr_line[0]);
+                long[] img_pix = new long[16];
+                for(int i=1; i<17; i++){
+                    img_pix[i-1] = Long.parseLong(arr_line[i]);
+                }
                 sortedmap_all_imgs_pix_of_OLDnicks.put(img_pix[15],img_pix);
             }
             br.close();
@@ -75,7 +96,7 @@ public class CorrectNicksStats {
         line.deleteCharAt(line.length()-1);
         line.append("*\r\n");
 
-        try (OutputStream os = new FileOutputStream(new File(home_folder+"\\arhive_nicks\\nicks_img_deleted.txt"),true)) {
+        try (OutputStream os = new FileOutputStream(new File(home_folder+"\\arhive_nicks\\nicks_img_deleted3.txt"),true)) {
             os.write(line.toString().getBytes(StandardCharsets.UTF_8));
         } catch (FileNotFoundException e) {
         } catch (IOException s) {
@@ -108,15 +129,15 @@ public class CorrectNicksStats {
             for(String nicks:main_map_newnick_oldnicks.get(nick)) System.out.print(nicks+" ");
             System.out.println();
         }
-        //rewriteStats(main_map_newnick_oldnicks);
+        rewriteStats(main_map_newnick_oldnicks);
 
 
         // удаление неправильных дубликатов из списка старых ников
-      /*out:for(Map.Entry<Long,String> entry:hashmap_id_img_pix_OLDnick.entrySet()){
+      out:for(Map.Entry<Long,String> entry:hashmap_id_img_pix_OLDnick.entrySet()){
             for(List<String> deletednick:main_map_newnick_oldnicks.values())
                 if(deletednick.contains(entry.getValue()))continue out;
           rewrite_nicks_keys_img_pix(entry.getValue(),sortedmap_all_imgs_pix_of_OLDnicks.get(entry.getKey()));
-        }*/
+        }
     }
 
 
@@ -147,12 +168,21 @@ public class CorrectNicksStats {
                     is_cast = true;
                     for(String Oldnick:main_map_newnick_oldnicks.get(Newnick)){
                         Object[][][] Old_stata =(Object[][][])nick_stata.get("$ю$"+Oldnick+"$ю$");
+                        if(Old_stata==null){
+                            //System.out.println(Oldnick+" no stata");
+                            continue;
+                        }
+                        //System.out.println(Oldnick+" is stata");
+
                         for(int A=0; A<New_stata.length; A++){
                             for(int B=0; B<New_stata[A].length; B++)
                                 for(int C=0; C<New_stata[A][B].length; C++){
                                     if(New_stata[A][B][C]==null){
-                                        //System.out.print("C==null"); if(Old_stata[A][B][C]==null) System.out.println( "   oldstata C=NULL");
+                                        //System.out.print("New==null"); if(Old_stata[A][B][C]==null) System.out.println( "   oldstata C=NULL");
                                         continue; }
+                                    /*if(Old_stata[A][B][C]==null) {
+                                        System.out.print("Old==null"); if(New_stata[A][B][C]==null) System.out.println( "   newstata C=NULL");
+                                        continue; }*/
                                     New_stata[A][B][C]=(int)New_stata[A][B][C]+(int)Old_stata[A][B][C];
                                 }
                         }
@@ -162,6 +192,11 @@ public class CorrectNicksStats {
                     for(String Oldnick:main_map_newnick_oldnicks.get(Newnick)){
 
                         Object[][] Old_stata =(Object[][])nick_stata.get("$ю$"+Oldnick+"$ю$");
+                        if(Old_stata==null){
+                            //System.out.println(Oldnick+" no stata");
+                            continue;
+                        }
+                        //System.out.println(Oldnick+" is stata");
                         for(int A=0; A<New_stata.length; A++)
                             for(int B=0; B<New_stata[A].length; B++) New_stata[A][B]=(int)New_stata[A][B]+(int)Old_stata[A][B];
                     }
@@ -189,7 +224,15 @@ public class CorrectNicksStats {
     }
 
     public static void main(String[] args) {
-        select_AllNicks();
+        //select_AllNicks();
+        // смещение битов последнего числа
+       /* read_OLDfile_with_nicks_and_img_pixs();
+        for(Map.Entry<Long,long[]> entry:sortedmap_all_imgs_pix_of_OLDnicks.entrySet()){
+            entry.getValue()[14] = entry.getValue()[14]<<14;
+            String nid = hashmap_id_img_pix_OLDnick.get(entry.getKey());
+            rewrite_nicks_keys_img_pix(nid,entry.getValue());
+        }*/
+
 
     }
 }

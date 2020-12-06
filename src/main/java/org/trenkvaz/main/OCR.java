@@ -217,7 +217,7 @@ public class OCR implements Runnable {
     boolean TEST = true;
     boolean testRIT = false;
     private void main_work_on_table(){
-        //if(table!=1)return;
+        if(table!=1)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -287,7 +287,7 @@ public class OCR implements Runnable {
             testRIT = false;
         }
 
-        if(counttest<6)save_image(frame[0],"test5\\_"+table+"_"+(++c));
+        if(counttest<3)save_image(frame[0],"test5\\_"+table+"_"+(++c));
         counttest++;
 
         /*if(!currentHand.is_nicks_filled)get_nicks();
@@ -301,6 +301,9 @@ public class OCR implements Runnable {
             currentHand.is_preflop_end = true;
             currentHand.is_allin = currentHand.check_All_in(FLOP);
         }*/
+
+        if(!currentHand.is_nicks_filled)get_nicks();
+
         if(!currentHand.is_preflop_end)worksPreflop();
 
         if(!currentHand.is_allin&&currentHand.is_start_flop&&!currentHand.is_flop_end)worksFlop();
@@ -319,10 +322,10 @@ public class OCR implements Runnable {
 
 
     private void worksPreflop(){
-        if(!currentHand.is_nicks_filled)get_nicks();
+
         //if(currentHand.is_nicks_filled){
         //if(currentHand.cards_hero[0].equals("7c")&&currentHand.cards_hero[1].equals("7h"))
-        if(!currentHand.is_start_flop) currentHand.is_allin = check_StartNewStreetANDreturnIsRIT(FLOP);
+        if(!currentHand.is_start_flop) check_StartNewStreetANDreturnIsRIT(FLOP);
         if(currentHand.is_allin)return;
         if(!currentHand.is_start_flop)get_start_stacks_and_preflop();
 
@@ -338,7 +341,7 @@ public class OCR implements Runnable {
     private void worksFlop(){
 
 
-            currentHand.is_allin = check_StartNewStreetANDreturnIsRIT(TURN);
+            check_StartNewStreetANDreturnIsRIT(TURN);
             if(currentHand.is_allin)return;
 
 
@@ -575,6 +578,8 @@ public class OCR implements Runnable {
                 _64_pixels<<=1;
                 if(get_intGreyColor(image,x,y)>limit_grey){ _64_pixels+=1; count_black_pix++; }
                 if(count_64_pix==64||count_all_pix==amount_pix){
+                    //System.out.println(count_64_pix+" "+(amount_pix%count_64_pix));
+                    if(count_64_pix<64)_64_pixels<<=(64-count_64_pix);
                     index_longarr_hashimage++;
                     longarr_hashimage[index_longarr_hashimage] = _64_pixels;
                     count_64_pix = 0;
@@ -692,8 +697,16 @@ public class OCR implements Runnable {
            if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1]))return -1;
                  else return 0;}
        // если БУ определилась, то проверяет совпадение новых карт со старыми если да, то считается текущая раздача, если карты разные, то считается началом новой раздачи
-       if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1])&&bu==current_bu&&currentHand!=null){
-           return -1;
+       if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1])&&bu==current_bu){
+           if(currentHand==null){
+               current_hero_cards[0] = hero_cards[0];current_hero_cards[1] = hero_cards[1];
+               current_bu = bu; set_PokerPositionsIndexWithNumberingOnTable(bu);
+               hud.clear_hud(table-1);
+               counttest = 0;
+
+               return 1;
+           }
+           else return -1;
        } else {
            current_hero_cards[0] = hero_cards[0];current_hero_cards[1] = hero_cards[1];
            if(bu!=current_bu){ current_bu = bu; set_PokerPositionsIndexWithNumberingOnTable(bu); }
@@ -1091,7 +1104,7 @@ public class OCR implements Runnable {
                     if(count_32_pix==32||count_all_pix==amount_pix){
                         // сдвиг влево на недостающее количество раз если битов в числе больше чем оставшихся пикселей
                         // если так не сделать слева числа будут нули, и потом в получении изображения из битов нужно будет в послденем числе изменять смещение для битов
-                        if(count_32_pix<32)_32_pixels<<=(amount_pix%count_32_pix);
+                        if(count_32_pix<32)_32_pixels<<=(32-count_32_pix);
                         index_intarr_hashimage++;
                         intarr_hashimage[index_intarr_hashimage] = _32_pixels;
                         _32_pixels = 0;
@@ -1119,7 +1132,7 @@ public class OCR implements Runnable {
 
 
 
-    private boolean check_StartNewStreetANDreturnIsRIT(int street){
+    private void check_StartNewStreetANDreturnIsRIT(int street){
 
         int xfloprit1 = 318, yfloprit1 = 179, xfloprit2 = 300, yfloprit2 = 200; // bright 150  correct_cards = 46;
 
@@ -1128,21 +1141,23 @@ public class OCR implements Runnable {
             case  1 -> {
                 //System.out.println("check_start_flop");
                 // проверка что херо не делал ход, кроме когда находится на ББ, где возможен чек, если не делал, то проверки на флоп нет
-                if(currentHand.preflop_by_positions.get(currentHand.poker_position_of_hero).isEmpty()&&currentHand.poker_position_of_hero !=5) return false;
+                //if(currentHand.preflop_by_positions.get(currentHand.poker_position_of_hero).isEmpty()&&currentHand.poker_position_of_hero !=5) return false;
 
                 if(get_int_MaxBrightnessMiddleImg(frame[0],xfloprit1,yfloprit1,17,17)>150
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],xfloprit2,yfloprit2,17,17)>150){ testRIT = true; return true;}
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],xfloprit2,yfloprit2,17,17)>150){ testRIT = true; currentHand.is_allin = true;
+                        isBord = true;
+                        return;}
 
                 //System.out.print("check flop ");
                 int x1 = coord_2_3_cards_flop[0][0];
                 int x2 = coord_2_3_cards_flop[1][0];
                 int y = coord_2_3_cards_flop[0][1];
                 if(get_int_MaxBrightnessMiddleImg(frame[0],x1,y,17,17)>190
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],x2,y,17,17)>190)currentHand.is_start_flop = true; }
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],x2,y,17,17)>190)currentHand.is_start_flop = true; isBord = true;}
 
             case 2 -> {
                 if(get_int_MaxBrightnessMiddleImg(frame[0],364,yfloprit1,17,17)>150
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],346,yfloprit2,17,17)>150){ testRIT = true; return true;}
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],346,yfloprit2,17,17)>150){ testRIT = true;  currentHand.is_allin = true; return; }
 
                 if(get_int_MaxBrightnessMiddleImg(frame[0],347,168,15,10)>175
                         &&get_int_MaxBrightnessMiddleImg(frame[0],363,212,15,10)>175)currentHand.is_start_turn = true;
@@ -1153,14 +1168,23 @@ public class OCR implements Runnable {
 
             case 3 -> {
                 if(get_int_MaxBrightnessMiddleImg(frame[0],410,yfloprit1,17,17)>150
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],392,yfloprit2,17,17)>150){ testRIT = true; return true;}
+                        &&get_int_MaxBrightnessMiddleImg(frame[0],392,yfloprit2,17,17)>150){ testRIT = true; currentHand.is_allin = true; return;}
 
                 if(get_int_MaxBrightnessMiddleImg(frame[0],392,168,15,10)>175
                         &&get_int_MaxBrightnessMiddleImg(frame[0],408,212,15,10)>175)currentHand.is_start_river = true; }
         }
 
-        return false;
+
     }
+
+    boolean isBord = false;
+
+    private boolean is_NewHandStartWithSameCardsAndBU(){
+        isBord = false;
+        check_StartNewStreetANDreturnIsRIT(1);
+        return !isBord && (currentHand.is_start_flop || currentHand.is_allin);
+    }
+
 
 
     String ocr_image(BufferedImage bufferedImage){
