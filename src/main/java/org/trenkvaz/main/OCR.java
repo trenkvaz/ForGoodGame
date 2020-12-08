@@ -42,7 +42,8 @@ public class OCR implements Runnable {
     CreatingHUD creatingHUD;
     static final int FLOP =1, TURN = 2, RIVER = 3;
     List<List<long[]>> list_of_lists_current_id_nicks_for_choose = new ArrayList<>(6);
-
+    List<long[]> list_of_hashimgs_namberhand = new ArrayList<>(3);
+    boolean startSecondHand = false;
     // test
 
     record TestRecPlayer(List<BufferedImage> imges_nick,List<BufferedImage> imges_stack){}
@@ -187,6 +188,14 @@ public class OCR implements Runnable {
                 logtest+="ALLIN PREFLOP |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\r\n";
             }
         }
+
+        if(ocr.testStartByNumHand){
+            System.out.println(RED+"START BY NUMBERHAND ////////////////////////////////////////////");
+            Settings.ErrorLog("START BY NUMBERHAND "+ocr.currentHand.time_hand+" t "+ocr.table+" p ");
+            logtest+="START BY NUMBERHAND ////////////////////////////////////////////////\r\n";
+
+
+        }
         System.out.println(RESET+"******************************************");
 
         logtest+="****************************************** \r\n";
@@ -216,8 +225,11 @@ public class OCR implements Runnable {
     int count_cadres = 0;
     boolean TEST = true;
     boolean testRIT = false;
+
+    boolean testStartByNumHand = false;
+
     private void main_work_on_table(){
-        if(table!=1)return;
+        //if(table!=1)return;
         if(!startlog){
             startlog=true;
             Settings.ErrorLog("START");
@@ -249,6 +261,7 @@ public class OCR implements Runnable {
                //if(currentHand.is_start_flop)
                    show_test_total_hand(this);
 
+                   startSecondHand = true;
             }
             //list_test_numberhands.clear();
             //list_test_cards.clear();
@@ -285,7 +298,10 @@ public class OCR implements Runnable {
             //save_image(frame[0],"test5\\"+(c++));
             //count_cadres = 0;
             testRIT = false;
+            testStartByNumHand = false;
         }
+
+
 
         if(counttest<3)save_image(frame[0],"test5\\_"+table+"_"+(++c));
         counttest++;
@@ -469,7 +485,6 @@ public class OCR implements Runnable {
     }
 
 
-
     private String[] set_cards_hero(){
         //System.out.println("set_cards_hero");
         //BufferedImage[] cards = new BufferedImage[2];
@@ -563,12 +578,10 @@ public class OCR implements Runnable {
     }
 
 
-
-
-
     public long[] get_longarr_HashImage(BufferedImage image,int X, int Y, int W, int H, int amount_64nums, int limit_grey){
         //System.out.println("new x "+X+" y "+Y+" w "+W+" H "+H);
         long _64_pixels =0, count_black_pix = 0, amount_pix = W*H;
+
         long[] longarr_hashimage = new long[amount_64nums+1]; int index_longarr_hashimage = -1, count_64_pix = 0;
         int count_all_pix = 0;
       out:for (int x = X; x < X+W; x++){
@@ -591,7 +604,6 @@ public class OCR implements Runnable {
         longarr_hashimage[amount_64nums] = count_black_pix;
         return longarr_hashimage;
     }
-
 
 
     private String get_suit_of_card(BufferedImage image_card,int X,int Y){
@@ -694,8 +706,16 @@ public class OCR implements Runnable {
 
        if(bu==-1){
            if(currentHand==null)return 0;
-           if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1]))return -1;
-                 else return 0;}
+           if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1])){
+               if(startSecondHand) {
+                   int samenumhand =  checkSameNumberHand(1);
+                   //System.out.println(BLUE+checkSameNumberHand(1));
+                   if(samenumhand==1)testStartByNumHand = true;
+                   return samenumhand;
+               } else return -1;
+           }
+           else return 0;
+       }
        // если БУ определилась, то проверяет совпадение новых карт со старыми если да, то считается текущая раздача, если карты разные, то считается началом новой раздачи
        if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1])&&bu==current_bu){
            if(currentHand==null){
@@ -703,20 +723,88 @@ public class OCR implements Runnable {
                current_bu = bu; set_PokerPositionsIndexWithNumberingOnTable(bu);
                hud.clear_hud(table-1);
                counttest = 0;
-
+               if(startSecondHand) return checkSameNumberHand(0);
+                   ///System.out.println(RED+checkSameNumberHand(0));
                return 1;
+           } else {
+               if(startSecondHand) {
+               int samenumhand =  checkSameNumberHand(1);
+               //System.out.println(BLUE+checkSameNumberHand(1));
+               if(samenumhand==1)testStartByNumHand = true;
+               return samenumhand;
+           } else return -1;
            }
-           else return -1;
        } else {
            current_hero_cards[0] = hero_cards[0];current_hero_cards[1] = hero_cards[1];
            if(bu!=current_bu){ current_bu = bu; set_PokerPositionsIndexWithNumberingOnTable(bu); }
            hud.clear_hud(table-1);
            counttest = 0;
-
+           if(startSecondHand) return checkSameNumberHand(0);
+               //System.out.println(RED+checkSameNumberHand(0));
            return 1;
-
        }
     }
+
+    long[] currentHashNuberhand;
+
+    int checkSameNumberHand(int raund){
+        //if(!startHand)return false;
+        long[] hashNumberHand = get_longarr_HashImage(frame[1],0,0,26,5,3,80);
+        // начало новой руки всегда возвращает 1
+        if(raund==0){
+            list_of_hashimgs_namberhand.clear();
+            list_of_hashimgs_namberhand.add(hashNumberHand);
+            currentHashNuberhand = null;
+            return 1;
+        } else {
+            // по ходу руки если номер руки еще не выбран из трех изо, то заполняется список тремя номерами до тех пор пока все номера будут идентичны
+            // тогда номер руки берется из этого списка возврат -1 считается что это правильная текущая рука
+            if(currentHashNuberhand==null){
+            if(list_of_hashimgs_namberhand.size()<3){list_of_hashimgs_namberhand.add(hashNumberHand);}
+
+            if(list_of_hashimgs_namberhand.size()==3){
+
+                boolean same_number = true;
+                for(int i=1; i<3; i++){
+                    if(compare_LongHashes(list_of_hashimgs_namberhand.get(1),list_of_hashimgs_namberhand.get(i),6))continue;
+                    same_number = false; break;
+                }
+
+                if(same_number){currentHashNuberhand = list_of_hashimgs_namberhand.get(1).clone(); list_of_hashimgs_namberhand.clear(); }
+                else list_of_hashimgs_namberhand.remove(0);
+            }
+                return -1;
+            }
+            // если номер руки выбран, то он сравнивается с приходящими номерами если одинаково, то значит рука продолжается
+            else {
+                //System.out.println("compare");
+               if(compare_LongHashes(currentHashNuberhand,hashNumberHand,6))return -1;
+               // если нет равенства руки, то набирается список из трех номеров, до те пор пока все три номера не будут одинаковые
+               // это значит, что началась новая рука и новые номера не равны текущему номеру
+               // пока не наберутся три номера идет возврат 0, чтобы пропускались изображения, так как пока не ясно началась новая рука или нет
+               // когда будет проверено что началась то иде возврат 1
+               else {
+                   if(list_of_hashimgs_namberhand.size()<3){list_of_hashimgs_namberhand.add(hashNumberHand);}
+                   if(list_of_hashimgs_namberhand.size()==3){
+
+                       boolean same_number = true;
+                       for(int i=1; i<3; i++){
+                           if(compare_LongHashes(list_of_hashimgs_namberhand.get(1),list_of_hashimgs_namberhand.get(i),6))continue;
+                           same_number = false; break;
+                       }
+
+                       if(same_number){return 1; }
+                       else list_of_hashimgs_namberhand.remove(0);
+                   }
+                   return 0;
+               }
+
+            }
+
+        }
+
+    }
+
 
     int counttest = 0;
 
@@ -1293,12 +1381,13 @@ public class OCR implements Runnable {
 
 
     boolean compare_LongHashes(long[] current_list_nums,long[] _new_list_nums, int limit_error){
-
-        //if(current_list_nums.size()!=_new_list_nums.size())return false;
-        //System.out.println(current_list_nums[15]+" "+_new_list_nums[15]);
-        if(Math.abs(current_list_nums[15]-_new_list_nums[15])>15)return false;
+        // нужно знать длину массива, так как сюда также приходит сравнение номера руки и в хеше ника в котором сравнивается последнее число
+         int length_array = current_list_nums.length;
+         if(length_array==16){if(Math.abs(current_list_nums[15]-_new_list_nums[15])>15)return false;}
+         else if(Math.abs(current_list_nums[3]-_new_list_nums[3])>6)return false;
+         length_array--;
         int first_of_pair_error = 0, second_of_pair_error = 0;
-      for(int ind_nums = 0; ind_nums<15; ind_nums++){
+      for(int ind_nums = 0; ind_nums<length_array; ind_nums++){
             if(ind_nums%2==0)first_of_pair_error = get_AmountOneBitInLong(current_list_nums[ind_nums]^_new_list_nums[ind_nums]);
             if(ind_nums%2!=0)second_of_pair_error = get_AmountOneBitInLong(current_list_nums[ind_nums]^_new_list_nums[ind_nums]);
           //System.out.println((first_of_pair_error+second_of_pair_error));

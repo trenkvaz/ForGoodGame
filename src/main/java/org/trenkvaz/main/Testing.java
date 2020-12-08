@@ -761,7 +761,7 @@ public class Testing {
         UseTesseract useTesseract = new UseTesseract();
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
-        Settings.setting_capture_video();
+        //Settings.setting_capture_video();
         //map_nicks_idplayers = new Work_DataBase().get_map_IdPlayersNicks();
         //work_dataBase = new Work_DataBase();
         //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test\\_2_469"),0,0,70,11));
@@ -884,24 +884,13 @@ public class Testing {
         int x = coords_places_of_nicks[3][0]
                 +3+correction_for_place_of_nicks[3];
         int y = coords_places_of_nicks[3][1]+17;
-       long[] number = ocr.get_longarr_HashImage(read_image("Mtest\\sitingout"),x,y+1,72,12,14,175);
-        show_HashShablonNumber(number,72,12);
-        System.out.println();
+      /* long[] number = ocr.get_longarr_HashImage(read_image("Mtest\\sitingout"),x,y+1,72,12,14,175);
+        show_HashShablonNumber(number,72,12);*/
+        long[] number2 = ocr.get_longarr_HashImage(read_image("Mtest\\nhand"),0,0,26,5,3,80);
+        show_HashShablonNumber(number2,26,5);
+        System.out.println(number2[3]);
         System.out.println("hero "+is_correct_hero_nick+" players "+is_correct_nicks);
-        /*read_Newfile_with_nicks_and_img_pixs();
-        long cor = sortedmap_all_imgs_pix_of_NEWnicks.get(228000001L)[14]<<14;
-        sortedmap_all_imgs_pix_of_NEWnicks.get(228000001L)[14] = cor;
-        System.out.println(compare_arrlong(sortedmap_all_imgs_pix_of_NEWnicks.get(228000001L),sortedmap_all_imgs_pix_of_NEWnicks.get(228000004L),10));
-
-        show_HashShablonNumber(sortedmap_all_imgs_pix_of_NEWnicks.get(228000001L),86,11);
-        System.out.println();
-        show_HashShablonNumber(sortedmap_all_imgs_pix_of_NEWnicks.get(228000004L),86,11);*/
-        for(int i=0; i<shablons_text_sittingout_allin.length; i++){
-            show_HashShablonNumber(shablons_text_sittingout_allin[i],72,12);
-            System.out.println();
-        }
 
 
-        System.out.println(ocr.get_int_CompareLongHashesToShablons(number,shablons_text_sittingout_allin));
     }
 }
