@@ -9,8 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.*;
-import static org.trenkvaz.main.OCR.FLOP;
-import static org.trenkvaz.main.OCR.TURN;
+import static org.trenkvaz.main.OCR.*;
 import static org.trenkvaz.ui.Controller_main_window.controller_main_window;
 //import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
 
@@ -24,39 +23,53 @@ public class CurrentHand {
     int poker_position_of_hero = -1;
 
     int[] poker_positions_by_pos_table_for_nicks;
-    boolean is_nicks_filled = false,is_preflop_end = false, is_start_flop = false, is_flop_end = false, is_start_turn = false, is_start_river = false,
+    boolean is_nicks_filled = false, is_start_flop = false, is_start_turn = false, is_start_river = false,
             is_stacks_filled = false, is_allin = false;
     int position_bu_on_table = 0;
     int[] arr_continue_players_flop = new int[6], arr_alliner_players_flop = new int[6],
-            arr_continue_players_turn = new int[6], arr_alliner_players_turn = new int[6];
-    float[] stacks_flop = new float[6], stacks_turn = new float[6];
+            arr_continue_players_turn = new int[6], arr_alliner_players_turn = new int[6],
+            arr_continue_players_river = new int[6], arr_alliner_players_river = new int[6];
+    float[] stacks_flop = new float[6], stacks_turn = new float[6], stacks_river = new float[6];
 
 
 
     //float[] first_round_preflop = new float[6];
     ArrayList<ArrayList<Float>> preflop_by_positions = new ArrayList<>(6);
     ArrayList<ArrayList<Float>> flop_by_positions = new ArrayList<>(6);
+    ArrayList<ArrayList<Float>> turn_by_positions = new ArrayList<>(6);
+    ArrayList<ArrayList<Float>> river_by_positions = new ArrayList<>(6);
 
     List<List<Float>> preflop_actions_for_stats = new ArrayList<>(6);
     public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, String[] nicks){}
     CreatingHUD creatingHUD;
 
 
-    CurrentHand(int table1,CreatingHUD creatingHUD1){
-        creatingHUD = creatingHUD1;
+    CurrentHand(OCR ocr){
+        this.creatingHUD = ocr.creatingHUD;
         creatingHUD.clear_MapStats();
-        table = table1;
+        table = ocr.table-1;
         for(int i=0; i<6; i++){
             preflop_by_positions.add(new ArrayList<Float>());
             flop_by_positions.add(new ArrayList<Float>());
+            turn_by_positions.add(new ArrayList<Float>());
+            river_by_positions.add(new ArrayList<Float>());
             if(i<4)preflop_by_positions.get(i).add(0f);
             if(i==4)preflop_by_positions.get(i).add(0.5f);
             if(i==5)preflop_by_positions.get(i).add(1f);
             stacks[i] = 0f;
         }
-
         time_hand =  get_HandTime();
+
+        position_bu_on_table = ocr.current_bu;
+        nicks[0] = nick_hero;
+        poker_position_of_hero = ocr.current_position_hero;
+        cards_hero[0] = ocr.current_hero_cards[0];
+        cards_hero[1] = ocr.current_hero_cards[1];
+        poker_positions_by_pos_table_for_nicks = ocr.poker_positions_index_with_numbering_on_table.clone();
     }
+
+
+
 
 
     void setIs_nicks_filled(){
@@ -68,28 +81,31 @@ public class CurrentHand {
     }
 
 
-    public void set_NicksByPositions(){
+    public void finalCurrendHand(){
         // расстановка ников по покерным позициям
-
         String[] nicks_by_positions = new String[6];
         for(int i=0; i<6; i++){
             if(nicks[poker_positions_by_pos_table_for_nicks[i]-1]==null)continue;
             nicks_by_positions[i] = nicks[poker_positions_by_pos_table_for_nicks[i]-1];
         }
         nicks = nicks_by_positions;
+
+        if(let_SaveTempHandsAndCountStatsCurrentGame)
+            Work_DataBase.record_rec_to_TableTempHands(new TempHand(time_hand,get_short_CardsHero(cards_hero),(short)poker_position_of_hero,stacks,nicks));
     }
 
 
-    public static synchronized void creat_HandForSaving(CurrentHand currentHand){
+   /* public static synchronized void creat_HandForSaving(CurrentHand currentHand){
 
       //controller_main_window.setMessage_work(currentHand.time_hand+"", Color.BLUE);
 
-      Work_DataBase.record_rec_to_TableTempHands(new TempHand(currentHand.time_hand,get_short_CardsHero(currentHand.cards_hero),(short)currentHand.poker_position_of_hero,currentHand.stacks,currentHand.nicks));
-    /* for(int i=0; i<6; i++){if(nicks[i]==null)continue;
+      Work_DataBase.record_rec_to_TableTempHands(new TempHand(currentHand.time_hand,get_short_CardsHero(currentHand.cards_hero),
+              (short)currentHand.poker_position_of_hero,currentHand.stacks,currentHand.nicks));
+    *//* for(int i=0; i<6; i++){if(nicks[i]==null)continue;
          System.out.println(nicks[i]+"  "+idplayers[i]);
-     }*/
+     }*//*
 
-    }
+    }*/
 
 
     static short get_short_CardsHero(String[] cards_hero){ return (short)
@@ -97,32 +113,18 @@ public class CurrentHand {
 
 
 
-    public boolean check_All_in(int street){
+    public void check_All_in(int street){
         switch (street){
             case FLOP -> {// сравинивается количество продолжающих играть флоп игроков с аллинерами на флопе, если разница меньше чем 2 игрока это значит что на префлопе был оллин
-                return Arrays.stream(arr_continue_players_flop).filter(c -> c > 0).count() - Arrays.stream(arr_alliner_players_flop).filter(c -> c > 0).count() < 2;
+                if(Arrays.stream(arr_continue_players_flop).filter(c -> c > 0).count() - Arrays.stream(arr_alliner_players_flop).filter(c -> c > 0).count() < 2)is_allin = true;
             }
             case TURN -> {
-                return Arrays.stream(arr_continue_players_turn).filter(c -> c > 0).count() - Arrays.stream(arr_alliner_players_turn).filter(c -> c > 0).count() < 2;
+                if(Arrays.stream(arr_continue_players_turn).filter(c -> c > 0).count() - Arrays.stream(arr_alliner_players_turn).filter(c -> c > 0).count() < 2)is_allin = true;
             }
-
-
-
+            case RIVER -> {
+                if(Arrays.stream(arr_continue_players_river).filter(c -> c > 0).count() - Arrays.stream(arr_alliner_players_river).filter(c -> c > 0).count() < 2)is_allin = true;
+            }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-        return false;
     }
 
 

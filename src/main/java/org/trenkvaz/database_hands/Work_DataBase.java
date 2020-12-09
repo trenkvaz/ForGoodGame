@@ -322,7 +322,7 @@ static String work_database;
 
 
 
-    public static void record_rec_to_TableTempHands(CurrentHand.TempHand temphand){
+    public static synchronized void record_rec_to_TableTempHands(CurrentHand.TempHand temphand){
 
         try {
             //stmt_of_db.executeUpdate(BEGIN);

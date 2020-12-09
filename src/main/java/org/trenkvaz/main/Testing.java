@@ -29,6 +29,157 @@ import static org.trenkvaz.ui.StartAppLauncher.*;
 public class Testing {
 
 
+    static synchronized void show_test_total_hand(OCR ocr){
+
+        if(!ocr.currentHand.creat_PreflopActionsInHandForCountStats())return;
+        //TEST
+        //if(!ocr.currentHand.is_start_turn)return;
+
+        Date d = new Date();
+        DateFormat formatter= new SimpleDateFormat("HH.mm.ss");
+        String Z = formatter.format(d);
+
+        //if(ocr.currentHand.cards_hero[0].equals("7c")&&ocr.currentHand.cards_hero[1].equals("7h")) System.err.println("===================================================");
+        if(ocr.currentHand.is_start_turn) System.out.print(RED);
+        else System.out.print(RESET);
+        System.out.println(Z+"  "+ocr.currentHand.time_hand+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
+                " bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table);
+
+        String logtest = Z+"  "+ocr.currentHand.time_hand+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
+                " turn "+ocr.currentHand.is_start_turn+" bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table+" \r\n";
+
+        boolean error = false;
+        boolean is_save_test_list = false;
+        System.out.print(RESET);
+        for(int i=0; i<6; i++) {
+            logtest += ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ";
+            if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ");
+            else System.out.print(ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ");
+
+            if(ocr.currentHand.nicks[i]==null) { error = true;                   Settings.ErrorLog(" NO NICK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i);
+            /*for(BufferedImage image:testRecPlayers[i].imges_nick)
+            Testing.save_image(image,     "test5\\"+hand+"\\nick_"+i);*/
+            }
+            if(ocr.currentHand.cards_hero[0].equals(""))Settings.ErrorLog("NO CARDS hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i);
+
+            if(ocr.currentHand.stacks[i]<=0){ Settings.ErrorLog(" NO STACK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i+" stack "+ocr.currentHand.stacks[i]+
+                    " cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]);
+               /* for(BufferedImage image:testRecPlayers[i].imges_stack)
+                    Testing.save_image(image,     "test5\\"+hand+"\\stack_"+i);*/
+
+            }
+
+            for (int a=0; a<ocr.currentHand.preflop_by_positions.get(i).size(); a++) {
+                logtest+=ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ";
+                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.preflop_by_positions.get(i).get(a)+" ");
+                else System.out.print(ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ");
+            }
+            logtest+="    _______________         ";
+
+            if(ocr.currentHand.poker_position_of_hero==i)System.out.print(BLUE+"    _______________         ");
+            else System.out.print("    _______________         ");
+
+            for(int a=1; a<ocr.currentHand.preflop_actions_for_stats.get(i).size(); a++) {
+                logtest+=ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ";
+                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
+                else System.out.print(ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
+            }
+
+            /*if(ocr.currentHand.poker_position_of_hero==i)System.out.println(BLUE);
+            else */
+            if(ocr.currentHand.is_start_flop&&ocr.currentHand.arr_continue_players_flop[i]==1) System.out.print(GREEN+"    "+ocr.currentHand.stacks_flop[i]);
+
+            if(ocr.currentHand.is_start_turn&&ocr.currentHand.arr_continue_players_turn[i]==1) System.out.print(GREEN+"    "+ocr.currentHand.stacks_turn[i]);
+
+            System.out.println(RESET);
+            logtest+="\r\n";
+        }
+        if(ocr.currentHand.is_allin) {
+
+            if(ocr.testRIT){
+                System.out.println(RED+"RIT ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+                Settings.ErrorLog("RIT "+ocr.currentHand.time_hand+" t "+ocr.table+" p ");
+                logtest+="RIT |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\r\n";
+            } else {
+                System.out.println(RED+"ALLIN PREFLOP ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+                Settings.ErrorLog("ALLIN PREFLOP "+ocr.currentHand.time_hand+" t "+ocr.table+" p ");
+                logtest+="ALLIN PREFLOP |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\r\n";
+            }
+        }
+
+        if(ocr.currentHand.is_start_flop){
+            System.out.println(GREEN+"FLOP"); logtest+="FLOP\r\n";
+            for(int i=0; i<6; i++){
+                if(ocr.currentHand.arr_continue_players_flop[i]==0)continue;
+                System.out.print(ocr.currentHand.nicks[i]+"  ");
+                logtest+=ocr.currentHand.nicks[i]+"  ";
+                if(ocr.currentHand.arr_alliner_players_flop[i]==1){
+                    System.out.println(" ALLIN PREFLOP");
+                    logtest+=" ALLIN PREFLOP\r\n";
+                } else {
+                    if(!ocr.currentHand.flop_by_positions.get(i).isEmpty())
+                        for (int a=0; a<ocr.currentHand.flop_by_positions.get(i).size(); a++) {
+                            logtest+=ocr.currentHand.flop_by_positions.get(i).get(a)+"  ";
+                            System.out.print(ocr.currentHand.flop_by_positions.get(i).get(a)+"  ");
+                        }
+                    System.out.println();
+                    logtest+="\r\n";
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+        if(ocr.testStartByNumHand){
+            System.out.println(RED+"START BY NUMBERHAND ////////////////////////////////////////////");
+            Settings.ErrorLog("START BY NUMBERHAND "+ocr.currentHand.time_hand+" t "+ocr.table+" p ");
+            logtest+="START BY NUMBERHAND ////////////////////////////////////////////////\r\n";
+
+
+        }
+        System.out.println(RESET+"******************************************");
+
+        logtest+="****************************************** \r\n";
+        Testing.write_LogTest(logtest);
+
+
+
+        //if(!error)creat_HandForSaving(ocr.currentHand);
+
+
+
+        /*int f =0;
+        if(error)for(BufferedImage img:cadres)Testing.save_image(img,"test5\\"+hand+"\\frame_"+(f++));*/
+
+        /*for(int i=0; i<6; i++){
+            System.out.print("pos "+i+" ");
+            if(ocr.currentHand.nicks[i]==null)continue;
+            System.out.print(ocr.currentHand.nicks[i]+"   ");
+            for(int a=1; a<ocr.currentHand.preflop_actions_for_stats.get(i).size(); a++)
+                System.out.print(ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
+            System.out.println();
+        }*/
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public synchronized static void save_image(BufferedImage image, String name_file){
         int index = name_file.lastIndexOf("\\");
@@ -891,6 +1042,13 @@ public class Testing {
         System.out.println(number2[3]);
         System.out.println("hero "+is_correct_hero_nick+" players "+is_correct_nicks);
 
-
+        List<List<int[]>> restlist = new ArrayList<>(2);
+        /*restlist.add(new ArrayList<>());
+        restlist.add(new ArrayList<>());
+        restlist.get(0).add(new int[6]);
+        restlist.get(1).add(new int[6]);
+        System.out.println(restlist.get(0).get(0)[0]);*/
+        //restlist.forEach(List::clear);
+        System.out.println(restlist.get(1).isEmpty());
     }
 }
