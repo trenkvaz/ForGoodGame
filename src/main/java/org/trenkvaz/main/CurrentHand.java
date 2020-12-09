@@ -90,6 +90,8 @@ public class CurrentHand {
         }
         nicks = nicks_by_positions;
 
+        creat_PreflopActionsInHandForCountStats();
+
         if(let_SaveTempHandsAndCountStatsCurrentGame)
             Work_DataBase.record_rec_to_TableTempHands(new TempHand(time_hand,get_short_CardsHero(cards_hero),(short)poker_position_of_hero,stacks,nicks));
     }

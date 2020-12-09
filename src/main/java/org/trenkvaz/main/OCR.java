@@ -105,7 +105,7 @@ public class OCR implements Runnable {
     boolean testStartByNumHand = false;
 
     private void main_work_on_table(){
-        if(table!=2)return;
+        //if(table!=2)return;
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
 
         int check_start_or_end_hand = get_number_hand();

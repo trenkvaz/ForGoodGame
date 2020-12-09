@@ -31,7 +31,7 @@ public class Testing {
 
     static synchronized void show_test_total_hand(OCR ocr){
 
-        if(!ocr.currentHand.creat_PreflopActionsInHandForCountStats())return;
+        //if(!ocr.currentHand.creat_PreflopActionsInHandForCountStats())return;
         //TEST
         //if(!ocr.currentHand.is_start_turn)return;
 
