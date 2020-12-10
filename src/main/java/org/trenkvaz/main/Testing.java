@@ -117,11 +117,14 @@ public class Testing {
                     System.out.println(" ALLIN PREFLOP");
                     logtest+=" ALLIN PREFLOP\r\n";
                 } else {
-                    if(!ocr.currentHand.flop_by_positions.get(i).isEmpty())
+                    if(!ocr.currentHand.flop_by_positions.get(i).isEmpty()){ String firstBet = "";
                         for (int a=0; a<ocr.currentHand.flop_by_positions.get(i).size(); a++) {
-                            logtest+=ocr.currentHand.flop_by_positions.get(i).get(a)+"  ";
-                            System.out.print(ocr.currentHand.flop_by_positions.get(i).get(a)+"  ");
+                            if(ocr.currentHand.firstBetPostflopPokerPos[1]==i&&a==0)firstBet = "first bet   ";
+                            logtest+=firstBet+ocr.currentHand.flop_by_positions.get(i).get(a)+"  ";
+                            System.out.print(firstBet+ocr.currentHand.flop_by_positions.get(i).get(a)+"  ");
+                            firstBet = "";
                         }
+                    }
                     System.out.println();
                     logtest+="\r\n";
                 }
@@ -1042,13 +1045,11 @@ public class Testing {
         System.out.println(number2[3]);
         System.out.println("hero "+is_correct_hero_nick+" players "+is_correct_nicks);
 
-        List<List<int[]>> restlist = new ArrayList<>(2);
-        /*restlist.add(new ArrayList<>());
-        restlist.add(new ArrayList<>());
-        restlist.get(0).add(new int[6]);
-        restlist.get(1).add(new int[6]);
-        System.out.println(restlist.get(0).get(0)[0]);*/
-        //restlist.forEach(List::clear);
-        System.out.println(restlist.get(1).isEmpty());
+        int poker_position = 3;
+
+        for(int init_pos=0;  init_pos<6; init_pos++){
+            if(poker_position==5)poker_position=-1;poker_position++;
+            System.out.println(poker_position);
+        }
     }
 }

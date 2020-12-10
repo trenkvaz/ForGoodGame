@@ -37,7 +37,7 @@ public class OCR implements Runnable {
     long[][][] current_id_nicks_for_choose = new long[6][3][16];
     long[] zeros_for_clear_current_id = new long[16];
     CreatingHUD creatingHUD;
-    static final int FLOP =1, TURN = 2, RIVER = 3;
+    static final int PREFLOP = 0, FLOP =1, TURN = 2, RIVER = 3, AllIn = 4;
     List<List<long[]>> list_of_lists_current_id_nicks_for_choose = new ArrayList<>(6);
     List<long[]> list_of_hashimgs_namberhand = new ArrayList<>(3);
     boolean startSecondHand = false;
@@ -105,7 +105,7 @@ public class OCR implements Runnable {
     boolean testStartByNumHand = false;
 
     private void main_work_on_table(){
-        //if(table!=2)return;
+        //if(table!=4)return;
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
 
         int check_start_or_end_hand = get_number_hand();
@@ -157,20 +157,8 @@ public class OCR implements Runnable {
 
 
 
-       /* if(counttest<3)save_image(frame[0],"test5\\_"+table+"_"+(++c));
+        /*if(counttest<3)save_image(frame[0],"test5\\_"+table+"_"+(++c));
         counttest++;*/
-
-        /*if(!currentHand.is_nicks_filled)get_nicks();
-        //if(currentHand.is_nicks_filled){
-        //if(currentHand.cards_hero[0].equals("7c")&&currentHand.cards_hero[1].equals("7h"))
-        if(!currentHand.is_start_flop) rit = check_StartNewStreetANDreturnIsRIT(FLOP);
-        if(!currentHand.is_start_flop&&!rit)get_start_stacks_and_preflop();
-
-        if(currentHand.is_start_flop&&!currentHand.is_preflop_end&&!rit){
-            set_arrs_PositionsWithContinueAndAllinerPlayers(currentHand.arr_continue_players_flop,currentHand.arr_alliner_players_flop,FLOP);
-            currentHand.is_preflop_end = true;
-            currentHand.is_allin = currentHand.check_All_in(FLOP);
-        }*/
 
 
 
@@ -182,11 +170,12 @@ public class OCR implements Runnable {
 
         worksRiver();
 
-
+        worksAllIn();
 
         //}
 
-
+      /*  if(currentHand.cards_hero[0].equals("6d")&&currentHand.cards_hero[1].equals("7d"))
+            if(currentHand.is_start_flop&&!currentHand.is_start_turn)save_image(frame[0],"test5\\_"+table+"_"+(++c));*/
        /* if(currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3)
             System.out.println("MAIN ---------------------------------------  "+currentHand.nicks[4]);*/
         //System.out.println("bu "+currentHand.position_of_bu+" cards "+currentHand.cards_hero+" allnicks "+currentHand.is_nicks_filled);
@@ -202,7 +191,7 @@ public class OCR implements Runnable {
         check_StartNewStreetANDreturnIsRIT(FLOP);
 
         if(currentHand.is_start_flop||currentHand.is_allin){
-        set_arrs_PositionsWithContinueAndAllinerPlayers(currentHand.arr_continue_players_flop,currentHand.arr_alliner_players_flop,FLOP);
+        set_arrs_PositionsWithContinueAndAllinerPlayers(FLOP);
 
         list_by_poker_pos_current_list_arrnums_actions.forEach(List::clear);
         if(!currentHand.is_allin)currentHand.check_All_in(FLOP);
@@ -221,7 +210,7 @@ public class OCR implements Runnable {
 
 
         if(currentHand.is_start_turn||currentHand.is_allin){
-            set_arrs_PositionsWithContinueAndAllinerPlayers(currentHand.arr_continue_players_turn,currentHand.arr_alliner_players_turn,TURN);
+            set_arrs_PositionsWithContinueAndAllinerPlayers(TURN);
             list_by_poker_pos_current_list_arrnums_actions.forEach(List::clear);
             if(!currentHand.is_allin)currentHand.check_All_in(TURN);
             return;
@@ -237,7 +226,7 @@ public class OCR implements Runnable {
         check_StartNewStreetANDreturnIsRIT(RIVER);
 
         if(currentHand.is_start_river||currentHand.is_allin){
-            set_arrs_PositionsWithContinueAndAllinerPlayers(currentHand.arr_continue_players_river,currentHand.arr_alliner_players_river,RIVER);
+            set_arrs_PositionsWithContinueAndAllinerPlayers(RIVER);
             list_by_poker_pos_current_list_arrnums_actions.forEach(List::clear);
             if(!currentHand.is_allin)currentHand.check_All_in(RIVER);
             return;
@@ -251,6 +240,16 @@ public class OCR implements Runnable {
         if(!currentHand.is_start_river||currentHand.is_allin) return;
 
         getPostFlopActions(RIVER);
+    }
+
+
+    private void worksAllIn(){
+        if(!currentHand.is_allin)return;
+        switch (currentHand.streetAllIn) {
+            case PREFLOP -> getPostFlopActions(FLOP);
+            case FLOP-> getPostFlopActions(TURN);
+            case TURN -> getPostFlopActions(RIVER);
+        }
     }
 
 
@@ -590,7 +589,7 @@ public class OCR implements Runnable {
                if(startSecondHand) {
                    int samenumhand =  checkSameNumberHand(1);
                    //System.out.println(BLUE+checkSameNumberHand(1));
-                   if(samenumhand==1)testStartByNumHand = true;
+                   if(samenumhand==1){testStartByNumHand = true; counttest = 0;}
                    return samenumhand;
                } else return -1;
            }
@@ -610,7 +609,7 @@ public class OCR implements Runnable {
                if(startSecondHand) {
                int samenumhand =  checkSameNumberHand(1);
                //System.out.println(BLUE+checkSameNumberHand(1));
-               if(samenumhand==1)testStartByNumHand = true;
+               if(samenumhand==1){testStartByNumHand = true; counttest = 0;        }
                return samenumhand;
            } else return -1;
            }
@@ -698,6 +697,7 @@ public class OCR implements Runnable {
                 currentHand.preflop_by_positions.get(poker_position).set(0,1_000_000f);
             else */
                 currentHand.preflop_by_positions.get(poker_position).add(-10f);
+                continue;
             }
 
             int xa = coords_actions[poker_positions_index_with_numbering_on_table[poker_position]-1][0];
@@ -856,18 +856,23 @@ public class OCR implements Runnable {
         int[] continueplayers = new int[6], allinersplayers=new int[6];
         if(street==FLOP){actions = currentHand.flop_by_positions; continueplayers = currentHand.arr_continue_players_flop;
         allinersplayers = currentHand.arr_alliner_players_flop;}
-        if(street==TURN){actions = currentHand.turn_by_positions;continueplayers = currentHand.arr_continue_players_turn;
-            allinersplayers = currentHand.arr_alliner_players_turn;}
-        if(street==RIVER){actions = currentHand.river_by_positions;continueplayers = currentHand.arr_continue_players_river;
-            allinersplayers = currentHand.arr_alliner_players_river;}
+        else if(street==TURN){actions = currentHand.turn_by_positions;continueplayers = currentHand.arr_continue_players_turn;
+        allinersplayers = currentHand.arr_alliner_players_turn;}
+        else if(street==RIVER){actions = currentHand.river_by_positions;continueplayers = currentHand.arr_continue_players_river;
+        allinersplayers = currentHand.arr_alliner_players_river;}
 
-        for(int poker_position=0; poker_position<6; poker_position++){
+
+        int poker_position = 3;
+
+        for(int init_pos=0;  init_pos<6; init_pos++){
+            if(poker_position==5)poker_position=-1;poker_position++;
+
             if(continueplayers[poker_position]==0||allinersplayers[poker_position]==1)continue;
 
             if(!actions.get(poker_position).isEmpty())
                 if(actions.get(poker_position).get(actions.get(poker_position).size()-1)==-10)continue;
 
-            if(is_Fold(poker_position)) actions.get(poker_position).add(-10f);
+            if(is_Fold(poker_position)) {actions.get(poker_position).add(-10f); continue;}
 
             int xa = coords_actions[poker_positions_index_with_numbering_on_table[poker_position]-1][0];
             int ya = coords_actions[poker_positions_index_with_numbering_on_table[poker_position]-1][1]+2;
@@ -899,6 +904,7 @@ public class OCR implements Runnable {
             if(actions.get(poker_position).isEmpty())actions.get(poker_position).add(act);
             else if(actions.get(poker_position).get(actions.get(poker_position).size()-1)!=act)actions.get(poker_position).add(act);
 
+            if(currentHand.firstBetPostflopPokerPos[street]==-1)currentHand.firstBetPostflopPokerPos[street] = poker_position;
         }
 
 
@@ -906,52 +912,79 @@ public class OCR implements Runnable {
 
 
 
-    private void set_arrs_PositionsWithContinueAndAllinerPlayers(int[] arrContinuePlayers,int[] arrAllinPlayers,int street){
-        float max_raise =0, raise =0;
+    private void set_arrs_PositionsWithContinueAndAllinerPlayers(int street){
+        float max_raise =1, action =0; int positionMaxRaise = 5;
+        ArrayList<ArrayList<Float>> actionsPreStreetByPoses = new ArrayList<>();
+
+        int[] continuePlayersPreStreet = new int[6], continuePlayPlayers = new int[6], playersInAllines = new int[6], playersInAllinesPreStreet = new int[6];
+
+        if(street==FLOP){actionsPreStreetByPoses = currentHand.preflop_by_positions;
+                                                                             continuePlayPlayers = currentHand.arr_continue_players_flop;
+                                                                             playersInAllines = currentHand.arr_alliner_players_flop;
+        }
+        else if(street==TURN){actionsPreStreetByPoses = currentHand.flop_by_positions;
+            continuePlayersPreStreet = currentHand.arr_continue_players_flop; continuePlayPlayers = currentHand.arr_continue_players_turn;
+            playersInAllinesPreStreet = currentHand.arr_alliner_players_flop; playersInAllines = currentHand.arr_alliner_players_turn;
+        }
+        else if(street==RIVER){actionsPreStreetByPoses = currentHand.turn_by_positions;
+            continuePlayersPreStreet = currentHand.arr_continue_players_turn; continuePlayPlayers = currentHand.arr_continue_players_river;
+            playersInAllinesPreStreet = currentHand.arr_alliner_players_turn; playersInAllines = currentHand.arr_alliner_players_river;
+        }
+
+
         for(int poker_position=0; poker_position<6; poker_position++){
-            // определение продолжающих играть на основе Нет Фолда для любой улицы, так как поступает свой массив ПродолжающихИграть
-            if(is_Fold(poker_position))continue;
-            arrContinuePlayers[poker_position]=1;
-            // нужно получить максимальный рейз на улице, чтобы по нему определить потом оллинеров
-            if(street==FLOP)raise = currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1);
-            if(street==TURN){ // на улице может быть чек чек значит нет действий
-                if(currentHand.flop_by_positions.get(poker_position).isEmpty())continue;
-                raise = currentHand.flop_by_positions.get(poker_position).get(currentHand.flop_by_positions.get(poker_position).size()-1);
+
+            // из-за того, что срабатывание фолда запаздывает изменил алгоритм определения оставшихся в раздаче
+            // обработка предидущих массивов продолжаютиграть и олинеры, если игрок не играет или уже в оллине передается дальше это состояние
+            if(playersInAllinesPreStreet[poker_position]==1){  playersInAllines[poker_position]=1;  continuePlayPlayers[poker_position] = -1; continue; }
+            if(continuePlayersPreStreet[poker_position]==-1){  continuePlayPlayers[poker_position] = -1; continue; }
+
+            // может быть ситуация когда списки действий пустые если на улице были одни чеки, то указывается что игрок продолжает играть
+            if(actionsPreStreetByPoses.get(poker_position).isEmpty()){
+                if(continuePlayersPreStreet[poker_position]==1) continuePlayPlayers[poker_position] = 1;
+                continue;
             }
-            if(street==RIVER){ // на улице может быть чек чек значит нет действий
-                if(currentHand.turn_by_positions.get(poker_position).isEmpty())continue;
-                raise = currentHand.turn_by_positions.get(poker_position).get(currentHand.turn_by_positions.get(poker_position).size()-1);
-            }
-            if(raise>max_raise)max_raise=raise;
+
+            action = actionsPreStreetByPoses.get(poker_position).get(actionsPreStreetByPoses.get(poker_position).size()-1);
+
+            if(action==-10){ continuePlayPlayers[poker_position] = -1; continue;}
+
+            if(is_Fold(poker_position)){ continuePlayPlayers[poker_position] = -1; continue;}
+
+            if(action>max_raise){max_raise=action;  positionMaxRaise = poker_position;  }
 
         }
 
+        if(max_raise>1)continuePlayPlayers[positionMaxRaise] = 1;
+
         for(int poker_position=0; poker_position<6; poker_position++){
-            if(arrContinuePlayers[poker_position]==0)continue;
+            if(continuePlayPlayers[poker_position]==-1||playersInAllines[poker_position]==1)continue;
 
             if(street==FLOP){
+                currentHand.streetAllIn = PREFLOP;
                 //  определение остатка стека у продолжающих играть для следующей улицы после действий на предидущей на основе максимальноге рейза
                 //  если стек больше такого рейза то расчитывается разница рейза и стека как остаток для последеующих действий
                 if(currentHand.stacks[poker_position]>max_raise)currentHand.stacks_flop[poker_position] = currentHand.stacks[poker_position]-max_raise;
                 // если стек меньше или равен макс рейзу то это значит, что игрок в оллине
-                else arrAllinPlayers[poker_position] =1;
+                else playersInAllines[poker_position] =1;
                 continue;
             }
             if(street==TURN){
+                currentHand.streetAllIn = FLOP;
                 //  определение остатка стека у продолжающих играть для следующей улицы после действий на предидущей на основе максимальноге рейза
                 //  если стек больше такого рейза то расчитывается разница рейза и стека как остаток для последеующих действий
                 if(currentHand.stacks_flop[poker_position]>max_raise)currentHand.stacks_turn[poker_position] = currentHand.stacks_flop[poker_position]-max_raise;
                 // если стек меньше или равен макс рейзу то это значит, что игрок в оллине
-                else arrAllinPlayers[poker_position] =1;
+                else playersInAllines[poker_position] =1;
                 continue;
             }
             if(street==RIVER){
+                currentHand.streetAllIn = TURN;
                 //  определение остатка стека у продолжающих играть для следующей улицы после действий на предидущей на основе максимальноге рейза
                 //  если стек больше такого рейза то расчитывается разница рейза и стека как остаток для последеующих действий
                 if(currentHand.stacks_turn[poker_position]>max_raise)currentHand.stacks_river[poker_position] = currentHand.stacks_turn[poker_position]-max_raise;
                 // если стек меньше или равен макс рейзу то это значит, что игрок в оллине
-                else arrAllinPlayers[poker_position] =1;
-                continue;
+                else playersInAllines[poker_position] =1;
             }
 
         }

@@ -76,6 +76,9 @@ public class CaptureVideo {
    public static MainStats[] work_main_stats;
    public static boolean let_SaveTempHandsAndCountStatsCurrentGame = false;
 
+   //TEST
+   static boolean isTest = true;
+
 
 
    public CaptureVideo(){
@@ -83,8 +86,9 @@ public class CaptureVideo {
        //settings_capturevideo = new Settings();
        Settings.setting_capture_video();
        current_map_stats = get_StatsFromDataBase();
+       if(isTest){
        System.out.println(RED+"START TEST NICKS IMG");
-       System.out.println(RESET);
+       System.out.println(RESET);}
       /* map_idplayers_nicks = work_dataBase.get_map_IdPlayersNicks();
        if(!map_idplayers_nicks.isEmpty()) id_for_nick = Collections.max(map_idplayers_nicks.values());*/
        //System.out.println("id_for_nick "+id_for_nick);
@@ -486,7 +490,9 @@ public class CaptureVideo {
         }
 
         public static void read_file_with_nicks_and_img_pixs(){
-            file_with_nicks = new File(home_folder+"\\all_settings\\capture_video\\nicks_img_test.txt");
+            String testnicks = "";
+            if(isTest)testnicks = "_test";
+            file_with_nicks = new File(home_folder+"\\all_settings\\capture_video\\nicks_img"+testnicks+".txt");
             if(!file_with_nicks.isFile())return;
             try {
                 BufferedReader br = new BufferedReader(new FileReader(file_with_nicks));

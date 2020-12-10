@@ -30,6 +30,8 @@ public class CurrentHand {
             arr_continue_players_turn = new int[6], arr_alliner_players_turn = new int[6],
             arr_continue_players_river = new int[6], arr_alliner_players_river = new int[6];
     float[] stacks_flop = new float[6], stacks_turn = new float[6], stacks_river = new float[6];
+    int streetAllIn = -1;
+    int[] firstBetPostflopPokerPos = new int[]{-1,-1,-1,-1};
 
 
 
@@ -40,6 +42,9 @@ public class CurrentHand {
     ArrayList<ArrayList<Float>> river_by_positions = new ArrayList<>(6);
 
     List<List<Float>> preflop_actions_for_stats = new ArrayList<>(6);
+    List<List<Float>> flop_actions_for_stats = new ArrayList<>(6);
+    List<List<Float>> turn_actions_for_stats = new ArrayList<>(6);
+    List<List<Float>> river_actions_for_stats = new ArrayList<>(6);
     public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, String[] nicks){}
     CreatingHUD creatingHUD;
 
@@ -120,18 +125,36 @@ public class CurrentHand {
             case FLOP -> {// сравинивается количество продолжающих играть флоп игроков с аллинерами на флопе, если разница меньше чем 2 игрока это значит что на префлопе был оллин
                 if(Arrays.stream(arr_continue_players_flop).filter(c -> c > 0).count() - Arrays.stream(arr_alliner_players_flop).filter(c -> c > 0).count() < 2)is_allin = true;
             }
-            case TURN -> {
-                if(Arrays.stream(arr_continue_players_turn).filter(c -> c > 0).count() - Arrays.stream(arr_alliner_players_turn).filter(c -> c > 0).count() < 2)is_allin = true;
-            }
-            case RIVER -> {
-                if(Arrays.stream(arr_continue_players_river).filter(c -> c > 0).count() - Arrays.stream(arr_alliner_players_river).filter(c -> c > 0).count() < 2)is_allin = true;
-            }
+            case TURN -> { if(Arrays.stream(arr_continue_players_turn).filter(c -> c > 0).count() - Arrays.stream(arr_alliner_players_turn).filter(c -> c > 0).count() < 2)
+                is_allin = true; }
+            case RIVER -> { if(Arrays.stream(arr_continue_players_river).filter(c -> c > 0).count() - Arrays.stream(arr_alliner_players_river).filter(c -> c > 0).count() < 2)
+                is_allin = true; }
         }
     }
 
 
+    public void creatPostFlopActionsForCountStats(){
 
-    public boolean creat_PreflopActionsInHandForCountStats(){
+        if(is_start_flop)creatActionsStreet(flop_actions_for_stats,flop_by_positions,is_start_turn);
+        if(is_start_turn)creatActionsStreet(turn_actions_for_stats,turn_by_positions,is_start_river);
+        if(is_start_river)creatActionsStreet(river_actions_for_stats,river_by_positions,is_start_river);
+    }
+
+
+    private void creatActionsStreet(List<List<Float>> actionsForStats,ArrayList<ArrayList<Float>> streetByPositions, boolean isNextStreet){
+        for(int f=0; f<6; f++){ actionsForStats.add(new ArrayList<Float>());}
+
+        if(isNextStreet){
+
+
+        }
+
+
+
+    }
+
+
+    public void creat_PreflopActionsInHandForCountStats(){
 
         for(int f=0; f<6; f++){
             preflop_actions_for_stats.add(new ArrayList<Float>()); preflop_actions_for_stats.get(f).add(0f);
@@ -373,6 +396,5 @@ public class CurrentHand {
     }
 
     if(let_SaveTempHandsAndCountStatsCurrentGame)ReadHistoryGetStats.count_StatsCurrentGame(current_map_stats, work_main_stats,nicks,stacks,preflop_actions_for_stats);
-    return true;
     }
 }
