@@ -39,7 +39,7 @@ public class GetNicksForHands {
                 System.out.println(a.getName());
                 read_File(a.getPath());
                 select_TempHandsForHistoryHand();
-                write_NewHistoryHandsWithNicks(folder,a.getName());
+                write_NewHistoryHandsWithNicks(folder,a.getName().replaceFirst("[.][^.]+$", ""));
             }
 
             list_handsfromhistory.clear();
@@ -203,7 +203,7 @@ public class GetNicksForHands {
 
     private static void write_NewHistoryHandsWithNicks(String folder, String name_file){
 
-        try (OutputStream os = new FileOutputStream(folder+"\\output\\"+name_file,true)) {
+        try (OutputStream os = new FileOutputStream(folder+"\\output\\"+name_file+"_nicks.txt",true)) {
             for(HistoryHand historyhand:list_handsfromhistory){
 
              os.write((get_NewHistoryHandWithNicks(historyhand.handfromhistory,historyhand.nicks,historyhand.timefromtemphand)+"\r\n\r\n").getBytes(StandardCharsets.UTF_8));
@@ -220,7 +220,7 @@ public class GetNicksForHands {
        List<String> sublist_players = historyhand.subList(4,10);int position = -1;
 
 
-       if(time[0]!=null)historyhand.set(0,historyhand.get(0).substring(0,28)+time[0]);
+       if(time[0]!=null)historyhand.set(0,historyhand.get(0).substring(0,28)+time[0]+" *****");
 
       /* for(String line:historyhand) System.out.println(line);
        for(String line:nicks) System.out.println(line);*/
