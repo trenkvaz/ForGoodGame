@@ -271,7 +271,7 @@ public class CurrentHand {
                     float action = preflop_by_positions.get(pos).get(1);
                     if(action==-10)continue;
                     if(action==0){ // если игрок не играет на флопе то отсутствие действия на префлопе трактуестя как фолд
-                        if(arr_continue_players_flop[pos]==0) preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
+                        if(arr_continue_players_flop[pos]==-1) preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
                         else {
                             // если игрок играет флоп то отсутствие действия на префлопе трактуется как кол
                             // также проверяется чтобы кол был в рамкам стека так как с флопом уже могут быть оллины и стек может быть меньше предидущего рейза
@@ -333,20 +333,20 @@ public class CurrentHand {
                             // проверка сделал ли игрок на предидущих раундах фолд, чтобы обработать его на последнем раунде
                             for (int[] ints : raunds) if (ints[pos] == -10) continue out;
                             // если игрок не играет на флопе то отсутствие действия на префлопе трактуестя как фолд
-                            if(arr_continue_players_flop[pos]==0) preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
+                            if(arr_continue_players_flop[pos]==-1) preflop_actions_for_stats.get(pos).add(Float.NEGATIVE_INFINITY);
                             else {
 
                                // последний рейзящий пропускается его пустышка ноль не обрабатывается
                                 if(last_max_raise_position==pos)continue;
                                 // TEST
                                 if(raund==0){
-                                    String logtest = "RAUND 0    "+time_hand+"  +++++++++++++++++++++++++++++++++++++\r\n";
+                                    String logtest = " RAUND 0    "+time_hand+"  +++++++++++++++++++++++++++++++++++++\r\n";
                                     for(int[] r:raunds){
                                         for(int a:r) logtest+= a+" ";
                                         logtest+="\r\n";
                                     }
                                     logtest+="+++++++++++++++++++++++++++++++++++++\r\n";
-
+                                    Settings.ErrorLog(logtest);
                                     Testing.write_LogTest(logtest);
 
                                 }

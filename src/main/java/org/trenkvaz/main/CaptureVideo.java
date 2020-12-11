@@ -359,7 +359,7 @@ public class CaptureVideo {
                is_correct_nicks = true;
 
               for(int img_nicks=0; img_nicks<6; img_nicks++ ){
-                  int x_of_nick = coord_left_up_of_tables[index_table][0]+coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5-3;
+                  int x_of_nick = coord_left_up_of_tables[index_table][0]+coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-8;
                   int y_of_nick = coord_left_up_of_tables[index_table][1]+coords_places_of_nicks[img_nicks][1]+1;
                   //checknicktest_nick.add("++++++++++++++++++++++++++++++++++++"+img_nicks);
                   if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,
@@ -486,7 +486,6 @@ public class CaptureVideo {
             shablons_numbers_0_9_for_actions = read_ObjectFromFile("shablons_numbers_0_9_for_actions");
             shablons_text_sittingout_allin = read_ObjectFromFile("shablons_text_sittingout_allin");
             shablon_text_poker_terms = read_ObjectFromFile("shablon_text_poker_terms");
-
         }
 
         public static void read_file_with_nicks_and_img_pixs(){
@@ -562,7 +561,7 @@ public class CaptureVideo {
 
 
 
-        public static void ErrorLog(String er){
+        public static synchronized void ErrorLog(String er){
             boolean estfile = false; String error = ""; boolean zapis = false;
             try {
                 Date d = new Date();

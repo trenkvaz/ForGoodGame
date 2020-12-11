@@ -576,3 +576,25 @@ int add_x = 0;
         //save_image(black_white_image,"for_ocr_number\\osr_bw_"+c+"_grey_"+limit_grey);
 
         return 1;*/
+
+
+         if(!isfold){                                                                                                               ПРОВЕРКА НАЛИЧИЯ КАРМАННЫХ КАРТ У ИГРОКОВ
+                int cor = 1; if(poker_positions_index_with_numbering_on_table[poker_position]-1>3)cor=-14;
+                if((get_int_MaxBrightnessMiddleImg(frame[0],
+                        coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][0]+cor,
+                        coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][1]-10,5,4)>220)&&
+                        (get_int_MaxBrightnessMiddleImg(frame[0],
+                                coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][0]+cor+85,
+                                coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][1]-10,5,4)>220))return false;
+                else return true;
+                }
+
+                                                                                                                                      ИЗМЕНЕНИЕ РАЗМЕРА ИЗОБРАЖЕНИЯ
+                /*BufferedImage get_scale_image(BufferedImage img,double scale){
+                        try {
+                            return Thumbnails.of(img).scale(scale).asBufferedImage();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }*/

@@ -110,7 +110,7 @@ public class Testing {
         if(ocr.currentHand.is_start_flop){
             System.out.println(GREEN+"FLOP"); logtest+="FLOP\r\n";
             for(int i=0; i<6; i++){
-                if(ocr.currentHand.arr_continue_players_flop[i]==0)continue;
+                if(ocr.currentHand.arr_continue_players_flop[i]==-1)continue;
                 System.out.print(ocr.currentHand.nicks[i]+"  ");
                 logtest+=ocr.currentHand.nicks[i]+"  ";
                 if(ocr.currentHand.arr_alliner_players_flop[i]==1){
@@ -915,7 +915,7 @@ public class Testing {
         UseTesseract useTesseract = new UseTesseract();
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
-        //Settings.setting_capture_video();
+        Settings.setting_capture_video();
         //map_nicks_idplayers = new Work_DataBase().get_map_IdPlayersNicks();
         //work_dataBase = new Work_DataBase();
         //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test\\_2_469"),0,0,70,11));
@@ -1014,7 +1014,7 @@ public class Testing {
         BufferedImage tableimg = read_image("Mtest\\_1_147319");
         for(int img_nicks=0; img_nicks<6; img_nicks++ ){
             //if(img_nicks!=5)continue;
-            int x_of_nick = coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-5-3;
+            int x_of_nick = coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-8;
             int y_of_nick = coords_places_of_nicks[img_nicks][1]+1;
             //checknicktest_nick.add("++++++++++++++++++++++++++++++++++++"+img_nicks);
             if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,
@@ -1045,11 +1045,14 @@ public class Testing {
         System.out.println(number2[3]);
         System.out.println("hero "+is_correct_hero_nick+" players "+is_correct_nicks);
 
-        int poker_position = 3;
 
-        for(int init_pos=0;  init_pos<6; init_pos++){
-            if(poker_position==5)poker_position=-1;poker_position++;
-            System.out.println(poker_position);
+
+        //shablon_text_poker_terms = read_ObjectFromFile("shablon_text_poker_terms");
+
+        for(long[]sh:shablon_text_poker_terms){
+            show_HashShablonNumber(sh,86,11);
+            System.out.println();
         }
+
     }
 }
