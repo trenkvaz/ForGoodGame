@@ -32,6 +32,7 @@ public class CurrentHand {
     float[] stacks_flop = new float[6], stacks_turn = new float[6], stacks_river = new float[6];
     int streetAllIn = -1;
     int[] firstBetPostflopPokerPos = new int[]{-1,-1,-1,-1};
+    int[] playersFoldOrAllIn = new int[6];
 
 
 
@@ -133,7 +134,7 @@ public class CurrentHand {
     }
 
 
-    public void creatPostFlopActionsForCountStats(){
+    public void creatActionsForCountStats(){
 
         if(is_start_flop)creatActionsStreet(flop_actions_for_stats,flop_by_positions,is_start_turn);
         if(is_start_turn)creatActionsStreet(turn_actions_for_stats,turn_by_positions,is_start_river);
@@ -152,6 +153,18 @@ public class CurrentHand {
 
 
     }
+
+
+    private void creatRaundsEachStreet(){
+
+        List<int[]> raundsPreflop = new ArrayList<>();
+
+
+
+    }
+
+
+
 
 
     public void creat_PreflopActionsInHandForCountStats(){
@@ -198,6 +211,16 @@ public class CurrentHand {
                 if(raund[pos]>max_raise){max_raise = raund[pos]; last_max_raise_position = pos;}
 
             }*/
+        if(is_start_flop){
+
+
+
+        }
+
+
+
+
+
 
         befor_action =1;
         if(raunds.size()==1){
