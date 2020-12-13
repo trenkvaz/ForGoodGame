@@ -27,7 +27,7 @@ public class OCR implements Runnable {
     CurrentHand currentHand;
     int[] poker_positions_index_with_numbering_on_table = new int[6];
     List<List<int[]>> list_by_poker_pos_current_list_arrnums_actions = new ArrayList<>(6);
-    float[] curNumsActions = new float[6];
+    float[] actionsForCompare = new float[6];
     int current_bu = -1;
     int current_position_hero = -1;
     String[] current_hero_cards = new String[]{"",""};
@@ -42,7 +42,13 @@ public class OCR implements Runnable {
     int count_stop_signal = 0;
     float[] curActsOrInvests = new float[6];
     int[][] coordsWinMovePlayerAtPos = new int[6][2];
-    int curPosMovingPlayer = -1;
+    int posMovingPlayer = -1;
+    float maxRaise = 1;
+    float[] currentStacks = new float[6];
+
+
+
+
     // test
     record TestRecPlayer(List<BufferedImage> imges_nick,List<BufferedImage> imges_stack){}
     Queue<BufferedImage> cadres = new LinkedList<>();
@@ -129,7 +135,7 @@ public class OCR implements Runnable {
 
        /* if(counttest<3)save_image(frame[0],"test5\\_"+table+"_"+(++c));
         counttest++;*/
-        saveImageToFile(frame[0],"test5\\_"+table+"_"+(++c));
+        //saveImageToFile(frame[0],"test5\\_"+table+"_"+(++c));
 
         worksPreflop();
 
@@ -161,12 +167,16 @@ public class OCR implements Runnable {
             coordsWinMovePlayerAtPos[init][0] = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[init]-1][0]
                     +correction_for_place_of_imgfold[poker_positions_index_with_numbering_on_table[init]-1];
             coordsWinMovePlayerAtPos[init][1] = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[init]-1][1]+7;
-            curNumsActions[init] =0;
+            actionsForCompare[init] =0;
             curActsOrInvests[init] = 0;
+            if(init==4)curActsOrInvests[init] = 0.5f;
+            if(init==5)curActsOrInvests[init] = 1f;
+            currentStacks[init] = 0;
             if(init>0)for(int n=0; n<3; n++) System.arraycopy(zeros_for_clear_current_id,0,current_id_nicks_for_choose[init][n],0,16);
-        }
-        curPosMovingPlayer = -1;
 
+        }
+        posMovingPlayer = -1;
+        maxRaise = 1;
 
         // TEST
         testRIT = false;
@@ -185,16 +195,23 @@ public class OCR implements Runnable {
         set_arrs_PositionsWithContinueAndAllinerPlayers(FLOP);
 
         list_by_poker_pos_current_list_arrnums_actions.forEach(List::clear);
-        curNumsActions = new float[6];
+        actionsForCompare = new float[6];
         if(!currentHand.is_allin)currentHand.check_All_in(FLOP);
         return;
         }
 
         if(!currentHand.is_nicks_filled)get_nicks();
         if(!currentHand.is_stacks_filled)getStartStacks();
+
         //get_start_stacks_and_preflop();
+        /*getPosMovingPlayer();
+        if(posMovingPlayer!=-1) {
+            if(testPosMove!=posMovingPlayer){  System.out.println("Position "+posMovingPlayer); testPosMove = posMovingPlayer;}
+
+        }*/
     }
 
+    int testPosMove = -1;
 
     private void worksFlop(){
 
@@ -763,12 +780,15 @@ public class OCR implements Runnable {
             float stack_without_action = getOneStack(poker_position);
             if(stack_without_action==-11)continue;
             else if(stack_without_action<0){
-                if(stack_without_action==-1)currentHand.startStacks[poker_position] = Float.NaN;
+                if(stack_without_action==-1){currentHand.startStacks[poker_position] = Float.NaN;
+                    currentStacks[poker_position] = currentHand.startStacks[poker_position];
+                }
                 // может быть ситуация что в стеке выставлен оллин, но в действии пока пусто поэтому нужно дождаться действия чтобы узнать стек оллина
                 else if(stack_without_action==-2){
                     if(action==0)continue;
                     currentHand.startStacks[poker_position] = action;
-                    curActsOrInvests[poker_position] = -100;
+                    //curActsOrInvests[poker_position] = -100;
+                    currentStacks[poker_position]+= currentHand.startStacks[poker_position];
                 }
                 count_filled_stacks++;
                 continue;
@@ -777,8 +797,10 @@ public class OCR implements Runnable {
             if(action==0)currentHand.startStacks[poker_position] = stack_without_action;
             else {
                 currentHand.startStacks[poker_position] = stack_without_action+action;
-                curActsOrInvests[poker_position] = action;
+                //curActsOrInvests[poker_position] = action;
             }
+
+            currentStacks[poker_position]+= currentHand.startStacks[poker_position];
             count_filled_stacks++;
         }
         if(count_filled_stacks==6)currentHand.is_stacks_filled = true;
@@ -801,13 +823,13 @@ public class OCR implements Runnable {
         if(!list_by_poker_pos_current_list_arrnums_actions.get(poker_position).isEmpty())
             // если лист не пустой то сравнивает его с текущим числом если они одинаковые, то значит не нужно распознавать
             if(compare_CurrentListNumsAndNewListNums(list_by_poker_pos_current_list_arrnums_actions.get(poker_position),nums,10))
-                return curNumsActions[poker_position];
+                return actionsForCompare[poker_position];
             // если же числа разные, или лист пустой то сначало число распознается
         float action = get_OcrNum(nums,10,"actions");
         // ошибка распознавания
         if(action==-1)return -1;
         list_by_poker_pos_current_list_arrnums_actions.set(poker_position,nums);
-        curNumsActions[poker_position] = action;
+        actionsForCompare[poker_position] = action;
         return action;
         // 0: пустое поле действия, -1: невозможно распознать
     }
@@ -835,6 +857,29 @@ public class OCR implements Runnable {
 
 
     private void getActionsAtStreet(){
+
+        getPosMovingPlayer();
+        if(posMovingPlayer==-1)return;
+
+        for(int pokPos=0;  pokPos<posMovingPlayer; pokPos++){
+            if(curActsOrInvests[pokPos]<0)continue;  // если фолд -10 или оллин -100 пропуск
+            if(curActsOrInvests[pokPos]>=maxRaise)continue; // если инвестиции уже равны или больше текущего рейза то пропуск
+            float action = getOneAction(pokPos);
+            if(action<=0)continue;
+            if(action==curActsOrInvests[pokPos])continue;
+
+            if(action<=maxRaise){  // стандартный колл или колл оллин
+                currentHand.preflopActionsStats.get(pokPos).add(-(action-curActsOrInvests[pokPos]));
+                curActsOrInvests[pokPos]=action;
+            }
+            else { maxRaise = action;
+                currentHand.preflopActionsStats.get(pokPos).add(action);
+                curActsOrInvests[pokPos]=action;
+            }
+
+            if(action==currentStacks[pokPos]) curActsOrInvests[pokPos] = -100; else currentStacks[pokPos]-=action;
+        }
+
 
     }
 
@@ -1023,17 +1068,34 @@ public class OCR implements Runnable {
     }
 
 
-    private int getPosMovingPlayer(){
-
-        if(curPosMovingPlayer!=-1){
-            int x = coordsWinMovePlayerAtPos[curPosMovingPlayer][0], j = coordsWinMovePlayerAtPos[curPosMovingPlayer][1], max = 0;
-            for(int i=x; i<x+15; i++){ j++;
-                int c = get_intGreyColor(frame[0],i,j);
-                if(c>max)max=c;
-            }
-            if(max<70)curNumsActions[curPosMovingPlayer] = -10;
+    private void getPosMovingPlayer(){
+        if(posMovingPlayer !=-1){
+            int max = getMaxBrightWinMovePlayer(posMovingPlayer);
+            //System.out.println("Mov!=-1 "+posMovingPlayer+" "+max);
+            if(max>240) { posMovingPlayer = -1; return;}  // помеха определения  ситуация пропускается так как вероятнее всего ход именно за этим игроком и проверять остальных нет смысла
+            if(max<70){
+                curActsOrInvests[posMovingPlayer] = -10;} // фолд значит ход перешел к другому
+            else if(max>100)return; // подтвержение что ход остается на этом месте
+            posMovingPlayer = -1;
         }
-        return -1;
+
+            for(int pokerPos = 0; pokerPos<6; pokerPos++){
+                if(curActsOrInvests[pokerPos]<0)continue;
+                int max = getMaxBrightWinMovePlayer(pokerPos);
+                //System.out.println(pokerPos+" "+posMovingPlayer+" "+max);
+                if(max>240)continue;
+                if(max<70){
+                    curActsOrInvests[pokerPos] = -10;continue;}
+                if(max>100){ posMovingPlayer = pokerPos; break; }
+            }
+
+    }
+
+
+    private int getMaxBrightWinMovePlayer(int pokerPos){
+        int x = coordsWinMovePlayerAtPos[pokerPos][0], j = coordsWinMovePlayerAtPos[pokerPos][1], max = 0;
+        for(int i=x; i<x+15; i++){ j++;int c = get_intGreyColor(frame[0],i,j);if(c>max)max=c; }
+        return max;
     }
 
 

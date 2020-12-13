@@ -44,6 +44,9 @@ public class CurrentHand {
     List<List<Float>> flop_actions_for_stats = new ArrayList<>(6);
     List<List<Float>> turn_actions_for_stats = new ArrayList<>(6);
     List<List<Float>> river_actions_for_stats = new ArrayList<>(6);
+
+    List<List<Float>> preflopActionsStats = new ArrayList<>(6);
+
     public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, String[] nicks){}
     CreatingHUD creatingHUD;
 
@@ -57,9 +60,13 @@ public class CurrentHand {
             flop_by_positions.add(new ArrayList<Float>());
             turn_by_positions.add(new ArrayList<Float>());
             river_by_positions.add(new ArrayList<Float>());
+
+            preflopActionsStats.add(new ArrayList<>());
             if(i<4)preflop_by_positions.get(i).add(0f);
             if(i==4)preflop_by_positions.get(i).add(0.5f);
             if(i==5)preflop_by_positions.get(i).add(1f);
+
+
             startStacks[i] = 0f;
         }
         time_hand =  get_HandTime();
