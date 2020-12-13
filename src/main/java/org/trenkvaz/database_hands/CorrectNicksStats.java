@@ -8,7 +8,7 @@ import java.util.*;
 
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
-import static org.trenkvaz.main.CaptureVideo.get_AmountOneBitInLong;
+import static org.trenkvaz.main.OcrUtils.get_AmountOneBitInLong;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 
 public class CorrectNicksStats {

@@ -1,6 +1,5 @@
 package org.trenkvaz.main;
 
-import javafx.scene.paint.Color;
 import org.trenkvaz.database_hands.ReadHistoryGetStats;
 import org.trenkvaz.database_hands.Work_DataBase;
 
@@ -10,7 +9,6 @@ import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OCR.*;
-import static org.trenkvaz.ui.Controller_main_window.controller_main_window;
 //import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
 
 
@@ -19,7 +17,7 @@ public class CurrentHand {
     int table;
     long time_hand;
     String[] nicks = new String[6], cards_hero = {"",""};
-    Float[] stacks = new Float[6];
+    Float[] startStacks = new Float[6];
     int poker_position_of_hero = -1;
 
     int[] poker_positions_by_pos_table_for_nicks;
@@ -62,7 +60,7 @@ public class CurrentHand {
             if(i<4)preflop_by_positions.get(i).add(0f);
             if(i==4)preflop_by_positions.get(i).add(0.5f);
             if(i==5)preflop_by_positions.get(i).add(1f);
-            stacks[i] = 0f;
+            startStacks[i] = 0f;
         }
         time_hand =  get_HandTime();
 
@@ -99,7 +97,7 @@ public class CurrentHand {
         creat_PreflopActionsInHandForCountStats();
 
         if(let_SaveTempHandsAndCountStatsCurrentGame)
-            Work_DataBase.record_rec_to_TableTempHands(new TempHand(time_hand,get_short_CardsHero(cards_hero),(short)poker_position_of_hero,stacks,nicks));
+            Work_DataBase.record_rec_to_TableTempHands(new TempHand(time_hand,get_short_CardsHero(cards_hero),(short)poker_position_of_hero, startStacks,nicks));
     }
 
 
@@ -298,8 +296,8 @@ public class CurrentHand {
                         else {
                             // если игрок играет флоп то отсутствие действия на префлопе трактуется как кол
                             // также проверяется чтобы кол был в рамкам стека так как с флопом уже могут быть оллины и стек может быть меньше предидущего рейза
-                            if(befor_action<=stacks[pos]) preflop_actions_for_stats.get(pos).add(-(befor_action-preflop_by_positions.get(pos).get(0)));
-                            else preflop_actions_for_stats.get(pos).add(-(stacks[pos]-preflop_by_positions.get(pos).get(0)));
+                            if(befor_action<= startStacks[pos]) preflop_actions_for_stats.get(pos).add(-(befor_action-preflop_by_positions.get(pos).get(0)));
+                            else preflop_actions_for_stats.get(pos).add(-(startStacks[pos]-preflop_by_positions.get(pos).get(0)));
                         }
                         continue;
                     }
@@ -378,12 +376,12 @@ public class CurrentHand {
 
 
                                 // проверка что на предидущем раунде уже был кол последнего рейза, кол может быть меньше рейза, потому что это оллин равный стеку
-                                if(raund>0&&(max_raise==Math.abs(raunds.get(raund-1)[pos])|| preflop_by_positions.get(pos).get(raund).equals(stacks[pos])))continue;
+                                if(raund>0&&(max_raise==Math.abs(raunds.get(raund-1)[pos])|| preflop_by_positions.get(pos).get(raund).equals(startStacks[pos])))continue;
                                 // если игрок играет флоп то отсутствие действия на префлопе трактуется как кол
                                 // также проверяется чтобы кол был в рамкам стека так как с флопом уже могут быть оллины и стек может быть меньше предидущего рейза
                                 // кол равен разнице между рейзом или стеком и внесенными деньгами на предидущем раунде это рейз или кол, поэтому убирается минус
-                                if(befor_action<=stacks[pos]) preflop_actions_for_stats.get(pos).add(-(befor_action-preflop_by_positions.get(pos).get(raund)));
-                                else preflop_actions_for_stats.get(pos).add(-(stacks[pos]-preflop_by_positions.get(pos).get(raund)));
+                                if(befor_action<= startStacks[pos]) preflop_actions_for_stats.get(pos).add(-(befor_action-preflop_by_positions.get(pos).get(raund)));
+                                else preflop_actions_for_stats.get(pos).add(-(startStacks[pos]-preflop_by_positions.get(pos).get(raund)));
                             }
                             continue;
                         }
@@ -414,8 +412,8 @@ public class CurrentHand {
     // Float[] to float[]
     float[] stacks = new float[6];
     for(int i=0; i<6; i++){
-        if(this.stacks[i]==null)continue;
-        stacks[i]=this.stacks[i];
+        if(this.startStacks[i]==null)continue;
+        stacks[i]=this.startStacks[i];
     }
 
     if(let_SaveTempHandsAndCountStatsCurrentGame)ReadHistoryGetStats.count_StatsCurrentGame(current_map_stats, work_main_stats,nicks,stacks,preflop_actions_for_stats);

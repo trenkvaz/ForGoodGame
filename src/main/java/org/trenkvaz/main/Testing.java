@@ -10,7 +10,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.io.*;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -20,10 +19,9 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.trenkvaz.database_hands.CorrectNicksStats.read_Newfile_with_nicks_and_img_pixs;
-import static org.trenkvaz.database_hands.CorrectNicksStats.sortedmap_all_imgs_pix_of_NEWnicks;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
+import static org.trenkvaz.main.OcrUtils.*;
 import static org.trenkvaz.ui.StartAppLauncher.*;
 
 public class Testing {
@@ -48,27 +46,28 @@ public class Testing {
         String logtest = Z+"  "+ocr.currentHand.time_hand+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
                 " turn "+ocr.currentHand.is_start_turn+" bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table+" \r\n";
 
-        boolean error = false;
+        boolean testbreak = true;
         boolean is_save_test_list = false;
         System.out.print(RESET);
         for(int i=0; i<6; i++) {
-            logtest += ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ";
-            if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ");
-            else System.out.print(ocr.currentHand.nicks[i]+"    "+ocr.currentHand.stacks[i]+"  ");
+            logtest += ocr.currentHand.nicks[i]+"    "+ocr.currentHand.startStacks[i]+"  ";
+            if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.nicks[i]+"    "+ocr.currentHand.startStacks[i]+"  ");
+            else System.out.print(ocr.currentHand.nicks[i]+"    "+ocr.currentHand.startStacks[i]+"  ");
 
-            if(ocr.currentHand.nicks[i]==null) { error = true;                   Settings.ErrorLog(" NO NICK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i);
+            if(ocr.currentHand.nicks[i]==null) {       Settings.ErrorLog(" NO NICK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i);
             /*for(BufferedImage image:testRecPlayers[i].imges_nick)
             Testing.save_image(image,     "test5\\"+hand+"\\nick_"+i);*/
             }
             if(ocr.currentHand.cards_hero[0].equals(""))Settings.ErrorLog("NO CARDS hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i);
 
-            if(ocr.currentHand.stacks[i]<=0){ Settings.ErrorLog(" NO STACK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i+" stack "+ocr.currentHand.stacks[i]+
+            if(ocr.currentHand.startStacks[i]<=0){ Settings.ErrorLog(" NO STACK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i+" stack "+ocr.currentHand.startStacks[i]+
                     " cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]);
                /* for(BufferedImage image:testRecPlayers[i].imges_stack)
                     Testing.save_image(image,     "test5\\"+hand+"\\stack_"+i);*/
 
             }
-
+           if(testbreak){ System.out.println(RESET);
+               logtest+="\r\n";                    continue;}
             for (int a=0; a<ocr.currentHand.preflop_by_positions.get(i).size(); a++) {
                 logtest+=ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ";
                 if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.preflop_by_positions.get(i).get(a)+" ");
@@ -94,6 +93,8 @@ public class Testing {
             System.out.println(RESET);
             logtest+="\r\n";
         }
+
+        if(testbreak)return;
         if(ocr.currentHand.is_allin) {
 
             if(ocr.testRIT){
@@ -175,6 +176,13 @@ public class Testing {
 
 
 
+    public static synchronized void saveImageToFile(BufferedImage image, String name_file){
+        try {
+            ImageIO.write(image ,"png",new File(home_folder+"\\"+name_file+".png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 
@@ -183,8 +191,7 @@ public class Testing {
 
 
 
-
-    public synchronized static void save_image(BufferedImage image, String name_file){
+    public synchronized static void saveImageToFolder(BufferedImage image, String name_file){
         int index = name_file.lastIndexOf("\\");
         if(index>0){
             new File(home_folder+"\\"+name_file.substring(0,index)).mkdirs();
@@ -302,35 +309,6 @@ public class Testing {
         System.out.println("time "+(System.currentTimeMillis()-s));
 
 
-    }
-
-    static boolean compare_arrlong(long[] img_min_error, long[] img_nick_for_compare,int privat_error){
-        int first_of_pair_error = 0, second_of_pair_error = 0; //int privat_error =20;
-        boolean result = true; int[] errors;
-        for(int i=0; i<15; i++){
-
-
-            if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
-            if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
-            System.out.println((first_of_pair_error+second_of_pair_error));
-            if(i>0&&(first_of_pair_error+second_of_pair_error)>privat_error){ return false;  }
-            //System.out.println("one "+get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]));
-           /* errors = arr_AmountAmountOneBitInLongByShort(img_min_error[i],img_nick_for_compare[i]);
-            result_errors[i] = errors;
-            for(int a:errors){
-               //if(show) System.out.print(a+" ");
-
-                if(a>privat_error){
-                    //if(show)System.out.println();
-                    result = false;
-                }
-            }*/
-            //if(show)System.out.println();
-
-            //if(get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i])>privat_error)return false;
-        }
-
-        return result;
     }
 
 
@@ -916,143 +894,19 @@ public class Testing {
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings.setting_capture_video();
-        //map_nicks_idplayers = new Work_DataBase().get_map_IdPlayersNicks();
-        //work_dataBase = new Work_DataBase();
-        //System.out.println(ocr.get_int_MaxBrightnessMiddleImg(read_image("test\\_2_469"),0,0,70,11));
-
-
-
-        int table = 4, nick = 2;
-        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
-        /*int x_of_nick = coord_left_up_of_tables[table][0]+coords_places_of_nicks[nick][0]+correction_for_place_of_nicks[nick]-5;
-        int y_of_nick = coord_left_up_of_tables[table][1]+coords_places_of_nicks[nick][1]+1;*/
-
-       /* save_image(read_image("testM\\longnick2").getSubimage(x_of_nick-3,y_of_nick,87+4,14),"testM\\ln2");
-
-       *//* save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(ocr.get_scale_image(read_image("testM\\ln1").
-                getSubimage(0,0,86+2,14),4),true),105),"testM\\lnbwx4");*//*
-
-        save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no(read_image("testM\\ln2"),true),10),"testM\\lnbw21");
-
-        check_free_of_kursor(0,0,87+4,14,0,read_image("testM\\ln2"));
-
-        //System.out.println(useTesseract.get_ocr(read_image("testM\\lnbwx4")));
-        long[] card_hash_from_table = ocr.get_longarr_HashImage(read_image("test2\\Ks5c_hand\\_result_630_"),0,1,14,14,3,150);
-
-        show_HashShablonNumber(card_hash_from_table,14,14);
-        show_HashShablonNumber(_long_arr_cards_for_compare[14],14,14);
-        for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test2\\Ks5c_hand").listFiles()){
-            if(a.isFile()){
-
-                BufferedImage image = ImageIO.read(a);
-                card_hash_from_table = ocr.get_longarr_HashImage(image,0,1,14,14,3,150);
-                get_card(card_hash_from_table);
-            }
-        }*/
-
-       /* long[] za9 = ocr.get_longarr_HashImage(read_image("testM\\za9b"),0,2,86,14-3,15,150);
-        long[] zaS = ocr.get_longarr_HashImage(read_image("testM\\zaSb"),0,2,86,14-3,15,150);
-        long[] test = ocr.get_longarr_HashImage(read_image("testM\\testnick"),0,2,86,14-3,15,150);*/
-        //show_HashShablonNumber(za9,86,11);
-        //System.out.println(ocr.compare_LongHashes(za9,test,10));
-
-       /* long[] za9f = sortedmap_all_imgs_pix_of_nicks.get(207000002L);
-        long[] zaSf = sortedmap_all_imgs_pix_of_nicks.get(218000001L);
-        show_HashShablonNumber(za9f,86,11);
-        System.out.println();
-        show_HashShablonNumber(zaSf,86,11);
-        System.out.println(ocr.compare_LongHashes(za9f,zaSf,10));*/
-
-        //Settings.ErrorLog("test");
-
-
-        //System.out.println(get_long_TimeHandFromPartyHistory("2020/Nov/06 12:01:04"));
-
-
-       /* int[] test = {3,4,5,1,2};
-        String[] strings = {"1","2"};
-        System.out.println(Arrays.asList(strings).indexOf("3"));*/
-
-
-     //get_stata_one_player("$ю$qk roar$ю$","rfi");
-      /*ConcurrentHashMap[] concurrentHashMaps = get_StatsFromDataBase();
-        Object[][] stats =(Object[][]) concurrentHashMaps[3].get("$ю$qk roar$ю$");
-        //System.out.println("name "+name+" stata "+stata);
-        for (int i=0; i<5; i++)
-            System.out.println(positions_for_query[i+1]+" select "+stats[i][0]+" rfi "+procents((int)stats[i][1],(int)stats[i][0])+" count rfi "+stats[i][1]);
-
-
-
-     close_DataBase();*/
-
-   // 347 168 363 212
-        /*int xfloprit1 = 318, yfloprit1 = 179, xfloprit2 = 300, yfloprit2 = 200, correct_cards = 46; // bright 150
-
-
-
-        int xflop = 300, yflop =200, correct_x = 16, correct_y = 44;
-        int corr_y_rit = 30, corr_x_card = 45;
-        save_image(read_image("Mtest\\wincards").getSubimage(640,0,639,468),"Mtest\\emptycard");
-
-        save_image(read_image("Mtest\\tablerit").getSubimage(xflop+16,yflop-20,15,10),"Mtest\\floprit1");
-        save_image(read_image("Mtest\\tablerit").getSubimage(xflop,yflop,15,10),"Mtest\\floprit2");
-
-
-        save_image(read_image("Mtest\\wincards").getSubimage(xflop+16,yflop-20,15,10),"Mtest\\plflop1");
-        save_image(read_image("Mtest\\wincards").getSubimage(xflop,yflop,15,10),"Mtest\\plflop2");
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////
-        int c = 0;
-        for(int i=0; i<3; i++){
-            save_image(read_image("Mtest\\wincards").getSubimage(xfloprit1+c,yfloprit1,15,10),"Mtest\\rit1"+i);
-            save_image(read_image("Mtest\\wincards").getSubimage(xfloprit2+c,yfloprit2,15,10),"Mtest\\rit2"+i);
-            System.out.println(get_max_brightness(read_image("Mtest\\wincards").getSubimage(xfloprit1+c,yfloprit1,15,10)));
-            System.out.println(get_max_brightness(read_image("Mtest\\wincards").getSubimage(xfloprit2+c,yfloprit2,15,10)));
-            c+=46;
-        }*/
-        boolean is_correct_hero_nick = false, is_correct_nicks = true; int  width_nick = 91, height_nick = 14;
-        BufferedImage tableimg = read_image("Mtest\\_1_147319");
-        for(int img_nicks=0; img_nicks<6; img_nicks++ ){
-            //if(img_nicks!=5)continue;
-            int x_of_nick = coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-8;
-            int y_of_nick = coords_places_of_nicks[img_nicks][1]+1;
-            //checknicktest_nick.add("++++++++++++++++++++++++++++++++++++"+img_nicks);
-            if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,
-                    200,200,210,tableimg))
-            { if(img_nicks==0){is_correct_hero_nick = true;} continue; }
-            //if(index_table==4)
-             /*      c++;
-                      save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no
-                              (bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),true),35),"test3\\"+(c)+"_a_"+img_nicks);
-                 *//* save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no
-                          (bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),true),105),"test3\\"+(c)+"_b_"+img_nicks);*//*
-                  save_image(bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),"test3\\"+(c)+"_b_"+img_nicks);*/
-            is_correct_nicks = false;
-            break;
+        int tableplace = 1;
+        int[] correction_for_place_of_imgfold = {-31,97,97,97,-31,-31};
+        int x = coords_places_of_nicks[tableplace][0]
+                +correction_for_place_of_imgfold[tableplace];
+        int y = coords_places_of_nicks[tableplace][1]+8;
+        int j =y-1, max = 70;
+        for(int i=x; i<x+15; i++){ j++;
+            int c = get_intGreyColor(read_image("Mtest\\tab"),i,j);
+            if(c>max)max=c;
         }
-        int x_of_number_hand = 579,y_of_number_hand = 56;
-
-        save_image(cut_SubImage(tableimg,x_of_number_hand+25,
-                y_of_number_hand+3,26,5),"Mtest\\nhand");
-
-        int x = coords_places_of_nicks[3][0]
-                +3+correction_for_place_of_nicks[3];
-        int y = coords_places_of_nicks[3][1]+17;
-      /* long[] number = ocr.get_longarr_HashImage(read_image("Mtest\\sitingout"),x,y+1,72,12,14,175);
-        show_HashShablonNumber(number,72,12);*/
-        long[] number2 = ocr.get_longarr_HashImage(read_image("Mtest\\nhand"),0,0,26,5,3,80);
-        show_HashShablonNumber(number2,26,5);
-        System.out.println(number2[3]);
-        System.out.println("hero "+is_correct_hero_nick+" players "+is_correct_nicks);
+        System.out.println(max);
 
 
-
-        //shablon_text_poker_terms = read_ObjectFromFile("shablon_text_poker_terms");
-
-        for(long[]sh:shablon_text_poker_terms){
-            show_HashShablonNumber(sh,86,11);
-            System.out.println();
-        }
-
+      // hero green max 200 hero red max 107   no fold no act max 95
     }
 }

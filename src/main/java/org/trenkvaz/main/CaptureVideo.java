@@ -28,9 +28,9 @@ import org.trenkvaz.stats.MainStats;
 
 //import static org.trenkvaz.database_hands.Work_DataBase.main_array_of_stats;
 import static org.trenkvaz.main.CaptureVideo.Settings.get_StatsFromDataBase;
-import static org.trenkvaz.main.OCR.get_intGreyColor;
 import static org.trenkvaz.ui.Controller_main_window.*;
 import static org.trenkvaz.ui.StartAppLauncher.*;
+import static org.trenkvaz.main.OcrUtils.*;
 
 public class CaptureVideo {
 
@@ -299,10 +299,7 @@ public class CaptureVideo {
 
 
 
-    public static int get_AmountOneBitInLong(long lng){
-        return (count_one_in_numbers[(short)(lng>>48)+32768]+count_one_in_numbers[(short)(lng>>32)+32768]
-                +count_one_in_numbers[(short)(lng>>16)+32768]+count_one_in_numbers[(short)(lng)+32768]);
-    }
+
 
     static long last_hand_time = 0;
 

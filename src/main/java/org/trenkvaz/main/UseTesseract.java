@@ -5,7 +5,7 @@ import net.sourceforge.tess4j.TesseractException;
 
 import java.awt.image.BufferedImage;
 import java.util.concurrent.locks.ReentrantLock;
-import static org.trenkvaz.main.Testing.save_image;
+import static org.trenkvaz.main.Testing.saveImageToFolder;
 
 public class UseTesseract {
     /*Tesseract tesseract_for_number_hand;
@@ -135,7 +135,7 @@ public class UseTesseract {
         catch (TesseractException e) {
             e.printStackTrace();
         }
-        save_image(bufferedImage,"for_ocr\\_"+text.trim());
+        saveImageToFolder(bufferedImage,"for_ocr\\_"+text.trim());
         if(text.equals(""))return null;
 
         return text;
