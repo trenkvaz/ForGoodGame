@@ -46,13 +46,19 @@ public class Testing {
         String logtest = Z+"  "+ocr.currentHand.time_hand+"     ****** cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]+" flop "+ocr.currentHand.is_start_flop+
                 " turn "+ocr.currentHand.is_start_turn+" bu "+ocr.currentHand.position_bu_on_table +" table "+ocr.table+" \r\n";
 
-        boolean testbreak = true;
+        boolean testbreak = false;
         boolean is_save_test_list = false;
         System.out.print(RESET);
+        int maxsizeoldpreflop = 0;
+        int maxsizpreflop = 0;
+
+
+
         for(int i=0; i<6; i++) {
-            logtest += ocr.currentHand.nicks[i]+"    "+ocr.currentHand.startStacks[i]+"  ";
-            if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.nicks[i]+"    "+ocr.currentHand.startStacks[i]+"  ");
-            else System.out.print(ocr.currentHand.nicks[i]+"    "+ocr.currentHand.startStacks[i]+"  ");
+            logtest += rightpad(ocr.currentHand.nicks[i],16)+"    "+rightpad(ocr.currentHand.oldStartStacks[i].toString(),6)+"  ";
+            if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+rightpad(ocr.currentHand.nicks[i],16)+"    "
+                    +rightpad(ocr.currentHand.oldStartStacks[i].toString(),6)+"  ");
+            else System.out.print(rightpad(ocr.currentHand.nicks[i],16)+"    "+rightpad(ocr.currentHand.oldStartStacks[i].toString(),6)+"  ");
 
             if(ocr.currentHand.nicks[i]==null) {       Settings.ErrorLog(" NO NICK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i);
             /*for(BufferedImage image:testRecPlayers[i].imges_nick)
@@ -60,7 +66,7 @@ public class Testing {
             }
             if(ocr.currentHand.cards_hero[0].equals(""))Settings.ErrorLog("NO CARDS hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i);
 
-            if(ocr.currentHand.startStacks[i]<=0){ Settings.ErrorLog(" NO STACK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i+" stack "+ocr.currentHand.startStacks[i]+
+            if(ocr.currentHand.oldStartStacks[i]<=0){ Settings.ErrorLog(" NO STACK  hand "+ocr.currentHand.time_hand+" t "+ocr.table+" p "+i+" stack "+ocr.currentHand.oldStartStacks[i]+
                     " cards "+ocr.currentHand.cards_hero[0]+ocr.currentHand.cards_hero[1]);
                /* for(BufferedImage image:testRecPlayers[i].imges_stack)
                     Testing.save_image(image,     "test5\\"+hand+"\\stack_"+i);*/
@@ -69,26 +75,47 @@ public class Testing {
            if(testbreak){ System.out.println(RESET);
                logtest+="\r\n";                    continue;}
             for (int a=0; a<ocr.currentHand.preflop_by_positions.get(i).size(); a++) {
-                logtest+=ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ";
-                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.preflop_by_positions.get(i).get(a)+" ");
-                else System.out.print(ocr.currentHand.preflop_by_positions.get(i).get(a)+"  ");
+                logtest+=rightpad(ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString(),9)+" ";
+                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+rightpad(ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString(),9)+" ");
+                else System.out.print(rightpad(ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString(),9)+" ");
             }
             logtest+="    _______________         ";
 
-            if(ocr.currentHand.poker_position_of_hero==i)System.out.print(BLUE+"    _______________         ");
-            else System.out.print("    _______________         ");
+            if(ocr.currentHand.poker_position_of_hero==i)System.out.print(BLUE+" _______________ ");
+            else System.out.print(" _______________ ");
 
             for(int a=1; a<ocr.currentHand.preflop_actions_for_stats.get(i).size(); a++) {
-                logtest+=ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ";
-                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
-                else System.out.print(ocr.currentHand.preflop_actions_for_stats.get(i).get(a)+" ");
+                logtest+=rightpad(ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString(),9)+" ";
+                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+rightpad(ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString(),9)+" ");
+                else System.out.print(rightpad(ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString(),9)+" ");
             }
+
+
+
+
+            logtest += "    "+rightpad(ocr.currentHand.startStacks[i].toString(),6)+"  ";
+            if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+"    "+rightpad(ocr.currentHand.startStacks[i].toString(),6)+"  ");
+            else System.out.print("    "+rightpad(ocr.currentHand.startStacks[i].toString(),6)+"  ");
+
+
+            if(ocr.currentHand.poker_position_of_hero==i)System.out.print(BLUE+" _______________ ");
+            else System.out.print(" _______________ ");
+
+            for(int a=0; a<ocr.currentHand.preflopActionsStats.get(i).size(); a++) {
+                logtest+=rightpad(ocr.currentHand.preflopActionsStats.get(i).get(a).toString(),9)+" ";
+                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+rightpad(ocr.currentHand.preflopActionsStats.get(i).get(a).toString(),9)+" ");
+                else System.out.print(rightpad(ocr.currentHand.preflopActionsStats.get(i).get(a).toString(),9)+" ");
+            }
+
 
             /*if(ocr.currentHand.poker_position_of_hero==i)System.out.println(BLUE);
             else */
-            if(ocr.currentHand.is_start_flop&&ocr.currentHand.arr_continue_players_flop[i]==1) System.out.print(GREEN+"    "+ocr.currentHand.stacks_flop[i]);
+           /* if(ocr.currentHand.is_start_flop&&ocr.currentHand.arr_continue_players_flop[i]==1) System.out.print(GREEN+"    "+ocr.currentHand.stacks_flop[i]);
 
-            if(ocr.currentHand.is_start_turn&&ocr.currentHand.arr_continue_players_turn[i]==1) System.out.print(GREEN+"    "+ocr.currentHand.stacks_turn[i]);
+            if(ocr.currentHand.is_start_turn&&ocr.currentHand.arr_continue_players_turn[i]==1) System.out.print(GREEN+"    "+ocr.currentHand.stacks_turn[i]);*/
+
+
+
 
             System.out.println(RESET);
             logtest+="\r\n";
@@ -174,7 +201,21 @@ public class Testing {
 
 
 
+    static String gerFormatLenghStr(String str, String type){
+        String result = "";
+        if(type.equals("nick")){
 
+        }
+        return result;
+    }
+
+    static String leftpad(String text, int length) {
+        return String.format("%" + length + "." + length + "s", text);
+    }
+
+    static String rightpad(String text, int length) {
+        return String.format("%-" + length + "." + length + "s", text);
+    }
 
     public static synchronized void saveImageToFile(BufferedImage image, String name_file){
         try {
@@ -894,19 +935,7 @@ public class Testing {
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings.setting_capture_video();
-        int tableplace = 1;
-        int[] correction_for_place_of_imgfold = {-31,97,97,97,-31,-31};
-        int x = coords_places_of_nicks[tableplace][0]
-                +correction_for_place_of_imgfold[tableplace];
-        int y = coords_places_of_nicks[tableplace][1]+8;
-        int j =y-1, max = 70;
-        for(int i=x; i<x+15; i++){ j++;
-            int c = get_intGreyColor(read_image("Mtest\\tab"),i,j);
-            if(c>max)max=c;
-        }
-        System.out.println(max);
-
-
-      // hero green max 200 hero red max 107   no fold no act max 95
+        System.out.println(leftpad("Ab",10)+"*");
+        System.out.println(rightpad("Abcdefffff",10)+"*");
     }
 }

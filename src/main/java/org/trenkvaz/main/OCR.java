@@ -27,6 +27,7 @@ public class OCR implements Runnable {
     CurrentHand currentHand;
     int[] poker_positions_index_with_numbering_on_table = new int[6];
     List<List<int[]>> list_by_poker_pos_current_list_arrnums_actions = new ArrayList<>(6);
+    List<List<int[]>> hashesNumsActionsForCompare = new ArrayList<>(6);
     float[] actionsForCompare = new float[6];
     int current_bu = -1;
     int current_position_hero = -1;
@@ -44,8 +45,10 @@ public class OCR implements Runnable {
     int[][] coordsWinMovePlayerAtPos = new int[6][2];
     int posMovingPlayer = -1;
     float maxRaise = 1;
-    float[] currentStacks = new float[6];
-
+    float[] currentStacks = new float[]{0,0,0,0,-0.5f,-1};
+    int posPlayerRound = 0;
+    int[] rounds = new int[]{0,0,0,0,0,1};
+    int round = 1;
 
 
 
@@ -67,6 +70,7 @@ public class OCR implements Runnable {
         for(int i=0; i<6; i++){
             list_by_poker_pos_current_list_arrnums_actions.add(new ArrayList<>());
             list_of_lists_current_id_nicks_for_choose.add(new ArrayList<>());
+            hashesNumsActionsForCompare.add(new ArrayList<>());
         }
 
         new Thread(this).start();
@@ -162,6 +166,7 @@ public class OCR implements Runnable {
         currentHand = new CurrentHand(this);
         list_by_poker_pos_current_list_arrnums_actions.forEach(List::clear);
         list_of_lists_current_id_nicks_for_choose.forEach(List::clear);
+        hashesNumsActionsForCompare.forEach(List::clear);
         int[] correction_for_place_of_imgfold = {-31,97,97,97,-31,-31};
         for(int init=0; init<6; init++){
             coordsWinMovePlayerAtPos[init][0] = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[init]-1][0]
@@ -169,15 +174,18 @@ public class OCR implements Runnable {
             coordsWinMovePlayerAtPos[init][1] = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[init]-1][1]+7;
             actionsForCompare[init] =0;
             curActsOrInvests[init] = 0;
-            if(init==4)curActsOrInvests[init] = 0.5f;
-            if(init==5)curActsOrInvests[init] = 1f;
             currentStacks[init] = 0;
+            rounds[init] = 0;
+            if(init==4){curActsOrInvests[init] = 0.5f; currentStacks[init] = 0.5f;}
+            if(init==5){curActsOrInvests[init] = 1f; currentStacks[init] = 1f;  rounds[init] = 1; }
             if(init>0)for(int n=0; n<3; n++) System.arraycopy(zeros_for_clear_current_id,0,current_id_nicks_for_choose[init][n],0,16);
+
 
         }
         posMovingPlayer = -1;
         maxRaise = 1;
-
+        posPlayerRound = 0;
+        round = 1;
         // TEST
         testRIT = false;
         testStartByNumHand = false;
@@ -202,8 +210,8 @@ public class OCR implements Runnable {
 
         if(!currentHand.is_nicks_filled)get_nicks();
         if(!currentHand.is_stacks_filled)getStartStacks();
-
-        //get_start_stacks_and_preflop();
+        if(currentHand.is_stacks_filled)getActionsAtStreet(PREFLOP);
+        get_start_stacks_and_preflop();
         /*getPosMovingPlayer();
         if(posMovingPlayer!=-1) {
             if(testPosMove!=posMovingPlayer){  System.out.println("Position "+posMovingPlayer); testPosMove = posMovingPlayer;}
@@ -667,7 +675,7 @@ public class OCR implements Runnable {
             if(!is_noCursorInterferenceImage(frame[0],xa,ya,wa,ha,240)){
                 //save_image(frame[0].getSubimage(xa,ya,wa,ha),"test2\\_"+(poker_positions_index_with_numbering_on_table[poker_position])+"_"+C);
 
-                if(currentHand.startStacks[poker_position]==0f)currentHand.startStacks[poker_position]=-1f;continue;
+                if(currentHand.oldStartStacks[poker_position]==0f)currentHand.oldStartStacks[poker_position]=-1f;continue;
             }
 
 
@@ -675,7 +683,7 @@ public class OCR implements Runnable {
 
             List<int[]> nums = get_list_intarr_HashNumberImg(frame[0],xa,ya+1,70,9,205,0,2,6,2);
 
-            if(nums==null) {  if(currentHand.startStacks[poker_position]==0)currentHand.startStacks[poker_position]=-1f;
+            if(nums==null) {  if(currentHand.oldStartStacks[poker_position]==0)currentHand.oldStartStacks[poker_position]=-1f;
 
             Settings.ErrorLog(" hand "+currentHand.time_hand+" ERROR get_list_intarr_HashNumberImg ");
                 saveImageToFile(frame[0].getSubimage(xa,ya,wa,ha),"test3\\"+(poker_positions_index_with_numbering_on_table[poker_position]-1)+"_"+table);
@@ -683,7 +691,7 @@ public class OCR implements Runnable {
             continue;}
 
             // если рейз можно прочитать, а в стеке есть -1, то оно меняется на ноль, чтобы стек определялся
-            if(currentHand.startStacks[poker_position]==-1)currentHand.startStacks[poker_position]=0f;
+            if(currentHand.oldStartStacks[poker_position]==-1)currentHand.oldStartStacks[poker_position]=0f;
 
             // проверяется есть ли в листе сохраняющем предидущие числа действий по позициям сохраненное число, если нет то вносит новое число и идет дальше для распознавания
             if(list_by_poker_pos_current_list_arrnums_actions.get(poker_position).isEmpty()) list_by_poker_pos_current_list_arrnums_actions.set(poker_position,nums);
@@ -706,7 +714,7 @@ public class OCR implements Runnable {
 
 
              // если не смолго определится, и стек также еще не определен, то стек также не определяется до следующего раза поэтому -1
-            if(actions==-1) {if(currentHand.startStacks[poker_position]==0)currentHand.startStacks[poker_position]=-1f; continue;}
+            if(actions==-1) {if(currentHand.oldStartStacks[poker_position]==0)currentHand.oldStartStacks[poker_position]=-1f; continue;}
 
             // если список действий пустой то добавляется новое определенное действие ЭТО в версии когда блайнды пусты
             /*if(currentHand.preflop_by_positions.get(poker_position).isEmpty()) currentHand.preflop_by_positions.get(poker_position).add(actions);
@@ -729,36 +737,36 @@ public class OCR implements Runnable {
         }
 
 
-        if(!currentHand.is_stacks_filled){
+        if(!currentHand.is_old_stacks_filled){
             int count_filled_stacks = 0;
             for(int poker_position =0; poker_position<6; poker_position++){
                 // проверка на -1, чтобы избежать получения стека, так как не ясно какой был рейз
-                if(currentHand.startStacks[poker_position]==-1)continue;
-                if(currentHand.startStacks[poker_position]!=0){ count_filled_stacks++; continue;}
+                if(currentHand.oldStartStacks[poker_position]==-1)continue;
+                if(currentHand.oldStartStacks[poker_position]!=0){ count_filled_stacks++; continue;}
                 float stack_without_action = getOneStack(poker_position);
                 if(stack_without_action==-11)continue;
                 else if(stack_without_action<0){
-                    if(stack_without_action==-1)currentHand.startStacks[poker_position] = Float.NaN;
-                    if(stack_without_action==-2)currentHand.startStacks[poker_position] = currentHand.preflop_by_positions.get(poker_position).
+                    if(stack_without_action==-1)currentHand.oldStartStacks[poker_position] = Float.NaN;
+                    if(stack_without_action==-2)currentHand.oldStartStacks[poker_position] = currentHand.preflop_by_positions.get(poker_position).
                             get(currentHand.preflop_by_positions.get(poker_position).size()-1);
                     count_filled_stacks++;
                     continue;
                 }
                 // если первое действие фолд или пустое
                 if(currentHand.preflop_by_positions.get(poker_position).get(0)==-10)
-                {currentHand.startStacks[poker_position] = stack_without_action;
+                {currentHand.oldStartStacks[poker_position] = stack_without_action;
                 count_filled_stacks++;
                 continue;}    // fold = -10
                 //System.out.println("p "+poker_position+" "+currentHand.preflop_by_positions.get(poker_position).get(currentHand.preflop_by_positions.get(poker_position).size()-1));
                 // если есть действия и возможно фолд, фолд пропускается берется последний рейз и прибавляется к стеку
                 for(int actions = currentHand.preflop_by_positions.get(poker_position).size()-1; actions>-1; actions-- ){
                     if(currentHand.preflop_by_positions.get(poker_position).get(actions)==-10)continue;
-                    currentHand.startStacks[poker_position] = stack_without_action+currentHand.preflop_by_positions.get(poker_position).get(actions);
+                    currentHand.oldStartStacks[poker_position] = stack_without_action+currentHand.preflop_by_positions.get(poker_position).get(actions);
                     count_filled_stacks++;
                     break;
                 }
             }
-            if(count_filled_stacks==6)currentHand.is_stacks_filled = true;
+            if(count_filled_stacks==6)currentHand.is_old_stacks_filled = true;
         }
 
         //test_list_imgStacks.add(imgStacks);
@@ -780,16 +788,14 @@ public class OCR implements Runnable {
             float stack_without_action = getOneStack(poker_position);
             if(stack_without_action==-11)continue;
             else if(stack_without_action<0){
-                if(stack_without_action==-1){currentHand.startStacks[poker_position] = Float.NaN;
-                    currentStacks[poker_position] = currentHand.startStacks[poker_position];
-                }
+                if(stack_without_action==-1){currentHand.startStacks[poker_position] = Float.NaN; }
                 // может быть ситуация что в стеке выставлен оллин, но в действии пока пусто поэтому нужно дождаться действия чтобы узнать стек оллина
                 else if(stack_without_action==-2){
                     if(action==0)continue;
                     currentHand.startStacks[poker_position] = action;
-                    //curActsOrInvests[poker_position] = -100;
-                    currentStacks[poker_position]+= currentHand.startStacks[poker_position];
+                    currentStacks[poker_position] += currentHand.startStacks[poker_position]; // плюс чтобы в текущем стеке учитывались блайнды
                 }
+
                 count_filled_stacks++;
                 continue;
             }
@@ -800,7 +806,7 @@ public class OCR implements Runnable {
                 //curActsOrInvests[poker_position] = action;
             }
 
-            currentStacks[poker_position]+= currentHand.startStacks[poker_position];
+            currentStacks[poker_position] += currentHand.startStacks[poker_position];
             count_filled_stacks++;
         }
         if(count_filled_stacks==6)currentHand.is_stacks_filled = true;
@@ -820,15 +826,15 @@ public class OCR implements Runnable {
         // получении хеша числа и если нулл это ошибка получения хеша
         List<int[]> nums = get_list_intarr_HashNumberImg(frame[0],xa,ya+1,70,9,205,0,2,6,2);
         if(nums==null)return -1;
-        if(!list_by_poker_pos_current_list_arrnums_actions.get(poker_position).isEmpty())
+        if(!hashesNumsActionsForCompare.get(poker_position).isEmpty())
             // если лист не пустой то сравнивает его с текущим числом если они одинаковые, то значит не нужно распознавать
-            if(compare_CurrentListNumsAndNewListNums(list_by_poker_pos_current_list_arrnums_actions.get(poker_position),nums,10))
+            if(compare_CurrentListNumsAndNewListNums(hashesNumsActionsForCompare.get(poker_position),nums,10))
                 return actionsForCompare[poker_position];
             // если же числа разные, или лист пустой то сначало число распознается
         float action = get_OcrNum(nums,10,"actions");
         // ошибка распознавания
         if(action==-1)return -1;
-        list_by_poker_pos_current_list_arrnums_actions.set(poker_position,nums);
+        hashesNumsActionsForCompare.set(poker_position,nums);
         actionsForCompare[poker_position] = action;
         return action;
         // 0: пустое поле действия, -1: невозможно распознать
@@ -856,35 +862,41 @@ public class OCR implements Runnable {
 
 
 
-    private void getActionsAtStreet(){
+    private void getActionsAtStreet(int street){
 
-        getPosMovingPlayer();
-        if(posMovingPlayer==-1)return;
+        int pokerPos = posPlayerRound;
+        for(;;pokerPos++){if(pokerPos==6){pokerPos=0;}
+           if(curActsOrInvests[pokerPos]==-10||curActsOrInvests[pokerPos]==-100)continue;
+           if(!(rounds[pokerPos]<round))break;// если текущий раунд игрока не меньше общего то пропуск значит игрок уже ходил
 
-        for(int pokPos=0;  pokPos<posMovingPlayer; pokPos++){
-            if(curActsOrInvests[pokPos]<0)continue;  // если фолд -10 или оллин -100 пропуск
-            if(curActsOrInvests[pokPos]>=maxRaise)continue; // если инвестиции уже равны или больше текущего рейза то пропуск
-            float action = getOneAction(pokPos);
-            if(action<=0)continue;
-            if(action==curActsOrInvests[pokPos])continue;
+           float action = getRoundOfPlayer(pokerPos);
+           if(action==-1)break;
+           if(action==-10){curActsOrInvests[pokerPos] = -10;  currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);continue;}
 
-            if(action<=maxRaise){  // стандартный колл или колл оллин
-                currentHand.preflopActionsStats.get(pokPos).add(-(action-curActsOrInvests[pokPos]));
-                curActsOrInvests[pokPos]=action;
-            }
-            else { maxRaise = action;
-                currentHand.preflopActionsStats.get(pokPos).add(action);
-                curActsOrInvests[pokPos]=action;
-            }
+           if(action>maxRaise){ maxRaise = action; round++;
+            currentHand.preflopActionsStats.get(pokerPos).add(action);
+           }
+           else currentHand.preflopActionsStats.get(pokerPos).add(-(action-curActsOrInvests[pokerPos]));
+            // ситуация когда сумму(текущего стека и вложженых средств) равны действию это значит оллин
+            if(action==(curActsOrInvests[pokerPos]+currentStacks[pokerPos])) curActsOrInvests[pokerPos] = -100;
+                // если нет значит обычный рейз
+            else curActsOrInvests[pokerPos] = action;
 
-            if(action==currentStacks[pokPos]) curActsOrInvests[pokPos] = -100; else currentStacks[pokPos]-=action;
-        }
+            rounds[pokerPos] = round;
+       }
 
-
+        posPlayerRound = pokerPos;
     }
 
 
-
+    private float getRoundOfPlayer(int pokerPos){
+        int max = getMaxBrightWinMovePlayer(pokerPos);
+        if(max<70)return -10;  // фолд
+        if(max>100)return -1;  // ожидание хода
+        float action = getOneAction(pokerPos);
+        if(action==0||action==-1||action==curActsOrInvests[pokerPos])return -1;
+        return action;
+    }
 
     void getPostFlopActions(int street){
 
@@ -1090,6 +1102,8 @@ public class OCR implements Runnable {
             }
 
     }
+
+
 
 
     private int getMaxBrightWinMovePlayer(int pokerPos){

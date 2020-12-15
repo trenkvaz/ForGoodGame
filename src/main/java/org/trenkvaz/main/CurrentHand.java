@@ -18,11 +18,16 @@ public class CurrentHand {
     long time_hand;
     String[] nicks = new String[6], cards_hero = {"",""};
     Float[] startStacks = new Float[6];
+
+    Float[] oldStartStacks = new Float[6];
+    boolean is_old_stacks_filled = false;
     int poker_position_of_hero = -1;
 
     int[] poker_positions_by_pos_table_for_nicks;
     boolean is_nicks_filled = false, is_start_flop = false, is_start_turn = false, is_start_river = false,
             is_stacks_filled = false, is_allin = false;
+
+
     int position_bu_on_table = 0;
     int[] arr_continue_players_flop = new int[6], arr_alliner_players_flop = new int[6],
             arr_continue_players_turn = new int[6], arr_alliner_players_turn = new int[6],
@@ -68,6 +73,7 @@ public class CurrentHand {
 
 
             startStacks[i] = 0f;
+            oldStartStacks[i]= 0f;
         }
         time_hand =  get_HandTime();
 
