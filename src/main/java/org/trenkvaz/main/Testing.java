@@ -49,8 +49,11 @@ public class Testing {
         boolean testbreak = false;
         boolean is_save_test_list = false;
         System.out.print(RESET);
-        int maxsizeoldpreflop = 0;
-        int maxsizpreflop = 0;
+        int maxsizeoldpreflop = ocr.currentHand.preflop_by_positions.stream().mapToInt(List::size).max().getAsInt();
+        int maxsizeoldpreflopstat = ocr.currentHand.preflop_actions_for_stats.stream().mapToInt(List::size).max().getAsInt();
+        int maxsizpreflop = ocr.currentHand.preflopActionsStats.stream().mapToInt(List::size).max().getAsInt();
+
+
 
 
 
@@ -74,20 +77,24 @@ public class Testing {
             }
            if(testbreak){ System.out.println(RESET);
                logtest+="\r\n";                    continue;}
-            for (int a=0; a<ocr.currentHand.preflop_by_positions.get(i).size(); a++) {
-                logtest+=rightpad(ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString(),9)+" ";
-                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+rightpad(ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString(),9)+" ");
-                else System.out.print(rightpad(ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString(),9)+" ");
+            for (int a=0; a<maxsizeoldpreflop; a++) {
+                String action = "";
+                if(a<ocr.currentHand.preflop_by_positions.get(i).size())action = ocr.currentHand.preflop_by_positions.get(i).get(a).toString();
+                logtest+=rightpad(action,9)+" ";
+                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+rightpad(action,9)+" ");
+                else System.out.print(rightpad(action,9)+" ");
             }
             logtest+="    _______________         ";
 
             if(ocr.currentHand.poker_position_of_hero==i)System.out.print(BLUE+" _______________ ");
             else System.out.print(" _______________ ");
 
-            for(int a=1; a<ocr.currentHand.preflop_actions_for_stats.get(i).size(); a++) {
-                logtest+=rightpad(ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString(),9)+" ";
-                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+rightpad(ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString(),9)+" ");
-                else System.out.print(rightpad(ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString(),9)+" ");
+            for(int a=1; a<maxsizeoldpreflopstat; a++) {
+                String action = "";
+                if(a<ocr.currentHand.preflop_actions_for_stats.get(i).size())action = ocr.currentHand.preflop_actions_for_stats.get(i).get(a).toString();
+                logtest+=rightpad(action,9)+" ";
+                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+rightpad(action,9)+" ");
+                else System.out.print(rightpad(action,9)+" ");
             }
 
 
@@ -101,10 +108,12 @@ public class Testing {
             if(ocr.currentHand.poker_position_of_hero==i)System.out.print(BLUE+" _______________ ");
             else System.out.print(" _______________ ");
 
-            for(int a=0; a<ocr.currentHand.preflopActionsStats.get(i).size(); a++) {
-                logtest+=rightpad(ocr.currentHand.preflopActionsStats.get(i).get(a).toString(),9)+" ";
-                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+rightpad(ocr.currentHand.preflopActionsStats.get(i).get(a).toString(),9)+" ");
-                else System.out.print(rightpad(ocr.currentHand.preflopActionsStats.get(i).get(a).toString(),9)+" ");
+            for(int a=0; a<maxsizpreflop; a++) {
+                String action = "";
+                if(a<ocr.currentHand.preflopActionsStats.get(i).size())action = ocr.currentHand.preflopActionsStats.get(i).get(a).toString();
+                logtest+=rightpad(action,9)+" ";
+                if(ocr.currentHand.poker_position_of_hero==i) System.out.print(BLUE+rightpad(action,9)+" ");
+                else System.out.print(rightpad(action,9)+" ");
             }
 
 
@@ -935,7 +944,11 @@ public class Testing {
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings.setting_capture_video();
-        System.out.println(leftpad("Ab",10)+"*");
-        System.out.println(rightpad("Abcdefffff",10)+"*");
+        List<List<String>> test = new ArrayList<>();
+        test.add(new ArrayList<>());
+        test.add(new ArrayList<>());
+        test.get(0).add("");test.get(0).add("");
+        OptionalInt a = test.stream().mapToInt(List::size).max();
+        System.out.println(a.getAsInt());
     }
 }
