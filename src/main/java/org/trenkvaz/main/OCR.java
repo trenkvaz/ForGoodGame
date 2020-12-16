@@ -49,6 +49,7 @@ public class OCR implements Runnable {
     int posPlayerRound = 0;
     int[] rounds = new int[]{0,0,0,0,0,1};
     int round = 1;
+    int amountContPlay = 6;
 
 
 
@@ -71,6 +72,9 @@ public class OCR implements Runnable {
             list_by_poker_pos_current_list_arrnums_actions.add(new ArrayList<>());
             list_of_lists_current_id_nicks_for_choose.add(new ArrayList<>());
             hashesNumsActionsForCompare.add(new ArrayList<>());
+
+            // TEST
+            testGetTurnPlayers.add(new ArrayList<>());
         }
 
         new Thread(this).start();
@@ -113,7 +117,8 @@ public class OCR implements Runnable {
     boolean testStartByNumHand = false;
 
     private void main_work_on_table(){
-        //if(table!=1)return;
+        //if(table!=1&&table!=2)return;
+        if(table!=3)return;
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
 
         int check_start_or_end_hand = get_number_hand();
@@ -178,17 +183,17 @@ public class OCR implements Runnable {
             curActsOrInvests[init] = 0;
             currentStacks[init] = 0;
             rounds[init] = 0;
-            if(init==4){curActsOrInvests[init] = 0.5f; currentStacks[init] = 0.5f;}
-            if(init==5){curActsOrInvests[init] = 1f; currentStacks[init] = 1f;  rounds[init] = 1; }
+            if(init==4){curActsOrInvests[init] = 0.5f; currentStacks[init] = -0.5f;}
+            if(init==5){curActsOrInvests[init] = 1f; currentStacks[init] = -1f;  rounds[init] = 1; }
+            // с 1 потому что ник героя не определяется и его массивы не надо обнулять
             if(init>0)for(int n=0; n<3; n++) System.arraycopy(zeros_for_clear_current_id,0,current_id_nicks_for_choose[init][n],0,16);
 
 
         }
-        posMovingPlayer = -1;
-        maxRaise = 1;
-        posPlayerRound = 0;
-        round = 1;
+        posMovingPlayer = -1;maxRaise = 1;posPlayerRound = 0;round = 1;amountContPlay = 6;
         // TEST
+        testFinished = 0;
+        testGetTurnPlayers.forEach(List::clear);
         testRIT = false;
         testStartByNumHand = false;
     }
@@ -874,16 +879,17 @@ public class OCR implements Runnable {
            //if(rounds[pokerPos]==1&&round==1){ curActsOrInvests[pokerPos] = -1;currentHand.preflopActionsStats.get(pokerPos).add(Float.POSITIVE_INFINITY);                 }
            if(!(rounds[pokerPos]<round)||(rounds[pokerPos]==1&&round==1))break;// если текущий раунд игрока не меньше общего то пропуск значит игрок уже ходил
 
-           float action = getRoundOfPlayer(pokerPos);
-           if(action==-1)break;
-           if(action==-10){curActsOrInvests[pokerPos] = -10;  currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);continue;}
+           float action = getTurnOfPlayer(pokerPos);
+           if(action==-1||action==curActsOrInvests[pokerPos])break;
+           if(action==-10){curActsOrInvests[pokerPos] = -10; amountContPlay--;
+           currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);continue;}
 
            if(action>maxRaise){ maxRaise = action; round++;
             currentHand.preflopActionsStats.get(pokerPos).add(action);
            }
            else currentHand.preflopActionsStats.get(pokerPos).add(-(action-curActsOrInvests[pokerPos]));
             // ситуация когда сумму(текущего стека и вложженых средств) равны действию это значит оллин
-            if(action==(curActsOrInvests[pokerPos]+currentStacks[pokerPos])) curActsOrInvests[pokerPos] = -100;
+            if(action==(curActsOrInvests[pokerPos]+currentStacks[pokerPos])) {curActsOrInvests[pokerPos] = -100; amountContPlay--; }
                 // если нет значит обычный рейз
             else curActsOrInvests[pokerPos] = action;
             currentStacks[pokerPos]-=(action-curActsOrInvests[pokerPos]);
@@ -908,6 +914,7 @@ public class OCR implements Runnable {
             else for(int i=0; i<6; i++){
                 if(curActsOrInvests[i]==-10||curActsOrInvests[i]==-100)continue;
                 if(rounds[i]<round)currentHand.preflopActionsStats.get(i).add(Float.NEGATIVE_INFINITY);
+                testGetTurnPlayers.get(i).add("fin_wf_F ");
             }
             currentHand.isPreflopFinished = true;
         }
@@ -917,62 +924,100 @@ public class OCR implements Runnable {
             currentHand.preflopActionsStats.get(5).add(Float.POSITIVE_INFINITY);
             currentHand.isPreflopFinished=true; return;
             }
+            // ситуация когда остаются только два игрока, это автоматом значит что игрок колил
+            if(amountContPlay==2){
+                for(int p=0; p<6; p++){if(curActsOrInvests[p]==-10||curActsOrInvests[p]==-100)continue;
+                    if(!(rounds[p]<round)){ continue;}
+                    if(maxRaise>=(curActsOrInvests[p]+currentStacks[p])) {
+                        currentHand.preflopActionsStats.get(p).add(-currentStacks[p]);
+                        currentStacks[p]-=(maxRaise-curActsOrInvests[p]);
+                        curActsOrInvests[p] = -100; // если последнйи рейз больше или равен стартовому стеку(инвест+текущий стек) то кол равен остатку стека
+                        amountContPlay--;
+                        testGetTurnPlayers.get(p).add("fin_Am2_C_all ");
+                    }
+                    // если нет значит обычный кол
+                    else {
+                        currentHand.preflopActionsStats.get(p).add(-(maxRaise-curActsOrInvests[p]));
+                        currentStacks[p]-=(maxRaise-curActsOrInvests[p]);
+                        curActsOrInvests[p] = maxRaise;
+                        testGetTurnPlayers.get(p).add("fin_Am2_C ");
+                    }
+
+                }
+                currentHand.isPreflopFinished=true; return;
+            }
+
+
             int pokerPos = posPlayerRound; int amountFinished =0;
             for(;;pokerPos++){if(pokerPos==6){pokerPos=0;}
                 if(curActsOrInvests[pokerPos]==-10||curActsOrInvests[pokerPos]==-100){ amountFinished++;          continue;}
                 if(!(rounds[pokerPos]<round)){amountFinished++; break;}
+                float action = getOneAction(pokerPos);
+                if(action==-10){  curActsOrInvests[pokerPos] = -10;  currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
+                    amountFinished++; rounds[pokerPos] = round;
+                    testGetTurnPlayers.get(pokerPos).add("fin_act_F ");
+
+                    continue;
+                }
                 float stack = getOneStack(pokerPos);
                 if(stack==-11)continue;
-                if(stack==-1){  curActsOrInvests[pokerPos] = -10;  currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);}
+                if(stack==-1){  curActsOrInvests[pokerPos] = -10;  currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
+                    testGetTurnPlayers.get(pokerPos).add("fin_stack_sit_F ");
+                }
                 else if(stack==-2){  // ситуация аллина, но это может быть оллин уже на флопе поэтому сравнивается с последним рейзом префлопа
 
                     if(maxRaise>=(curActsOrInvests[pokerPos]+currentStacks[pokerPos])) {
                         currentHand.preflopActionsStats.get(pokerPos).add(-currentStacks[pokerPos]);
                         currentStacks[pokerPos]-=(maxRaise-curActsOrInvests[pokerPos]);
                         curActsOrInvests[pokerPos] = -100; // если последнйи рейз больше или равен стартовому стеку(инвест+текущий стек) то кол равен остатку стека
+                        testGetTurnPlayers.get(pokerPos).add("fin_stack_allin_C_all ");
                     }
                         // если нет значит обычный кол
                     else {
                          currentHand.preflopActionsStats.get(pokerPos).add(-(maxRaise-curActsOrInvests[pokerPos]));
                         currentStacks[pokerPos]-=(maxRaise-curActsOrInvests[pokerPos]);
                         curActsOrInvests[pokerPos] = maxRaise;
+                        testGetTurnPlayers.get(pokerPos).add("fin_stack_allin_C ");
                     }
+
                 }
                 else {
                     // взятый стек на постфлопе должен быть не меньше чем текущий стек - потенциальное вложение(максрейз - тек.вложения) если так значит был фолд
+                    //if(pokerPos==5) System.out.println("stack "+stack+" curstack "+currentStacks[pokerPos]+" maxraise "+maxRaise+" curinvest "+curActsOrInvests[pokerPos]);
                     if(stack>(currentStacks[pokerPos]-(maxRaise-curActsOrInvests[pokerPos]))) {  curActsOrInvests[pokerPos] = -10;
-                    currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);        }
+                    currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
+                        testGetTurnPlayers.get(pokerPos).add("fin_stack_F ");
+                    }
                     else {
                         currentHand.preflopActionsStats.get(pokerPos).add(-(maxRaise-curActsOrInvests[pokerPos]));
                         currentStacks[pokerPos]-=(maxRaise-curActsOrInvests[pokerPos]);
                         curActsOrInvests[pokerPos] = maxRaise;
+                        testGetTurnPlayers.get(pokerPos).add("fin_stack_C ");
                     }
                 }
                 amountFinished++;
                 rounds[pokerPos] = round;
-                if(pokerPos==currentHand.poker_position_of_hero) System.out.println("max "+maxRaise+" act "+stack+" invest "+curActsOrInvests[pokerPos]);
+                //if(pokerPos==currentHand.poker_position_of_hero) System.out.println("max "+maxRaise+" act "+stack+" invest "+curActsOrInvests[pokerPos]);
 
             }
-
+            testFinished = amountFinished;
             if(amountFinished==6)currentHand.isPreflopFinished=true;
             posPlayerRound = pokerPos;
         }
-
-
-
-
-
-
     }
 
+    int testFinished = 0;
 
+    List<List<String>> testGetTurnPlayers = new ArrayList<>(6);
 
-    private float getRoundOfPlayer(int pokerPos){
+    private float getTurnOfPlayer(int pokerPos){
         int max = getMaxBrightWinMovePlayer(pokerPos);
-        if(max<70)return -10;  // фолд
-        if(max>100)return -1;  // ожидание хода
+
+        if(max<70){ testGetTurnPlayers.get(pokerPos).add("F ");                return -10;}  // фолд
+        if(max>100){ testGetTurnPlayers.get(pokerPos).add("W ");                 return -1;}  // ожидание хода
         float action = getOneAction(pokerPos);
-        if(action==0||action==-1||action==curActsOrInvests[pokerPos])return -1;
+        testGetTurnPlayers.get(pokerPos).add(action+" ");
+        if(action==0||action==-1)return -1;
         return action;
     }
 

@@ -381,7 +381,7 @@ public class CurrentHand {
                                     }
                                     logtest+="+++++++++++++++++++++++++++++++++++++\r\n";
                                     Settings.ErrorLog(logtest);
-                                    Testing.write_LogTest(logtest);
+                                    Testing.write_LogTest(logtest,"logtest");
 
                                 }
 

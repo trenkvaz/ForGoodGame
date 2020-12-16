@@ -54,7 +54,7 @@ public class Testing {
         int maxsizpreflop = ocr.currentHand.preflopActionsStats.stream().mapToInt(List::size).max().getAsInt();
 
 
-
+       String testGetTurnPlayer = "Hand "+ocr.currentHand.time_hand+"\r\n";
 
 
         for(int i=0; i<6; i++) {
@@ -123,8 +123,15 @@ public class Testing {
 
             if(ocr.currentHand.is_start_turn&&ocr.currentHand.arr_continue_players_turn[i]==1) System.out.print(GREEN+"    "+ocr.currentHand.stacks_turn[i]);*/
 
-
-
+            testGetTurnPlayer+=rightpad(ocr.currentHand.nicks[i],16)+" ";
+            String curact = ""; String resact = ""; int countact = 0;
+            for(String act:ocr.testGetTurnPlayers.get(i)){
+                if(!act.equals(curact)){ if(countact>0)resact = countact+"_"+curact;  testGetTurnPlayer+=resact; curact = act; countact=1;}
+                else countact++;
+                }
+            resact = countact+"_"+curact;
+            testGetTurnPlayer+=resact;
+            testGetTurnPlayer+="\r\n";
 
             System.out.println(RESET);
             logtest+="\r\n";
@@ -183,12 +190,14 @@ public class Testing {
 
 
         }
+
+        logtest+="testFinished "+ocr.testFinished+" \r\n";
         System.out.println(RESET+"******************************************");
 
         logtest+="****************************************** \r\n";
-        Testing.write_LogTest(logtest);
-
-
+        Testing.write_LogTest(logtest,"logtest");
+        testGetTurnPlayer+="****************************************** \r\n";
+        Testing.write_LogTest(testGetTurnPlayer,"testturnplayers");
 
         //if(!error)creat_HandForSaving(ocr.currentHand);
 
@@ -210,13 +219,7 @@ public class Testing {
 
 
 
-    static String gerFormatLenghStr(String str, String type){
-        String result = "";
-        if(type.equals("nick")){
 
-        }
-        return result;
-    }
 
     static String leftpad(String text, int length) {
         return String.format("%" + length + "." + length + "s", text);
@@ -295,11 +298,11 @@ public class Testing {
     }
 
 
-    static void write_LogTest(String test){
+    static void write_LogTest(String test,String namefile){
 
 
         try {
-            OutputStream  os = new FileOutputStream(home_folder+"\\test\\logtest.txt", true);
+            OutputStream  os = new FileOutputStream(new File(home_folder+"\\test\\"+namefile+".txt"), true);
             os.write(test.getBytes(StandardCharsets.UTF_8));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
