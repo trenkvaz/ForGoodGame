@@ -23,7 +23,8 @@ public class CorrectNicksStats {
     // находит одинаковые хеши, но разные ники это значит, что игроки одинаковые, но распознаные по разному можно объеденить их статы и удалить из старого списка такой ник
     // берет статы по старому нику и прибавляет их к статам по новому нику
     // дальше удаляет из списка старых ников такие дубликаты и удаляет эти ники их статы из базы
-
+    // Новый список ников не затрагивается.По нему только определяются наличие дубликатов в базе данных на основе старого списка ников
+    // который изменяется удалением из него ников
     // МЕНЯТЬ НАЗВАНИЯ ФАЙЛОВ чтение последнее число и запись новое число в конце !!!!!!!!!!!
 
     public static void read_Newfile_with_nicks_and_img_pixs(){
@@ -51,22 +52,7 @@ public class CorrectNicksStats {
 
     public static void read_OLDfile_with_nicks_and_img_pixs(){
         try {
-            BufferedReader br = new BufferedReader(new FileReader(new File(home_folder+"\\arhive_nicks\\nicks_img_deleted2.txt")));
-            /*String line;
-            while ((line = br.readLine()) != null) {
-                if(!(line.startsWith("*")&&line.endsWith("*")))break;
-                String[] arr_line = line.substring(1,line.length()-1).split("%");
-                //System.out.println("line "+arr_line.length);
-                hashmap_id_img_pix_OLDnick.put(Long.parseLong(arr_line[1]),arr_line[0]);
-                long[] img_pix = new long[16];
-                for(int i=2; i<17; i++){
-                    img_pix[i-2] = Long.parseLong(arr_line[i]);
-                }
-                img_pix[15] = Long.parseLong(arr_line[1]);
-                sortedmap_all_imgs_pix_of_OLDnicks.put(img_pix[15],img_pix);
-            }
-            br.close();*/
-
+            BufferedReader br = new BufferedReader(new FileReader(new File(home_folder+"\\arhive_nicks\\nicks_img_deleted4.txt")));
             String line;
             while ((line = br.readLine()) != null) {
                 if(!(line.startsWith("*")&&line.endsWith("*")))break;
@@ -96,7 +82,7 @@ public class CorrectNicksStats {
         line.deleteCharAt(line.length()-1);
         line.append("*\r\n");
 
-        try (OutputStream os = new FileOutputStream(new File(home_folder+"\\arhive_nicks\\nicks_img_deleted3.txt"),true)) {
+        try (OutputStream os = new FileOutputStream(new File(home_folder+"\\arhive_nicks\\nicks_img_deleted5.txt"),true)) {
             os.write(line.toString().getBytes(StandardCharsets.UTF_8));
         } catch (FileNotFoundException e) {
         } catch (IOException s) {
@@ -129,6 +115,9 @@ public class CorrectNicksStats {
             for(String nicks:main_map_newnick_oldnicks.get(nick)) System.out.print(nicks+" ");
             System.out.println();
         }
+        boolean iswork = false;
+        if(!iswork)return;
+
         rewriteStats(main_map_newnick_oldnicks);
 
 
@@ -224,7 +213,7 @@ public class CorrectNicksStats {
     }
 
     public static void main(String[] args) {
-        //select_AllNicks();
+        select_AllNicks();
         // смещение битов последнего числа
        /* read_OLDfile_with_nicks_and_img_pixs();
         for(Map.Entry<Long,long[]> entry:sortedmap_all_imgs_pix_of_OLDnicks.entrySet()){

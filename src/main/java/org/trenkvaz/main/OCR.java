@@ -128,7 +128,7 @@ public class OCR implements Runnable {
             // обработка стоп сигнала для завершения последней раздачи
             if(count_stop_signal==200&&currentHand!=null) {
                 currentHand.finalCurrendHand();
-                if(!currentHand.isPreflopFinished)finishedActionsAtPreflop();
+                finishedActionsAtPreflop();
                 show_test_total_hand(this);
                 currentHand = null;
             }
@@ -138,14 +138,14 @@ public class OCR implements Runnable {
         if(check_start_or_end_hand==1) {
             if(currentHand!=null){
                 currentHand.finalCurrendHand();
-                if(!currentHand.isPreflopFinished)finishedActionsAtPreflop();
+                finishedActionsAtPreflop();
                 show_test_total_hand(this);
                 startSecondHand = true;
             }
             initNewHand();
         }
 
-        if(counttest<3)saveImageToFile(frame[0],"test5\\_"+table+"_"+(++c));
+        if(counttest<3)saveImageToFile(frame[0],"test5\\_"+table+"_"+counttest+"_"+currentHand.time_hand);
         counttest++;
         //saveImageToFile(frame[0],"test5\\_"+table+"_"+(++c));
 
@@ -153,11 +153,11 @@ public class OCR implements Runnable {
 
         worksFlop();
 
-        /*worksTurn();
+       /* worksTurn();
 
-        worksRiver();
+        worksRiver();*/
 
-        worksAllIn();*/
+        worksAllIn();
 
         //}
 
@@ -219,7 +219,7 @@ public class OCR implements Runnable {
 
         if(!currentHand.is_nicks_filled)get_nicks();
         if(!currentHand.is_stacks_filled)getStartStacks();
-        if(currentHand.is_stacks_filled) getActionsAtPreflop();
+        getActionsAtPreflop();
         get_start_stacks_and_preflop();
         /*getPosMovingPlayer();
         if(posMovingPlayer!=-1) {
@@ -242,7 +242,7 @@ public class OCR implements Runnable {
             if(!currentHand.is_allin)currentHand.check_All_in(TURN);
             return;
         }
-        if(!currentHand.isPreflopFinished)finishedActionsAtPreflop();
+        finishedActionsAtPreflop();
         //getPostFlopActions(FLOP);
     }
 
@@ -273,11 +273,12 @@ public class OCR implements Runnable {
 
     private void worksAllIn(){
         if(!currentHand.is_allin)return;
-        switch (currentHand.streetAllIn) {
+        /*switch (currentHand.streetAllIn) {
             case PREFLOP -> getPostFlopActions(FLOP);
             case FLOP-> getPostFlopActions(TURN);
             case TURN -> getPostFlopActions(RIVER);
-        }
+        }*/
+        finishedActionsAtPreflop();
     }
 
 
@@ -907,6 +908,8 @@ public class OCR implements Runnable {
 
 
     private void finishedActionsAtPreflop(){
+        if(currentHand.isPreflopFinished)return;
+
         if(curActsOrInvests[currentHand.poker_position_of_hero]==-10){
             currentHand.isPreflopFinished = true;
             return;}//ситуация когда херо сфолдил но смотрит продолжение раздачи пока это не будет обрабатыватся

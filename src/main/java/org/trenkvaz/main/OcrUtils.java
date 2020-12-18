@@ -16,9 +16,11 @@ public class OcrUtils {
         int first_of_pair_error = 0, second_of_pair_error = 0, error = 10, size_shbalons = shablons.length, amount_nums = shablons[0].length;
         int choosed_shablon_text = -1;
         out: for(int ind_shablon=0; ind_shablon<size_shbalons; ind_shablon++) {
+            first_of_pair_error = 0; second_of_pair_error = 0;
             for(int i=0; i<amount_nums; i++){
                 if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(shablons[ind_shablon][i]^hash_for_compare[i]);
                 if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(shablons[ind_shablon][i]^hash_for_compare[i]);
+                //System.out.println(ind_shablon+"  "+(first_of_pair_error+second_of_pair_error));
                 if(i>0&&(first_of_pair_error+second_of_pair_error)>error){ continue out;  }
             }
             choosed_shablon_text = ind_shablon;
@@ -123,10 +125,12 @@ public class OcrUtils {
         }
         List<int[]> result = new ArrayList<>();
         boolean is_first_dot = false;
+        int amountDigitPreDot = 0;
         for(int[] num:coords_line_x_for_one_num){
-            // для записи точки, отмечается только первая точка, чтобы исключить попадание точек длинных чисел больше 1000
-            if(num==null) { if(!is_first_dot){result.add(null); is_first_dot=true;}
-                continue;}
+            // для записи точки, отмечается только первая точка, идет подсчет цифр до точки если их меньше 3, то точка считается если больше то точка не учитывается
+            // это чтобы исключить попадание точек длинных чисел больше 1000
+            if(num==null) { if(!is_first_dot&&amountDigitPreDot<3){result.add(null); is_first_dot=true;}
+                continue;} else amountDigitPreDot++;
             int start = num[1], end = num[0];
             int _32_pixels =0;
             int[] intarr_hashimage = new int[size_intarr_hashimage]; int index_intarr_hashimage = -1, count_32_pix = 0,

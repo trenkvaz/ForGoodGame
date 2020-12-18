@@ -947,11 +947,36 @@ public class Testing {
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings.setting_capture_video();
-        List<List<String>> test = new ArrayList<>();
-        test.add(new ArrayList<>());
-        test.add(new ArrayList<>());
-        test.get(0).add("");test.get(0).add("");
-        OptionalInt a = test.stream().mapToInt(List::size).max();
-        System.out.println(a.getAsInt());
+        BufferedImage fram = read_image("Mtest\\sitingout").getSubimage(0,0,639,468);
+        saveImageToFile(fram,"Mtest\\sit");
+        BufferedImage[]frames = new BufferedImage[]{read_image("Mtest\\allint2p"),read_image("Mtest\\sit")}; int[]nick = {2,3}; int c =-1;
+        for(BufferedImage frame:frames){c++;
+
+
+        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
+        int x = coords_places_of_nicks[nick[c]][0]
+                +3+correction_for_place_of_nicks[nick[c]];
+        int y = coords_places_of_nicks[nick[c]][1]+17;
+
+        float result = OcrUtils.get_OcrNum(OcrUtils.get_list_intarr_HashNumberImg(frame,x,y+1,72,12,175,
+                5,3,8,3),10,"stacks");
+        System.out.println(result);
+        if(result==-1){
+            long[] hash_for_compare = get_longarr_HashImage(frame,x,y+1,72,12,14,175);
+            show_HashShablonNumber(hash_for_compare,72,12);
+
+            int shab = get_int_CompareLongHashesToShablons(hash_for_compare,shablons_text_sittingout_allin);
+            if(shab==-1) System.out.println("-11");
+            if(shab==0)System.out.println("-1");
+            if(shab==1)System.out.println("-2");
+            //shablons_text_sittingout_allin[1] = hash_for_compare;
+        }
+        //break;
+        }
+        //for(long[] num:shablons_text_sittingout_allin)
+
+        //show_HashShablonNumber(shablons_text_sittingout_allin[1],72,12);
+
+          //save_ObjectInFile(shablons_text_sittingout_allin,"shablons_text_sittingout_allin");
     }
 }

@@ -12,7 +12,8 @@ public class StartAppLauncher {
     public static CaptureVideo captureVideo;
     public static Work_DataBase work_dataBase;
     public static HUD hud;
-    // TESTING NICKS
+    //TEST
+    public static boolean isTest = true;
 
     public static void main(String[] args) {
         work_dataBase = new Work_DataBase();

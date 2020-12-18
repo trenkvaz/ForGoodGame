@@ -76,8 +76,7 @@ public class CaptureVideo {
    public static MainStats[] work_main_stats;
    public static boolean let_SaveTempHandsAndCountStatsCurrentGame = false;
 
-   //TEST
-   static boolean isTest = true;
+
 
 
 
@@ -244,7 +243,7 @@ public class CaptureVideo {
         int total_error = 0, min_error = 500;
         long[] img_with_min_error = null;
        out: for(long[] img_min_error:submap_imgs_with_min_error.values()){
-           total_error = 0;
+           total_error = 0;first_of_pair_error = 0; second_of_pair_error = 0;
             //boolean is_equal = true;
             for(int i=0; i<15; i++){
                 /*count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
