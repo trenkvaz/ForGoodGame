@@ -76,7 +76,7 @@ public class CaptureVideo {
    public static MainStats[] work_main_stats;
    public static boolean let_SaveTempHandsAndCountStatsCurrentGame = false;
 
-
+   public static CaptureVideo.StartStopCapture startStopCapture;
 
 
 
@@ -97,44 +97,11 @@ public class CaptureVideo {
        avutil.av_log_set_level (avutil.AV_LOG_ERROR);
    }
 
+
+
     public CaptureVideo(String a){}
 
-  /* public void start_thread(){
-       ocrList_1 = new ArrayList<>();
-       for(int i=0; i<COUNT_TABLES; i++){
-           ocrList_1.add(new OCR(i));
-       }
-       thread = new Thread(this);
-       thread.start();
-   }
 
-
-
-
-   public void run(){
-
-       avutil.av_log_set_level (avutil.AV_LOG_ERROR);
-       while (is_run){
-           System.out.println("START CAPTURE");
-         grabber = connect_stream();
-           if(grabber!=null){
-               screen2(grabber);
-           }
-           try {
-               Thread.sleep(1000);
-           } catch (InterruptedException e) {
-               e.printStackTrace();
-           }
-       }
-   }
-
-
-   public synchronized  void stop_tread(){
-
-        is_run = false;
-        is_getting_frame = false;
-
-   }*/
    static boolean is_getting_frame = false;
 
    public class StartStopCapture implements Runnable{
@@ -174,6 +141,9 @@ public class CaptureVideo {
 
        }
 
+       public synchronized void removeOcrInOcrList_1(int table){
+           ocrList_1.set(table,null);
+       }
    }
 
    static FFmpegFrameGrabber connect_stream(){
@@ -333,7 +303,7 @@ public class CaptureVideo {
 
        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
        for(int index_table=0; index_table<COUNT_TABLES; index_table++){
-
+          if(ocrList_1.get(index_table)==null)continue;
           //long s = System.currentTimeMillis();
             //  проверка правильности изо номера раздачи
            //checknicktest_nick = new ArrayList<>();

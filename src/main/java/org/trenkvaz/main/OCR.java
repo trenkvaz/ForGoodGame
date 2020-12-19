@@ -12,8 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import static org.bytedeco.javacpp.opencv_core.cvResetImageROI;*/
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OcrUtils.*;
-import static org.trenkvaz.main.Testing.saveImageToFile;
-import static org.trenkvaz.main.Testing.show_test_total_hand;
+import static org.trenkvaz.main.Testing.*;
 import static org.trenkvaz.ui.StartAppLauncher.*;
 //import static org.trenkvaz.main.Settings.write_nicks_keys_img_pix;
 
@@ -55,14 +54,10 @@ public class OCR implements Runnable {
 
 
     // test
-    record TestRecPlayer(List<BufferedImage> imges_nick,List<BufferedImage> imges_stack){}
-    Queue<BufferedImage> cadres = new LinkedList<>();
-    TestRecPlayer[]  testRecPlayers = new TestRecPlayer[6];
-    List<List<String>> test_nicks = new ArrayList<>(6);
+    record TestRecFrameTimeHand(BufferedImage imges_frame,long timehand){}
+    List<TestRecFrameTimeHand> images_framestimehands = new ArrayList<>(3);
+    TestCurrentHand testCurrentHand;
 
-    List<List<BufferedImage>> images_nicks = new ArrayList<>(6);
-
-    //Queue<Integer> testquer = new LinkedList<>();
 
     public OCR(int table){
         creatingHUD = new CreatingHUD(table);
@@ -73,9 +68,6 @@ public class OCR implements Runnable {
             list_by_poker_pos_current_list_arrnums_actions.add(new ArrayList<>());
             list_of_lists_current_id_nicks_for_choose.add(new ArrayList<>());
             hashesNumsActionsForCompare.add(new ArrayList<>());
-
-            // TEST
-            testGetTurnPlayers.add(new ArrayList<>());
         }
 
         new Thread(this).start();
@@ -92,15 +84,25 @@ public class OCR implements Runnable {
 
     @Override
     public void run() {
-        while (is_run){
-            if((frame = main_queue_with_frames.poll())!=null){ main_work_on_table(); }
-            else { try { Thread.sleep(10);
+        try {
+            while (is_run){
+                if((frame = main_queue_with_frames.poll())!=null){ main_work_on_table(); }
+                else { try { Thread.sleep(10);
                 } catch (InterruptedException e) { e.printStackTrace(); }
+                }
+                if(main_queue_with_frames.size()>100){System.out.println("table "+table+"    "+ main_queue_with_frames.size());c++;
+                    if(frame[0]!=null) saveImageToFile(frame[0],"test4\\"+table+"_"+c);
+                }
             }
-            if(main_queue_with_frames.size()>100){System.out.println("table "+table+"    "+ main_queue_with_frames.size());c++;
-            if(frame[0]!=null) saveImageToFile(frame[0],"test4\\"+table+"_"+c);
-            }
+        } catch (Exception e){
+
+            show_test_total_hand(testCurrentHand,true);
+            startStopCapture.removeOcrInOcrList_1(table-1);
+            testSaveImgFrameTimeHand(images_framestimehands);
+            e.printStackTrace();
+
         }
+
     }
 
 
@@ -112,7 +114,7 @@ public class OCR implements Runnable {
 
 
     boolean startlog = false;
-    int count_cadres = 0;
+
     boolean TEST = true;
     boolean testRIT = false;
     boolean testStartByNumHand = false;
@@ -129,7 +131,7 @@ public class OCR implements Runnable {
             if(count_stop_signal==200&&currentHand!=null) {
                 currentHand.finalCurrendHand();
                 finishedActionsAtPreflop();
-                show_test_total_hand(this);
+                show_test_total_hand(testCurrentHand,false);
                 currentHand = null;
             }
             return;
@@ -139,15 +141,23 @@ public class OCR implements Runnable {
             if(currentHand!=null){
                 currentHand.finalCurrendHand();
                 finishedActionsAtPreflop();
-                show_test_total_hand(this);
+                show_test_total_hand(testCurrentHand,false);
                 startSecondHand = true;
             }
             initNewHand();
+
+            testCurrentHand = new TestCurrentHand();
+            testCurrentHand.setStartConditions(currentHand,testStartByNumHand);
         }
 
-        if(counttest<3)saveImageToFile(frame[0],"test5\\_"+table+"_"+counttest+"_"+currentHand.time_hand);
-        counttest++;
+       /* if(counttest<3)saveImageToFile(frame[0],"test5\\_"+table+"_"+counttest+"_"+currentHand.time_hand);
+        counttest++;*/
         //saveImageToFile(frame[0],"test5\\_"+table+"_"+(++c));
+
+
+        if(images_framestimehands.size()!=3)images_framestimehands.add(new TestRecFrameTimeHand(frame[0],currentHand.time_hand));
+        else { images_framestimehands.remove(0);images_framestimehands.add(new TestRecFrameTimeHand(frame[0],currentHand.time_hand)); }
+
 
         worksPreflop();
 
@@ -194,7 +204,7 @@ public class OCR implements Runnable {
         posMovingPlayer = -1;maxRaise = 1;posPlayerRound = 0;round = 1;amountContPlay = 6; isActionPreflop = false;
         // TEST
         testFinished = 0;
-        testGetTurnPlayers.forEach(List::clear);
+
         testRIT = false;
         testStartByNumHand = false;
         counttest = 0;
@@ -374,6 +384,9 @@ public class OCR implements Runnable {
             }
         }
         currentHand.setIs_nicks_filled();
+
+
+        testCurrentHand.setNicks(currentHand.nicks);
     }
 
 
@@ -561,7 +574,7 @@ public class OCR implements Runnable {
                if(startSecondHand) {
                    int samenumhand = checkSameNumberHand(1);
                    //System.out.println(BLUE+checkSameNumberHand(1));
-                   if(samenumhand==1){testStartByNumHand = true; counttest = 0;}
+                   if(samenumhand==1){testStartByNumHand = true;}
                    return samenumhand;
                } else return -1;
            }
@@ -782,7 +795,8 @@ public class OCR implements Runnable {
 
         //test_list_imgStacks.add(imgStacks);
         //System.out.println("************************************");
-
+       testCurrentHand.setOldStartStacks(currentHand.oldStartStacks);
+       testCurrentHand.setPreflop_by_positions(currentHand.preflop_by_positions);
     }
 
 
@@ -822,6 +836,7 @@ public class OCR implements Runnable {
         }
         if(count_filled_stacks==6)currentHand.is_stacks_filled = true;
 
+        testCurrentHand.setStartStacks(currentHand.startStacks);
     }
 
 
@@ -904,6 +919,10 @@ public class OCR implements Runnable {
             rounds[pokerPos] = round;
        }
         posPlayerRound = pokerPos;
+
+
+        testCurrentHand.setPreflopActionsStats(currentHand.preflopActionsStats);
+
     }
 
 
@@ -919,10 +938,13 @@ public class OCR implements Runnable {
             if(rounds[currentHand.poker_position_of_hero]<round)
                 currentHand.preflopActionsStats.get(currentHand.poker_position_of_hero).add(Float.NEGATIVE_INFINITY);
              // если херо сходил, значит все остальные сфолдили
+
             else for(int i=0; i<6; i++){
                 if(curActsOrInvests[i]==-10||curActsOrInvests[i]==-100||currentHand.poker_position_of_hero==i)continue;
                 currentHand.preflopActionsStats.get(i).add(Float.NEGATIVE_INFINITY);
-                testGetTurnPlayers.get(i).add("fin_wf_F ");
+
+
+                testCurrentHand.setTestGetTurnPlayers(i,"fin_wf_F ");
             }
             currentHand.isPreflopFinished = true;
         }
@@ -930,6 +952,10 @@ public class OCR implements Runnable {
             // ситуация чека на бб
             if(rounds[5]==1&&round==1){ curActsOrInvests[5] = -1;
             currentHand.preflopActionsStats.get(5).add(Float.POSITIVE_INFINITY);
+
+            testCurrentHand.setPreflopActionsStats(currentHand.preflopActionsStats);
+
+
             currentHand.isPreflopFinished=true; return;
             }
             // ситуация когда остаются только два игрока, это автоматом значит что игрок колил
@@ -941,17 +967,25 @@ public class OCR implements Runnable {
                         currentStacks[p]-=(maxRaise-curActsOrInvests[p]);
                         curActsOrInvests[p] = -100; // если последнйи рейз больше или равен стартовому стеку(инвест+текущий стек) то кол равен остатку стека
                         amountContPlay--;
-                        testGetTurnPlayers.get(p).add("fin_Am2_C_all ");
+
+
+                        testCurrentHand.setTestGetTurnPlayers(p,"fin_Am2_C_all ");
                     }
                     // если нет значит обычный кол
                     else {
                         currentHand.preflopActionsStats.get(p).add(-(maxRaise-curActsOrInvests[p]));
                         currentStacks[p]-=(maxRaise-curActsOrInvests[p]);
                         curActsOrInvests[p] = maxRaise;
-                        testGetTurnPlayers.get(p).add("fin_Am2_C ");
+
+
+                        testCurrentHand.setTestGetTurnPlayers(p,"fin_Am2_C ");
                     }
 
                 }
+
+
+                testCurrentHand.setPreflopActionsStats(currentHand.preflopActionsStats);
+
                 currentHand.isPreflopFinished=true; return;
             }
 
@@ -964,11 +998,14 @@ public class OCR implements Runnable {
                 if(rounds[pokerPos]==round) { pokerPos++;break;}
 
                 if(is_Fold(pokerPos)){  curActsOrInvests[pokerPos] = -10;  currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
-                testGetTurnPlayers.get(pokerPos).add("fin_fold_F ");continue; }
+                testCurrentHand.setTestGetTurnPlayers(pokerPos,"fin_fold_F ");
+                continue; }
                 float stack = getOneStack(pokerPos);
                 if(stack==-11)continue;
                 if(stack==-1){  curActsOrInvests[pokerPos] = -10;  currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
-                    testGetTurnPlayers.get(pokerPos).add("fin_stack_sit_F ");
+
+
+                    testCurrentHand.setTestGetTurnPlayers(pokerPos,"fin_stack_sit_F ");
                 }
                 else if(stack==-2){  // ситуация аллина, но это может быть оллин уже на флопе поэтому сравнивается с последним рейзом префлопа
 
@@ -976,7 +1013,9 @@ public class OCR implements Runnable {
                         currentHand.preflopActionsStats.get(pokerPos).add(-currentStacks[pokerPos]);
                         currentStacks[pokerPos]-=(maxRaise-curActsOrInvests[pokerPos]);
                         curActsOrInvests[pokerPos] = -100; // если последнйи рейз больше или равен стартовому стеку(инвест+текущий стек) то кол равен остатку стека
-                        testGetTurnPlayers.get(pokerPos).add("fin_stack_allin_C_all ");
+
+
+                        testCurrentHand.setTestGetTurnPlayers(pokerPos,"fin_stack_allin_C_all ");
                         continue;
                     }
                         // если нет значит обычный кол
@@ -984,7 +1023,9 @@ public class OCR implements Runnable {
                          currentHand.preflopActionsStats.get(pokerPos).add(-(maxRaise-curActsOrInvests[pokerPos]));
                         currentStacks[pokerPos]-=(maxRaise-curActsOrInvests[pokerPos]);
                         curActsOrInvests[pokerPos] = maxRaise;
-                        testGetTurnPlayers.get(pokerPos).add("fin_stack_allin_C ");
+
+
+                        testCurrentHand.setTestGetTurnPlayers(pokerPos,"fin_stack_allin_C ");
                     }
 
                 }
@@ -993,14 +1034,17 @@ public class OCR implements Runnable {
                     //if(pokerPos==5) System.out.println("stack "+stack+" curstack "+currentStacks[pokerPos]+" maxraise "+maxRaise+" curinvest "+curActsOrInvests[pokerPos]);
                     if(stack>(currentStacks[pokerPos]-(maxRaise-curActsOrInvests[pokerPos]))) {  curActsOrInvests[pokerPos] = -10;
                     currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
-                        testGetTurnPlayers.get(pokerPos).add("fin_stack_F ");
+
+
+                        testCurrentHand.setTestGetTurnPlayers(pokerPos,"fin_stack_C ");
                         continue;
                     }
                     else {
                         currentHand.preflopActionsStats.get(pokerPos).add(-(maxRaise-curActsOrInvests[pokerPos]));
                         currentStacks[pokerPos]-=(maxRaise-curActsOrInvests[pokerPos]);
                         curActsOrInvests[pokerPos] = maxRaise;
-                        testGetTurnPlayers.get(pokerPos).add("fin_stack_C ");
+
+                        testCurrentHand.setTestGetTurnPlayers(pokerPos,"fin_stack_C ");
                     }
                 }
                 // раунды подтверждаются только у тех кто не фолдил или не оллинер
@@ -1014,20 +1058,24 @@ public class OCR implements Runnable {
 
             posPlayerRound = pokerPos;
             testFinished = amountFinished;
+
+            testCurrentHand.setTestFinished(testFinished);
         }
+
+        testCurrentHand.setPreflopActionsStats(currentHand.preflopActionsStats);
     }
 
     int testFinished = 0;
 
-    List<List<String>> testGetTurnPlayers = new ArrayList<>(6);
+    //List<List<String>> testGetTurnPlayers = new ArrayList<>(6);
 
     private float getTurnOfPlayer(int pokerPos){
         /*int max = getMaxBrightWinMovePlayer(pokerPos);
         if(max<70){ testGetTurnPlayers.get(pokerPos).add("F ");                return -10;}*/  // фолд
         //if(max>100){ testGetTurnPlayers.get(pokerPos).add("W ");                 return -1;}  // ожидание хода
-        if(is_Fold(pokerPos)){ testGetTurnPlayers.get(pokerPos).add("F ");                return -10;}
+        if(is_Fold(pokerPos)){  testCurrentHand.setTestGetTurnPlayers(pokerPos,"F "); return -10;}
         float action = getOneAction(pokerPos);
-        testGetTurnPlayers.get(pokerPos).add("A:"+action+" ");
+        testCurrentHand.setTestGetTurnPlayers(pokerPos,"A:"+action+" ");
         if(action==0||action==-1)return -1;
         return action;
     }
@@ -1213,38 +1261,6 @@ public class OCR implements Runnable {
         return true;
     }
 
-
-    private void getPosMovingPlayer(){
-        if(posMovingPlayer !=-1){
-            int max = getMaxBrightWinMovePlayer(posMovingPlayer);
-            //System.out.println("Mov!=-1 "+posMovingPlayer+" "+max);
-            if(max>240) { posMovingPlayer = -1; return;}  // помеха определения  ситуация пропускается так как вероятнее всего ход именно за этим игроком и проверять остальных нет смысла
-            if(max<70){
-                curActsOrInvests[posMovingPlayer] = -10;} // фолд значит ход перешел к другому
-            else if(max>100)return; // подтвержение что ход остается на этом месте
-            posMovingPlayer = -1;
-        }
-
-            for(int pokerPos = 0; pokerPos<6; pokerPos++){
-                if(curActsOrInvests[pokerPos]<0)continue;
-                int max = getMaxBrightWinMovePlayer(pokerPos);
-                //System.out.println(pokerPos+" "+posMovingPlayer+" "+max);
-                if(max>240)continue;
-                if(max<70){
-                    curActsOrInvests[pokerPos] = -10;continue;}
-                if(max>100){ posMovingPlayer = pokerPos; break; }
-            }
-
-    }
-
-
-
-
-    private int getMaxBrightWinMovePlayer(int pokerPos){
-        int x = coordsWinMovePlayerAtPos[pokerPos][0], j = coordsWinMovePlayerAtPos[pokerPos][1], max = 0;
-        for(int i=x; i<x+15; i++){ j++;int c = get_intGreyColor(frame[0],i,j);if(c>max)max=c; }
-        return max;
-    }
 
 
     private void check_StartNewStreetANDreturnIsRIT(int street){

@@ -14,7 +14,7 @@ import static org.trenkvaz.main.OCR.*;
 
 public class CurrentHand {
 
-    int table;
+    int testTable;
     long time_hand;
     String[] nicks = new String[6], cards_hero = {"",""};
     Float[] startStacks = new Float[6];
@@ -54,12 +54,14 @@ public class CurrentHand {
 
     public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, String[] nicks){}
     CreatingHUD creatingHUD;
-
+    //TEST
+    OCR ocr;
 
     CurrentHand(OCR ocr){
+        this.ocr = ocr;
         this.creatingHUD = ocr.creatingHUD;
         creatingHUD.clear_MapStats();
-        table = ocr.table-1;
+        testTable = ocr.table;
         for(int i=0; i<6; i++){
             preflop_by_positions.add(new ArrayList<Float>());
             flop_by_positions.add(new ArrayList<Float>());
@@ -145,38 +147,6 @@ public class CurrentHand {
     }
 
 
-    public void creatActionsForCountStats(){
-
-        if(is_start_flop)creatActionsStreet(flop_actions_for_stats,flop_by_positions,is_start_turn);
-        if(is_start_turn)creatActionsStreet(turn_actions_for_stats,turn_by_positions,is_start_river);
-        if(is_start_river)creatActionsStreet(river_actions_for_stats,river_by_positions,is_start_river);
-    }
-
-
-    private void creatActionsStreet(List<List<Float>> actionsForStats,ArrayList<ArrayList<Float>> streetByPositions, boolean isNextStreet){
-        for(int f=0; f<6; f++){ actionsForStats.add(new ArrayList<Float>());}
-
-        if(isNextStreet){
-
-
-        }
-
-
-
-    }
-
-
-    private void creatRaundsEachStreet(){
-
-        List<int[]> raundsPreflop = new ArrayList<>();
-
-
-
-    }
-
-
-
-
 
     public void creat_PreflopActionsInHandForCountStats(){
 
@@ -222,15 +192,6 @@ public class CurrentHand {
                 if(raund[pos]>max_raise){max_raise = raund[pos]; last_max_raise_position = pos;}
 
             }*/
-        if(is_start_flop){
-
-
-
-        }
-
-
-
-
 
 
         befor_action =1;
@@ -414,6 +375,9 @@ public class CurrentHand {
 
 
 
+        ocr.testCurrentHand.setPreflop_actions_for_stats(preflop_actions_for_stats);
+
+
         /*System.out.println("+++++++++++++++++++++++++++++++++++++");
         System.out.println("raunds "+raunds.size());
         for(int[] r:raunds){
@@ -421,6 +385,8 @@ public class CurrentHand {
             System.out.println();
         }
         System.out.println("+++++++++++++++++++++++++++++++++++++");*/
+
+
 
     // Float[] to float[]
     float[] stacks = new float[6];
