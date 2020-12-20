@@ -191,3 +191,14 @@
                         System.arraycopy(sortedmap_all_imgs_pix_of_nicks_old.get(167000000L),0,showlong,0,15);                           // ПОЛУЧЕНИЕ МАССИВА ИЗО И ЕГО ОТОБРАЖЕНИЕ
                         show_HashShablonNumber(showlong,86,11);
                         System.out.println(hashmap_id_img_pix_nick_old.get(167000000L));
+
+
+
+BufferedImage table = read_image("Mtest\\longnum").getSubimage(0,0,639,468);                                                        // ПОЛУЧЕНИЕ ИЗО ДЕЙСТВИЯ
+        for(int i=0; i<6; i++){
+            int xa = coords_actions[i][0];
+            int ya = coords_actions[i][1]+2;
+            int wa = 80;
+            int ha = 11;
+            saveImageToFile(table.getSubimage(xa,ya,wa,ha),"Mtest\\act"+i);
+        }

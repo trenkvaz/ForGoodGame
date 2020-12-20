@@ -42,7 +42,8 @@ public class CaptureVideo {
 
    static final int[][] coords_cards_hero = {{287,286},{331,286}};
 
-   static final int[][] coords_actions = {{302-25,267},{151,256},{118,175},{323-15,120},{459-15,175},{436-15,256}};
+   static final int[][] coords_actions =  //{{302-25,267},{151,256},{118,175},{323-15,120},{459-15,175},{436-15,256}};
+           {{277,267},{151,256},{118,175},{313,120},{444,175},{416,256}};
 
    static final int[][] coord_2_3_cards_flop = {{270,202},{318,202}};
 
