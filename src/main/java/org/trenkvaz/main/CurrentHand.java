@@ -19,8 +19,7 @@ public class CurrentHand {
     String[] nicks = new String[6], cards_hero = {"",""};
     Float[] startStacks = new Float[6];
 
-    //Float[] oldStartStacks = new Float[6];
-    //boolean is_old_stacks_filled = false;
+
     int poker_position_of_hero = -1;
 
     int[] poker_positions_by_pos_table_for_nicks;
@@ -50,19 +49,9 @@ public class CurrentHand {
         creatingHUD.clear_MapStats();
         testTable = ocr.table;
         for(int i=0; i<6; i++){
-           /* preflop_by_positions.add(new ArrayList<Float>());
-            flop_by_positions.add(new ArrayList<Float>());
-            turn_by_positions.add(new ArrayList<Float>());
-            river_by_positions.add(new ArrayList<Float>());*/
-
             preflopActionsStats.add(new ArrayList<>());
-           /* if(i<4)preflop_by_positions.get(i).add(0f);
-            if(i==4)preflop_by_positions.get(i).add(0.5f);
-            if(i==5)preflop_by_positions.get(i).add(1f);*/
-
-
+            preflopActionsStats.get(i).add(0.0f);
             startStacks[i] = 0f;
-            //oldStartStacks[i]= 0f;
         }
         time_hand =  get_HandTime();
         position_bu_on_table = ocr.current_bu;
@@ -96,7 +85,8 @@ public class CurrentHand {
             float[] stacks = new float[6];
             for(int i=0; i<6; i++){ stacks[i]=this.startStacks[i]; }
             ReadHistoryGetStats.count_StatsCurrentGame(current_map_stats, work_main_stats,nicks,stacks,preflopActionsStats);
-            Work_DataBase.record_rec_to_TableTempHands(new TempHand(time_hand,get_short_CardsHero(cards_hero),(short)poker_position_of_hero, startStacks,nicks));}
+            Work_DataBase.record_rec_to_TableTempHands(new TempHand(time_hand,get_short_CardsHero(cards_hero),(short)poker_position_of_hero, startStacks,nicks));
+        }
     }
 
 

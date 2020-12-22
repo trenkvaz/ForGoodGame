@@ -232,7 +232,7 @@ public class OcrUtils {
             img.getWidth()*size,img.getHeight()*size); }
 
     public static BufferedImage set_grey_and_inverse_or_no(BufferedImage  source, boolean isnverse){
-        BufferedImage result = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_RGB);
+        BufferedImage result = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         //System.out.println("tip "+source.getType());
         for (int x = 0; x < source.getWidth(); x++) {
             for (int y = 0; y < source.getHeight(); y++) {
@@ -270,7 +270,7 @@ public class OcrUtils {
 
 
     public static BufferedImage get_white_black_image(BufferedImage  source,int limit_grey){
-        BufferedImage result = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_RGB);
+        BufferedImage result = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_BYTE_BINARY);
         for (int x = 0; x < source.getWidth(); x++)
             for (int y = 0; y < source.getHeight(); y++) {
                 int grey = get_intGreyColor(source,x,y);

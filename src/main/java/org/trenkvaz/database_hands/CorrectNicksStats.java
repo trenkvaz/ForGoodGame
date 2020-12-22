@@ -82,12 +82,54 @@ public class CorrectNicksStats {
         line.deleteCharAt(line.length()-1);
         line.append("*\r\n");
 
-        try (OutputStream os = new FileOutputStream(new File(home_folder+"\\arhive_nicks\\nicks_img_deleted5.txt"),true)) {
+        try (OutputStream os = new FileOutputStream(new File(home_folder+"\\arhive_nicks\\nicks_img_new.txt"),true)) {
             os.write(line.toString().getBytes(StandardCharsets.UTF_8));
         } catch (FileNotFoundException e) {
         } catch (IOException s) {
         }
     }
+
+    // коррекция главного списка ников убирание дубликатов и объединение их стат
+    static void checkDublicatHashLikeImg(){
+        read_Newfile_with_nicks_and_img_pixs();
+        read_OLDfile_with_nicks_and_img_pixs();
+        count_one_in_numbers = Settings.read_ObjectFromFile("count_one_in_numbers");
+        boolean printid = true;
+        Map<String, List<String>> main_map_newnick_oldnicks = new HashMap<>();
+        for(long id:sortedmap_all_imgs_pix_of_NEWnicks.keySet()){
+            printid = false;
+            String nid = hashmap_id_img_pix_NEWnick.get(id);
+            for (long id2:sortedmap_all_imgs_pix_of_NEWnicks.keySet()){
+                if(!compare_arrlong(sortedmap_all_imgs_pix_of_NEWnicks.get(id),sortedmap_all_imgs_pix_of_NEWnicks.get(id2),15))continue;
+                String nid2 = hashmap_id_img_pix_NEWnick.get(id2);
+                if(nid.equals(nid2))continue;
+                if(main_map_newnick_oldnicks.get(nid2)!=null)continue;
+
+                if(!printid){
+                    main_map_newnick_oldnicks.put(nid,new ArrayList<>());
+                    printid = true;}
+                if(!main_map_newnick_oldnicks.get(nid).contains(nid2)) main_map_newnick_oldnicks.get(nid).add(nid2);
+            }
+        }
+        for(String nick:main_map_newnick_oldnicks.keySet()){
+            System.out.print(nick+" : ");
+            for(String nicks:main_map_newnick_oldnicks.get(nick)) System.out.print(nicks+" ");
+            System.out.println();
+        }
+        boolean iswork = true;
+        if(!iswork)return;
+
+        rewriteStats(main_map_newnick_oldnicks);
+        // удаление неправильных дубликатов из списка старых ников
+        out:for(Map.Entry<Long,String> entry:hashmap_id_img_pix_NEWnick.entrySet()){
+            for(List<String> deletednick:main_map_newnick_oldnicks.values())
+                if(deletednick.contains(entry.getValue()))continue out;
+            rewrite_nicks_keys_img_pix(entry.getValue(),sortedmap_all_imgs_pix_of_NEWnicks.get(entry.getKey()));
+        }
+
+    }
+
+
 
 
 
@@ -213,7 +255,8 @@ public class CorrectNicksStats {
     }
 
     public static void main(String[] args) {
-        select_AllNicks();
+        //select_AllNicks();
+        checkDublicatHashLikeImg();
         // смещение битов последнего числа
        /* read_OLDfile_with_nicks_and_img_pixs();
         for(Map.Entry<Long,long[]> entry:sortedmap_all_imgs_pix_of_OLDnicks.entrySet()){
