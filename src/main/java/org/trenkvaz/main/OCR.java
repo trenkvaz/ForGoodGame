@@ -98,7 +98,7 @@ public class OCR implements Runnable {
 
             show_test_total_hand(testCurrentHand,true);
             startStopCapture.removeOcrInOcrList_1(table-1);
-            testSaveImgFrameTimeHand(images_framestimehands);
+            testSaveImgFrameTimeHand(images_framestimehands,"unknown");
             e.printStackTrace();
 
         }
@@ -146,7 +146,7 @@ public class OCR implements Runnable {
             }
             initNewHand();
 
-            testCurrentHand = new TestCurrentHand();
+            testCurrentHand = new TestCurrentHand(this);
             testCurrentHand.setStartConditions(currentHand,testStartByNumHand);
         }
 

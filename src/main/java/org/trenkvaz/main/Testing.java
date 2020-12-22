@@ -44,12 +44,13 @@ class TestCurrentHand {
     String[] nicks = new String[6], cards_hero = {"",""};
     Float[] startStacks = new Float[6];
     int[] poker_positions_by_pos_table_for_nicks;
-
+    OCR ocr;
 
     List<List<Float>> preflopActionsStats = new ArrayList<>(6);
     List<List<String>> testGetTurnPlayers = new ArrayList<>(6);
 
-    public TestCurrentHand(){
+    public TestCurrentHand(OCR ocr1){
+        ocr = ocr1;
         for(int i=0; i<6; i++){
             testGetTurnPlayers.add(new ArrayList<>());
             startStacks[i] = 0f;
@@ -140,9 +141,9 @@ public class Testing {
                     +rightpad(testCurrentHand.startStacks[i].toString(),6)+"  ");
             else System.out.print(rightpad(testCurrentHand.nicks[i],16)+"    "+rightpad(testCurrentHand.startStacks[i].toString(),6)+"  ");
 
-            if(testCurrentHand.nicks[i]==null) {       Settings.ErrorLog(" NO NICK  hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i);
-            /*for(BufferedImage image:testRecPlayers[i].imges_nick)
-            Testing.save_image(image,     "test5\\"+hand+"\\nick_"+i);*/
+            if(testCurrentHand.nicks[i]==null&&i<4) {       Settings.ErrorLog(" NO NICK  hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i);
+                testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"nonick");
+
             }
             if(testCurrentHand.cards_hero[0].equals(""))Settings.ErrorLog("NO CARDS hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i);
 
@@ -258,7 +259,7 @@ public class Testing {
             Settings.ErrorLog("START BY NUMBERHAND "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p ");
             logtest+="START BY NUMBERHAND ////////////////////////////////////////////////\r\n";
 
-
+            testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"startnum");
         }
 
         logtest+="testFinished "+testCurrentHand.testFinished+" \r\n";
@@ -271,10 +272,10 @@ public class Testing {
 
     }
 
-    static synchronized void testSaveImgFrameTimeHand(List<OCR.TestRecFrameTimeHand> images_framestimehands){
+    static synchronized void testSaveImgFrameTimeHand(List<OCR.TestRecFrameTimeHand> images_framestimehands,String errorname){
         int c = 0;
         for(OCR.TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){ c++;
-            saveImageToFile(testRecFrameTimeHand.imges_frame(),"test5\\_"+c+"_"+testRecFrameTimeHand.timehand());
+            saveImageToFile(testRecFrameTimeHand.imges_frame(),"test5\\"+errorname+"_"+c+"_"+testRecFrameTimeHand.timehand());
         }
 
     }
