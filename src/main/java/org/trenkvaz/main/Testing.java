@@ -141,7 +141,7 @@ public class Testing {
                     +rightpad(testCurrentHand.startStacks[i].toString(),6)+"  ");
             else System.out.print(rightpad(testCurrentHand.nicks[i],16)+"    "+rightpad(testCurrentHand.startStacks[i].toString(),6)+"  ");
 
-            if(testCurrentHand.nicks[i]==null&&i<4) {       Settings.ErrorLog(" NO NICK  hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i);
+            if(testCurrentHand.nicks[i]==null) {       Settings.ErrorLog(" NO NICK  hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i);
                 testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"nonick");
 
             }
@@ -151,7 +151,7 @@ public class Testing {
                     " cards "+testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1]);
                /* for(BufferedImage image:testRecPlayers[i].imges_stack)
                     Testing.save_image(image,     "test5\\"+hand+"\\stack_"+i);*/
-
+                testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"nostack");
             }
            if(testbreak){ System.out.println(RESET);
                logtest+="\r\n";                    continue;}
@@ -212,6 +212,7 @@ public class Testing {
             testGetTurnPlayer+=resact;
             testGetTurnPlayer+="\r\n";
 
+
             System.out.println(RESET);
             logtest+="\r\n";
         }
@@ -253,6 +254,14 @@ public class Testing {
                 }
             }
         }*/
+        if(testCurrentHand.ocr.currentHand.is_start_flop){
+            if((testCurrentHand.ocr.currentHand.streetAllIn!=-1&&testCurrentHand.ocr.amountContPlay>1)||
+                    (testCurrentHand.ocr.currentHand.streetAllIn==-1&&testCurrentHand.ocr.amountContPlay<2)){
+                Settings.ErrorLog("Allin AmountPlayer error "+testCurrentHand.time_hand+" t "+testCurrentHand.table);
+            testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"allamounplyers");}
+            //System.out.println("flop amountplayers "+testCurrentHand.ocr.amountContPlay+" allinstreet "+testCurrentHand.ocr.currentHand.streetAllIn);
+        }
+
 
         if(testCurrentHand.testStartByNumHand){
             System.out.println(RED+"START BY NUMBERHAND ////////////////////////////////////////////");
@@ -1006,10 +1015,7 @@ public class Testing {
         System.loadLibrary(home_folder+"opencv_lib\\");
     }*/
 
-    static {
-        // $PROJECT_ROOT -- абсолютный путь до библиотеки
-        System.load(home_folder+"\\opencv_lib\\opencv_java430.dll");
-    }
+    //static { System.load(home_folder+"\\opencv_lib\\opencv_java430.dll"); }
     public static Mat BufferedImageToMat(BufferedImage img) {
         if (img == null) return new Mat();
         int type = 0;
@@ -1094,14 +1100,7 @@ public class Testing {
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings.setting_capture_video();
-        BufferedImage image = set_grey_and_inverse_or_no(read_image("Mtest\\colnick"),true);
-        saveImageToFile(image,"Mtest\\greynick");
-        Mat nick = BufferedImageToMat(read_image("Mtest\\bwnick"));
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
-        Mat img3 = new Mat();
-        //Imgproc.erode(nick, img3, kernel);
-        Imgproc.medianBlur(nick, img3, 5);
-        //saveImageToFile(get_white_black_image(image,105),"Mtest\\bwnick");
-        saveImageToFile(MatToBufferedImage(img3),"Mtest\\newnick");
+
+
     }
 }

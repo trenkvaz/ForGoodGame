@@ -198,12 +198,13 @@ public class CaptureVideo {
 
        return null;
    }
-
+    public static long testTime = 0;
+    public static int testTimecount = 0;
 
     static synchronized long get_number_img_nicks(long[] img_nick_for_compare,int privat_error){
         // img_nick_for_compare 15 чисел изо, 16-у количество черных пикселей
         // умножается на миллион, чтобы получить индексы в сортируемом мепе, по ним будет отбираться диапазон по количеству черных пикселей
-
+        long s = System.nanoTime();
         long count_pix_in_ = img_nick_for_compare[15]*1_000_000;
         int general_error = 15;
         long min = count_pix_in_-general_error*1_000_000, max = count_pix_in_+(general_error+1)*1_000_000;
@@ -219,8 +220,10 @@ public class CaptureVideo {
             for(int i=0; i<15; i++){
                 /*count_error_in_compare+= get_count_one_in_numbers(img_min_error[i]^img_nick_for_compare[i]);
                 if(count_error_in_compare>privat_error){is_equal = false; break;}*/
-                if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
-                if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
+                if(i%2==0)first_of_pair_error = Long.bitCount(img_min_error[i]^img_nick_for_compare[i]);
+                        //get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
+                if(i%2!=0)second_of_pair_error = Long.bitCount(img_min_error[i]^img_nick_for_compare[i]);
+                        //get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
                 int local_error = first_of_pair_error+second_of_pair_error;
                 if(i>0&&local_error>privat_error){ continue out;  }
                 else total_error+=local_error;
@@ -239,8 +242,8 @@ public class CaptureVideo {
             System.out.println("count_in_sub   "+entry.getKey());
         System.out.println("equl_img size "+equal_imgs.size());
         System.out.println("**********************************************************************");*/
-
-
+        testTime+=(System.nanoTime()-s);
+        testTimecount++;
        // если не нашлось в мепе такого же изо, то создается новый ИД для изо и записывается на место количества черных пикселей
         if(img_with_min_error==null){//long id_img_pix = get_HandTime();
             // проверка наличия изо с таким же количеством пикселей и индексом если есть то добавляется единица и снова проверяется, пока такого индекса не будет в списке,

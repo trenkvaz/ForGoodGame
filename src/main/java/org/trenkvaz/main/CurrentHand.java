@@ -24,7 +24,7 @@ public class CurrentHand {
 
     int[] poker_positions_by_pos_table_for_nicks;
     boolean is_nicks_filled = false, is_start_flop = false, is_start_turn = false, is_start_river = false,
-            is_stacks_filled = false, is_allin = false, isPreflopFinished = false;
+            is_stacks_filled = false, isPreflopFinished = false;
 
 
     int position_bu_on_table = 0;

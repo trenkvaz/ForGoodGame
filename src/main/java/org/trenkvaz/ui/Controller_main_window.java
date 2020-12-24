@@ -12,8 +12,7 @@ import org.trenkvaz.main.OCR;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import static org.trenkvaz.main.CaptureVideo.let_SaveTempHandsAndCountStatsCurrentGame;
-import static org.trenkvaz.main.CaptureVideo.startStopCapture;
+import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.ui.MainWindow.anchorPane;
 import static org.trenkvaz.ui.MainWindow.stage;
 import static org.trenkvaz.ui.StartAppLauncher.captureVideo;
@@ -50,6 +49,7 @@ public class Controller_main_window {
         for(OCR ocr: CaptureVideo.ocrList_1){
             if(ocr==null)continue;ocr.stop();}}
         //for(OCR ocr:captureVideo.ocrList_2)ocr.stop();
+        System.out.println("Average time "+(testTime/testTimecount)+" count "+testTimecount);
         System.out.println("stop");
     }
 

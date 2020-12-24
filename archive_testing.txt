@@ -202,3 +202,10 @@ BufferedImage table = read_image("Mtest\\longnum").getSubimage(0,0,639,468);    
             int ha = 11;
             saveImageToFile(table.getSubimage(xa,ya,wa,ha),"Mtest\\act"+i);
         }
+
+
+        Mat nick = BufferedImageToMat(read_image("Mtest\\bwnick"));                                                             // Обработка изо коррозия
+                Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
+                Mat img3 = new Mat();
+                //Imgproc.erode(nick, img3, kernel);
+                Imgproc.medianBlur(nick, img3, 5);
