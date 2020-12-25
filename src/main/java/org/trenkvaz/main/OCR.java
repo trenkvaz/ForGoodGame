@@ -120,8 +120,11 @@ public class OCR implements Runnable {
     boolean testStartByNumHand = false;
 
     private void main_work_on_table(){
+        if(isTest){
         //if(table!=1&&table!=2)return;
-        //if(table!=1)return;
+        if(table!=2)return;
+        }
+
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
 
         int check_start_or_end_hand = get_number_hand();
@@ -201,16 +204,23 @@ public class OCR implements Runnable {
         }
         posMovingPlayer = -1;maxRaise = 1;posPlayerRound = 0;round = 1;amountContPlay = 6; isActionPreflop = false;
         // TEST
-        testFinished = 0;
+
 
         testStartByNumHand = false;
         counttest = 0;
     }
     int counttest = 0;
 
-    private void clearActionsImgAndMeans(){
+    private void clearForNewStreet(){
         list_by_poker_pos_current_list_arrnums_actions.forEach(List::clear);
+        hashesNumsActionsForCompare.forEach(List::clear);
         Arrays.fill(actionsForCompare,0);
+        for(int init=0; init<6; init++){
+            rounds[init] = 0;
+            if(curActsOrInvests[init]==-10||curActsOrInvests[init]==-100)continue;
+            curActsOrInvests[init] = 0;
+        }
+        maxRaise=0; round = 0; posPlayerRound = 4;
     }
 
 
@@ -221,8 +231,12 @@ public class OCR implements Runnable {
         if(currentHand.is_start_flop||currentHand.streetAllIn!=-1)return;
         check_StartNewStreetANDreturnIsRIT(FLOP);
 
+        if(currentHand.is_start_flop)testCurrentHand.setTestAllines("FLOP");
+        if(currentHand.streetAllIn==0)testCurrentHand.setTestAllines("PREFLOP_ALL_RIT");
+
         if(currentHand.is_start_flop||currentHand.streetAllIn!=-1){
-            if(currentHand.streetAllIn==-1)clearActionsImgAndMeans();
+
+            if(currentHand.streetAllIn==-1) clearForNewStreet(); // если будет оллин то нет смысла очищать для новой улицы
             return;
         }
 
@@ -241,14 +255,16 @@ public class OCR implements Runnable {
         if(!currentHand.isPreflopFinished||currentHand.streetAllIn!=-1)return;
 
         check_StartNewStreetANDreturnIsRIT(TURN);
-
+        if(currentHand.is_start_turn)testCurrentHand.setTestAllines("TURN");
+        if(currentHand.streetAllIn==1)testCurrentHand.setTestAllines("FLOP_ALL_RIT");
 
         if(currentHand.is_start_turn||currentHand.streetAllIn!=-1){
-            if(currentHand.streetAllIn==-1)clearActionsImgAndMeans();
+
+            if(currentHand.streetAllIn==-1) clearForNewStreet();
             return;
         }
-
-        //getPostFlopActions(FLOP);
+        //System.out.println("preflop");
+        getPostFlopActions(FLOP);
     }
 
 
@@ -258,8 +274,12 @@ public class OCR implements Runnable {
         if(!currentHand.is_start_turn||currentHand.is_start_river||currentHand.streetAllIn!=-1) return;
         check_StartNewStreetANDreturnIsRIT(RIVER);
 
+        if(currentHand.is_start_river)testCurrentHand.setTestAllines("RIVER");
+        if(currentHand.streetAllIn==2)testCurrentHand.setTestAllines("TURN_ALL_RIT");
+
         if(currentHand.is_start_river||currentHand.streetAllIn!=-1){
-            if(currentHand.streetAllIn==-1)clearActionsImgAndMeans();
+
+            if(currentHand.streetAllIn==-1) clearForNewStreet();
             return;
         }
         getPostFlopActions(TURN);
@@ -277,6 +297,7 @@ public class OCR implements Runnable {
     private void worksAllIn(){
         if(currentHand.streetAllIn==-1)return;
         // здесь завершение улицы работает только если были РИТ, так как обычный оллин уже обработан в методах постфлопа
+
         finishedActionsAtPreflop();
     }
 
@@ -747,12 +768,20 @@ public class OCR implements Runnable {
            }
 
            float action = getTurnOfPlayer(pokerPos);
-           if(action==-1||action==curActsOrInvests[pokerPos]){
+           if(action==-1||action==curActsOrInvests[pokerPos]){ testCurrentHand.setTestPreflopGetTurnPlayers(pokerPos,"A:"+action+" ");
                // ситуация когда на блайндах коротыши со стеком равным или меньше блайндов
-               if(action==(curActsOrInvests[pokerPos]+currentStacks[pokerPos])) {curActsOrInvests[pokerPos] = -100; amountContPlay--; continue;}
+               if(action==(curActsOrInvests[pokerPos]+currentStacks[pokerPos])) {  testSaveImgFrameTimeHand(images_framestimehands,"shortstacksblinds");
+                   curActsOrInvests[pokerPos] = -100; amountContPlay--; continue;}
                break;}
            if(action==-10){curActsOrInvests[pokerPos] = -10; amountContPlay--;
-           currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);continue;}
+           currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
+           testCurrentHand.setTestPreflopGetTurnPlayers(pokerPos,"F ");
+
+           continue;}
+
+           testCurrentHand.setTestPreflopGetTurnPlayers(pokerPos,"A:"+action+" ");
+
+
            // запись рейза или кола для статы
             isActionPreflop = true;
            if(action>maxRaise){ maxRaise = action; round++;
@@ -792,7 +821,7 @@ public class OCR implements Runnable {
                 if(curActsOrInvests[i]==-10||curActsOrInvests[i]==-100||currentHand.poker_position_of_hero==i)continue;
                 currentHand.preflopActionsStats.get(i).add(Float.NEGATIVE_INFINITY);
 
-                testCurrentHand.setTestGetTurnPlayers(i,"fin_wf_F ");
+                testCurrentHand.setTestPreflopGetTurnPlayers(i,"fin_wf_F ");
             }
             currentHand.isPreflopFinished = true;
         }
@@ -800,7 +829,11 @@ public class OCR implements Runnable {
             // ситуация чека на бб
             if(rounds[5]==1&&round==1){
             currentHand.preflopActionsStats.get(5).add(Float.POSITIVE_INFINITY);
-            currentHand.isPreflopFinished=true; if(amountContPlay<2)currentHand.streetAllIn=PREFLOP; return;
+            currentHand.isPreflopFinished=true; if(amountContPlay<2)currentHand.streetAllIn=PREFLOP;
+
+            if(currentHand.streetAllIn==PREFLOP)testCurrentHand.setTestAllines("PREFLOP_ALL_PREFIN_chbb");
+
+            return;
             }
             // ситуация когда остаются только два игрока, это автоматом значит что игрок колил
             if(amountContPlay==2){
@@ -811,7 +844,7 @@ public class OCR implements Runnable {
                         currentStacks[p]-=(maxRaise-curActsOrInvests[p]);
                         curActsOrInvests[p] = -100; // если последнйи рейз больше или равен стартовому стеку(инвест+текущий стек) то кол равен остатку стека
                         amountContPlay--;
-                        testCurrentHand.setTestGetTurnPlayers(p,"fin_Am2_C_all ");
+                        testCurrentHand.setTestPreflopGetTurnPlayers(p,"fin_Am2_C_all ");
                     }
                     // если нет значит обычный кол
                     else {
@@ -820,12 +853,14 @@ public class OCR implements Runnable {
                         curActsOrInvests[p] = maxRaise;
 
 
-                        testCurrentHand.setTestGetTurnPlayers(p,"fin_Am2_C ");
+                        testCurrentHand.setTestPreflopGetTurnPlayers(p,"fin_Am2_C ");
                     }
 
                 }
 
-                currentHand.isPreflopFinished=true; if(amountContPlay<2)currentHand.streetAllIn=PREFLOP; return;
+                currentHand.isPreflopFinished=true; if(amountContPlay<2)currentHand.streetAllIn=PREFLOP;
+                if(currentHand.streetAllIn==PREFLOP)testCurrentHand.setTestAllines("PREFLOP_ALL_PREFIN_am2");
+                return;
             }
 
 
@@ -838,14 +873,14 @@ public class OCR implements Runnable {
 
                 if(is_Fold(pokerPos)){  curActsOrInvests[pokerPos] = -10;  currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
                 amountContPlay--;
-                testCurrentHand.setTestGetTurnPlayers(pokerPos,"fin_fold_F ");
+                testCurrentHand.setTestPreflopGetTurnPlayers(pokerPos,"fin_fold_F ");
                 continue; }
                 float stack = getOneStack(pokerPos);
                 if(stack==-11)continue;
                 if(stack==-1){  curActsOrInvests[pokerPos] = -10;  currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
                 amountContPlay--;
 
-                    testCurrentHand.setTestGetTurnPlayers(pokerPos,"fin_stack_sit_F ");
+                    testCurrentHand.setTestPreflopGetTurnPlayers(pokerPos,"fin_stack_sit_F ");
                 }
                 else if(stack==-2){  // ситуация аллина, но это может быть оллин уже на флопе поэтому сравнивается с последним рейзом префлопа
 
@@ -855,7 +890,7 @@ public class OCR implements Runnable {
                         curActsOrInvests[pokerPos] = -100; // если последнйи рейз больше или равен стартовому стеку(инвест+текущий стек) то кол равен остатку стека
                         amountContPlay--;
 
-                        testCurrentHand.setTestGetTurnPlayers(pokerPos,"fin_stack_allin_C_all ");
+                        testCurrentHand.setTestPreflopGetTurnPlayers(pokerPos,"fin_stack_allin_C_all ");
                         continue;
                     }
                         // если нет значит обычный кол
@@ -865,7 +900,7 @@ public class OCR implements Runnable {
                         curActsOrInvests[pokerPos] = maxRaise;
 
 
-                        testCurrentHand.setTestGetTurnPlayers(pokerPos,"fin_stack_allin_C ");
+                        testCurrentHand.setTestPreflopGetTurnPlayers(pokerPos,"fin_stack_allin_C ");
                     }
 
                 }
@@ -876,7 +911,7 @@ public class OCR implements Runnable {
                     currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
                         amountContPlay--;
 
-                        testCurrentHand.setTestGetTurnPlayers(pokerPos,"fin_stack_C ");
+                        testCurrentHand.setTestPreflopGetTurnPlayers(pokerPos,"fin_stack_C ");
                         continue;
                     }
                     else {
@@ -884,7 +919,7 @@ public class OCR implements Runnable {
                         currentStacks[pokerPos]-=(maxRaise-curActsOrInvests[pokerPos]);
                         curActsOrInvests[pokerPos] = maxRaise;
 
-                        testCurrentHand.setTestGetTurnPlayers(pokerPos,"fin_stack_C ");
+                        testCurrentHand.setTestPreflopGetTurnPlayers(pokerPos,"fin_stack_C ");
                     }
                 }
                 // раунды подтверждаются только у тех кто не фолдил или не оллинер
@@ -894,7 +929,10 @@ public class OCR implements Runnable {
             }
             int amountFinished =0;
             for(int p=0; p<6; p++)if(curActsOrInvests[p]==-10||curActsOrInvests[p]==-100||rounds[p]==round)amountFinished++;
-            if(amountFinished==6){currentHand.isPreflopFinished=true; if(amountContPlay<2)currentHand.streetAllIn=PREFLOP; }
+            if(amountFinished==6){currentHand.isPreflopFinished=true; if(amountContPlay<2)currentHand.streetAllIn=PREFLOP;
+
+                if(currentHand.streetAllIn==PREFLOP)testCurrentHand.setTestAllines("PREFLOP_ALL_PREFIN_am>2");
+            }
 
             posPlayerRound = pokerPos;
 
@@ -905,14 +943,13 @@ public class OCR implements Runnable {
         //testCurrentHand.setPreflopActionsStats(currentHand.preflopActionsStats);
     }
 
-    int testFinished = 0;
+
 
 
 
     private float getTurnOfPlayer(int pokerPos){
-        if(is_Fold(pokerPos)){  testCurrentHand.setTestGetTurnPlayers(pokerPos,"F "); return -10;}
+        if(is_Fold(pokerPos)){   return -10;}
         float action = getOneAction(pokerPos);
-        testCurrentHand.setTestGetTurnPlayers(pokerPos,"A:"+action+" ");
         if(action==0||action==-1)return -1;
         return action;
     }
@@ -920,9 +957,38 @@ public class OCR implements Runnable {
 
 
     void getPostFlopActions(int street){
+         List<List<Float>> ActionsStats = null;
+         if(street==FLOP)ActionsStats=currentHand.flopActionsStats;
+        int pokerPos = posPlayerRound; int countcycle = 0;
+        for(;;pokerPos++){if(pokerPos==6){pokerPos=0;} countcycle++;if(countcycle==6)break;
 
+            if(amountContPlay<2)break;
+            if(rounds[pokerPos]>0&&rounds[pokerPos]==round)break;
+            if(curActsOrInvests[pokerPos]==-10||curActsOrInvests[pokerPos]==-100)continue;
 
+            //System.out.println(pokerPos);
+            float action = getTurnOfPlayer(pokerPos);
+            if(action==-1){  testCurrentHand.setTestFlopGetTurnPlayers(pokerPos,"A:"+action+" ");                      continue;}
+            if(action==-10){curActsOrInvests[pokerPos] = -10; amountContPlay--;
+                testCurrentHand.setTestFlopGetTurnPlayers(pokerPos,"F ");
+            currentHand.preflopActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);continue;}
 
+            testCurrentHand.setTestFlopGetTurnPlayers(pokerPos,"A:"+action+" ");
+
+            if(action>maxRaise){ maxRaise = action; round++;
+                if(currentHand.firstBetPostflopPokerPos[street]==-1)currentHand.firstBetPostflopPokerPos[street] = pokerPos;
+                ActionsStats.get(pokerPos).add(action);
+            }
+            else ActionsStats.get(pokerPos).add(-(action-curActsOrInvests[pokerPos]));
+
+            if(action==(curActsOrInvests[pokerPos]+currentStacks[pokerPos])) {curActsOrInvests[pokerPos] = -100; amountContPlay--; continue;}
+            // если нет значит обычный рейз
+            else curActsOrInvests[pokerPos] = action;
+            currentStacks[pokerPos]-=(action-curActsOrInvests[pokerPos]);
+            rounds[pokerPos] = round;
+        }
+
+       posPlayerRound=pokerPos;
 
     }
 
@@ -998,12 +1064,7 @@ public class OCR implements Runnable {
 
 
 
-
-
-
-    public synchronized void stop(){
-        is_run = false;
-        notify();
+    public synchronized void stop(){ is_run = false;notify();
     }
 
 }

@@ -15,6 +15,7 @@ public class StartAppLauncher {
     //TEST
     public static boolean isTest = true;
 
+
     public static void main(String[] args) {
         work_dataBase = new Work_DataBase();
         captureVideo = new CaptureVideo();

@@ -70,7 +70,8 @@ public class GetNicksForHands {
     static int c = 0;
 
     private static void read_HandHistoryToList(List<String> hand){
-        c++;
+
+        if(hand.get(1).contains(" Tourney ")){c++;return;}
         List<String> sublist_players = hand.subList(4,10);
         list_handsfromhistory.add(new HistoryHand(read_TimeHandForHistoryHand(hand.get(1)), read_CardsHeroForHistoryHand(hand.get(13)),
                 read_PositionHeroForHistoryHand(sublist_players), read_StacksForHistoryHand(sublist_players, read_BBforHistoryHand(hand.get(1))),hand,new String[6],new Long[1]));
@@ -270,7 +271,7 @@ public class GetNicksForHands {
        /* System.out.println("count hands "+c);
         for (HandFromHistory hand:list_handsfromhistory)
             System.out.println(hand.time_hand+"  "+get_str_Cards(hand.cards_hero));*/
-
+        System.out.println(c);
         close_DataBase();
     }
 

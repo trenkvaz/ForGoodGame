@@ -37,6 +37,7 @@ public class CurrentHand {
 
 
     List<List<Float>> preflopActionsStats = new ArrayList<>(6);
+    List<List<Float>> flopActionsStats = new ArrayList<>(6);
 
     public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, String[] nicks){}
     CreatingHUD creatingHUD;
@@ -49,8 +50,8 @@ public class CurrentHand {
         creatingHUD.clear_MapStats();
         testTable = ocr.table;
         for(int i=0; i<6; i++){
-            preflopActionsStats.add(new ArrayList<>());
-            preflopActionsStats.get(i).add(0.0f);
+            preflopActionsStats.add(new ArrayList<>()); preflopActionsStats.get(i).add(0.0f);
+            flopActionsStats.add(new ArrayList<>());
             startStacks[i] = 0f;
         }
         time_hand =  get_HandTime();
