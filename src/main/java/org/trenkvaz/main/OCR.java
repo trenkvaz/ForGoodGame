@@ -1014,7 +1014,6 @@ public class OCR implements Runnable {
                 if(amountContPlay<2)break;
                 if(rounds[pokerPos]==round){ pokerPos++; break;}
                 if(curActsOrInvests[pokerPos]==-10||curActsOrInvests[pokerPos]==-100)continue;
-                finishedActionOnePosition(PREFLOP,pokerPos,currentHand.preflopActionsStats);
                 finishedActionOnePosition(street,pokerPos,actionsStats);
             }
 
