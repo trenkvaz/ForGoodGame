@@ -23,16 +23,18 @@ public class CurrentHand {
     int poker_position_of_hero = -1;
 
     int[] poker_positions_by_pos_table_for_nicks;
-    boolean is_nicks_filled = false, is_start_flop = false, is_start_turn = false, is_start_river = false,
-            is_stacks_filled = false, isPreflopFinished = false;
+    boolean is_nicks_filled = false, //is_start_flop = false, is_start_turn = false, is_start_river = false,
+            is_stacks_filled = false;
 
 
     int position_bu_on_table = 0;
 
 
     int streetAllIn = -1;
-    int[] firstBetPostflopPokerPos = new int[]{-1,-1,-1,-1};
+    int[] firstBetPostflopPokerPos = {-1,-1,-1,-1};
     int[] playersFoldOrAllIn = new int[6];
+    boolean[] isFinishedStreets = {false,false,false,false};
+    boolean[] isStartStreets =  {false,false,false,false};
 
 
 

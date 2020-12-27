@@ -82,13 +82,25 @@ class TestCurrentHand {
 
    // public void setPreflopActionsStats(List<List<Float>> preflopActionsStats1){preflopActionsStats = preflopActionsStats1;}
 
-    public void setTestPreflopGetTurnPlayers(int pokPos, String act){ testPreflopGetTurnPlayers.get(pokPos).add(act);}
 
-    public void setTestFlopGetTurnPlayers(int pokPos, String act){ testFlopGetTurnPlayers.get(pokPos).add(act);}
+    public void setTestStreetTurnsPlayers(int street, int pokPos, String act){
+        switch (street){
+            case 0-> testPreflopGetTurnPlayers.get(pokPos).add(act);
+            case 1-> testFlopGetTurnPlayers.get(pokPos).add(act);
+        }
+    }
 
     public void setTestFinished(int testFinished1){testFinished = testFinished1;}
 
-    public void setTestAllines(String str){ testAllines.add(str);  }
+    public void setTestAllines(int street,String str){
+        switch (street){
+            case 0-> testAllines.add("PREFLOP"+str);
+            case 1-> testAllines.add("FLOP"+str);
+            case 2-> testAllines.add("TURN"+str);
+            case 3-> testAllines.add("RIVER"+str);
+        }
+
+    }
 
 
 
@@ -1157,25 +1169,10 @@ public class Testing {
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings.setting_capture_video();
-        /*BufferedImage img = read_image("Mtest\\heroact");
-        List<OCR.TestRecFrameTimeHand> list = new ArrayList<>();
-        list.add(new OCR.TestRecFrameTimeHand(img,111L));
-        list.add(new OCR.TestRecFrameTimeHand(img,112L));
-        list.add(new OCR.TestRecFrameTimeHand(img,113L));
-        List<OCR.TestRecFrameTimeHand> list2 = new ArrayList<>();
-        list2.add(new OCR.TestRecFrameTimeHand(img,1111L));
-        list2.add(new OCR.TestRecFrameTimeHand(img,1121L));
-        list2.add(new OCR.TestRecFrameTimeHand(img,1131L));
-        long s =System.currentTimeMillis();
-        *//*for(OCR.TestRecFrameTimeHand testRecFrameTimeHand:list){ c++;
-            saveImageToFile(testRecFrameTimeHand.imges_frame(),"test5\\"+testRecFrameTimeHand.timehand()); }*//*
-        testSaveImgFrameTimeHand(list,"test");
-        testSaveImgFrameTimeHand(list2,"test2");
-        System.out.println((System.currentTimeMillis()-s));*/
-        List<List<String>> testl = new ArrayList<>();
-        testl.add(new ArrayList<>());
-        testl.add(new ArrayList<>());
-        testl.forEach(c->c.add("1"));
-        testl.forEach(c->c.forEach(System.out::print));
+        List<String>list = new ArrayList<>();
+        list.add("1");
+        list.add("2");
+        list.add(0,"11");
+        list.forEach(System.out::println);
     }
 }
