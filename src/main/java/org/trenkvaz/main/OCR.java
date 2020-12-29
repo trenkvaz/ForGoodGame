@@ -25,7 +25,6 @@ public class OCR implements Runnable {
     Queue<BufferedImage[]> main_queue_with_frames;
     CurrentHand currentHand;
     int[] poker_positions_index_with_numbering_on_table = new int[6];
-    List<List<int[]>> list_by_poker_pos_current_list_arrnums_actions = new ArrayList<>(6);
     List<List<int[]>> hashesNumsActionsForCompare = new ArrayList<>(6);
     float[] actionsForCompare = new float[6];
     int current_bu = -1;
@@ -44,7 +43,7 @@ public class OCR implements Runnable {
     int[][] coordsWinMovePlayerAtPos = new int[6][2];
     int posMovingPlayer = -1;
     float maxRaise = 1;
-    float[] currentStacks = new float[]{0,0,0,0,-0.5f,-1};
+    //float[] currentStacks = new float[]{0,0,0,0,-0.5f,-1};
     int posPlayerRound = 0;
     int[] rounds = new int[]{0,0,0,0,0,1};
     int round = 1;
@@ -65,7 +64,7 @@ public class OCR implements Runnable {
         this.table = table+1;
         main_queue_with_frames = new LinkedBlockingQueue<>();
         for(int i=0; i<6; i++){
-            list_by_poker_pos_current_list_arrnums_actions.add(new ArrayList<>());
+            //list_by_poker_pos_current_list_arrnums_actions.add(new ArrayList<>());
             list_of_lists_current_id_nicks_for_choose.add(new ArrayList<>());
             hashesNumsActionsForCompare.add(new ArrayList<>());
         }
@@ -177,7 +176,6 @@ public class OCR implements Runnable {
 
     private void initNewHand(){
         currentHand = new CurrentHand(this);
-        list_by_poker_pos_current_list_arrnums_actions.forEach(List::clear);
         list_of_lists_current_id_nicks_for_choose.forEach(List::clear);
         hashesNumsActionsForCompare.forEach(List::clear);
         int[] correction_for_place_of_imgfold = {-31,97,97,97,-31,-31};
@@ -187,10 +185,9 @@ public class OCR implements Runnable {
             coordsWinMovePlayerAtPos[init][1] = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[init]-1][1]+7;
             actionsForCompare[init] =0;
             curActsOrInvests[init] = 0;
-            currentStacks[init] = 0;
             rounds[init] = 0;
-            if(init==4){curActsOrInvests[init] = 0.5f; currentStacks[init] = -0.5f;}
-            if(init==5){curActsOrInvests[init] = 1f; currentStacks[init] = -1f;  rounds[init] = 1; }
+            if(init==4){curActsOrInvests[init] = 0.5f; }
+            if(init==5){curActsOrInvests[init] = 1f;  rounds[init] = 1; }
             // с 1 потому что ник героя не определяется и его массивы не надо обнулять
             if(init>0)for(int n=0; n<3; n++) System.arraycopy(zeros_for_clear_current_id,0,current_id_nicks_for_choose[init][n],0,16);
         }
@@ -204,7 +201,6 @@ public class OCR implements Runnable {
     int counttest = 0;
 
     private void clearForNewStreet(){
-        list_by_poker_pos_current_list_arrnums_actions.forEach(List::clear);
         hashesNumsActionsForCompare.forEach(List::clear);
         Arrays.fill(actionsForCompare,0);
         for(int init=0; init<6; init++){
@@ -269,7 +265,7 @@ public class OCR implements Runnable {
         ////
 
         if(currentHand.isStartStreets[RIVER]||currentHand.streetAllIn!=-1)return;
-        getPostFlopActions(TURN);
+        //getPostFlopActions(TURN);
     }
 
 
@@ -277,7 +273,7 @@ public class OCR implements Runnable {
 
         if(!currentHand.isStartStreets[RIVER]||currentHand.streetAllIn!=-1) return;
 
-        getPostFlopActions(RIVER);
+        //getPostFlopActions(RIVER);
     }
 
 
@@ -663,7 +659,8 @@ public class OCR implements Runnable {
                 else if(stack_without_action==-2){
                     if(action==0)continue;
                     currentHand.startStacks[poker_position] = action;
-                    currentStacks[poker_position] += currentHand.startStacks[poker_position]; // плюс чтобы в текущем стеке учитывались блайнды
+                   // currentStacks[poker_position] += currentHand.startStacks[poker_position]; // плюс чтобы в текущем стеке учитывались блайнды
+                    currentHand.startStacksAtStreets[PREFLOP][poker_position] = action;
                 }
 
                 count_filled_stacks++;
@@ -676,7 +673,8 @@ public class OCR implements Runnable {
                 //curActsOrInvests[poker_position] = action;
             }
 
-            currentStacks[poker_position] += currentHand.startStacks[poker_position];
+            //currentStacks[poker_position] += currentHand.startStacks[poker_position];
+            currentHand.startStacksAtStreets[PREFLOP][poker_position] = currentHand.startStacks[poker_position];
             count_filled_stacks++;
         }
         if(count_filled_stacks==6)currentHand.is_stacks_filled = true;
@@ -758,7 +756,7 @@ public class OCR implements Runnable {
            float action = getTurnOfPlayer(pokerPos);
            if(action==-1||action==curActsOrInvests[pokerPos]){ testCurrentHand.setTestStreetTurnsPlayers(PREFLOP,pokerPos,"A:"+action+" ");
                // ситуация когда на блайндах коротыши со стеком равным или меньше блайндов
-               if(action==(curActsOrInvests[pokerPos]+currentStacks[pokerPos])) {  testSaveImgFrameTimeHand(images_framestimehands,"shortstacksblinds");
+               if(action==currentHand.startStacksAtStreets[PREFLOP][pokerPos]) {  testSaveImgFrameTimeHand(images_framestimehands,"shortstacksblinds");
                    curActsOrInvests[pokerPos] = -100; amountContPlay--; continue;}
                break;}
            if(action==-10){curActsOrInvests[pokerPos] = -10; amountContPlay--;
@@ -777,11 +775,14 @@ public class OCR implements Runnable {
            }
            else currentHand.preflopActionsStats.get(pokerPos).add(-(action-curActsOrInvests[pokerPos]));
             //запись действия для учета
-            // ситуация когда сумму(текущего стека и вложженых средств) равны действию это значит оллин
-            if(action==(curActsOrInvests[pokerPos]+currentStacks[pokerPos])) {curActsOrInvests[pokerPos] = -100; amountContPlay--; continue;}
+            // ситуация когда размер рейза равне стартовому стеку это значит оллин
+            if(action==currentHand.startStacksAtStreets[PREFLOP][pokerPos]) {curActsOrInvests[pokerPos] = -100;
+             //currentHand.startStacksAtStreets[FLOP][pokerPos] = 0;
+             amountContPlay--; continue;}
                 // если нет значит обычный рейз
             else curActsOrInvests[pokerPos] = action;
-            currentStacks[pokerPos]-=(action-curActsOrInvests[pokerPos]);
+
+            currentHand.startStacksAtStreets[FLOP][pokerPos] = currentHand.startStacksAtStreets[PREFLOP][pokerPos]-action;
             rounds[pokerPos] = round;
        }
         posPlayerRound = pokerPos;
@@ -854,15 +855,15 @@ public class OCR implements Runnable {
    private void finishedTwoPlayers(int street,List<List<Float>> actionsStats){
        for(int p=0; p<6; p++){if(curActsOrInvests[p]==-10||curActsOrInvests[p]==-100)continue;
            if(!(rounds[p]<round))continue;
-           if(maxRaise>=(curActsOrInvests[p]+currentStacks[p])) {  // если последнйи рейз больше или равен стартовому стеку(инвест+текущий стек) то кол равен остатку стека
-               actionsStats.get(p).add(-currentStacks[p]);
-               currentStacks[p]-=(maxRaise-curActsOrInvests[p]);
+           if(maxRaise>=currentHand.startStacksAtStreets[street][p]) {  // если последнйи рейз больше или равен стартовому стеку(инвест+текущий стек) то кол равен остатку стека
+               actionsStats.get(p).add(-currentHand.startStacksAtStreets[street+1][p]);
+               currentHand.startStacksAtStreets[street+1][p]=0;
                curActsOrInvests[p] = -100;
                amountContPlay--;
                testCurrentHand.setTestStreetTurnsPlayers(street,p,"fin_Am2_C_all ");
            } else {  // если нет значит обычный кол
                actionsStats.get(p).add(-(maxRaise-curActsOrInvests[p]));
-               currentStacks[p]-=(maxRaise-curActsOrInvests[p]);
+               currentHand.startStacksAtStreets[street+1][p]= currentHand.startStacksAtStreets[street][p]-maxRaise;
                curActsOrInvests[p] = maxRaise;
                //TEST
                testCurrentHand.setTestStreetTurnsPlayers(street,p,"fin_Am2_C ");
@@ -889,9 +890,9 @@ public class OCR implements Runnable {
        }
        else if(stack==-2){  // ситуация аллина, но это может быть оллин уже на флопе поэтому сравнивается с последним рейзом префлопа
          // если последнйи рейз больше или равен стартовому стеку(инвест+текущий стек) то кол равен остатку стека
-           if(maxRaise>=(curActsOrInvests[pokerPos]+currentStacks[pokerPos])) {
-               actionsStats.get(pokerPos).add(-currentStacks[pokerPos]);
-               currentStacks[pokerPos]-=(maxRaise-curActsOrInvests[pokerPos]);
+           if(maxRaise>=currentHand.startStacksAtStreets[street][pokerPos]) {
+               actionsStats.get(pokerPos).add(-currentHand.startStacksAtStreets[street+1][pokerPos]);
+               currentHand.startStacksAtStreets[street+1][pokerPos]=0;
                curActsOrInvests[pokerPos] = -100;
                amountContPlay--;
 
@@ -899,7 +900,7 @@ public class OCR implements Runnable {
                return;
            } else {// если нет значит обычный кол
                actionsStats.get(pokerPos).add(-(maxRaise-curActsOrInvests[pokerPos]));
-               currentStacks[pokerPos]-=(maxRaise-curActsOrInvests[pokerPos]);
+               currentHand.startStacksAtStreets[street+1][pokerPos]= currentHand.startStacksAtStreets[street][pokerPos]-maxRaise;
                curActsOrInvests[pokerPos] = maxRaise;
 
                testCurrentHand.setTestStreetTurnsPlayers(street,pokerPos,"fin_stack_allin_C ");
@@ -907,18 +908,18 @@ public class OCR implements Runnable {
 
        }
        else {
-           // взятый стек на постфлопе должен быть не меньше чем текущий стек - потенциальное вложение(максрейз - тек.вложения) если так значит был фолд
+           // если стек равен текущему стеку, значит игрок не колил, а сфолдил
            //if(pokerPos==5) System.out.println("stack "+stack+" curstack "+currentStacks[pokerPos]+" maxraise "+maxRaise+" curinvest "+curActsOrInvests[pokerPos]);
-           if(stack>(currentStacks[pokerPos]-(maxRaise-curActsOrInvests[pokerPos]))) {  curActsOrInvests[pokerPos] = -10;
+           if(stack==currentHand.startStacksAtStreets[street][pokerPos]) {  curActsOrInvests[pokerPos] = -10;
                actionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
                amountContPlay--;
 
-               testCurrentHand.setTestStreetTurnsPlayers(street,pokerPos,"fin_stack_C ");
+               testCurrentHand.setTestStreetTurnsPlayers(street,pokerPos,"fin_stack_F ");
                return;
            }
            else {
                actionsStats.get(pokerPos).add(-(maxRaise-curActsOrInvests[pokerPos]));
-               currentStacks[pokerPos]-=(maxRaise-curActsOrInvests[pokerPos]);
+               currentHand.startStacksAtStreets[street+1][pokerPos]= currentHand.startStacksAtStreets[street][pokerPos]-maxRaise;
                curActsOrInvests[pokerPos] = maxRaise;
 
                testCurrentHand.setTestStreetTurnsPlayers(street,pokerPos,"fin_stack_C ");
@@ -952,22 +953,30 @@ public class OCR implements Runnable {
             if(curActsOrInvests[pokerPos]==-10||curActsOrInvests[pokerPos]==-100)continue;
             //System.out.println(pokerPos);
             float action = getTurnOfPlayer(pokerPos);
-            if(action==-1){  testCurrentHand.setTestStreetTurnsPlayers(street,pokerPos,"A:"+action+" "); continue;}
+            if(action==-1||action==curActsOrInvests[pokerPos]){  testCurrentHand.setTestStreetTurnsPlayers(street,pokerPos,"A:"+action+" "); continue;}
             if(action==-10){curActsOrInvests[pokerPos] = -10; amountContPlay--;  actionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
                 testCurrentHand.setTestStreetTurnsPlayers(street,pokerPos,"F "); continue;}
 
             testCurrentHand.setTestStreetTurnsPlayers(street,pokerPos,"A:"+action+" ");
 
             if(action>maxRaise){ maxRaise = action; round++;
-                if(currentHand.firstBetPostflopPokerPos[street]==-1)currentHand.firstBetPostflopPokerPos[street] = pokerPos;
+                if(currentHand.firstBetPostflopPokerPos[street]==-1){
+                    currentHand.firstBetPostflopPokerPos[street] = pokerPos;
+                    int checkpokerPos = 4;
+                    for(;;checkpokerPos++){if(checkpokerPos==6){checkpokerPos=0;}
+                        if(curActsOrInvests[checkpokerPos]==-10||curActsOrInvests[checkpokerPos]==-100)continue;
+                        if(currentHand.firstBetPostflopPokerPos[street]==checkpokerPos)break;
+                        actionsStats.get(checkpokerPos).add(0,Float.POSITIVE_INFINITY);
+                    }
+                }
                 actionsStats.get(pokerPos).add(action);
             }
             else actionsStats.get(pokerPos).add(-(action-curActsOrInvests[pokerPos]));
 
-            if(action==(curActsOrInvests[pokerPos]+currentStacks[pokerPos])) {curActsOrInvests[pokerPos] = -100; amountContPlay--; continue;}
+            if(action==currentHand.startStacksAtStreets[street][pokerPos]) {curActsOrInvests[pokerPos] = -100; amountContPlay--; continue;}
             // если нет значит обычный рейз
             else curActsOrInvests[pokerPos] = action;
-            currentStacks[pokerPos]-=(action-curActsOrInvests[pokerPos]);
+            currentHand.startStacksAtStreets[street+1][pokerPos]= currentHand.startStacksAtStreets[street][pokerPos]-action;
             rounds[pokerPos] = round;
         }
         posPlayerRound=pokerPos;
@@ -982,13 +991,6 @@ public class OCR implements Runnable {
         if(currentHand.firstBetPostflopPokerPos[street]==-1){ // ситуация одних чеков
             for(int p=0; p<6; p++)if(curActsOrInvests[p]==0)actionsStats.get(p).add(Float.POSITIVE_INFINITY);
             currentHand.isFinishedStreets[street] = true; return;
-        } else { // расстановка чеков до первого бета
-            int countcycle = 0, pokerPos = 4;
-            for(;;pokerPos++){if(pokerPos==6){pokerPos=0;} countcycle++;if(countcycle==6)break;
-                if(curActsOrInvests[pokerPos]==-10||curActsOrInvests[pokerPos]==-100)continue;
-                if(currentHand.firstBetPostflopPokerPos[street]==pokerPos)break;
-                actionsStats.get(pokerPos).add(0,Float.POSITIVE_INFINITY);
-            }
         }
         //ситуация когда херо сфолдил но смотрит продолжение раздачи пока это не будет обрабатыватся
         if(curActsOrInvests[currentHand.poker_position_of_hero]==-10){ currentHand.isFinishedStreets[street] = true;return;}

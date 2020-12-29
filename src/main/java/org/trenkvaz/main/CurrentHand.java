@@ -18,13 +18,13 @@ public class CurrentHand {
     long time_hand;
     String[] nicks = new String[6], cards_hero = {"",""};
     Float[] startStacks = new Float[6];
+    float[][] startStacksAtStreets = {new float[6],new float[6],new float[6],new float[6],new float[6]};
 
 
     int poker_position_of_hero = -1;
 
     int[] poker_positions_by_pos_table_for_nicks;
-    boolean is_nicks_filled = false, //is_start_flop = false, is_start_turn = false, is_start_river = false,
-            is_stacks_filled = false;
+    boolean is_nicks_filled = false, is_stacks_filled = false;
 
 
     int position_bu_on_table = 0;
@@ -40,6 +40,8 @@ public class CurrentHand {
 
     List<List<Float>> preflopActionsStats = new ArrayList<>(6);
     List<List<Float>> flopActionsStats = new ArrayList<>(6);
+    List<List<Float>> turnActionsStats = new ArrayList<>(6);
+    List<List<Float>> riverActionsStats = new ArrayList<>(6);
 
     public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, String[] nicks){}
     CreatingHUD creatingHUD;
@@ -53,7 +55,7 @@ public class CurrentHand {
         testTable = ocr.table;
         for(int i=0; i<6; i++){
             preflopActionsStats.add(new ArrayList<>()); preflopActionsStats.get(i).add(0.0f);
-            flopActionsStats.add(new ArrayList<>());
+            flopActionsStats.add(new ArrayList<>());turnActionsStats.add(new ArrayList<>());riverActionsStats.add(new ArrayList<>());
             startStacks[i] = 0f;
         }
         time_hand =  get_HandTime();
