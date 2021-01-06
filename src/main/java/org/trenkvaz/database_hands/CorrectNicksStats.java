@@ -116,7 +116,7 @@ public class CorrectNicksStats {
             for(String nicks:main_map_newnick_oldnicks.get(nick)) System.out.print(nicks+" ");
             System.out.println();
         }
-        boolean iswork = true;
+        boolean iswork = false;
         if(!iswork)return;
 
         rewriteStats(main_map_newnick_oldnicks);

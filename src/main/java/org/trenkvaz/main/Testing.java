@@ -1162,6 +1162,15 @@ public class Testing {
         return image;
     }
 
+    public static int getLimit(BufferedImage windowImg, int indexTable){
+        int[] xCoordsCheck = {coord_left_up_of_tables[indexTable][0]+119,coord_left_up_of_tables[indexTable][0]+120,
+                coord_left_up_of_tables[indexTable][0]+181,coord_left_up_of_tables[indexTable][0]+182};
+        int yCoordsCheck =coord_left_up_of_tables[indexTable][1]+19;
+        boolean isCheckNL2 = true;
+        for(int x=0;  x<4; x++){ if(get_intGreyColor(windowImg,xCoordsCheck[x],yCoordsCheck)>200)continue; isCheckNL2 = false; break;}
+        return 0;
+    }
+
     public static void main(String[] args) throws Exception {
 
         OCR ocr = new OCR();
@@ -1169,10 +1178,15 @@ public class Testing {
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings.setting_capture_video();
-        List<String>list = new ArrayList<>();
-        list.add("1");
-        list.add("2");
-        list.add(0,"11");
-        list.forEach(System.out::println);
+        //127,9,6,10
+        //saveImageToFile(set_grey_and_inverse_or_no(read_image("Mtest\\nl5win").getSubimage(130,9,6,10),false),"Mtest\\sl5B");
+        BufferedImage niBF = read_image("Mtest\\sl5W");
+        long s =System.nanoTime();
+        long[] iWf =  get_longarr_HashImage(niBF,0,0,6,10,1,200);
+        System.out.println((System.nanoTime()-s));
+        System.out.println(iWf[1]+" "+iWf[0]);
+        show_HashShablonNumber(iWf,6,10);
+
+
     }
 }

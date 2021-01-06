@@ -308,6 +308,12 @@ public class CaptureVideo {
        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
        for(int index_table=0; index_table<COUNT_TABLES; index_table++){
           if(ocrList_1.get(index_table)==null)continue;
+          if(!isFastTable(bufferedImageframe,coord_left_up_of_tables[index_table][0]+25,coord_left_up_of_tables[index_table][1]+9,6,10)){
+              Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
+                      ,"test3\\win_"+index_table+"_"+(c++));
+          } else Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
+                  ,"test2\\win_"+index_table+"_"+(c++));
+
           //long s = System.currentTimeMillis();
             //  проверка правильности изо номера раздачи
            //checknicktest_nick = new ArrayList<>();
@@ -368,9 +374,12 @@ public class CaptureVideo {
                            });
                }
               else {
-                  // если все ники не определяются или определяется только ник героя, нужно для завершения последенй раздачи
+                  // если все ники не определяются или определяется только ник героя, нужно для завершения последней раздачи
                   if(!is_correct_hero_nick)ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{null, image_number_hand});
                   else ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{image_number_hand,null });
+
+                  /*Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],
+                          coord_left_up_of_tables[index_table][1],639,468),"test2\\win_"+index_table+"_"+(c++));*/
               }
 
            }
@@ -381,7 +390,9 @@ public class CaptureVideo {
 
    }
 
-
+    private static boolean isFastTable(BufferedImage windowImg,int x, int y, int w, int h){
+        return get_longarr_HashImage(windowImg,x,y,w,h,1,200)[0]==8976692374933504L;
+    }
 
    public static BufferedImage cut_SubImage(BufferedImage image_window,int X, int Y, int W, int H){
        BufferedImage img = image_window.getSubimage(X, Y, W, H);
