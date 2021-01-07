@@ -353,7 +353,8 @@ public class Testing {
 
 
     public static void testSaveImgFrameTimeHand(List<OCR.TestRecFrameTimeHand> images_framestimehands,String errorname){
-        if(errorname!=null)return;
+
+        if(errorname!=null)return;// ПРАВКА !
         new Thread(()->{  int c = 0;
         for(OCR.TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){ c++;
             saveImageToFile(testRecFrameTimeHand.imges_frame(),"test5\\"+testRecFrameTimeHand.timehand()+"_"+errorname+"_"+c); }}).start();
@@ -1172,6 +1173,30 @@ public class Testing {
         return 0;
     }
 
+    static final int[][] coordsEmptyPlaces = {{},{40,258},{40,133},{279,72},{518,133},{518,258}};
+
+
+    static boolean isEmptyPlace(BufferedImage image){
+
+
+
+
+        int max = 110, min = 25;
+        for(int y=0; y<image.getHeight(); y+=image.getHeight()-1){
+            for(int x=4; x<image.getWidth()-4; x++){
+                int bright = get_intGreyColor(image,x,y);
+                if(bright>max||bright<min)return false;
+            }
+        }
+        for(int x=0; x<image.getWidth(); x+=image.getWidth()-1){
+            for(int y=4; y<image.getHeight()-4; y++){
+                int bright = get_intGreyColor(image,x,y);
+                if(bright>max||bright<min)return false;
+            }
+        }
+        return true;
+    }
+
     public static void main(String[] args) throws Exception {
 
         OCR ocr = new OCR();
@@ -1180,14 +1205,17 @@ public class Testing {
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings.setting_capture_video();
         //127,9,6,10
-        //saveImageToFile(set_grey_and_inverse_or_no(read_image("Mtest\\nl5win").getSubimage(130,9,6,10),false),"Mtest\\sl5B");
-        BufferedImage niBF = read_image("Mtest\\sl5W");
-        long s =System.nanoTime();
+        //saveImageToFile(set_grey_and_inverse_or_no(read_image("Mtest\\empt"),true),"Mtest\\iempt");
+        //BufferedImage niBF = read_image("Mtest\\sl5W");
+       /* long s =System.nanoTime();
         long[] iWf =  get_longarr_HashImage(niBF,0,0,6,10,1,200);
         System.out.println((System.nanoTime()-s));
         System.out.println(iWf[1]+" "+iWf[0]);
-        show_HashShablonNumber(iWf,6,10);
+        show_HashShablonNumber(iWf,6,10);*/
 
-
+        int w = 81+1, h = 27+1;
+        BufferedImage empt = read_image("Mtest\\empt");
+        for(int i=1; i<6; i++)//saveImageToFile(empt.getSubimage(coordEmptyPlaces[i][0],coordEmptyPlaces[i][1],w,h),"test2\\_"+i);
+            System.out.println(isEmptyPlace(empt.getSubimage(coordsEmptyPlaces[i][0],coordsEmptyPlaces[i][1],w,h)));
     }
 }

@@ -17,7 +17,7 @@ public class StartAppLauncher {
 
     //TEST
     public static boolean isTest = true;
-    // в тесстинге сохранение изо ошибок правка
+    // в тесстинге testSaveImgFrameTimeHand сохранение изо ошибок правка
 
 
     public static void main(String[] args) {

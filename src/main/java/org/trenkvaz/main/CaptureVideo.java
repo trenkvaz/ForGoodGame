@@ -47,6 +47,8 @@ public class CaptureVideo {
 
    static final int[][] coord_2_3_cards_flop = {{270,202},{318,202}};
 
+   static final int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
+
    static final String[] nominals_cards = {"2","3","4","5","6","7","8","9","T","J","Q","K","A"};
 
    public static final String[] Deck = {null,"Ac","Ad","Ah","As","Kc","Kd","Kh","Ks","Qc","Qd","Qh","Qs","Jc","Jd","Jh","Js","Tc","Td","Th","Ts","9c","9d","9h","9s","8c","8d","8h","8s",
@@ -307,7 +309,7 @@ public class CaptureVideo {
        int x_of_number_hand = 579,y_of_number_hand = 56,width_of_number_hand = 53,height_of_number_hand = 11, width_nick = 91, height_nick = 14;
        boolean is_correct_number_hand = false, is_correct_nicks = false, is_correct_hero_nick = false;
 
-       int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
+
        long s =System.currentTimeMillis();
        for(int index_table=0; index_table<COUNT_TABLES; index_table++){
           if(ocrList_1.get(index_table)==null)continue;
@@ -318,11 +320,11 @@ public class CaptureVideo {
                   ,"test3\\win_"+index_table+"_"+(c++));*/
            if(!isFastTable(index_table))continue;
            if(!isCardsHero(index_table))continue;
-          /* if(isCardsHero(index_table))Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
-                  ,"test4\\win_"+index_table+"_"+(c++));
-           else Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
+           /*if(!isCardsHero(index_table))Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
+                  ,"test4\\win_"+index_table+"_"+(c++));*/
+           /*else Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
                ,"test5\\win_"+index_table+"_"+(c++));*/
-
+           getWhoPlayOrNo(index_table);
           //long s = System.currentTimeMillis();
             //  проверка правильности изо номера раздачи
            //checknicktest_nick = new ArrayList<>();
@@ -438,6 +440,51 @@ public class CaptureVideo {
         }
        return true;
     }
+
+
+    private static int[] getWhoPlayOrNo(int indTable){
+        int[] result = new int[6];c++;
+        for(int placePlayer=1; placePlayer<6; placePlayer++ ){
+
+            if(is_CorrectImageOfNumberHandAndNicks(coord_left_up_of_tables[indTable][0]+coords_places_of_nicks[placePlayer][0]+correction_for_place_of_nicks[placePlayer]-8,
+                    coord_left_up_of_tables[indTable][1]+coords_places_of_nicks[placePlayer][1]+1,91,14,
+                    220,220,210,bufferedImageframe)) { result[placePlayer] =1; continue; }
+            else {
+               if(isEmptyPlace(indTable,placePlayer))Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[indTable][0],coord_left_up_of_tables[indTable][1],639,468)
+                       ,"test3\\win_"+indTable+"_"+c+"_"+placePlayer);
+               else Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[indTable][0],coord_left_up_of_tables[indTable][1],639,468)
+                       ,"test5\\win_"+indTable+"_"+c+"_"+placePlayer);
+            }
+
+        }
+       return result;
+    }
+
+    static final int[][] coordsEmptyPlaces = {null,{40,258},{40,133},{279,72},{518,133},{518,258}};
+
+
+    static boolean isEmptyPlace(int indTable,int placePlayer){
+        final int X = coord_left_up_of_tables[indTable][0]+coordsEmptyPlaces[placePlayer][0];
+        final int Y = coord_left_up_of_tables[indTable][1]+coordsEmptyPlaces[placePlayer][1];
+        final int W = X+82, H = Y+28;
+        final int max = 110, min = 25;
+
+        for(int y=Y; y<H; y+=27){
+            for(int x=X+4; x<W-4; x++){
+                int bright = get_intGreyColor(bufferedImageframe,x,y);
+                if(bright>max||bright<min)return false;
+            }
+        }
+        for(int x=X; x<W; x+=81){
+            for(int y=Y+4; y<H-4; y++){
+                int bright = get_intGreyColor(bufferedImageframe,x,y);
+                if(bright>max||bright<min)return false;
+            }
+        }
+        return true;
+    }
+
+
 
    public static BufferedImage cut_SubImage(BufferedImage image_window,int X, int Y, int W, int H){
        BufferedImage img = image_window.getSubimage(X, Y, W, H);
