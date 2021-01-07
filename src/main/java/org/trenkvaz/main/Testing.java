@@ -353,6 +353,7 @@ public class Testing {
 
 
     public static void testSaveImgFrameTimeHand(List<OCR.TestRecFrameTimeHand> images_framestimehands,String errorname){
+        if(errorname!=null)return;
         new Thread(()->{  int c = 0;
         for(OCR.TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){ c++;
             saveImageToFile(testRecFrameTimeHand.imges_frame(),"test5\\"+testRecFrameTimeHand.timehand()+"_"+errorname+"_"+c); }}).start();

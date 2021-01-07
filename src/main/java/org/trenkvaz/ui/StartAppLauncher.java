@@ -12,8 +12,12 @@ public class StartAppLauncher {
     public static CaptureVideo captureVideo;
     public static Work_DataBase work_dataBase;
     public static HUD hud;
+
+    public static final float SB = 0.5f;
+
     //TEST
     public static boolean isTest = true;
+    // в тесстинге сохранение изо ошибок правка
 
 
     public static void main(String[] args) {

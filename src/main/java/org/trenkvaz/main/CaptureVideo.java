@@ -57,6 +57,8 @@ public class CaptureVideo {
 
 
 
+
+
    public static List<OCR> ocrList_1;
    static final int COUNT_TABLES = 6;
    /*boolean is_run = true;
@@ -306,13 +308,20 @@ public class CaptureVideo {
        boolean is_correct_number_hand = false, is_correct_nicks = false, is_correct_hero_nick = false;
 
        int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
+       long s =System.currentTimeMillis();
        for(int index_table=0; index_table<COUNT_TABLES; index_table++){
           if(ocrList_1.get(index_table)==null)continue;
-          if(!isFastTable(bufferedImageframe,coord_left_up_of_tables[index_table][0]+25,coord_left_up_of_tables[index_table][1]+9,6,10)){
+          /*if(!isFastTable(index_table)){
               Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
-                      ,"test3\\win_"+index_table+"_"+(c++));
+                      ,"test2\\win_"+index_table+"_"+(c++));
           } else Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
-                  ,"test2\\win_"+index_table+"_"+(c++));
+                  ,"test3\\win_"+index_table+"_"+(c++));*/
+           if(!isFastTable(index_table))continue;
+           if(!isCardsHero(index_table))continue;
+          /* if(isCardsHero(index_table))Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
+                  ,"test4\\win_"+index_table+"_"+(c++));
+           else Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
+               ,"test5\\win_"+index_table+"_"+(c++));*/
 
           //long s = System.currentTimeMillis();
             //  проверка правильности изо номера раздачи
@@ -387,11 +396,47 @@ public class CaptureVideo {
            //if(is_correct_number_hand==null) save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),"tables_img\\t_nokurs"+(++c));
            //if(is_correct_number_hand==null)countcheks[index_table]++;
        }
+     alltime+=System.currentTimeMillis()-s; counttime++;
+   }
+   public static long alltime = 0;
+   public static int counttime = 0;
+
+   static void allocationTables(Frame frame){
+       if(bufferedImageframe==null) bufferedImageframe = new Java2DFrameConverter().getBufferedImage(frame);
+       createBufferedImage(frame, bufferedImageframe);
+       for(int indTable=0; indTable<COUNT_TABLES; indTable++){
+           if(ocrList_1.get(indTable)==null)continue;
+       }
 
    }
 
-    private static boolean isFastTable(BufferedImage windowImg,int x, int y, int w, int h){
-        return get_longarr_HashImage(windowImg,x,y,w,h,1,200)[0]==8976692374933504L;
+
+
+
+    private static boolean isFastTable(int indTable){
+       // проверка буквы Ф в названии стола Фаст
+        if(get_longarr_HashImage(bufferedImageframe,coord_left_up_of_tables[indTable][0]+25,
+                coord_left_up_of_tables[indTable][1]+9,6,10,1,200)[0] !=8976692374933504L)return false;
+        // проверка номера раздачи
+        if(!is_CorrectImageOfNumberHandAndNicks(coord_left_up_of_tables[indTable][0]+579,coord_left_up_of_tables[indTable][1]+56,53,11,
+                100,100,100,bufferedImageframe))return false;
+        // проверка чтения ника херо
+        return is_CorrectImageOfNumberHandAndNicks(coord_left_up_of_tables[indTable][0]+291,coord_left_up_of_tables[indTable][1]+321,91,14,
+                220,220,210,bufferedImageframe);
+    }
+
+
+    private static boolean isCardsHero(int indTable){
+
+        for(int i=0; i<2; i++){
+            int X = coords_cards_hero[i][0]+coord_left_up_of_tables[indTable][0];
+            int Y = coords_cards_hero[i][1]+coord_left_up_of_tables[indTable][1];
+            if(get_int_MaxBrightnessMiddleImg(bufferedImageframe,X+1,Y,15,17)<220||
+                    get_int_MaxBrightnessMiddleImg(bufferedImageframe,X+1,Y+17,15,17)<220)return false;
+            // проверка периметра карта на помеху курсором
+            if(!is_noCursorInterferenceImage(bufferedImageframe,X+1,Y,15,17,240))return false;
+        }
+       return true;
     }
 
    public static BufferedImage cut_SubImage(BufferedImage image_window,int X, int Y, int W, int H){

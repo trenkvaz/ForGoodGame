@@ -15,13 +15,12 @@ import java.util.Locale;
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.ui.MainWindow.anchorPane;
 import static org.trenkvaz.ui.MainWindow.stage;
-import static org.trenkvaz.ui.StartAppLauncher.captureVideo;
-import static org.trenkvaz.ui.StartAppLauncher.hud;
+import static org.trenkvaz.ui.StartAppLauncher.*;
 
 public class Controller_main_window {
 
     @FXML public Button start_stop_capture_video, show_hide_hud, savehands;
-    @FXML public Label message_work,timer;
+    @FXML public Label message_work,timer, labelSB;
     //CaptureVideo captureVideo;
     public static Controller_main_window controller_main_window;
     public static MyTimer mytimer;
@@ -30,6 +29,8 @@ public class Controller_main_window {
     @FXML public void initialize() {
         //captureVideo = new CaptureVideo();
         controller_main_window = this;
+        labelSB.setTextFill(Color.BLUE);
+        labelSB.setText("SB "+SB);
         //mytimer = new MyTimer();
        // new HUD();
     }
@@ -49,7 +50,8 @@ public class Controller_main_window {
         for(OCR ocr: CaptureVideo.ocrList_1){
             if(ocr==null)continue;ocr.stop();}}
         //for(OCR ocr:captureVideo.ocrList_2)ocr.stop();
-        System.out.println("Average time "+(testTime/testTimecount)+" count "+testTimecount);
+        //System.out.println("Average time "+(testTime/testTimecount)+" count "+testTimecount);
+        System.out.println("Average time "+(alltime/counttime)+" count "+counttime);
         System.out.println("stop");
     }
 

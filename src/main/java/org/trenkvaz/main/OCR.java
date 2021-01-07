@@ -186,7 +186,7 @@ public class OCR implements Runnable {
             actionsForCompare[init] =0;
             curActsOrInvests[init] = 0;
             rounds[init] = 0;
-            if(init==4){curActsOrInvests[init] = 0.5f; }
+            if(init==4){curActsOrInvests[init] = SB; }
             if(init==5){curActsOrInvests[init] = 1f;  rounds[init] = 1; }
             // с 1 потому что ник героя не определяется и его массивы не надо обнулять
             if(init>0)for(int n=0; n<3; n++) System.arraycopy(zeros_for_clear_current_id,0,current_id_nicks_for_choose[init][n],0,16);

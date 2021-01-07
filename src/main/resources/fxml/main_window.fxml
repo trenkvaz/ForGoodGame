@@ -8,8 +8,9 @@
    <children>
       <Button fx:id="start_stop_capture_video" layoutX="23.0" layoutY="14.0" mnemonicParsing="false" onAction="#capture_video" prefHeight="25.0" prefWidth="94.0" text="Start" />
       <Button fx:id="show_hide_hud" layoutX="138.0" layoutY="14.0" mnemonicParsing="false" onAction="#set_show_hud" prefHeight="25.0" prefWidth="94.0" text="Show HUD" />
-      <Label fx:id="message_work" layoutX="273.0" layoutY="14.0" prefHeight="25.0" prefWidth="575.0" />
+      <Label fx:id="message_work" layoutX="273.0" layoutY="14.0" prefHeight="25.0" prefWidth="151.0" />
       <Label fx:id="timer" layoutX="245.0" layoutY="45.0" prefHeight="25.0" prefWidth="287.0" />
       <Button fx:id="savehands" layoutX="23.0" layoutY="52.0" mnemonicParsing="false" onAction="#on_off_savehands" prefHeight="25.0" prefWidth="110.0" text="Not saving hands" textFill="#fc0909" />
+      <Label fx:id="labelSB" layoutX="443.0" layoutY="10.0" prefHeight="25.0" prefWidth="48.0" />
    </children>
 </AnchorPane>
