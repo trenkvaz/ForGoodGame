@@ -7,22 +7,16 @@ import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.trenkvaz.main.CreatingHUD;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.trenkvaz.main.CaptureVideo.coord_left_up_of_tables;
+import static org.trenkvaz.main.CaptureVideo.COORDS_TABLES;
 import static org.trenkvaz.ui.MainWindow.anchorPane;
-import static org.trenkvaz.ui.MainWindow.stage;
 
 public class HUD {
 
@@ -62,8 +56,8 @@ public class HUD {
                     stages_huds_each_player[table][player].setScene(scene);
                     //stages_huds_each_player[table][player].initModality(Modality.NONE);
                     stages_huds_each_player[table][player].initOwner(mainstage);
-                    stages_huds_each_player[table][player].setX(coord_left_up_of_tables[table][0]+start_coords[player][0]);
-                    stages_huds_each_player[table][player].setY(coord_left_up_of_tables[table][1]+start_coords[player][1]);
+                    stages_huds_each_player[table][player].setX(COORDS_TABLES[table][0]+start_coords[player][0]);
+                    stages_huds_each_player[table][player].setY(COORDS_TABLES[table][1]+start_coords[player][1]);
                     final int fin_table =table, fin_player = player;
                     scene.setOnMousePressed(new EventHandler<MouseEvent>() {
                         @Override
@@ -75,11 +69,11 @@ public class HUD {
                     scene.setOnMouseDragged(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent event) {
-                            int X_first_table = (int)(event.getScreenX()-coord_left_up_of_tables[fin_table][0]);
-                            int Y_first_table = (int)(event.getScreenY()-coord_left_up_of_tables[fin_table][1]);
+                            int X_first_table = (int)(event.getScreenX()- COORDS_TABLES[fin_table][0]);
+                            int Y_first_table = (int)(event.getScreenY()- COORDS_TABLES[fin_table][1]);
                             for(int i=0; i<6; i++){
-                                stages_huds_each_player[i][fin_player].setX(X_first_table+coord_left_up_of_tables[i][0] + xOffset);
-                                stages_huds_each_player[i][fin_player].setY(Y_first_table+coord_left_up_of_tables[i][1] + yOffset);}
+                                stages_huds_each_player[i][fin_player].setX(X_first_table+ COORDS_TABLES[i][0] + xOffset);
+                                stages_huds_each_player[i][fin_player].setY(Y_first_table+ COORDS_TABLES[i][1] + yOffset);}
                             start_coords[fin_player][0] = (int)(X_first_table+xOffset);
                             start_coords[fin_player][1] = (int) (Y_first_table+yOffset);
                             CreatingHUD.Setting.write_coords_hud(start_coords);

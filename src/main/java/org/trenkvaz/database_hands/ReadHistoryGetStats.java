@@ -8,14 +8,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Array;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 //import static org.trenkvaz.database_hands.GetNicksForHands.reverse_MapIdplayersNicks;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
-import static org.trenkvaz.main.CaptureVideo.nick_hero;
 
 public class ReadHistoryGetStats {
 

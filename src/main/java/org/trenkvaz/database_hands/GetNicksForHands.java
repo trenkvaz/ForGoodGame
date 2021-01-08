@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.trenkvaz.database_hands.Work_DataBase.*;
-import static org.trenkvaz.main.CaptureVideo.Deck;
+import static org.trenkvaz.main.CaptureVideo.DECK;
 
 public class GetNicksForHands {
 
@@ -23,7 +23,7 @@ public class GetNicksForHands {
     record HistoryHand(long time_hand, short cards_hero, short position_hero, float[] stacks, List<String> handfromhistory, String[] nicks, Long[] timefromtemphand){
         public String get_str_Cards(){
             int c = (cards_hero < 0) ? cards_hero+65536 : cards_hero;
-            return Deck[c/1000]+" "+Deck[c%1000];
+            return DECK[c/1000]+" "+ DECK[c%1000];
         }
 
         public String get_str_Date(){
@@ -117,11 +117,11 @@ public class GetNicksForHands {
 
 
 
-    private static short read_CardsHeroForHistoryHand(String line){ return (short)((byte)Arrays.asList(Deck).indexOf(line.subSequence(16,18))*1000+(byte)Arrays.asList(Deck).indexOf(line.subSequence(20,22)));}
+    private static short read_CardsHeroForHistoryHand(String line){ return (short)((byte)Arrays.asList(DECK).indexOf(line.subSequence(16,18))*1000+(byte)Arrays.asList(DECK).indexOf(line.subSequence(20,22)));}
 
     public static String get_str_Cards(short cards){
         int c = (cards < 0) ? cards+65536 : cards;
-        return Deck[c/1000]+" "+Deck[c%1000];
+        return DECK[c/1000]+" "+ DECK[c%1000];
     }
 
 

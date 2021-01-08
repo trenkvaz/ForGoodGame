@@ -63,7 +63,7 @@ class TestCurrentHand {
         this.table = currentHand.testTable; this.time_hand = currentHand.time_hand; this.testStartByNumHand = testStartByNumHand;
         this.poker_position_of_hero = currentHand.poker_position_of_hero; this.position_bu_on_table = currentHand.position_bu_on_table;
         this.cards_hero[0] = currentHand.cards_hero[0];this.cards_hero[1] = currentHand.cards_hero[1];
-        this.nicks[0] = nick_hero;
+        this.nicks[0] = NICK_HERO;
         this.poker_positions_by_pos_table_for_nicks = currentHand.poker_positions_by_pos_table_for_nicks.clone();
         this.preflopActionsStats = currentHand.preflopActionsStats;
         this.flopActionsStats = currentHand.flopActionsStats;
@@ -354,7 +354,7 @@ public class Testing {
 
     public static void testSaveImgFrameTimeHand(List<OCR.TestRecFrameTimeHand> images_framestimehands,String errorname){
 
-        if(errorname!=null)return;// ПРАВКА !
+        //if(errorname!=null)return;// ПРАВКА !
         new Thread(()->{  int c = 0;
         for(OCR.TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){ c++;
             saveImageToFile(testRecFrameTimeHand.imges_frame(),"test5\\"+testRecFrameTimeHand.timehand()+"_"+errorname+"_"+c); }}).start();
@@ -370,6 +370,7 @@ public class Testing {
     public static void saveImageToFile(BufferedImage image, String name_file){
         try {
             ImageIO.write(image ,"png",new File(home_folder+"\\"+name_file+".png"));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -951,7 +952,7 @@ public class Testing {
             if(total_error>limit_error){ continue out;  }
             //System.err.println("TOTAL ERROR "+total_error);
             // если нашлось совпадение, то берется номинал карты деление на 4 для получения индекса где 13 эелементов вместо 52
-            result[1]=nominals_cards[nominal_ind_list/4];
+            result[1]= NOMINALS_CARDS[nominal_ind_list/4];
 
             break;
         }
@@ -1165,9 +1166,9 @@ public class Testing {
     }
 
     public static int getLimit(BufferedImage windowImg, int indexTable){
-        int[] xCoordsCheck = {coord_left_up_of_tables[indexTable][0]+119,coord_left_up_of_tables[indexTable][0]+120,
-                coord_left_up_of_tables[indexTable][0]+181,coord_left_up_of_tables[indexTable][0]+182};
-        int yCoordsCheck =coord_left_up_of_tables[indexTable][1]+19;
+        int[] xCoordsCheck = {COORDS_TABLES[indexTable][0]+119, COORDS_TABLES[indexTable][0]+120,
+                COORDS_TABLES[indexTable][0]+181, COORDS_TABLES[indexTable][0]+182};
+        int yCoordsCheck = COORDS_TABLES[indexTable][1]+19;
         boolean isCheckNL2 = true;
         for(int x=0;  x<4; x++){ if(get_intGreyColor(windowImg,xCoordsCheck[x],yCoordsCheck)>200)continue; isCheckNL2 = false; break;}
         return 0;

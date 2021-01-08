@@ -23,6 +23,8 @@ public class OCR implements Runnable {
     BufferedImage[] frame;
     int[] coord_of_table;
     Queue<BufferedImage[]> main_queue_with_frames;
+    Queue<FrameTable> queueFrameTable;
+    FrameTable frameTable;
     CurrentHand currentHand;
     int[] poker_positions_index_with_numbering_on_table = new int[6];
     List<List<int[]>> hashesNumsActionsForCompare = new ArrayList<>(6);
@@ -49,6 +51,7 @@ public class OCR implements Runnable {
     int round = 1;
     int amountContPlay = 6;
     boolean isActionPreflop = false;
+    int countCheckEmptyPlaces = 0;
 
 
 
@@ -60,9 +63,10 @@ public class OCR implements Runnable {
 
     public OCR(int table){
         creatingHUD = new CreatingHUD(table);
-        this.coord_of_table = coord_left_up_of_tables[table];
+        this.coord_of_table = COORDS_TABLES[table];
         this.table = table+1;
         main_queue_with_frames = new LinkedBlockingQueue<>();
+        queueFrameTable = new LinkedBlockingQueue<>();
         for(int i=0; i<6; i++){
             //list_by_poker_pos_current_list_arrnums_actions.add(new ArrayList<>());
             list_of_lists_current_id_nicks_for_choose.add(new ArrayList<>());
@@ -73,7 +77,7 @@ public class OCR implements Runnable {
     }
 
    public OCR(String test,int table,BufferedImage[] frame1){
-       this.coord_of_table = coord_left_up_of_tables[table];
+       this.coord_of_table = COORDS_TABLES[table];
        this.table = table;
        frame = frame1;
    }
@@ -85,12 +89,15 @@ public class OCR implements Runnable {
     public void run() {
         try {
             while (is_run){
-                if((frame = main_queue_with_frames.poll())!=null){ main_work_on_table(); }
-                else { try { Thread.sleep(10);
+                //if((frame = main_queue_with_frames.poll())!=null){ main_work_on_table(); }
+                if((frameTable = queueFrameTable.poll())!=null){ main_work_on_table(); }
+                else
+                    { try { Thread.sleep(10);
                 } catch (InterruptedException e) { e.printStackTrace(); }
                 }
-                if(main_queue_with_frames.size()>100){System.out.println("table "+table+"    "+ main_queue_with_frames.size());c++;
-                    if(frame[0]!=null) saveImageToFile(frame[0],"test4\\"+table+"_"+c);
+                //System.out.println("size "+queueFrameTable.size());
+                if(queueFrameTable.size()>50){System.out.println("table "+table+"    "+ main_queue_with_frames.size());c++;
+                    if(frameTable.tableImg()!=null) saveImageToFile(frameTable.tableImg(),"test4\\"+table+"_"+c);
                 }
             }
         } catch (Exception e){
@@ -110,6 +117,10 @@ public class OCR implements Runnable {
     }
 
 
+    public synchronized void addFrameTableToQueue(FrameTable frameTable1){ queueFrameTable.offer(frameTable1);  System.out.println("FRAME "+queueFrameTable.size());}
+
+
+
 
 
     boolean startlog = false;
@@ -121,13 +132,13 @@ public class OCR implements Runnable {
     private void main_work_on_table(){
         if(isTest){
         //if(table!=1&&table!=2)return;
-        if(table!=2)return;
+        if(table!=1)return;
         }
 
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
-
+        System.out.println("getnum");
         int check_start_or_end_hand = get_number_hand();
-        //System.out.println(check_start_or_end_hand);
+        System.out.println(RED+"starthand "+check_start_or_end_hand);
         if(check_start_or_end_hand==0){
             // обработка стоп сигнала для завершения последней раздачи
             if(count_stop_signal==200&&currentHand!=null) {
@@ -152,10 +163,16 @@ public class OCR implements Runnable {
         }
 
         //TEST
-        if(images_framestimehands.size()!=3)images_framestimehands.add(new TestRecFrameTimeHand(frame[0],currentHand.time_hand));
-        else { images_framestimehands.remove(0);images_framestimehands.add(new TestRecFrameTimeHand(frame[0],currentHand.time_hand)); }
+        if(images_framestimehands.size()!=3)images_framestimehands.add(new TestRecFrameTimeHand(frameTable.tableImg(),currentHand.time_hand));
+        else { images_framestimehands.remove(0);images_framestimehands.add(new TestRecFrameTimeHand(frameTable.tableImg(),currentHand.time_hand)); }
+        System.out.println(GREEN+"BEFOR CHECKEMPTY");
 
+        if(checkEmptyPlaces())return;
 
+        boolean notempty = true;
+        for(int c=1; c<6; c++)if(frameTable.whoPlayOrNo()[c]==0){ notempty=false; break;}
+        if(!notempty) {System.out.println(GREEN+"NOT EMPTY");    testSaveImgFrameTimeHand(images_framestimehands,"notEmpty");            }
+        System.out.println(GREEN+"BEFOR PREFLOP");
         worksPreflop();
 
         worksFlop();
@@ -169,6 +186,14 @@ public class OCR implements Runnable {
 
     }
 
+    private boolean checkEmptyPlaces(){
+        if(countCheckEmptyPlaces==3)return false;
+        for(int c=1; c<6; c++)if(frameTable.whoPlayOrNo()[c]==0){ countCheckEmptyPlaces++; return true;}
+        System.out.println(BLUE+"checkEmpty "+countCheckEmptyPlaces);
+        countCheckEmptyPlaces = 3;
+        return false;
+    }
+
     private void finishedAllStreetNextHand(){
         finishedActionsAtPreflop();
         if(currentHand.isStartStreets[FLOP])finishedActionsPostflop(FLOP);
@@ -180,9 +205,9 @@ public class OCR implements Runnable {
         hashesNumsActionsForCompare.forEach(List::clear);
         int[] correction_for_place_of_imgfold = {-31,97,97,97,-31,-31};
         for(int init=0; init<6; init++){
-            coordsWinMovePlayerAtPos[init][0] = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[init]-1][0]
+            coordsWinMovePlayerAtPos[init][0] = COORDS_NICKS[poker_positions_index_with_numbering_on_table[init]-1][0]
                     +correction_for_place_of_imgfold[poker_positions_index_with_numbering_on_table[init]-1];
-            coordsWinMovePlayerAtPos[init][1] = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[init]-1][1]+7;
+            coordsWinMovePlayerAtPos[init][1] = COORDS_NICKS[poker_positions_index_with_numbering_on_table[init]-1][1]+7;
             actionsForCompare[init] =0;
             curActsOrInvests[init] = 0;
             rounds[init] = 0;
@@ -191,7 +216,7 @@ public class OCR implements Runnable {
             // с 1 потому что ник героя не определяется и его массивы не надо обнулять
             if(init>0)for(int n=0; n<3; n++) System.arraycopy(zeros_for_clear_current_id,0,current_id_nicks_for_choose[init][n],0,16);
         }
-        posMovingPlayer = -1;maxRaise = 1;posPlayerRound = 0;round = 1;amountContPlay = 6; isActionPreflop = false;
+        posMovingPlayer = -1;maxRaise = 1;posPlayerRound = 0;round = 1;amountContPlay = 6; isActionPreflop = false; countCheckEmptyPlaces = 0;
         // TEST
 
 
@@ -227,8 +252,9 @@ public class OCR implements Runnable {
 
         if(!currentHand.is_nicks_filled)get_nicks();
         if(!currentHand.is_stacks_filled)getStartStacks();
+        System.out.println(RESET+"START PREFLOP");
         getActionsAtPreflop();
-
+        System.out.println(RED+"END PREFLOP");
     }
 
 
@@ -248,6 +274,7 @@ public class OCR implements Runnable {
 
         if(currentHand.isStartStreets[TURN]||currentHand.streetAllIn!=-1)return;
         getPostFlopActions(FLOP);
+        System.out.println(GREEN+"FLOP");
     }
 
 
@@ -280,9 +307,10 @@ public class OCR implements Runnable {
     private void worksAllIn(){
         if(currentHand.streetAllIn==-1)return;
         // здесь завершение улицы работает только если были РИТ, так как обычный оллин уже обработан в методах постфлопа
-
+        System.out.println(GREEN+"ALLIN");
         finishedActionsAtPreflop();
         finishedActionsPostflop(FLOP);
+
     }
 
 
@@ -291,15 +319,16 @@ public class OCR implements Runnable {
         int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
         int w = 86, h = 14;
 
+
         for(int i=1; i<6; i++){
             //test_is_ocr = false;
             if(currentHand.nicks[i]!=null)continue;
-            int x = coords_places_of_nicks[i][0]+correction_for_place_of_nicks[i]-5;
-            int y = coords_places_of_nicks[i][1]+1;
+            int x = COORDS_NICKS[i][0]+correction_for_place_of_nicks[i]-5;
+            int y = COORDS_NICKS[i][1]+1;
             /*boolean isplace =false;
             if(i==4&&currentHand.cards_hero[0].equals("3h")&&currentHand.cards_hero[1].equals("2h")&&table==3)
             {save_image(frame[0].getSubimage(x,y,w,h),"test4\\"+(c++)); isplace=true;}*/
-            long[] img_pix = get_longarr_HashImage(frame[0],x,y+2,w,h-3,15,150);
+            long[] img_pix = get_longarr_HashImage(frameTable.tableImg(),x,y+2,w,h-3,15,150);
 
             if(get_int_CompareLongHashesToShablons(img_pix,shablon_text_poker_terms)!=-1)continue;
             //BufferedImage test_nick = frame[0].getSubimage(x,y,w,h);;
@@ -350,7 +379,7 @@ public class OCR implements Runnable {
             // и надо распознать, то возвращает два числа, первое ИД, второе ключ для сортированного массива, чтобы его можно было записать в файл
             if(id_img_pix<0){
                 int attempt = 0;
-                BufferedImage cheked_img = frame[0].getSubimage(x,y,w,h);
+                BufferedImage cheked_img = frameTable.tableImg().getSubimage(x,y,w,h);
                     while (true){
                         attempt++;
                         currentHand.nicks[i] = ocr_image(get_white_black_image(set_grey_and_inverse_or_no(get_scale_image(cheked_img,4),true),105)).trim();
@@ -391,8 +420,8 @@ public class OCR implements Runnable {
         c++;
         for(int i=0; i<2; i++){
             //if(result[i].length()!=0)continue;
-            int X = coords_cards_hero[i][0];
-            int Y = coords_cards_hero[i][1];
+            int X = COORDS_CARDS_HERO[i][0];
+            int Y = COORDS_CARDS_HERO[i][1];
          //save_image(frame[0].getSubimage(X+1,Y,15,17),"test\\"+(c++)+"_"+i);
 
 
@@ -400,20 +429,20 @@ public class OCR implements Runnable {
                 if(currentHand.cards_hero[0].equals("Ks")&&currentHand.cards_hero[1].equals("5c")) */
                     //System.out.println("start "+(c)+"_"+i);
 
-            if(get_int_MaxBrightnessMiddleImg(frame[0],X+1,Y,15,17)<220||get_int_MaxBrightnessMiddleImg(frame[0],X+1,Y+17,15,17)<220)break;
+            //if(get_int_MaxBrightnessMiddleImg(frame[0],X+1,Y,15,17)<220||get_int_MaxBrightnessMiddleImg(frame[0],X+1,Y+17,15,17)<220)break;
 
           /*  if(currentHand!=null)
                 if(currentHand.cards_hero[0].equals("Ks")&&currentHand.cards_hero[1].equals("5c")) */
                     //System.out.println("after midle "+(c)+"_"+i);
             // проверка периметра карта на помеху курсором
-           if(!is_noCursorInterferenceImage(frame[0],X+1,Y,15,17,240))break;
+           //if(!is_noCursorInterferenceImage(frame[0],X+1,Y,15,17,240))break;
 
           /*  if(currentHand!=null)
             if(currentHand.cards_hero[0].equals("Ks")&&currentHand.cards_hero[1].equals("5c"))*/
                 //System.out.println("after cursor "+(c)+"_"+i);
            //test_cards[i] = frame[0].getSubimage(X+1,Y,w,h);
 
-           long[] card_hash_from_table = get_longarr_HashImage(frame[0],X+1,Y+1,14,14,3,150);
+           long[] card_hash_from_table = get_longarr_HashImage(frameTable.tableImg(),X+1,Y+1,14,14,3,150);
 
          /*   if(currentHand!=null)
                 if(currentHand.cards_hero[0].equals("Ks")&&i==1)
@@ -450,9 +479,9 @@ public class OCR implements Runnable {
             }
 
             if(number_with_min_error==-1)return null;
-            result[i]=nominals_cards[number_with_min_error/4];
+            result[i]= NOMINALS_CARDS[number_with_min_error/4];
 
-            if(result[i].length()<2)result[i]+=get_suit_of_card(frame[0],X+14,Y+16);
+            if(result[i].length()<2)result[i]+=get_suit_of_card(frameTable.tableImg(),X+14,Y+16);
 
             /*  if(currentHand!=null)
                  if(currentHand.cards_hero[0].equals("Ks")&&i==1) System.out.println("reult "+result[i]);*/
@@ -481,10 +510,10 @@ public class OCR implements Runnable {
         //System.out.println("set_current_bu");
             int result = -1;
             for(int i=0; i<6; i++){
-                int x = coords_buttons[i][0];
-                int y = coords_buttons[i][1];
-                if(!is_noCursorInterferenceImage(frame[0],x,y,22,17,200))continue;
-                if(get_int_MaxBrightnessMiddleImg(frame[0],x,y,22,17)>200){result = i+1; break;}
+                int x = COORDS_BUTTONS[i][0];
+                int y = COORDS_BUTTONS[i][1];
+                if(!is_noCursorInterferenceImage(frameTable.tableImg(),x,y,22,17,200))continue;
+                if(get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),x,y,22,17)>200){result = i+1; break;}
             }
             return result;
     }
@@ -506,7 +535,7 @@ public class OCR implements Runnable {
 
     int get_number_hand(){
         // есть ник херо нет ников игроков
-        if(frame[0]!=null&&frame[1]==null){
+        /*if(frame[0]!=null&&frame[1]==null){
             //System.out.println(RED+"IS TABLE NO NUMBER |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
             // если стол есть, но нет номера раздачи, то хад очищается от текста, но такая ситуация еще говорит о том, что раздача завершена и это сигнал стопа
             if(!stop_show_text_in_hud){
@@ -534,7 +563,9 @@ public class OCR implements Runnable {
             } else {
                 if(!show_text_in_hud){ stop_show_text_in_hud = false;show_text_in_hud = true;hud.refresh_hud(table-1); }
             }
-        }
+        }*/
+
+       if(!controlShowHudAndStopHand()) return 0;
 
        String[] hero_cards = set_cards_hero();
        // карты могут пропадать в конце текущей раздачи, отсутствие карт в новой раздаче пока не обнаружено
@@ -593,10 +624,34 @@ public class OCR implements Runnable {
     }
 
 
+    private boolean controlShowHudAndStopHand(){
+        // есть стол но нет раздачи
+        if(frameTable.metaDates()[0]&&!frameTable.metaDates()[1]){
+            //System.out.println(RED+"IS TABLE NO NUMBER |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+            // если стол есть, но нет карт или нет игроков то есть раздачи, то хад очищается от текста, но такая ситуация еще говорит о том, что раздача завершена и это сигнал стопа
+            if(!stop_show_text_in_hud){
+                count_stop_signal = 0;stop_show_text_in_hud = true;show_text_in_hud = false; hud.clear_hud(table-1);
+            }
+            count_stop_signal++;
+            return false;
+        }
+        // нет стола или есть помеха
+        if(!frameTable.metaDates()[0]||frameTable.metaDates()[2]){
+            //System.out.println("NO NUMBER");
+            if(!end_hud){ end_hud = true;start_hud = false;hud.stop_show_hud(table-1); }
+            return false;
+        }
+        // если есть раздача и стол то хад включается
+        if(!start_hud){ end_hud = false;start_hud = true;hud.show_hud(table-1); }
+        if(!show_text_in_hud){ stop_show_text_in_hud = false;show_text_in_hud = true;hud.refresh_hud(table-1); }
+        return true;
+    }
+
 
     int checkSameNumberHand(int raund){
         //if(!startHand)return false;
-        long[] hashNumberHand = get_longarr_HashImage(frame[1],0,0,26,5,3,80);
+
+        long[] hashNumberHand = get_longarr_HashImage(frameTable.tableImg(),604,59,26,5,3,80);
         // начало новой руки всегда возвращает 1
         if(raund==0){
             list_of_hashimgs_namberhand.clear();
@@ -684,21 +739,21 @@ public class OCR implements Runnable {
 
 
     private float getOneAction(int poker_position){
-        int xa = coords_actions[poker_positions_index_with_numbering_on_table[poker_position]-1][0];
-        int ya = coords_actions[poker_positions_index_with_numbering_on_table[poker_position]-1][1]+2;
+        int xa = COORDS_ACTIONS[poker_positions_index_with_numbering_on_table[poker_position]-1][0];
+        int ya = COORDS_ACTIONS[poker_positions_index_with_numbering_on_table[poker_position]-1][1]+2;
         int wa = 80;
         int ha = 11;
         // если поле пустое то действия вообще нет
-        if(!(get_int_MaxBrightnessMiddleImg(frame[0],xa,ya,wa,ha)>200))return 0;
+        if(!(get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),xa,ya,wa,ha)>200))return 0;
         // если действие есть но с помехами нет возможности прочитать
-        if(!is_noCursorInterferenceImage(frame[0],xa,ya,wa,ha,240))return -1;
+        if(!is_noCursorInterferenceImage(frameTable.tableImg(),xa,ya,wa,ha,240))return -1;
         // получении хеша числа и если нулл это ошибка получения хеша
-        List<int[]> nums = get_list_intarr_HashNumberImg(frame[0],xa,ya+1,80,9,205,0,2,6,2);
+        List<int[]> nums = get_list_intarr_HashNumberImg(frameTable.tableImg(),xa,ya+1,80,9,205,0,2,6,2);
         if(nums==null) {
 
             Settings.ErrorLog(" hand "+currentHand.time_hand+" ERROR get_list_intarr_HashNumberImg ");
-            saveImageToFile(frame[0].getSubimage(xa,ya,wa,ha),"test3\\"+(poker_positions_index_with_numbering_on_table[poker_position]-1)+"_"+table);
-            saveImageToFile(frame[0],"test3\\"+(poker_positions_index_with_numbering_on_table[poker_position]-1)+" hand "+currentHand.time_hand);
+            saveImageToFile(frameTable.tableImg().getSubimage(xa,ya,wa,ha),"test3\\"+(poker_positions_index_with_numbering_on_table[poker_position]-1)+"_"+table);
+            saveImageToFile(frameTable.tableImg(),"test3\\"+(poker_positions_index_with_numbering_on_table[poker_position]-1)+" hand "+currentHand.time_hand);
             return -1;
 
         }
@@ -722,14 +777,14 @@ public class OCR implements Runnable {
 
     private float getOneStack(int poker_position){
         int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
-        int x = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][0]
+        int x = COORDS_NICKS[poker_positions_index_with_numbering_on_table[poker_position]-1][0]
                 +3+correction_for_place_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1];
-        int y = coords_places_of_nicks[poker_positions_index_with_numbering_on_table[poker_position]-1][1]+17;
-        if(!is_GoodImageForOcrStack(frame[0],x,y,72,14,150))return  -11;
-        float result = get_OcrNum(get_list_intarr_HashNumberImg(frame[0],x,y+1,72,12,175,
+        int y = COORDS_NICKS[poker_positions_index_with_numbering_on_table[poker_position]-1][1]+17;
+        if(!is_GoodImageForOcrStack(frameTable.tableImg(),x,y,72,14,150))return  -11;
+        float result = get_OcrNum(get_list_intarr_HashNumberImg(frameTable.tableImg(),x,y+1,72,12,175,
                 5,3,8,3),10,"stacks");
         if(result==-1){
-            long[] hash_for_compare = get_longarr_HashImage(frame[0],x,y+1,72,12,14,175);
+            long[] hash_for_compare = get_longarr_HashImage(frameTable.tableImg(),x,y+1,72,12,14,175);
             int shab = get_int_CompareLongHashesToShablons(hash_for_compare,shablons_text_sittingout_allin);
             if(shab==-1)return -11;
             if(shab==0)return -1;
@@ -742,16 +797,15 @@ public class OCR implements Runnable {
 
 
     private void getActionsAtPreflop(){
-
-        int pokerPos = posPlayerRound;
-        for(;;pokerPos++){if(pokerPos==6){pokerPos=0;}
+        //saveImageToFile(images_framestimehands.get(images_framestimehands.size()-1).imges_frame(),"test5\\"+currentHand.time_hand+"_"+c);
+        int pokerPos = posPlayerRound, countcycle = 0;
+        for(;;pokerPos++){if(pokerPos==6){pokerPos=0;}if(countcycle==6)break;countcycle++;
+            System.out.println(BLUE+" "+pokerPos);
            if(curActsOrInvests[pokerPos]==-10||curActsOrInvests[pokerPos]==-100)continue;
+           if(rounds[pokerPos]==round){ if(round>1){ pokerPos++;break;}else if(!isActionPreflop)break; }
             //если текущий раунд игрока равен общему значит он уже ходил,исключение игрок на ББ и 1 раунд, так как на ББ раунд изначально равен 1,
             // он еще имеет право зарейзить если до него были действия.Если действий до него не было, то и действовать он не может это фолд ту ББ
-           if(rounds[pokerPos]==round){
-               if(round>1)break;
-               else if(!isActionPreflop)break;
-           }
+
 
            float action = getTurnOfPlayer(pokerPos);
            if(action==-1||action==curActsOrInvests[pokerPos]){ testCurrentHand.setTestStreetTurnsPlayers(PREFLOP,pokerPos,"A:"+action+" ");
@@ -774,6 +828,8 @@ public class OCR implements Runnable {
             currentHand.preflopActionsStats.get(pokerPos).add(action);
            }
            else currentHand.preflopActionsStats.get(pokerPos).add(-(action-curActsOrInvests[pokerPos]));
+
+            rounds[pokerPos] = round;
             //запись действия для учета
             // ситуация когда размер рейза равне стартовому стеку это значит оллин
             if(action==currentHand.startStacksAtStreets[PREFLOP][pokerPos]) {curActsOrInvests[pokerPos] = -100;
@@ -783,7 +839,7 @@ public class OCR implements Runnable {
             else curActsOrInvests[pokerPos] = action;
 
             currentHand.startStacksAtStreets[FLOP][pokerPos] = currentHand.startStacksAtStreets[PREFLOP][pokerPos]-action;
-            rounds[pokerPos] = round;
+
        }
         posPlayerRound = pokerPos;
 
@@ -972,12 +1028,12 @@ public class OCR implements Runnable {
                 actionsStats.get(pokerPos).add(action);
             }
             else actionsStats.get(pokerPos).add(-(action-curActsOrInvests[pokerPos]));
-
+            rounds[pokerPos] = round;
             if(action==currentHand.startStacksAtStreets[street][pokerPos]) {curActsOrInvests[pokerPos] = -100; amountContPlay--; continue;}
             // если нет значит обычный рейз
             else curActsOrInvests[pokerPos] = action;
             currentHand.startStacksAtStreets[street+1][pokerPos]= currentHand.startStacksAtStreets[street][pokerPos]-action;
-            rounds[pokerPos] = round;
+
         }
         posPlayerRound=pokerPos;
     }
@@ -1041,7 +1097,7 @@ public class OCR implements Runnable {
     private boolean is_Fold(int poker_position){
         if(poker_position==currentHand.poker_position_of_hero)return false;
         int x = coordsWinMovePlayerAtPos[poker_position][0], j = coordsWinMovePlayerAtPos[poker_position][1], max = 70;
-        for(int i=x; i<x+15; i++){ j++; if(get_intGreyColor(frame[0],i,j)>max)return false; }
+        for(int i=x; i<x+15; i++){ j++; if(get_intGreyColor(frameTable.tableImg(),i,j)>max)return false; }
         return true;
     }
 
@@ -1056,37 +1112,37 @@ public class OCR implements Runnable {
                 // проверка что херо не делал ход, кроме когда находится на ББ, где возможен чек, если не делал, то проверки на флоп нет
                 if(currentHand.preflopActionsStats.get(currentHand.poker_position_of_hero).size()==1&&currentHand.poker_position_of_hero !=5) return;
 
-                if(get_int_MaxBrightnessMiddleImg(frame[0],xfloprit1,yfloprit1,17,17)>150
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],xfloprit2,yfloprit2,17,17)>150){ currentHand.streetAllIn = PREFLOP; currentHand.isStartStreets[FLOP] = true;
+                if(get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),xfloprit1,yfloprit1,17,17)>150
+                        &&get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),xfloprit2,yfloprit2,17,17)>150){ currentHand.streetAllIn = PREFLOP; currentHand.isStartStreets[FLOP] = true;
                         return;
                 }
                 //System.out.print("check flop ");
                 int x1 = coord_2_3_cards_flop[0][0];
                 int x2 = coord_2_3_cards_flop[1][0];
                 int y = coord_2_3_cards_flop[0][1];
-                if(get_int_MaxBrightnessMiddleImg(frame[0],x1,y,17,17)>190
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],x2,y,17,17)>190)currentHand.isStartStreets[FLOP] = true;
+                if(get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),x1,y,17,17)>190
+                        &&get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),x2,y,17,17)>190)currentHand.isStartStreets[FLOP] = true;
 
             }
             case TURN -> {
-                if(get_int_MaxBrightnessMiddleImg(frame[0],364,yfloprit1,17,17)>150
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],346,yfloprit2,17,17)>150){ currentHand.streetAllIn = FLOP;  currentHand.isStartStreets[TURN] = true;
+                if(get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),364,yfloprit1,17,17)>150
+                        &&get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),346,yfloprit2,17,17)>150){ currentHand.streetAllIn = FLOP;  currentHand.isStartStreets[TURN] = true;
                         return;
                 }
-                if(get_int_MaxBrightnessMiddleImg(frame[0],347,168,15,10)>175
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],363,212,15,10)>175)currentHand.isStartStreets[TURN] = true;
+                if(get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),347,168,15,10)>175
+                        &&get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),363,212,15,10)>175)currentHand.isStartStreets[TURN] = true;
 
                 /*System.out.println("TURN "+currentHand.is_start_turn+"  "+get_int_MaxBrightnessMiddleImg(frame[0],347,168,15,10)+"  "
                 +get_int_MaxBrightnessMiddleImg(frame[0],363,212,15,10));*/
             }
 
             case RIVER -> {
-                if(get_int_MaxBrightnessMiddleImg(frame[0],410,yfloprit1,17,17)>150
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],392,yfloprit2,17,17)>150){ currentHand.streetAllIn = TURN; currentHand.isStartStreets[RIVER] = true;
+                if(get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),410,yfloprit1,17,17)>150
+                        &&get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),392,yfloprit2,17,17)>150){ currentHand.streetAllIn = TURN; currentHand.isStartStreets[RIVER] = true;
                         return;
                 }
-                if(get_int_MaxBrightnessMiddleImg(frame[0],392,168,15,10)>175
-                        &&get_int_MaxBrightnessMiddleImg(frame[0],408,212,15,10)>175)currentHand.isStartStreets[RIVER] = true;
+                if(get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),392,168,15,10)>175
+                        &&get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),408,212,15,10)>175)currentHand.isStartStreets[RIVER] = true;
             }
         }
 

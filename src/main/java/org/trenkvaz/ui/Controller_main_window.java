@@ -51,7 +51,7 @@ public class Controller_main_window {
             if(ocr==null)continue;ocr.stop();}}
         //for(OCR ocr:captureVideo.ocrList_2)ocr.stop();
         //System.out.println("Average time "+(testTime/testTimecount)+" count "+testTimecount);
-        System.out.println("Average time "+(alltime/counttime)+" count "+counttime);
+        //System.out.println("Average time "+(alltime/counttime)+" count "+counttime);
         System.out.println("stop");
     }
 

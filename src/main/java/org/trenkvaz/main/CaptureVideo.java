@@ -34,44 +34,26 @@ import static org.trenkvaz.main.OcrUtils.*;
 
 public class CaptureVideo {
 
-   static final int[][] coords_places_of_nicks = {{298,320},{15,253},{15,120},{264,67},{543,120},{543,253}};
-
-   public static final int[][] coord_left_up_of_tables = {{0,0},{640,0},{1280,0},{0,469},{640,469},{1280,469}};
-
-   static final int[][] coords_buttons = {{382,287},{144,231},{156,133},{242,104},{459,133},{473,231}};
-
-   static final int[][] coords_cards_hero = {{287,286},{331,286}};
-
-   static final int[][] coords_actions =  //{{302-25,267},{151,256},{118,175},{323-15,120},{459-15,175},{436-15,256}};
+   static final int[][] COORDS_NICKS = {{298,320},{15,253},{15,120},{264,67},{543,120},{543,253}};
+   public static final int[][] COORDS_TABLES = {{0,0},{640,0},{1280,0},{0,469},{640,469},{1280,469}};
+   static final int[][] COORDS_BUTTONS = {{382,287},{144,231},{156,133},{242,104},{459,133},{473,231}};
+   static final int[][] COORDS_CARDS_HERO = {{287,286},{331,286}};
+   static final int[][] COORDS_ACTIONS =  //{{302-25,267},{151,256},{118,175},{323-15,120},{459-15,175},{436-15,256}};
            {{277,267},{151,256},{118,175},{313,120},{444,175},{416,256}};
-
    static final int[][] coord_2_3_cards_flop = {{270,202},{318,202}};
-
-   static final int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
-
-   static final String[] nominals_cards = {"2","3","4","5","6","7","8","9","T","J","Q","K","A"};
-
-   public static final String[] Deck = {null,"Ac","Ad","Ah","As","Kc","Kd","Kh","Ks","Qc","Qd","Qh","Qs","Jc","Jd","Jh","Js","Tc","Td","Th","Ts","9c","9d","9h","9s","8c","8d","8h","8s",
+   static final int[] CORRECTS_COORDS_NICKS = {1,2,2,2,1,1};
+   static final int[][] COORDS_EMPTY_PLACES = {null,{40,258},{40,133},{279,72},{518,133},{518,258}};
+   static final String[] NOMINALS_CARDS = {"2","3","4","5","6","7","8","9","T","J","Q","K","A"};
+   public static final String[] DECK = {null,"Ac","Ad","Ah","As","Kc","Kd","Kh","Ks","Qc","Qd","Qh","Qs","Jc","Jd","Jh","Js","Tc","Td","Th","Ts","9c","9d","9h","9s","8c","8d","8h","8s",
             "7c","7d","7h","7s","6c","6d","6h","6s","5c","5d","5h","5s","4c","4d","4h","4s","3c","3d","3h","3s","2c","2d","2h","2s"};
-
-   public static final String nick_hero = "trenkvaz";
-
-
-
-
-
-
+   public static final String NICK_HERO = "trenkvaz";
    public static List<OCR> ocrList_1;
-   static final int COUNT_TABLES = 6;
-   /*boolean is_run = true;
-   Thread thread;
-   boolean is_getting_frame = true;*/
+   static final int COUNT_TABLES = 1;
    static FFmpegFrameGrabber grabber;
    static CanvasFrame canvasFrame;
 
 
    static final UseTesseract[] use_tessearts = new UseTesseract[4];
-
    public static byte[] count_one_in_numbers;
    static HashMap<Long,String> hashmap_id_img_pix_nick = new HashMap<>();
    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks = new TreeMap<>();
@@ -80,9 +62,8 @@ public class CaptureVideo {
    public static ConcurrentHashMap[] current_map_stats;
    public static MainStats[] work_main_stats;
    public static boolean let_SaveTempHandsAndCountStatsCurrentGame = false;
-
    public static CaptureVideo.StartStopCapture startStopCapture;
-
+   public record FrameTable(BufferedImage tableImg,boolean[] metaDates,int[] whoPlayOrNo){}
 
 
    public CaptureVideo(){
@@ -177,7 +158,8 @@ public class CaptureVideo {
                frame = grabber.grabImage();
                if(frame!=null){
                    //canvasFrame.showImage(frame);
-                   find_tables(frame);
+                   //find_tables(frame);
+                   allocationTables(frame);
                }
                else {System.out.println("null frame"); break; }
            }
@@ -329,8 +311,8 @@ public class CaptureVideo {
             //  проверка правильности изо номера раздачи
            //checknicktest_nick = new ArrayList<>();
            //checknicktest_nick.add("---------------------------------------------KURSOR");
-           is_correct_number_hand = is_CorrectImageOfNumberHandAndNicks(coord_left_up_of_tables[index_table][0]+x_of_number_hand,
-                   coord_left_up_of_tables[index_table][1]+y_of_number_hand,width_of_number_hand,height_of_number_hand,100,100,100,bufferedImageframe);
+           is_correct_number_hand = is_CorrectImageOfNumberHandAndNicks(COORDS_TABLES[index_table][0]+x_of_number_hand,
+                   COORDS_TABLES[index_table][1]+y_of_number_hand,width_of_number_hand,height_of_number_hand,100,100,100,bufferedImageframe);
            //c++;
            //if(index_table==0){save_image(is_correct_number_hand,"tables_img\\t_"+(c)+"_"+(is_correct_number_hand!=null));}
            //c++;
@@ -338,16 +320,16 @@ public class CaptureVideo {
            image_number_hand = null;
            is_correct_hero_nick = false;
            if(is_correct_number_hand){
-               image_number_hand = cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0]+x_of_number_hand+25,
-                       coord_left_up_of_tables[index_table][1]+y_of_number_hand+3,26,5);
+               image_number_hand = cut_SubImage(bufferedImageframe, COORDS_TABLES[index_table][0]+x_of_number_hand+25,
+                       COORDS_TABLES[index_table][1]+y_of_number_hand+3,26,5);
 
 
                // проверка правильности изо ников
                is_correct_nicks = true;
 
               for(int img_nicks=0; img_nicks<6; img_nicks++ ){
-                  int x_of_nick = coord_left_up_of_tables[index_table][0]+coords_places_of_nicks[img_nicks][0]+correction_for_place_of_nicks[img_nicks]-8;
-                  int y_of_nick = coord_left_up_of_tables[index_table][1]+coords_places_of_nicks[img_nicks][1]+1;
+                  int x_of_nick = COORDS_TABLES[index_table][0]+ COORDS_NICKS[img_nicks][0]+ CORRECTS_COORDS_NICKS[img_nicks]-8;
+                  int y_of_nick = COORDS_TABLES[index_table][1]+ COORDS_NICKS[img_nicks][1]+1;
                   //checknicktest_nick.add("++++++++++++++++++++++++++++++++++++"+img_nicks);
                   if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,
                           220,220,210,bufferedImageframe))
@@ -380,7 +362,7 @@ public class CaptureVideo {
                       else System.out.println("hand start is_start "+is_start_tables[index_table]);*/
                    ocrList_1.get(index_table).set_image_for_ocr(
                            new BufferedImage[]{
-                                   cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),
+                                   cut_SubImage(bufferedImageframe, COORDS_TABLES[index_table][0], COORDS_TABLES[index_table][1],639,468),
                                    image_number_hand
                            });
                }
@@ -403,11 +385,37 @@ public class CaptureVideo {
    public static long alltime = 0;
    public static int counttime = 0;
 
+
+
+
    static void allocationTables(Frame frame){
        if(bufferedImageframe==null) bufferedImageframe = new Java2DFrameConverter().getBufferedImage(frame);
        createBufferedImage(frame, bufferedImageframe);
+       boolean[] metaDates = null; // есть стол, есть раздача, есть помехи
+       int[] whoPlayOrNo = null;
        for(int indTable=0; indTable<COUNT_TABLES; indTable++){
            if(ocrList_1.get(indTable)==null)continue;
+           metaDates = new boolean[4];
+
+           if(!isFastTable(indTable)){ ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));
+               System.out.println("NO TABLE");
+           continue;}
+           metaDates[0] = true;
+           if(!isCardsHero(indTable)){ ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));
+               System.out.println("NO CARD");
+           continue;}
+
+           whoPlayOrNo = getWhoPlayOrNo(indTable);
+           if(whoPlayOrNo==null){ metaDates[2] = true; ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));
+               System.out.println("WHOPLAY NULL");
+           continue;}
+           // первый индекс показывает что есть только ник херо если 0
+           if(whoPlayOrNo[0]==0){ ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));
+               System.out.println("WHOPLAY 0");
+           continue;}
+           metaDates[1] = true;
+           ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(cutImageTable(indTable),metaDates,whoPlayOrNo));
+
        }
 
    }
@@ -417,22 +425,21 @@ public class CaptureVideo {
 
     private static boolean isFastTable(int indTable){
        // проверка буквы Ф в названии стола Фаст
-        if(get_longarr_HashImage(bufferedImageframe,coord_left_up_of_tables[indTable][0]+25,
-                coord_left_up_of_tables[indTable][1]+9,6,10,1,200)[0] !=8976692374933504L)return false;
+        if(get_longarr_HashImage(bufferedImageframe, COORDS_TABLES[indTable][0]+25,
+                COORDS_TABLES[indTable][1]+9,6,10,1,200)[0] !=8976692374933504L)return false;
         // проверка номера раздачи
-        if(!is_CorrectImageOfNumberHandAndNicks(coord_left_up_of_tables[indTable][0]+579,coord_left_up_of_tables[indTable][1]+56,53,11,
+        if(!is_CorrectImageOfNumberHandAndNicks(COORDS_TABLES[indTable][0]+579, COORDS_TABLES[indTable][1]+56,53,11,
                 100,100,100,bufferedImageframe))return false;
         // проверка чтения ника херо
-        return is_CorrectImageOfNumberHandAndNicks(coord_left_up_of_tables[indTable][0]+291,coord_left_up_of_tables[indTable][1]+321,91,14,
+        return is_CorrectImageOfNumberHandAndNicks(COORDS_TABLES[indTable][0]+291, COORDS_TABLES[indTable][1]+321,91,14,
                 220,220,210,bufferedImageframe);
     }
 
 
     private static boolean isCardsHero(int indTable){
-
         for(int i=0; i<2; i++){
-            int X = coords_cards_hero[i][0]+coord_left_up_of_tables[indTable][0];
-            int Y = coords_cards_hero[i][1]+coord_left_up_of_tables[indTable][1];
+            int X = COORDS_CARDS_HERO[i][0]+ COORDS_TABLES[indTable][0];
+            int Y = COORDS_CARDS_HERO[i][1]+ COORDS_TABLES[indTable][1];
             if(get_int_MaxBrightnessMiddleImg(bufferedImageframe,X+1,Y,15,17)<220||
                     get_int_MaxBrightnessMiddleImg(bufferedImageframe,X+1,Y+17,15,17)<220)return false;
             // проверка периметра карта на помеху курсором
@@ -442,48 +449,38 @@ public class CaptureVideo {
     }
 
 
+
     private static int[] getWhoPlayOrNo(int indTable){
         int[] result = new int[6];c++;
         for(int placePlayer=1; placePlayer<6; placePlayer++ ){
-
-            if(is_CorrectImageOfNumberHandAndNicks(coord_left_up_of_tables[indTable][0]+coords_places_of_nicks[placePlayer][0]+correction_for_place_of_nicks[placePlayer]-8,
-                    coord_left_up_of_tables[indTable][1]+coords_places_of_nicks[placePlayer][1]+1,91,14,
-                    220,220,210,bufferedImageframe)) { result[placePlayer] =1; continue; }
-            else {
-               if(isEmptyPlace(indTable,placePlayer))Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[indTable][0],coord_left_up_of_tables[indTable][1],639,468)
-                       ,"test3\\win_"+indTable+"_"+c+"_"+placePlayer);
-               else Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[indTable][0],coord_left_up_of_tables[indTable][1],639,468)
-                       ,"test5\\win_"+indTable+"_"+c+"_"+placePlayer);
-            }
-
+            if(is_CorrectImageOfNumberHandAndNicks(COORDS_TABLES[indTable][0]+COORDS_NICKS[placePlayer][0]+CORRECTS_COORDS_NICKS[placePlayer]-8,
+                    COORDS_TABLES[indTable][1]+COORDS_NICKS[placePlayer][1]+1,91,14,
+                    220,220,210,bufferedImageframe)) {  result[0] =1; result[placePlayer] =1; continue;}
+            else if(isEmptyPlace(indTable,placePlayer))continue;
+            return null;
         }
        return result;
     }
 
-    static final int[][] coordsEmptyPlaces = {null,{40,258},{40,133},{279,72},{518,133},{518,258}};
 
-
-    static boolean isEmptyPlace(int indTable,int placePlayer){
-        final int X = coord_left_up_of_tables[indTable][0]+coordsEmptyPlaces[placePlayer][0];
-        final int Y = coord_left_up_of_tables[indTable][1]+coordsEmptyPlaces[placePlayer][1];
-        final int W = X+82, H = Y+28;
-        final int max = 110, min = 25;
-
-        for(int y=Y; y<H; y+=27){
-            for(int x=X+4; x<W-4; x++){
-                int bright = get_intGreyColor(bufferedImageframe,x,y);
-                if(bright>max||bright<min)return false;
-            }
-        }
-        for(int x=X; x<W; x+=81){
-            for(int y=Y+4; y<H-4; y++){
-                int bright = get_intGreyColor(bufferedImageframe,x,y);
-                if(bright>max||bright<min)return false;
-            }
-        }
+    private static boolean isEmptyPlace(int indTable,int placePlayer){
+        final int X = COORDS_TABLES[indTable][0]+ COORDS_EMPTY_PLACES[placePlayer][0],
+                Y = COORDS_TABLES[indTable][1]+ COORDS_EMPTY_PLACES[placePlayer][1], W = X+82, H = Y+28, max = 110, min = 25;
+        for(int y=Y; y<H; y+=27)
+            for(int x=X+4; x<W-4; x++){ int bright = get_intGreyColor(bufferedImageframe,x,y);if(bright>max||bright<min)return false; }
+        for(int x=X; x<W; x+=81)
+            for(int y=Y+4; y<H-4; y++){ int bright = get_intGreyColor(bufferedImageframe,x,y);if(bright>max||bright<min)return false; }
         return true;
     }
 
+
+   private static BufferedImage cutImageTable(int indTable){
+       BufferedImage img = bufferedImageframe.getSubimage(COORDS_TABLES[indTable][0],  COORDS_TABLES[indTable][1],639,468);
+       BufferedImage cut_subimage = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_RGB);
+       Graphics g = cut_subimage.createGraphics();
+       g.drawImage(img, 0, 0, null);
+       return cut_subimage;
+   }
 
 
    public static BufferedImage cut_SubImage(BufferedImage image_window,int X, int Y, int W, int H){

@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.*;
-import static org.trenkvaz.main.OCR.*;
 //import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
 
 
@@ -60,7 +59,7 @@ public class CurrentHand {
         }
         time_hand =  get_HandTime();
         position_bu_on_table = ocr.current_bu;
-        nicks[0] = nick_hero;
+        nicks[0] = NICK_HERO;
         poker_position_of_hero = ocr.current_position_hero;
         cards_hero[0] = ocr.current_hero_cards[0];
         cards_hero[1] = ocr.current_hero_cards[1];
@@ -97,7 +96,7 @@ public class CurrentHand {
 
 
     static short get_short_CardsHero(String[] cards_hero){ return (short)
-            ((byte) Arrays.asList(Deck).indexOf(cards_hero[0])*1000+(byte) Arrays.asList(Deck).indexOf(cards_hero[1])); }
+            ((byte) Arrays.asList(DECK).indexOf(cards_hero[0])*1000+(byte) Arrays.asList(DECK).indexOf(cards_hero[1])); }
 
 
 
