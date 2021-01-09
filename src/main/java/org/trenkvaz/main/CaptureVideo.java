@@ -51,7 +51,7 @@ public class CaptureVideo {
    static final int COUNT_TABLES = 6;
    static FFmpegFrameGrabber grabber;
    static CanvasFrame canvasFrame;
-
+   static BufferedImage bufferedImageframe;
 
    static final UseTesseract[] use_tessearts = new UseTesseract[4];
    public static byte[] count_one_in_numbers;
@@ -137,7 +137,6 @@ public class CaptureVideo {
         //FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(System.getProperty("user.dir")+"\\test_video9.avi");
         FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("rtmp://127.0.0.1/live/test");
        // FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("udp://192.168.0.129:1234");
-
         try {
             grabber.start();
         } catch (FrameGrabber.Exception e) {
@@ -153,15 +152,12 @@ public class CaptureVideo {
            System.out.println(grabber.getFrameRate());
            System.out.println("start");
            controller_main_window.setMessage_work("Start capture", Color.GREEN);
-
            while(is_getting_frame){
                frame = grabber.grabImage();
                if(frame!=null){
                    //canvasFrame.showImage(frame);
-                   //find_tables(frame);
                    allocationTables(frame);
-               }
-               else {System.out.println("null frame"); break; }
+               } else {System.out.println("null frame"); break; }
            }
        grabber.release();
        } catch (FrameGrabber.Exception e) {
@@ -181,9 +177,9 @@ public class CaptureVideo {
        } catch (IllegalArgumentException a){
            Settings.ErrorLog("error name "+name+" hash "+id_img_pix);
        }
-
        return null;
    }
+
     public static long testTime = 0;
     public static int testTimecount = 0;
 
@@ -271,117 +267,15 @@ public class CaptureVideo {
     }
 
 
-   boolean save = false;
+
    static int c =0;
 
 
-   static BufferedImage bufferedImageframe;
 
 
 
-   static void find_tables(Frame frame){
 
 
-       if(bufferedImageframe==null)
-        bufferedImageframe = new Java2DFrameConverter().getBufferedImage(frame);
-
-       //System.out.println((System.currentTimeMillis()-start));
-        createBufferedImage(frame, bufferedImageframe);
-       BufferedImage image_number_hand = null;
-       int x_of_number_hand = 579,y_of_number_hand = 56,width_of_number_hand = 53,height_of_number_hand = 11, width_nick = 91, height_nick = 14;
-       boolean is_correct_number_hand = false, is_correct_nicks = false, is_correct_hero_nick = false;
-
-
-       long s =System.currentTimeMillis();
-       for(int index_table=0; index_table<COUNT_TABLES; index_table++){
-          if(ocrList_1.get(index_table)==null)continue;
-          /*if(!isFastTable(index_table)){
-              Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
-                      ,"test2\\win_"+index_table+"_"+(c++));
-          } else Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
-                  ,"test3\\win_"+index_table+"_"+(c++));*/
-           if(!isFastTable(index_table))continue;
-           if(!isCardsHero(index_table))continue;
-           /*if(!isCardsHero(index_table))Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
-                  ,"test4\\win_"+index_table+"_"+(c++));*/
-           /*else Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468)
-               ,"test5\\win_"+index_table+"_"+(c++));*/
-           getWhoPlayOrNo(index_table);
-          //long s = System.currentTimeMillis();
-            //  проверка правильности изо номера раздачи
-           //checknicktest_nick = new ArrayList<>();
-           //checknicktest_nick.add("---------------------------------------------KURSOR");
-           is_correct_number_hand = is_CorrectImageOfNumberHandAndNicks(COORDS_TABLES[index_table][0]+x_of_number_hand,
-                   COORDS_TABLES[index_table][1]+y_of_number_hand,width_of_number_hand,height_of_number_hand,100,100,100,bufferedImageframe);
-           //c++;
-           //if(index_table==0){save_image(is_correct_number_hand,"tables_img\\t_"+(c)+"_"+(is_correct_number_hand!=null));}
-           //c++;
-           //checknicktest_nick.add("---------------------------------------------KURSOR   "+is_correct_number_hand+"  TABLE "+index_table);
-           image_number_hand = null;
-           is_correct_hero_nick = false;
-           if(is_correct_number_hand){
-               image_number_hand = cut_SubImage(bufferedImageframe, COORDS_TABLES[index_table][0]+x_of_number_hand+25,
-                       COORDS_TABLES[index_table][1]+y_of_number_hand+3,26,5);
-
-
-               // проверка правильности изо ников
-               is_correct_nicks = true;
-
-              for(int img_nicks=0; img_nicks<6; img_nicks++ ){
-                  int x_of_nick = COORDS_TABLES[index_table][0]+ COORDS_NICKS[img_nicks][0]+ CORRECTS_COORDS_NICKS[img_nicks]-8;
-                  int y_of_nick = COORDS_TABLES[index_table][1]+ COORDS_NICKS[img_nicks][1]+1;
-                  //checknicktest_nick.add("++++++++++++++++++++++++++++++++++++"+img_nicks);
-                  if(is_CorrectImageOfNumberHandAndNicks(x_of_nick,y_of_nick,width_nick,height_nick,
-                          220,220,210,bufferedImageframe))
-                  { if(img_nicks==0){is_correct_hero_nick = true;} continue; }
-                  //if(index_table==4)
-             /*      c++;
-                      save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no
-                              (bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),true),35),"test3\\"+(c)+"_a_"+img_nicks);
-                 *//* save_image(ocr.get_white_black_image(ocr.set_grey_and_inverse_or_no
-                          (bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),true),105),"test3\\"+(c)+"_b_"+img_nicks);*//*
-                  save_image(bufferedImageframe.getSubimage(x_of_nick,y_of_nick,width_nick,height_nick),"test3\\"+(c)+"_b_"+img_nicks);*/
-                  is_correct_nicks = false;
-                  break;
-              }
-               //System.out.println("time "+(System.currentTimeMillis()-s));
-              if(is_correct_nicks){
-                  //System.out.println("is_correct_nicks");
-                  /*checknicktest_table.put(c,checknicktest_nick);
-                  if(index_table==0)save_image(bufferedImageframe,"tables_img\\_");*/
-                  /*if(!is_start_tables[index_table]){
-                      image_number_hand = cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0]+x_of_number_hand+25,
-                              coord_left_up_of_tables[index_table][1]+y_of_number_hand+3,26,5);
-                      is_start_tables[index_table] = true;
-                      is_end_tables[index_table] = false;
-
-                  } else image_number_hand = null;*/
-
-                 /* if(index_table==2)
-                      if(image_number_hand==null) System.out.println("hand null is_start "+is_start_tables[index_table]);
-                      else System.out.println("hand start is_start "+is_start_tables[index_table]);*/
-                   ocrList_1.get(index_table).set_image_for_ocr(
-                           new BufferedImage[]{
-                                   cut_SubImage(bufferedImageframe, COORDS_TABLES[index_table][0], COORDS_TABLES[index_table][1],639,468),
-                                   image_number_hand
-                           });
-               }
-              else {
-                  // если все ники не определяются или определяется только ник героя, нужно для завершения последней раздачи
-                  if(!is_correct_hero_nick)ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{null, image_number_hand});
-                  else ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{image_number_hand,null });
-
-                  /*Testing.saveImageToFile(cut_SubImage(bufferedImageframe,coord_left_up_of_tables[index_table][0],
-                          coord_left_up_of_tables[index_table][1],639,468),"test2\\win_"+index_table+"_"+(c++));*/
-              }
-
-           }
-           else ocrList_1.get(index_table).set_image_for_ocr(new BufferedImage[]{null, null});
-           //if(is_correct_number_hand==null) save_image(bufferedImageframe.getSubimage(coord_left_up_of_tables[index_table][0],coord_left_up_of_tables[index_table][1],639,468),"tables_img\\t_nokurs"+(++c));
-           //if(is_correct_number_hand==null)countcheks[index_table]++;
-       }
-     alltime+=System.currentTimeMillis()-s; counttime++;
-   }
    public static long alltime = 0;
    public static int counttime = 0;
 
@@ -393,7 +287,8 @@ public class CaptureVideo {
        createBufferedImage(frame, bufferedImageframe);
        boolean[] metaDates = null; // есть стол, есть раздача, есть помехи
        int[] whoPlayOrNo = null;
-       for(int indTable=0; indTable<COUNT_TABLES; indTable++){
+       for(int indTable=0; indTable<COUNT_TABLES; indTable++){           if(isTest)if(indTable!=3)continue;
+
            if(ocrList_1.get(indTable)==null)continue;
            metaDates = new boolean[4];
 
@@ -415,7 +310,7 @@ public class CaptureVideo {
            continue;}
            metaDates[1] = true;
            ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(cutImageTable(indTable),metaDates,whoPlayOrNo));
-
+           //System.out.println("FRAME");
        }
 
    }
@@ -456,7 +351,8 @@ public class CaptureVideo {
             if(is_CorrectImageOfNumberHandAndNicks(COORDS_TABLES[indTable][0]+COORDS_NICKS[placePlayer][0]+CORRECTS_COORDS_NICKS[placePlayer]-8,
                     COORDS_TABLES[indTable][1]+COORDS_NICKS[placePlayer][1]+1,91,14,
                     220,220,210,bufferedImageframe)) {  result[0] =1; result[placePlayer] =1; continue;}
-            else if(isEmptyPlace(indTable,placePlayer))continue;
+            else if(isEmptyPlace(indTable,placePlayer)){continue;}
+            //System.out.println("place "+placePlayer);
             return null;
         }
        return result;
@@ -465,11 +361,15 @@ public class CaptureVideo {
 
     private static boolean isEmptyPlace(int indTable,int placePlayer){
         final int X = COORDS_TABLES[indTable][0]+ COORDS_EMPTY_PLACES[placePlayer][0],
-                Y = COORDS_TABLES[indTable][1]+ COORDS_EMPTY_PLACES[placePlayer][1], W = X+82, H = Y+28, max = 110, min = 25;
+                Y = COORDS_TABLES[indTable][1]+ COORDS_EMPTY_PLACES[placePlayer][1], W = X+82, H = Y+28, max = 125, min = 25;
         for(int y=Y; y<H; y+=27)
-            for(int x=X+4; x<W-4; x++){ int bright = get_intGreyColor(bufferedImageframe,x,y);if(bright>max||bright<min)return false; }
+            for(int x=X+4; x<W-4; x++){ int bright = get_intGreyColor(bufferedImageframe,x,y);
+                //System.out.println("br "+bright);
+                if(bright>max||bright<min)return false; }
         for(int x=X; x<W; x+=81)
-            for(int y=Y+4; y<H-4; y++){ int bright = get_intGreyColor(bufferedImageframe,x,y);if(bright>max||bright<min)return false; }
+            for(int y=Y+4; y<H-4; y++){ int bright = get_intGreyColor(bufferedImageframe,x,y);
+                //System.out.println("br "+bright);
+                if(bright>max||bright<min)return false; }
         return true;
     }
 
@@ -492,12 +392,11 @@ public class CaptureVideo {
    }
 
 
-    private static BufferedImage createBufferedImage(Frame frame, BufferedImage image) {
+    private static void createBufferedImage(Frame frame, BufferedImage image) {
             ByteBuffer buffer = (ByteBuffer) frame.image[0].position(0);
             WritableRaster wr = image.getRaster();
             byte[] bufferPixels = ((DataBufferByte) wr.getDataBuffer()).getData();
             buffer.get(bufferPixels);
-            return image;
     }
 
 

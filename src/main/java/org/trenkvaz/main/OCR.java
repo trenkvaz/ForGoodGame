@@ -20,7 +20,6 @@ public class OCR implements Runnable {
 
     boolean is_run = true, start_hud = false, end_hud = false, show_text_in_hud = false, stop_show_text_in_hud = false;
     int table = -1;
-    BufferedImage[] frame;
     int[] coord_of_table;
     Queue<BufferedImage[]> main_queue_with_frames;
     Queue<FrameTable> queueFrameTable;
@@ -71,15 +70,10 @@ public class OCR implements Runnable {
             list_of_lists_current_id_nicks_for_choose.add(new ArrayList<>());
             hashesNumsActionsForCompare.add(new ArrayList<>());
         }
-
         new Thread(this).start();
     }
 
-   public OCR(String test,int table,BufferedImage[] frame1){
-       this.coord_of_table = COORDS_TABLES[table];
-       this.table = table;
-       frame = frame1;
-   }
+
 
    public OCR(){}
 
@@ -88,7 +82,6 @@ public class OCR implements Runnable {
     public void run() {
         try {
             while (is_run){
-                //if((frame = main_queue_with_frames.poll())!=null){ main_work_on_table(); }
                 if((frameTable = queueFrameTable.poll())!=null){ main_work_on_table(); }
                 else
                     { try { Thread.sleep(10);
@@ -100,27 +93,18 @@ public class OCR implements Runnable {
                 }
             }
         } catch (Exception e){
-
             show_test_total_hand(testCurrentHand,true);
             startStopCapture.removeOcrInOcrList_1(table-1);
             testSaveImgFrameTimeHand(images_framestimehands,"unknown",3);
             e.printStackTrace();
-
         }
 
     }
 
 
-    public synchronized void set_image_for_ocr(BufferedImage[] frame){
-        main_queue_with_frames.offer(frame);
-    }
-
 
     public synchronized void addFrameTableToQueue(FrameTable frameTable1){ queueFrameTable.offer(frameTable1);  //System.out.println("FRAME "+queueFrameTable.size());
     }
-
-
-
 
 
     boolean startlog = false;
@@ -132,7 +116,7 @@ public class OCR implements Runnable {
     private void main_work_on_table(){
         if(isTest){
         //if(table!=1&&table!=2)return;
-        //if(table!=1)return;
+        if(table!=4)return;
         }
 
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
@@ -530,6 +514,7 @@ public class OCR implements Runnable {
         amountContPlay = 6-startPos; currentHand.startAmountPlayers = amountContPlay;
         int placeTable = current_bu+3; if(placeTable>6) placeTable = placeTable-6;
         int pokerPos = startPos;
+        for(int i=0; i<startPos; i++)pokerPosIndWithNumOnTable[i] = 0;
         for(;; placeTable++){if(placeTable==7)placeTable=1;if(pokerPos==6)break;
             if(frameTable.whoPlayOrNo()[placeTable-1]==0)continue;
             pokerPosIndWithNumOnTable[pokerPos] = placeTable;

@@ -1189,7 +1189,7 @@ public class Testing {
 
     static int[]poker_positions_index_with_numbering_on_table = new int[6];
     static int current_position_hero =-1;
-    static int[] whoplay = {1,1,1,1,1,1};
+    static int[] whoplay = {1,1,1,1,0,1};
 
     static void set_PokerPositionsIndexWithNumberingOnTable(int current_bu){
         // алгоритм определения соответсвия покерных позиций позициям за столом которые начинаются с херо, на основе того где на столе находится БУ
@@ -1210,8 +1210,8 @@ public class Testing {
         int pokerPos = startPos;
         for(;; placeTable++){if(placeTable==7)placeTable=1;if(pokerPos==6)break;
             if(whoplay[placeTable-1]==0)continue;
-
-            poker_positions_index_with_numbering_on_table[pokerPos] = placeTable;
+                //poker_positions_index_with_numbering_on_table[pokerPos] =0;else
+                poker_positions_index_with_numbering_on_table[pokerPos] = placeTable;
             if(placeTable==1)current_position_hero = pokerPos;
             pokerPos++;
 
@@ -1238,7 +1238,7 @@ public class Testing {
         //Arrays.stream(poker_positions_index_with_numbering_on_table).forEach(System.out::println);
 
         String[] nicks_by_positions = new String[6];
-        String[] nicks = {"hero","2","3","4","5",null};
+        String[] nicks = {"hero","2","3","4",null,"6"};
         for(int i=0; i<6; i++){
             if(poker_positions_index_with_numbering_on_table[i]==0)continue;
             if(nicks[poker_positions_index_with_numbering_on_table[i]-1]==null)continue;
