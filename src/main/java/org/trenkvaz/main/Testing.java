@@ -64,13 +64,17 @@ class TestCurrentHand {
         this.poker_position_of_hero = currentHand.poker_position_of_hero; this.position_bu_on_table = currentHand.position_bu_on_table;
         this.cards_hero[0] = currentHand.cards_hero[0];this.cards_hero[1] = currentHand.cards_hero[1];
         this.nicks[0] = NICK_HERO;
-        this.poker_positions_by_pos_table_for_nicks = currentHand.poker_positions_by_pos_table_for_nicks.clone();
         this.preflopActionsStats = currentHand.preflopActionsStats;
         this.flopActionsStats = currentHand.flopActionsStats;
         this.startStacks = currentHand.startStacks;
     }
 
     public void setNicks(String[] nicks1){ nicks = nicks1.clone(); }
+
+    public void setPoker_positions_by_pos_table_for_nicks(int[] array, int poker_position_of_hero1){
+        poker_position_of_hero = poker_position_of_hero1;
+        poker_positions_by_pos_table_for_nicks =array.clone();
+    }
 
     //public void setStartStacks(Float[] startStacks1){ startStacks = startStacks1; }
 
@@ -106,9 +110,15 @@ class TestCurrentHand {
 
 
     public void finalCurrendHand(){
+
+       /* System.out.println("finalnicks");
+        Arrays.stream(nicks).forEach(System.out::println);*/
+
+
         // расстановка ников по покерным позициям
         String[] nicks_by_positions = new String[6];
         for(int i=0; i<6; i++){
+            if(poker_positions_by_pos_table_for_nicks[i]==0)continue;
             if(nicks[poker_positions_by_pos_table_for_nicks[i]-1]==null)continue;
             nicks_by_positions[i] = nicks[poker_positions_by_pos_table_for_nicks[i]-1];
         }
@@ -157,7 +167,7 @@ public class Testing {
 
 
 
-
+        if(testCurrentHand.cards_hero[0].equals(""))Settings.ErrorLog("NO CARDS hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table);
 
         for(int i=0; i<6; i++) {
             logtest += rightpad(testCurrentHand.nicks[i],16)+"    "+rightpad(testCurrentHand.startStacks[i].toString(),6)+"  ";
@@ -165,17 +175,17 @@ public class Testing {
                     +rightpad(testCurrentHand.startStacks[i].toString(),6)+"  ");
             else System.out.print(rightpad(testCurrentHand.nicks[i],16)+"    "+rightpad(testCurrentHand.startStacks[i].toString(),6)+"  ");
 
-            if(testCurrentHand.nicks[i]==null) {       Settings.ErrorLog(" NO NICK  hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i);
-                testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"nonick");
+            if(testCurrentHand.nicks[i]==null&&testCurrentHand.startStacks[i]<=0) {  Settings.ErrorLog(" NO NICK NO STACK hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i);
+                testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"nonick_nostack",1);
 
-            }
-            if(testCurrentHand.cards_hero[0].equals(""))Settings.ErrorLog("NO CARDS hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i);
-
-            if(testCurrentHand.startStacks[i]<=0){ Settings.ErrorLog(" NO STACK  hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i+" stack "+testCurrentHand.startStacks[i]+
+            } else if(testCurrentHand.startStacks[i]<=0){ Settings.ErrorLog(" NO STACK  hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i+" stack "+testCurrentHand.startStacks[i]+
                     " cards "+testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1]);
                /* for(BufferedImage image:testRecPlayers[i].imges_stack)
                     Testing.save_image(image,     "test5\\"+hand+"\\stack_"+i);*/
-                testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"nostack");
+                testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"nostack",1);
+            } else if(testCurrentHand.nicks[i]==null){
+                Settings.ErrorLog(" NO NICK hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i);
+                testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"nonick",1);
             }
            if(testbreak){ System.out.println(RESET);
                logtest+="\r\n";                    continue;}
@@ -337,7 +347,7 @@ public class Testing {
             Settings.ErrorLog("START BY NUMBERHAND "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p ");
             logtest+="START BY NUMBERHAND ////////////////////////////////////////////////\r\n";
 
-            testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"startnum");
+            testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"startnum",3);
         }
 
         logtest+="testFinished "+testCurrentHand.testFinished+" \r\n";
@@ -352,12 +362,14 @@ public class Testing {
 
 
 
-    public static void testSaveImgFrameTimeHand(List<OCR.TestRecFrameTimeHand> images_framestimehands,String errorname){
-
+    public static void testSaveImgFrameTimeHand(List<OCR.TestRecFrameTimeHand> images_framestimehands,String errorname,int amountFrames){
+         List<OCR.TestRecFrameTimeHand> copyList = new ArrayList<>(images_framestimehands);
         //if(errorname!=null)return;// ПРАВКА !
         new Thread(()->{  int c = 0;
-        for(OCR.TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){ c++;
-            saveImageToFile(testRecFrameTimeHand.imges_frame(),"test5\\"+testRecFrameTimeHand.timehand()+"_"+errorname+"_"+c); }}).start();
+        for(OCR.TestRecFrameTimeHand testRecFrameTimeHand:copyList){ c++;
+            saveImageToFile(testRecFrameTimeHand.imges_frame(),"test5\\"+testRecFrameTimeHand.timehand()+"_"+errorname+"_"+c);
+            if(c==amountFrames)break;
+        }}).start();
     }
 
 
@@ -1174,28 +1186,36 @@ public class Testing {
         return 0;
     }
 
-    static final int[][] coordsEmptyPlaces = {{},{40,258},{40,133},{279,72},{518,133},{518,258}};
 
+    static int[]poker_positions_index_with_numbering_on_table = new int[6];
+    static int current_position_hero =-1;
+    static int[] whoplay = {1,1,1,1,1,1};
 
-    static boolean isEmptyPlace(BufferedImage image){
+    static void set_PokerPositionsIndexWithNumberingOnTable(int current_bu){
+        // алгоритм определения соответсвия покерных позиций позициям за столом которые начинаются с херо, на основе того где на столе находится БУ
+        // также определяется позиция героя по его известной позиции на столе
+        int startPos = (int) Arrays.stream(whoplay).filter(c -> c==0).count();
+        System.out.println("am "+startPos);
+       /* int utg = current_bu+3; if(utg>6) utg = utg-6;
+        for(int c=startPos; c<6; c++, utg++){
+            if(utg==7)utg=1;
+            System.out.println("place "+utg);
+            if(whoplay[utg-1]==0)continue;
 
-
-
-
-        int max = 110, min = 25;
-        for(int y=0; y<image.getHeight(); y+=image.getHeight()-1){
-            for(int x=4; x<image.getWidth()-4; x++){
-                int bright = get_intGreyColor(image,x,y);
-                if(bright>max||bright<min)return false;
-            }
+            poker_positions_index_with_numbering_on_table[c] = utg;
+            if(utg==1)current_position_hero = c;
         }
-        for(int x=0; x<image.getWidth(); x+=image.getWidth()-1){
-            for(int y=4; y<image.getHeight()-4; y++){
-                int bright = get_intGreyColor(image,x,y);
-                if(bright>max||bright<min)return false;
-            }
+        System.out.println("+++++++++");*/
+        int placeTable = current_bu+3; if(placeTable>6) placeTable = placeTable-6;
+        int pokerPos = startPos;
+        for(;; placeTable++){if(placeTable==7)placeTable=1;if(pokerPos==6)break;
+            if(whoplay[placeTable-1]==0)continue;
+
+            poker_positions_index_with_numbering_on_table[pokerPos] = placeTable;
+            if(placeTable==1)current_position_hero = pokerPos;
+            pokerPos++;
+
         }
-        return true;
     }
 
     public static void main(String[] args) throws Exception {
@@ -1214,9 +1234,17 @@ public class Testing {
         System.out.println(iWf[1]+" "+iWf[0]);
         show_HashShablonNumber(iWf,6,10);*/
 
-        int w = 81+1, h = 27+1;
-        BufferedImage empt = read_image("Mtest\\empt");
-        for(int i=1; i<6; i++)//saveImageToFile(empt.getSubimage(coordEmptyPlaces[i][0],coordEmptyPlaces[i][1],w,h),"test2\\_"+i);
-            System.out.println(isEmptyPlace(empt.getSubimage(coordsEmptyPlaces[i][0],coordsEmptyPlaces[i][1],w,h)));
+        set_PokerPositionsIndexWithNumberingOnTable(1);
+        //Arrays.stream(poker_positions_index_with_numbering_on_table).forEach(System.out::println);
+
+        String[] nicks_by_positions = new String[6];
+        String[] nicks = {"hero","2","3","4","5",null};
+        for(int i=0; i<6; i++){
+            if(poker_positions_index_with_numbering_on_table[i]==0)continue;
+            if(nicks[poker_positions_index_with_numbering_on_table[i]-1]==null)continue;
+            nicks_by_positions[i] = nicks[poker_positions_index_with_numbering_on_table[i]-1];
+        }
+        nicks = nicks_by_positions;
+        Arrays.stream(nicks).forEach(System.out::println);
     }
 }

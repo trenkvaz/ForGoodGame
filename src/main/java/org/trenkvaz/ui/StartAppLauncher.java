@@ -13,7 +13,7 @@ public class StartAppLauncher {
     public static Work_DataBase work_dataBase;
     public static HUD hud;
 
-    public static final float SB = 0.5f;
+    public static final float SB = 0.4f;
 
     //TEST
     public static boolean isTest = true;

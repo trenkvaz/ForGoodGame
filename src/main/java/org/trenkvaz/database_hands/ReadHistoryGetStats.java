@@ -298,7 +298,7 @@ public class ReadHistoryGetStats {
 
 
     public static synchronized void count_StatsCurrentGame(ConcurrentHashMap[] current_map_stats,MainStats[] main_stats,String[] nicks,
-                                                           float[] stacks, List<List<Float>> preflop_actions_for_stats){
+                                                           float[] stacks, List<List<Float>> preflop_actions_for_stats,int startAmountPlayers){
         System.out.println("CREATE STATS");
        /* for(int i=0; i<6; i++){
             System.out.print(nicks[i]+"   ");
@@ -326,7 +326,7 @@ public class ReadHistoryGetStats {
 
 
         for(int stata=0; stata<main_stats.length; stata++){
-            main_stats[stata].count_Stats_for_map(precount_to_PreflopActions(6,posActions),ercanning_nicks,stacks,(byte) 6,posActions,false);
+            main_stats[stata].count_Stats_for_map(precount_to_PreflopActions(startAmountPlayers,posActions),ercanning_nicks,stacks,(byte)startAmountPlayers,posActions,false);
             for(int player=0; player<6; player++){
             if(ercanning_nicks[player]==null)continue;
             current_map_stats[stata].put(ercanning_nicks[player],main_stats[stata].getMap_of_Idplayer_stats().get(ercanning_nicks[player]));

@@ -48,7 +48,7 @@ public class CaptureVideo {
             "7c","7d","7h","7s","6c","6d","6h","6s","5c","5d","5h","5s","4c","4d","4h","4s","3c","3d","3h","3s","2c","2d","2h","2s"};
    public static final String NICK_HERO = "trenkvaz";
    public static List<OCR> ocrList_1;
-   static final int COUNT_TABLES = 1;
+   static final int COUNT_TABLES = 6;
    static FFmpegFrameGrabber grabber;
    static CanvasFrame canvasFrame;
 
@@ -398,20 +398,20 @@ public class CaptureVideo {
            metaDates = new boolean[4];
 
            if(!isFastTable(indTable)){ ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));
-               System.out.println("NO TABLE");
+               //System.out.println("NO TABLE");
            continue;}
            metaDates[0] = true;
            if(!isCardsHero(indTable)){ ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));
-               System.out.println("NO CARD");
+               //System.out.println("NO CARD");
            continue;}
 
            whoPlayOrNo = getWhoPlayOrNo(indTable);
            if(whoPlayOrNo==null){ metaDates[2] = true; ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));
-               System.out.println("WHOPLAY NULL");
+               //System.out.println("WHOPLAY NULL");
            continue;}
            // первый индекс показывает что есть только ник херо если 0
            if(whoPlayOrNo[0]==0){ ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));
-               System.out.println("WHOPLAY 0");
+               //System.out.println("WHOPLAY 0");
            continue;}
            metaDates[1] = true;
            ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(cutImageTable(indTable),metaDates,whoPlayOrNo));
