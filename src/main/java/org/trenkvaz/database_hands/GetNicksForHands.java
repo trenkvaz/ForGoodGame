@@ -13,6 +13,7 @@ import java.util.*;
 
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.DECK;
+import static org.trenkvaz.ui.StartAppLauncher.RED;
 
 public class GetNicksForHands {
 
@@ -20,7 +21,7 @@ public class GetNicksForHands {
     static List<HistoryHand> list_handsfromhistory = new ArrayList<>();
     //static Map<Integer,String> reverse_map_idplayers_nicks;
 
-    record HistoryHand(long time_hand, short cards_hero, short position_hero, float[] stacks, List<String> handfromhistory, String[] nicks, Long[] timefromtemphand){
+    record HistoryHand(long time_hand, short cards_hero, short position_hero, float[] stacks, List<String> handfromhistory, String[] nicks, Long[] timeTampHandAndAmountPlayer){
         public String get_str_Cards(){
             int c = (cards_hero < 0) ? cards_hero+65536 : cards_hero;
             return DECK[c/1000]+" "+ DECK[c%1000];
@@ -81,9 +82,9 @@ public class GetNicksForHands {
         sublist_players.forEach(System.out::println);
         System.out.println("pos hero "+read_PositionHeroForHistoryHand(sublist_players));*/
         int cor = 6-sublist_players.size();
-
+        Long[]timeTampHandAndAmountPlayer = {null,(long)sublist_players.size()};
         list_handsfromhistory.add(new HistoryHand(read_TimeHandForHistoryHand(hand.get(1)), read_CardsHeroForHistoryHand(hand.get(13-cor)),
-                read_PositionHeroForHistoryHand(sublist_players), read_StacksForHistoryHand(sublist_players, read_BBforHistoryHand(hand.get(1))),hand,new String[6],new Long[1]));
+                read_PositionHeroForHistoryHand(sublist_players), read_StacksForHistoryHand(sublist_players, read_BBforHistoryHand(hand.get(1))),hand,new String[6],timeTampHandAndAmountPlayer));
     }
 
 
@@ -182,7 +183,7 @@ public class GetNicksForHands {
            for(int i=0; i<6; i++) {handfromhistory.nicks[i] = selected_temphand.nicks()[i];
                //System.out.println(selected_temphand.nicks()[i]);
            }
-             handfromhistory.timefromtemphand[0] = selected_temphand.time_hand();
+             handfromhistory.timeTampHandAndAmountPlayer[0] = selected_temphand.time_hand();
            }
 
            list_selected_temphands.clear();
@@ -218,7 +219,7 @@ public class GetNicksForHands {
         try (OutputStream os = new FileOutputStream(folder+"\\output\\"+name_file+"_nicks.txt",true)) {
             for(HistoryHand historyhand:list_handsfromhistory){
 
-             os.write((get_NewHistoryHandWithNicks(historyhand.handfromhistory,historyhand.nicks,historyhand.timefromtemphand)+"\r\n\r\n").getBytes(StandardCharsets.UTF_8));
+             os.write((get_NewHistoryHandWithNicks(historyhand.handfromhistory,historyhand.nicks,historyhand.timeTampHandAndAmountPlayer)+"\r\n\r\n").getBytes(StandardCharsets.UTF_8));
                 //System.out.println(get_NewHistoryHandWithNicks(historyhand.handfromhistory,historyhand.idplayers)+"\r\n\r\n");
             }
         } catch (FileNotFoundException e) {
@@ -227,26 +228,29 @@ public class GetNicksForHands {
     }
 
 
-   static String get_NewHistoryHandWithNicks(List<String> historyhand,String[] nicks,Long[] time){
+   static String get_NewHistoryHandWithNicks(List<String> historyhand,String[] nicks,Long[] timeAndAmountPlayer){
 
        int position = -1;
        List<String> sublist_players = historyhand.subList(4,10);
        //for(int i=4; i<10; i++)if(historyhand.get(i).startsWith("Seat "))sublist_players.add(historyhand.get(i));
 
-       if(time[0]!=null)historyhand.set(0,historyhand.get(0).substring(0,28)+time[0]+" *****");
-
+       if(timeAndAmountPlayer[0]!=null)historyhand.set(0,historyhand.get(0).substring(0,28)+timeAndAmountPlayer[0]+" *****");
+       int amountPlayerTempNahd = (int) Arrays.stream(nicks).filter(Objects::isNull).count();
+       // количество игроков в руке базы данных может иметь равное или меньшее число чем в руке истории раздач, так как некоторые игроки могут не определится
+       // но вот если игроков в руке базы больше, чем в истории раздач, то это явная ошибка с определением количества играющих
+       if(amountPlayerTempNahd>timeAndAmountPlayer[1]) System.out.println(RED+"error amountplayer timehand "+timeAndAmountPlayer[0]);
       /* for(String line:historyhand) System.out.println(line);
        for(String line:nicks) System.out.println(line);*/
-       int cor = 6-sublist_players.size();
+       int cor =(int) (6-timeAndAmountPlayer[1]);
        String[][] seat_nick = new String[6][2];
        // меняются плеер1 и т.д на ники в начале раздачи где они на своих местах
-       for (int i=0; i<6; i++) {
+       for (int i=0; i<timeAndAmountPlayer[1]; i++) {
            if(i<3)position = i+3;
            else position = i-3+cor;
            //int id = idplayers[position];
            if(nicks[position]==null)continue;
            String line = sublist_players.get(i);
-           if(!line.startsWith("Seat "+(i+1)+": "))break;
+           //if(!line.startsWith("Seat "+(i+1)+": "))break;
            seat_nick[i][0] = line.substring(8,line.indexOf("(")-1);
            seat_nick[i][1] = nicks[position];
            sublist_players.set(i,line.replace(seat_nick[i][0],seat_nick[i][1]));
@@ -256,7 +260,7 @@ public class GetNicksForHands {
 
        // меняются плеер1 и т.д на ники по ходу раздачи
        for(int i_line=10-cor; i_line<historyhand.size(); i_line++){
-           for(int i_seat=0; i_seat<sublist_players.size(); i_seat++){
+           for(int i_seat=0; i_seat<timeAndAmountPlayer[1]; i_seat++){
                if(seat_nick[i_seat][0]==null)continue;
                if(historyhand.get(i_line).contains(seat_nick[i_seat][0])){
                    historyhand.set(i_line,historyhand.get(i_line).replace(seat_nick[i_seat][0],seat_nick[i_seat][1]));
