@@ -60,7 +60,7 @@ public class Controller_main_window {
             show_hide_hud.setText("Stop HUD");
             //hud.show_hud();
             hud.is_hud_on = true;
-            for(int i=0; i<6; i++){ hud.show_hud(i);hud.refresh_hud(i); }
+            //for(int i=0; i<6; i++){ hud.show_hud(i);hud.refresh_hud(i); }
         } else {
             show_hide_hud.setText("Show HUD");
             //hud.stop_show_hud();

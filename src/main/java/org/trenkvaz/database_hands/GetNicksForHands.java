@@ -38,6 +38,7 @@ public class GetNicksForHands {
             if(a.isFile()&&a.getName().endsWith(".txt")){
                 System.out.println(a.getName());
                 read_File(a.getPath());
+
                 select_TempHandsForHistoryHand();
                 write_NewHistoryHandsWithNicks(folder,a.getName().replaceFirst("[.][^.]+$", ""));
             }
@@ -72,8 +73,16 @@ public class GetNicksForHands {
     private static void read_HandHistoryToList(List<String> hand){
 
         if(hand.get(1).contains(" Tourney ")){c++;return;}
-        List<String> sublist_players = hand.subList(4,10);
-        list_handsfromhistory.add(new HistoryHand(read_TimeHandForHistoryHand(hand.get(1)), read_CardsHeroForHistoryHand(hand.get(13)),
+        List<String> sublist_players =new ArrayList<>(); //hand.subList(4,10);
+        int p = 0;
+        for(int i=4; i<10; i++){ p++;
+            if(hand.get(i).startsWith("Seat "+p+": "))sublist_players.add(hand.get(i));}
+        /*System.out.println("++++++++++++++++++++++++++++++++++++++");
+        sublist_players.forEach(System.out::println);
+        System.out.println("pos hero "+read_PositionHeroForHistoryHand(sublist_players));*/
+        int cor = 6-sublist_players.size();
+
+        list_handsfromhistory.add(new HistoryHand(read_TimeHandForHistoryHand(hand.get(1)), read_CardsHeroForHistoryHand(hand.get(13-cor)),
                 read_PositionHeroForHistoryHand(sublist_players), read_StacksForHistoryHand(sublist_players, read_BBforHistoryHand(hand.get(1))),hand,new String[6],new Long[1]));
     }
 
@@ -91,10 +100,11 @@ public class GetNicksForHands {
 
 
     private static short read_PositionHeroForHistoryHand(List<String> sublist_players){
-        for (int i=0; i<6; i++)
+        int cor = 6-sublist_players.size();
+        for (int i=0; i<sublist_players.size(); i++)
             if(sublist_players.get(i).contains("Hero")){
                 if(i<3)return (short) (i+3);
-                else return (short) (i-3);
+                else return (short) (i-3+cor);
             }
         return -1;
     }
@@ -105,9 +115,10 @@ public class GetNicksForHands {
 
     private static float[] read_StacksForHistoryHand(List<String> sublist_players, float bb){
         float[] result = new float[6]; int position = -1;
-        for (int i=0; i<6; i++) {
+        int cor = 6-sublist_players.size();
+        for (int i=0; i<sublist_players.size(); i++) {
             if(i<3)position = i+3;
-            else position = i-3;
+            else position = i-3+cor;
             String line = sublist_players.get(i);
             result[position]  = new BigDecimal(Float.parseFloat(line.substring(line.indexOf("$")+1,line.indexOf(")")))/bb).setScale(1, RoundingMode.HALF_UP).floatValue();
         }
@@ -218,28 +229,34 @@ public class GetNicksForHands {
 
    static String get_NewHistoryHandWithNicks(List<String> historyhand,String[] nicks,Long[] time){
 
-       List<String> sublist_players = historyhand.subList(4,10);int position = -1;
-
+       int position = -1;
+       List<String> sublist_players = historyhand.subList(4,10);
+       //for(int i=4; i<10; i++)if(historyhand.get(i).startsWith("Seat "))sublist_players.add(historyhand.get(i));
 
        if(time[0]!=null)historyhand.set(0,historyhand.get(0).substring(0,28)+time[0]+" *****");
 
       /* for(String line:historyhand) System.out.println(line);
        for(String line:nicks) System.out.println(line);*/
+       int cor = 6-sublist_players.size();
        String[][] seat_nick = new String[6][2];
        // меняются плеер1 и т.д на ники в начале раздачи где они на своих местах
        for (int i=0; i<6; i++) {
            if(i<3)position = i+3;
-           else position = i-3;
+           else position = i-3+cor;
            //int id = idplayers[position];
            if(nicks[position]==null)continue;
            String line = sublist_players.get(i);
+           if(!line.startsWith("Seat "+(i+1)+": "))break;
            seat_nick[i][0] = line.substring(8,line.indexOf("(")-1);
            seat_nick[i][1] = nicks[position];
            sublist_players.set(i,line.replace(seat_nick[i][0],seat_nick[i][1]));
        }
+
+
+
        // меняются плеер1 и т.д на ники по ходу раздачи
-       for(int i_line=10; i_line<historyhand.size(); i_line++){
-           for(int i_seat=0; i_seat<6; i_seat++){
+       for(int i_line=10-cor; i_line<historyhand.size(); i_line++){
+           for(int i_seat=0; i_seat<sublist_players.size(); i_seat++){
                if(seat_nick[i_seat][0]==null)continue;
                if(historyhand.get(i_line).contains(seat_nick[i_seat][0])){
                    historyhand.set(i_line,historyhand.get(i_line).replace(seat_nick[i_seat][0],seat_nick[i_seat][1]));

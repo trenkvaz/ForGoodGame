@@ -287,8 +287,9 @@ public class CaptureVideo {
        createBufferedImage(frame, bufferedImageframe);
        boolean[] metaDates = null; // есть стол, есть раздача, есть помехи
        int[] whoPlayOrNo = null;
-       for(int indTable=0; indTable<COUNT_TABLES; indTable++){           if(isTest)if(indTable!=3)continue;
-
+       for(int indTable=0; indTable<COUNT_TABLES; indTable++){           if(isTest) {
+           //if(indTable!=3)continue;
+       }
            if(ocrList_1.get(indTable)==null)continue;
            metaDates = new boolean[4];
 

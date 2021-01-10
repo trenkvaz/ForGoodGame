@@ -21,7 +21,6 @@ public class OCR implements Runnable {
     boolean is_run = true, start_hud = false, end_hud = false, show_text_in_hud = false, stop_show_text_in_hud = false;
     int table = -1;
     int[] coord_of_table;
-    Queue<BufferedImage[]> main_queue_with_frames;
     Queue<FrameTable> queueFrameTable;
     FrameTable frameTable;
     CurrentHand currentHand;
@@ -63,7 +62,6 @@ public class OCR implements Runnable {
         creatingHUD = new CreatingHUD(table);
         this.coord_of_table = COORDS_TABLES[table];
         this.table = table+1;
-        main_queue_with_frames = new LinkedBlockingQueue<>();
         queueFrameTable = new LinkedBlockingQueue<>();
         for(int i=0; i<6; i++){
             //list_by_poker_pos_current_list_arrnums_actions.add(new ArrayList<>());
@@ -116,7 +114,7 @@ public class OCR implements Runnable {
     private void main_work_on_table(){
         if(isTest){
         //if(table!=1&&table!=2)return;
-        if(table!=4)return;
+        //if(table!=4)return;
         }
 
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }

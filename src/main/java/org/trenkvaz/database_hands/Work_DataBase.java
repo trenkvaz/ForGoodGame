@@ -99,6 +99,7 @@ static String work_database;
                             System.out.println("Connect to created "+work_database+" DB is successfully...");
                             create_Tables();
                         }
+                        delete_and_copy_WorkNicksStats();
                     } catch (SQLException e) {
                         System.out.println("Connection LOCAL DB Failed");
                         e.printStackTrace();
@@ -493,11 +494,11 @@ static String work_database;
     }
 
     public static void main(String[] args) {
-       //delete_DataBase("fg_test_db1");
+       delete_DataBase("fg_testing");
 
-        new Work_DataBase();
+       /* new Work_DataBase();
         test_select();
-        close_DataBase();
+        close_DataBase();*/
        /* List<CurrentHand.TempHand> list = get_list_TempHandsMinMaxTime(0,0);
         for (CurrentHand.TempHand tempHand:list){
             System.out.println("time "+tempHand.time_hand()+" cards "+get_str_Cards(tempHand.cards_hero())
