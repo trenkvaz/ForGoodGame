@@ -68,24 +68,16 @@ public class ReadHistoryGetStats {
 
     private static void read_HandHistory(List<String> hand){
      float bb = read_BB(hand.get(1));
-     read_StacksAndNicks(hand,bb);
+     int amountPlayers = read_StacksAndNicks(hand,bb);
+
      read_PreflopActions(hand,bb);
-     //get_Idplayers();
-     /*int position_hero = Arrays.asList(nicks).indexOf(nick_hero);
-     if(position_hero!=-1)*/
         for(int i=0; i<6; i++){
             if(nicks[i]==null)continue;
             nicks[i] = "$ю$"+nicks[i]+"$ю$";
         }
 
-
      for(MainStats stats:mainstats)
-         stats.count_Stats_for_map(preflop_players_actions_in_raunds,nicks,stacks,(byte) 6,posActions,false);
-
-     // byte[][][] actions_hand,int[] idplayers,float[]stacks,int idHero,byte Seaters,float[][][]posactions,boolean isAdditional
-
-     //test_show();
-
+         stats.count_Stats_for_map(preflop_players_actions_in_raunds,nicks,stacks,(byte) amountPlayers,posActions,false);
 
      clear_UsedArrays();
 
@@ -133,17 +125,26 @@ public class ReadHistoryGetStats {
     }
 
 
-    private static void read_StacksAndNicks(List<String> hand, float bb){
+    private static int read_StacksAndNicks(List<String> hand, float bb){
+        int p = 0;
+        for(int i=4; i<10; i++){ p++;
+            if(hand.get(i).startsWith("Seat "+p+": "))continue;
+            p--;
+            break;}
+
+        //if(p==6)return;
+        int cor = 6-p;
         int position = -1;
-        for (int i=0; i<6; i++) {
+        for (int i=0; i<p; i++) {
             if(i<3)position = i+3;
-            else position = i-3;
+            else position = i-3+cor;
             String line = hand.get(i+4);
             stacks[position]  = new BigDecimal(Float.parseFloat(line.substring(line.indexOf("$")+1,line.indexOf(")")))/bb).setScale(1, RoundingMode.HALF_UP).floatValue();
             nicks[position] = line.substring(8,line.indexOf("(")-1);
-            //System.out.println("*"+nicks[position]+"*  "+stacks[position]);
+            //System.out.println("pos "+position+" *"+nicks[position]+"*  "+stacks[position]);
         }
         //System.out.println("========================================================");
+        return p;
     }
 
 
