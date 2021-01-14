@@ -4,7 +4,6 @@ import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
 
 import org.opencv.core.CvType;
-import org.opencv.core.Mat;
 import org.trenkvaz.database_hands.Work_DataBase;
 import org.trenkvaz.stats.MainStats;
 
@@ -42,6 +41,7 @@ class TestCurrentHand {
     OCR ocr;
     BufferedImage[] startAndEndImgOfHand = new BufferedImage[2];
     boolean isEndStopSignal = false;
+    float[] definedStacks = new float[6];
 
     List<String> methodes = new ArrayList<>();
 
@@ -74,7 +74,7 @@ class TestCurrentHand {
 
     public void setStartConditions(CurrentHand currentHand,boolean testStartByNumHand){
         this.table = currentHand.testTable; this.time_hand = currentHand.time_hand; this.testStartByNumHand = testStartByNumHand;
-        this.poker_position_of_hero = currentHand.poker_position_of_hero; this.position_bu_on_table = currentHand.position_bu_on_table;
+        this.poker_position_of_hero = currentHand.pokerPosHero; this.position_bu_on_table = currentHand.position_bu_on_table;
         this.cards_hero[0] = currentHand.cards_hero[0];this.cards_hero[1] = currentHand.cards_hero[1];
         this.nicks[0] = NICK_HERO;
         this.preflopActionsStats = currentHand.preflopActionsStats;
@@ -122,7 +122,7 @@ class TestCurrentHand {
 
     }
 
-
+    public void setDefinedStacks(int pos, float stack){definedStacks[pos]=stack;}
 
 
     public void finalCurrendHand(){
@@ -194,10 +194,11 @@ public class Testing {
             else System.out.print(rightpad(testCurrentHand.nicks[i],16)+"    "+rightpad(testCurrentHand.startStacks[i].toString(),6)+"  ");
 
             if(testCurrentHand.nicks[i]==null&&testCurrentHand.startStacks[i]<=0&&!isNoNicksNostacks) {  isNoNicksNostacks = true;
-                Settings.ErrorLog(" NO NICK NO STACK hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i);
+                Settings.ErrorLog(" NO NICK NO STACK hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i+" stack "+testCurrentHand.definedStacks[i]);
                 //testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"nonick_nostack",1);
                showStartEndImg(testCurrentHand,"nonickstack");
-            } else if(testCurrentHand.startStacks[i]<=0&&!isNoStacks){ isNoStacks = true;  Settings.ErrorLog(" NO STACK  hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i+" stack "+testCurrentHand.startStacks[i]+
+            } else if(testCurrentHand.startStacks[i]<=0&&!isNoStacks){ isNoStacks = true;
+            Settings.ErrorLog(" NO STACK  hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p "+i+" stack "+testCurrentHand.definedStacks[i]+
                     " cards "+testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1]);
                /* for(BufferedImage image:testRecPlayers[i].imges_stack)
                     Testing.save_image(image,     "test5\\"+hand+"\\stack_"+i);*/
@@ -1107,82 +1108,7 @@ public class Testing {
     }*/
 
     //static { System.load(home_folder+"\\opencv_lib\\opencv_java430.dll"); }
-    public static Mat BufferedImageToMat(BufferedImage img) {
-        if (img == null) return new Mat();
-        int type = 0;
-        if (img.getType() == BufferedImage.TYPE_BYTE_GRAY) {
-            type = CvType.CV_8UC1;
-        }
-        else if (img.getType() == BufferedImage.TYPE_3BYTE_BGR) {
-            type = CvType.CV_8UC3;
-        }
 
-        else if (img.getType() == BufferedImage.TYPE_4BYTE_ABGR) {
-            type = CvType.CV_8UC4;
-        }
-        else return new Mat();
-        Mat m = new Mat(img.getHeight(), img.getWidth(), type);
-        byte[] data =
-                ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
-        if (type == CvType.CV_8UC1 || type == CvType.CV_8UC3) {
-            m.put(0, 0, data);
-            return m;
-        }
-        byte[] buf = Arrays.copyOf(data, data.length);
-        byte tmp = 0;
-        for (int i = 0; i < buf.length; i += 4) { // ABGR => BGRA
-            tmp = buf[i];
-            buf[i] = buf[i + 1];
-            buf[i + 1] = buf[i + 2];
-            buf[i + 2] = buf[i + 3];
-            buf[i + 3] = tmp;
-        }
-        m.put(0, 0, buf);
-        return m;
-    }
-
-    public static BufferedImage MatToBufferedImage(Mat m) {
-        if (m == null || m.empty()) return null;
-        if (m.depth() == CvType.CV_8U) {}
-        else if (m.depth() == CvType.CV_16U) { // CV_16U => CV_8U
-            Mat m_16 = new Mat();
-            m.convertTo(m_16, CvType.CV_8U, 255.0 / 65535);
-            m = m_16;
-        }
-        else if (m.depth() == CvType.CV_32F) { // CV_32F => CV_8U
-            Mat m_32 = new Mat();
-            m.convertTo(m_32, CvType.CV_8U, 255);
-            m = m_32;
-        }
-        else
-        return null;
-        int type = 0;
-        if (m.channels() == 1)
-            type = BufferedImage.TYPE_BYTE_GRAY;
-        else if (m.channels() == 3)
-            type = BufferedImage.TYPE_3BYTE_BGR;
-        else if (m.channels() == 4)
-            type = BufferedImage.TYPE_4BYTE_ABGR;
-        else
-            return null;
-        byte[] buf = new byte[m.channels() * m.cols() * m.rows()];
-        m.get(0, 0, buf);
-        byte tmp = 0;
-        if (m.channels() == 4) { // BGRA => ABGR
-            for (int i = 0; i < buf.length; i += 4) {
-                tmp = buf[i + 3];
-                buf[i + 3] = buf[i + 2];
-                buf[i + 2] = buf[i + 1];
-                buf[i + 1] = buf[i];
-                buf[i] = tmp;
-            }
-        }
-        BufferedImage image = new BufferedImage(m.cols(), m.rows(), type);
-        byte[] data =
-                ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-        System.arraycopy(buf, 0, data, 0, buf.length);
-        return image;
-    }
 
     public static int getLimit(BufferedImage windowImg, int indexTable){
         int[] xCoordsCheck = {COORDS_TABLES[indexTable][0]+119, COORDS_TABLES[indexTable][0]+120,
@@ -1241,19 +1167,14 @@ public class Testing {
         System.out.println(iWf[1]+" "+iWf[0]);
         show_HashShablonNumber(iWf,6,10);*/
 
-        set_PokerPositionsIndexWithNumberingOnTable(1);
-        //Arrays.stream(poker_positions_index_with_numbering_on_table).forEach(System.out::println);
+        ocr.pokerPosIndWithNumOnTable = new int[]{5, 6, 1, 2, 3, 4};
+        ocr.frameTable = new FrameTable(read_image("testM\\_7110a"),null,null);
+        ocr.testCurrentHand = new TestCurrentHand(ocr);
+        String[] card = ocr.set_cards_hero();
+        if(card==null) System.out.println("null");
+        else Arrays.asList(card).forEach(System.out::println);
 
-        String[] nicks_by_positions = new String[6];
-        String[] nicks = {"hero","2","3","4",null,"6"};
-        for(int i=0; i<6; i++){
-            if(poker_positions_index_with_numbering_on_table[i]==0)continue;
-            if(nicks[poker_positions_index_with_numbering_on_table[i]-1]==null)continue;
-            nicks_by_positions[i] = nicks[poker_positions_index_with_numbering_on_table[i]-1];
-        }
-
-        nicks = nicks_by_positions;
-        Arrays.stream(nicks).forEach(System.out::println);
-
+        /*for(long[]num:_long_arr_cards_for_compare){show_HashShablonNumber(num,14,14);                                   // ПРОСМОТР ШАБЛОНОВ ДЕЙСТВИЙ
+            System.out.println("+++++++++");}*/
     }
 }

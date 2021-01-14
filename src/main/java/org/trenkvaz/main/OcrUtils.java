@@ -30,7 +30,9 @@ public class OcrUtils {
 
 
     public static float get_OcrNum(List<int[]> list_hash_nums, int max_error, String type_shablon){
+        //System.out.println("11");
         if(list_hash_nums==null||list_hash_nums.isEmpty()||list_hash_nums.get(0)==null)return -1;
+        //System.out.println("12");
         int[][] shablons = shablons_numbers_0_9_for_stacks;
         if(type_shablon.equals("actions")) shablons = shablons_numbers_0_9_for_actions;
         int total_error = 0, number_with_min_error = -1, min_error = max_error; String res = "";
@@ -46,7 +48,7 @@ public class OcrUtils {
                 // boolean is_equal = true;
                 for(int ind_num=0; ind_num<size_of_num; ind_num++){
                     total_error+= get_AmountOneBitInInt(shablons[number][ind_num]^list_hash_nums.get(hash_num)[ind_num]);
-
+                    //System.out.println("total "+total_error);
                     if(total_error>=max_error){ continue out;  }
                 }
                 // находится индекс в шаблоне числе с минимальным количеством ошибок
@@ -58,7 +60,7 @@ public class OcrUtils {
             if(number_with_min_error==-1)return -1;
             res+=number_with_min_error;
         }
-
+        //System.out.println(number_with_min_error+" "+res);
         float result = -1;
         try{
             result = Float.parseFloat(res);

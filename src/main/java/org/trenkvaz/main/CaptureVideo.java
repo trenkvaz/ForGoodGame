@@ -28,6 +28,7 @@ import org.trenkvaz.stats.MainStats;
 
 //import static org.trenkvaz.database_hands.Work_DataBase.main_array_of_stats;
 import static org.trenkvaz.main.CaptureVideo.Settings.get_StatsFromDataBase;
+import static org.trenkvaz.main.Testing.saveImageToFile;
 import static org.trenkvaz.ui.Controller_main_window.*;
 import static org.trenkvaz.ui.StartAppLauncher.*;
 import static org.trenkvaz.main.OcrUtils.*;
@@ -285,8 +286,8 @@ public class CaptureVideo {
    static void allocationTables(Frame frame){
        if(bufferedImageframe==null) bufferedImageframe = new Java2DFrameConverter().getBufferedImage(frame);
        createBufferedImage(frame, bufferedImageframe);
-       boolean[] metaDates = null; // есть стол, есть раздача, есть помехи
-       int[] whoPlayOrNo = null;
+       boolean[] metaDates = null; // есть стол, есть раздача, есть помехи, есть шоудаун
+       int[] whoPlayOrNo = null; int condCardsHero = 0;
        for(int indTable=0; indTable<COUNT_TABLES; indTable++){           if(isTest) {
            //if(indTable!=3)continue;
        }
@@ -297,9 +298,15 @@ public class CaptureVideo {
                //System.out.println("NO TABLE");
            continue;}
            metaDates[0] = true;
-           if(!isCardsHero(indTable)){ ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));
+           /*if(!isCardsHero(indTable)){
+               if(!isCardsHeroShowdown(indTable)){ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));continue; }
+               else metaDates[3] = true;
                //System.out.println("NO CARD");
-           continue;}
+               //if(indTable==1){saveImageToFile(cutImageTable(indTable),"testM\\_"+(c++)+isCardsHeroShowdown(indTable));}
+           }*/
+           condCardsHero = getConditionCardsHero(indTable);
+           if(condCardsHero==0){  ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));continue; }
+           if(condCardsHero==-1) metaDates[3] = true;
 
            whoPlayOrNo = getWhoPlayOrNo(indTable);
            if(whoPlayOrNo==null){ metaDates[2] = true; ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));
@@ -344,6 +351,49 @@ public class CaptureVideo {
        return true;
     }
 
+    private static boolean isCardsHeroShowdown(int indTable){
+        for(int i=0; i<2; i++){
+            int X = COORDS_CARDS_HERO[i][0]+ COORDS_TABLES[indTable][0];
+            int Y = COORDS_CARDS_HERO[i][1]+ COORDS_TABLES[indTable][1]+8;
+            if(get_int_MaxBrightnessMiddleImg(bufferedImageframe,X+1,Y,15,17)<140||
+                    get_int_MaxBrightnessMiddleImg(bufferedImageframe,X+1,Y+14,15,17)<140)return false;
+            // проверка периметра карта на помеху курсором
+            if(!is_noCursorInterferenceImage(bufferedImageframe,X+1,Y,15,17,240))return false;
+        }
+        return true;
+    }
+
+
+    private static boolean checkOneCardHero(int indTable, int card, boolean isShowdown){
+       int bright = 220, cor = 0, addY = 17;
+       if(isShowdown){bright = 140; cor = 8; addY = 14;}
+        int X = COORDS_CARDS_HERO[card][0]+ COORDS_TABLES[indTable][0];
+        int Y = COORDS_CARDS_HERO[card][1]+ COORDS_TABLES[indTable][1]+cor;
+        if(get_int_MaxBrightnessMiddleImg(bufferedImageframe,X+1,Y,15,17)<bright||
+                get_int_MaxBrightnessMiddleImg(bufferedImageframe,X+1,Y+addY,15,17)<bright)return false;
+        // проверка периметра карта на помеху курсором
+        return is_noCursorInterferenceImage(bufferedImageframe, X + 1, Y, 15, 17, 240);
+    }
+
+
+    private static int getConditionCardsHero(int indTable){
+
+        boolean isCard1 = false, isCard2 = false, isCard1SWD = false, isCard2SWD = false;
+        // -1 шоудаун, 0 нет карт, 1 есть карты
+        isCard1 = checkOneCardHero(indTable,0,false);
+        if(!isCard1){isCard1SWD = checkOneCardHero(indTable,0,true);
+            //if(indTable==4){saveImageToFile(cutImageTable(indTable),"testM\\_"+(c++)+"isCard1SWD "+isCard1SWD);}
+            if(!isCard1SWD)return 0;}
+
+        isCard2 = checkOneCardHero(indTable,1,false);
+        if(!isCard2){isCard2SWD = checkOneCardHero(indTable,1,true);
+        //if(indTable==4){saveImageToFile(cutImageTable(indTable),"testM\\_"+(c++)+"isCard2SWD "+isCard2SWD);}
+        if(!isCard2SWD)return 0;}
+
+        if(isCard1&&isCard2)return 1;
+
+        return -1;
+    }
 
 
     private static int[] getWhoPlayOrNo(int indTable){

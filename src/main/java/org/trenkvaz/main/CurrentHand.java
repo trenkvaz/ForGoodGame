@@ -20,7 +20,7 @@ public class CurrentHand {
     float[][] startStacksAtStreets = {new float[6],new float[6],new float[6],new float[6],new float[6]};
 
 
-    int poker_position_of_hero = -1;
+    int pokerPosHero = -1;
 
     //int[] poker_positions_by_pos_table_for_nicks;
     boolean is_nicks_filled = false, is_stacks_filled = false;
@@ -68,7 +68,7 @@ public class CurrentHand {
 
 
     void setIs_nicks_filled(){
-        creatingHUD.send_current_hand_to_creating_hud(nicks,ocr.pokerPosIndWithNumOnTable,poker_position_of_hero);
+        creatingHUD.send_current_hand_to_creating_hud(nicks,ocr.pokerPosIndWithNumOnTable, pokerPosHero);
         // проверка что все ники распознаны, чтобы не обращатся к методу распознавания ников
         for(int i=1; i<6; i++){
             if(ocr.frameTable.whoPlayOrNo()[i]==0)continue;
@@ -92,7 +92,7 @@ public class CurrentHand {
             float[] stacks = new float[6];
             for(int i=0; i<6; i++){ stacks[i]=this.startStacks[i]; }
             ReadHistoryGetStats.count_StatsCurrentGame(current_map_stats, work_main_stats,nicks,stacks,preflopActionsStats,startAmountPlayers);
-            Work_DataBase.record_rec_to_TableTempHands(new TempHand(time_hand,get_short_CardsHero(cards_hero),(short)poker_position_of_hero, startStacks,nicks));
+            Work_DataBase.record_rec_to_TableTempHands(new TempHand(time_hand,get_short_CardsHero(cards_hero),(short) pokerPosHero, startStacks,nicks));
         }
     }
 
