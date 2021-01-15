@@ -42,6 +42,8 @@ class TestCurrentHand {
     BufferedImage[] startAndEndImgOfHand = new BufferedImage[2];
     boolean isEndStopSignal = false;
     float[] definedStacks = new float[6];
+    float[] resultsAllin = new float[6];
+    int streetAllIn = -1;
 
     List<String> methodes = new ArrayList<>();
 
@@ -82,6 +84,7 @@ class TestCurrentHand {
         this.turnActionsStats = currentHand.turnActionsStats;
         this.riverActionsStats = currentHand.riverActionsStats;
         this.startStacks = currentHand.startStacks;
+        this.resultsAllin = currentHand.resultsAllin;
     }
 
     public void setNicks(String[] nicks1){ nicks = nicks1.clone(); }
@@ -97,7 +100,7 @@ class TestCurrentHand {
     }
 
     public void addMethod(String method){
-        if(methodes.size()!=5)methodes.add(method);
+        if(methodes.size()!=10)methodes.add(method);
         else {methodes.remove(0);methodes.add(method); }
     }
 
@@ -322,7 +325,8 @@ public class Testing {
             if(i==2){ if(size>maxlenghturn)maxlenghturn = size; }
             if(i==3){ if(size>maxlenghriver)maxlenghriver = size; }
         } }
-        String resultturns = "Hand "+testCurrentHand.time_hand+"\r\n";
+        //String resultturns = "Hand "+testCurrentHand.time_hand+"\r\n";
+        String resultturns = "";
 
         for(int i=0; i<6; i++){ int r = 0;
               for(String res:testCurrentHand.turnsPlayersInStreets.get(i)){ r++;
@@ -353,11 +357,25 @@ public class Testing {
         logtest+="testFinished "+testCurrentHand.testFinished+" \r\n";
         System.out.println(RESET+"******************************************");
 
-        logtest+="****************************************** \r\n";
-        Testing.write_LogTest(logtest,"logtest");
-        resultturns+="****************************************** \r\n";
-        Testing.write_LogTest(resultturns,"testturnplayers");
+        //logtest+="****************************************** \r\n";
 
+
+        if(testCurrentHand.streetAllIn==-1){
+            resultturns+="************************************************************************************* \r\n";
+        Testing.write_LogTest(logtest+resultturns,"logtest");
+        //Testing.write_LogTest(resultturns,"testturnplayers");
+        } else {
+            saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
+                    "test2\\"+testCurrentHand.time_hand+"_allin");
+            String result = logtest+resultturns;
+            result+= "result allin "; for(float r:testCurrentHand.resultsAllin)result+= r+" ";
+            result+="\r\n ************************************************************************************* \r\n";
+            Testing.write_LogTest(result,"allines");
+        }
+
+       /* String linemethodes = "";
+        for(String method:testCurrentHand.methodes)linemethodes+=method+"\r\n";
+        System.out.println(linemethodes);*/
     }
 
 

@@ -36,6 +36,8 @@ public class CurrentHand {
     boolean[] isStartStreets =  {false,false,false,false};
     int startAmountPlayers = 0;
 
+    float[] resultsAllin = new float[6];
+
 
     List<List<Float>> preflopActionsStats = new ArrayList<>(6);
     List<List<Float>> flopActionsStats = new ArrayList<>(6);
