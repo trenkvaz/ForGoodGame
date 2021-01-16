@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
@@ -42,7 +43,8 @@ class TestCurrentHand {
     BufferedImage[] startAndEndImgOfHand = new BufferedImage[2];
     boolean isEndStopSignal = false;
     float[] definedStacks = new float[6];
-    float[] resultsAllin = new float[6];
+    float[] resultsAllin;
+    float[] winLosePlayers;
     int streetAllIn = -1;
 
     List<String> methodes = new ArrayList<>();
@@ -85,6 +87,7 @@ class TestCurrentHand {
         this.riverActionsStats = currentHand.riverActionsStats;
         this.startStacks = currentHand.startStacks;
         this.resultsAllin = currentHand.resultsAllin;
+        this.winLosePlayers = currentHand.winLosePlayers;
     }
 
     public void setNicks(String[] nicks1){ nicks = nicks1.clone(); }
@@ -354,14 +357,15 @@ public class Testing {
             testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"startnum",3);
         }
 
-        logtest+="testFinished "+testCurrentHand.testFinished+" \r\n";
+        //logtest+="testFinished "+testCurrentHand.testFinished+" \r\n";
         System.out.println(RESET+"******************************************");
 
         //logtest+="****************************************** \r\n";
-
-
-        if(testCurrentHand.streetAllIn==-1){
-            resultturns+="************************************************************************************* \r\n";
+        resultturns+="winLose ";
+        for(float r:testCurrentHand.winLosePlayers)resultturns+= r+" ";
+        resultturns+="\r\n";
+        if(!testCurrentHand.testAllines.stream().anyMatch(s->s.contains("ALL"))){
+            resultturns+=" ************************************************************************************* \r\n";
         Testing.write_LogTest(logtest+resultturns,"logtest");
         //Testing.write_LogTest(resultturns,"testturnplayers");
         } else {
@@ -1185,14 +1189,17 @@ public class Testing {
         System.out.println(iWf[1]+" "+iWf[0]);
         show_HashShablonNumber(iWf,6,10);*/
 
-        ocr.pokerPosIndWithNumOnTable = new int[]{5, 6, 1, 2, 3, 4};
+       /* ocr.pokerPosIndWithNumOnTable = new int[]{5, 6, 1, 2, 3, 4};
         ocr.frameTable = new FrameTable(read_image("testM\\_7110a"),null,null);
         ocr.testCurrentHand = new TestCurrentHand(ocr);
         String[] card = ocr.set_cards_hero();
         if(card==null) System.out.println("null");
-        else Arrays.asList(card).forEach(System.out::println);
-
-        /*for(long[]num:_long_arr_cards_for_compare){show_HashShablonNumber(num,14,14);                                   // ПРОСМОТР ШАБЛОНОВ ДЕЙСТВИЙ
-            System.out.println("+++++++++");}*/
+        else Arrays.asList(card).forEach(System.out::println);*/
+        //FLOP TURN RIVER TURN_ALL_PREFIN_am2
+        List<String> list = Arrays.asList("FLOP", "TURN", "TURN_ALL_PREFIN_am2");
+        System.out.println(list.stream().anyMatch(s->s.contains("ALL")));
+        //Stream.of(list).forEach();
+        String t = "TURN_ALL_PREFIN_am2";
+        System.out.println(t.contains("ALL"));
     }
 }

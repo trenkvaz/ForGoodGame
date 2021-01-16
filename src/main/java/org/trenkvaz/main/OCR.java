@@ -32,7 +32,7 @@ public class OCR implements Runnable {
     long[][][] current_id_nicks_for_choose = new long[6][3][16];
     long[] zeros_for_clear_current_id = new long[16];
     CreatingHUD creatingHUD;
-    static final int PREFLOP = 0, FLOP =1, TURN = 2, RIVER = 3, AllIn = 4;
+    static final int PREFLOP = 0, FLOP =1, TURN = 2, RIVER = 3, ENDRIVER = 4;
     List<List<long[]>> list_of_lists_current_id_nicks_for_choose = new ArrayList<>(6);
     List<long[]> list_of_hashimgs_namberhand = new ArrayList<>(3);
     boolean startSecondHand = false;
@@ -212,7 +212,7 @@ public class OCR implements Runnable {
         finishedActionsAtPreflop();
         if(currentHand.isStartStreets[FLOP])finishedActionsPostflop(FLOP);
         if(currentHand.isStartStreets[TURN])finishedActionsPostflop(TURN);
-        if(currentHand.isStartStreets[RIVER])finishedActionsPostflop(RIVER);
+        //if(currentHand.isStartStreets[RIVER])finishedActionsPostflop(RIVER);
     }
 
     private void initNewHand(){
@@ -322,7 +322,7 @@ public class OCR implements Runnable {
 
         if(!currentHand.isFinishedStreets[TURN]||currentHand.streetAllIn!=-1)return;
         //System.out.println("RIVER");
-        getPostFlopActions(RIVER);
+        //getPostFlopActions(RIVER);
     }
 
 
@@ -1054,7 +1054,7 @@ public class OCR implements Runnable {
         List<List<Float>> actionsStats = null;
         if(street==FLOP)actionsStats=currentHand.flopActionsStats;
         if(street==TURN)actionsStats=currentHand.turnActionsStats;
-        if(street==RIVER)actionsStats=currentHand.riverActionsStats;
+        //if(street==RIVER)actionsStats=currentHand.riverActionsStats;
         assert actionsStats != null;
         int pokerPos = posPlayerRound; int countcycle = 0;
         for(;;pokerPos++){if(pokerPos==6){pokerPos=0;}if(countcycle==6)break;countcycle++;
@@ -1102,7 +1102,7 @@ public class OCR implements Runnable {
         List<List<Float>> actionsStats = null;
         if(street==FLOP)actionsStats=currentHand.flopActionsStats;
         if(street==TURN)actionsStats=currentHand.turnActionsStats;
-        if(street==RIVER)actionsStats=currentHand.riverActionsStats;
+        //if(street==RIVER)actionsStats=currentHand.riverActionsStats;
         assert actionsStats != null;
         if(currentHand.firstBetPostflopPokerPos[street]==-1){ // ситуация одних чеков
             for(int p=0; p<6; p++){ if(pokerPosIndWithNumOnTable[p]==0)continue;
@@ -1113,7 +1113,7 @@ public class OCR implements Runnable {
         //ситуация когда херо сфолдил но смотрит продолжение раздачи пока это не будет обрабатыватся
         if(curActsOrInvests[currentHand.pokerPosHero]==-10){ currentHand.isFinishedStreets[street] = true;return;}
 
-        if(street==RIVER){ currentHand.isFinishedStreets[street] = true;return;}
+        //if(street==RIVER){ currentHand.isFinishedStreets[street] = true;return;}
 
         if(!currentHand.isStartStreets[street+1]){ // ситуация когда херо не сходил свой раунд значит сфолдил
             if(rounds[currentHand.pokerPosHero]<round){actionsStats.get(currentHand.pokerPosHero).add(Float.NEGATIVE_INFINITY);
@@ -1157,6 +1157,62 @@ public class OCR implements Runnable {
 
     }
 
+
+    private void getActionAndFinishedRiver(){
+
+        int pokerPos = posPlayerRound; int countcycle = 0;
+        for(;;pokerPos++){if(pokerPos==6){pokerPos=0;}if(countcycle==6)break;countcycle++;
+            if(curActsOrInvests[pokerPos]==-10||pokerPosIndWithNumOnTable[pokerPos]==0)continue;
+            //if(rounds[pokerPos]>0&&rounds[pokerPos]==round){ pokerPos++; break;}
+            //System.out.println(pokerPos);
+            float action = getTurnOfPlayer(pokerPos);
+            if(action==-1||action==curActsOrInvests[pokerPos]){  testCurrentHand.setTestStreetTurnsPlayers(RIVER,pokerPos,"A:"+action+" "); continue;}
+            if(action==-10){curActsOrInvests[pokerPos] = -10;  currentHand.riverActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
+                testCurrentHand.setTestStreetTurnsPlayers(RIVER,pokerPos,"F "); continue;}
+
+            testCurrentHand.setTestStreetTurnsPlayers(RIVER,pokerPos,"A:"+action+" ");
+            // если есть новое действие на позиции оллинера, то значит это уже не действие, а получение выигрыша значит пора подводить итог, если действие равно стартовому стеку
+            // то значит это старый оллин значит надо продолжать, это необходимо чтобы собрать действия с следующих оппов после оллина других
+            if(curActsOrInvests[pokerPos]==-100){ if(currentHand.startStacksAtStreets[RIVER][pokerPos]!=action){currentHand.isStartStreets[ENDRIVER] = true; return;} else continue;}
+
+            float stack = getOneStack(pokerPos);
+            if(stack==-11)continue;
+            if(stack>0){
+                if(stack==currentHand.startStacksAtStreets[RIVER][pokerPos]){currentHand.isStartStreets[ENDRIVER] = true; return;}
+
+            }
+
+            if(action>maxRaise){ maxRaise = action; round++;
+                if(currentHand.firstBetPostflopPokerPos[RIVER]==-1){
+                    currentHand.firstBetPostflopPokerPos[RIVER] = pokerPos;
+                    int checkpokerPos = 4;
+                    for(;;checkpokerPos++){if(checkpokerPos==6){checkpokerPos=0;}
+                        if(curActsOrInvests[checkpokerPos]==-10||curActsOrInvests[checkpokerPos]==-100||pokerPosIndWithNumOnTable[checkpokerPos]==0)continue;
+                        if(currentHand.firstBetPostflopPokerPos[RIVER]==checkpokerPos)break;
+                        currentHand.riverActionsStats.get(checkpokerPos).add(0,Float.POSITIVE_INFINITY);
+                    }
+                }
+                currentHand.riverActionsStats.get(pokerPos).add(action);
+            }
+            else currentHand.riverActionsStats.get(pokerPos).add(-(action-curActsOrInvests[pokerPos]));
+            rounds[pokerPos] = round;
+            if(action==currentHand.startStacksAtStreets[RIVER][pokerPos]) {curActsOrInvests[pokerPos] = -100; continue;}
+            // если нет значит обычный рейз
+            else curActsOrInvests[pokerPos] = action;
+
+
+        }
+        posPlayerRound=pokerPos;
+
+
+
+
+    }
+
+
+    private void totalHandNoAllin(){
+
+    }
 
 
 

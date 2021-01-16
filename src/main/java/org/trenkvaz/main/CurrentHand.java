@@ -5,6 +5,7 @@ import org.trenkvaz.database_hands.Work_DataBase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.*;
@@ -33,11 +34,11 @@ public class CurrentHand {
     int[] firstBetPostflopPokerPos = {-1,-1,-1,-1};
     int[] playersFoldOrAllIn = new int[6];
     boolean[] isFinishedStreets = {false,false,false,false};
-    boolean[] isStartStreets =  {false,false,false,false};
+    boolean[] isStartStreets =  {false,false,false,false,false};
     int startAmountPlayers = 0;
 
     float[] resultsAllin = new float[6];
-
+    float[] winLosePlayers = new float[6];
 
     List<List<Float>> preflopActionsStats = new ArrayList<>(6);
     List<List<Float>> flopActionsStats = new ArrayList<>(6);
@@ -89,7 +90,7 @@ public class CurrentHand {
             nicks_by_positions[i] = nicks[ocr.pokerPosIndWithNumOnTable[i]-1];
         }
         nicks = nicks_by_positions;
-
+        countResultHand();
         if(let_SaveTempHandsAndCountStatsCurrentGame){
             float[] stacks = new float[6];
             for(int i=0; i<6; i++){ stacks[i]=this.startStacks[i]; }
@@ -104,6 +105,17 @@ public class CurrentHand {
             ((byte) Arrays.asList(DECK).indexOf(cards_hero[0])*1000+(byte) Arrays.asList(DECK).indexOf(cards_hero[1])); }
 
 
+    private void countResultHand(){
+        if(streetAllIn!=-1){
+            for(int pokerPos =0; pokerPos<6; pokerPos++){
+                if(ocr.curActsOrInvests[pokerPos]==-10||ocr.pokerPosIndWithNumOnTable[pokerPos]==0)continue;
+                float invest = startStacks[pokerPos];
+                if(ocr.curActsOrInvests[pokerPos]!=-100)invest = ocr.curActsOrInvests[pokerPos];
+                winLosePlayers[pokerPos] = resultsAllin[pokerPos]-invest;
+            }
+        }
 
+
+    }
 
 }
