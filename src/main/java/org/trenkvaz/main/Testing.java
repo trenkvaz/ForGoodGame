@@ -364,17 +364,20 @@ public class Testing {
         resultturns+="winLose ";
         for(float r:testCurrentHand.winLosePlayers)resultturns+= r+" ";
         resultturns+="\r\n";
+
+        resultturns+= "result allin "; for(float r:testCurrentHand.resultsAllin)resultturns+= r+" ";
+        resultturns+="\r\n";
+        resultturns+=" ************************************************************************************* \r\n";
+
         if(!testCurrentHand.testAllines.stream().anyMatch(s->s.contains("ALL"))){
-            resultturns+=" ************************************************************************************* \r\n";
+
         Testing.write_LogTest(logtest+resultturns,"logtest");
         //Testing.write_LogTest(resultturns,"testturnplayers");
         } else {
             saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
                     "test2\\"+testCurrentHand.time_hand+"_allin");
-            String result = logtest+resultturns;
-            result+= "result allin "; for(float r:testCurrentHand.resultsAllin)result+= r+" ";
-            result+="\r\n ************************************************************************************* \r\n";
-            Testing.write_LogTest(result,"allines");
+
+            Testing.write_LogTest(logtest+resultturns,"allines");
         }
 
        /* String linemethodes = "";
@@ -1173,6 +1176,11 @@ public class Testing {
         }
     }
 
+    static int test(){
+        System.out.println(new Random().doubles());
+        return 1;
+    }
+
     public static void main(String[] args) throws Exception {
 
         OCR ocr = new OCR();
@@ -1196,10 +1204,11 @@ public class Testing {
         if(card==null) System.out.println("null");
         else Arrays.asList(card).forEach(System.out::println);*/
         //FLOP TURN RIVER TURN_ALL_PREFIN_am2
-        List<String> list = Arrays.asList("FLOP", "TURN", "TURN_ALL_PREFIN_am2");
+       /* List<String> list = Arrays.asList("FLOP", "TURN", "TURN_ALL_PREFIN_am2");
         System.out.println(list.stream().anyMatch(s->s.contains("ALL")));
         //Stream.of(list).forEach();
         String t = "TURN_ALL_PREFIN_am2";
-        System.out.println(t.contains("ALL"));
+        System.out.println(t.contains("ALL"));*/
+
     }
 }

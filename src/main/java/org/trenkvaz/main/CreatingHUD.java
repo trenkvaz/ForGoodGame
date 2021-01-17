@@ -41,7 +41,7 @@ public class CreatingHUD {
      static final int UTG = 0, MP = 1, CO = 2, BU = 3, SB = 4, BB = 5;
 
 
-    static DecimalFormat notZeroFormat = (DecimalFormat)NumberFormat.getNumberInstance(Locale.UK);
+     static DecimalFormat notZeroFormat = (DecimalFormat)NumberFormat.getNumberInstance(Locale.UK);
 
 
      public CreatingHUD(int table1){

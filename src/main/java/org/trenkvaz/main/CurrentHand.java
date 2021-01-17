@@ -2,6 +2,7 @@ package org.trenkvaz.main;
 
 import org.trenkvaz.database_hands.ReadHistoryGetStats;
 import org.trenkvaz.database_hands.Work_DataBase;
+import org.trenkvaz.ui.StartAppLauncher;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.*;
+import static org.trenkvaz.main.OCR.PREFLOP;
 //import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
 
 
@@ -39,6 +41,7 @@ public class CurrentHand {
 
     float[] resultsAllin = new float[6];
     float[] winLosePlayers = new float[6];
+    float[][] totalInvestsByStreet = new float[4][6];
 
     List<List<Float>> preflopActionsStats = new ArrayList<>(6);
     List<List<Float>> flopActionsStats = new ArrayList<>(6);
@@ -65,7 +68,8 @@ public class CurrentHand {
         nicks[0] = NICK_HERO;
         cards_hero[0] = ocr.current_hero_cards[0];
         cards_hero[1] = ocr.current_hero_cards[1];
-        //poker_positions_by_pos_table_for_nicks = ocr.pokerPosIndWithNumOnTable.clone();
+        totalInvestsByStreet[PREFLOP][4]= StartAppLauncher.SB;
+        totalInvestsByStreet[PREFLOP][5]= 1;
     }
 
 
@@ -106,14 +110,14 @@ public class CurrentHand {
 
 
     private void countResultHand(){
-        if(streetAllIn!=-1){
+        //if(streetAllIn!=-1){
             for(int pokerPos =0; pokerPos<6; pokerPos++){
-                if(ocr.curActsOrInvests[pokerPos]==-10||ocr.pokerPosIndWithNumOnTable[pokerPos]==0)continue;
+                if(ocr.pokerPosIndWithNumOnTable[pokerPos]==0)continue;
                 float invest = startStacks[pokerPos];
-                if(ocr.curActsOrInvests[pokerPos]!=-100)invest = ocr.curActsOrInvests[pokerPos];
+                if(ocr.curActsOrInvests[pokerPos]!=-100) for(int i=0; i<4; i++) invest = totalInvestsByStreet[i][pokerPos];
                 winLosePlayers[pokerPos] = resultsAllin[pokerPos]-invest;
             }
-        }
+       // }
 
 
     }
