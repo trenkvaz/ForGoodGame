@@ -114,7 +114,8 @@ public class CurrentHand {
             for(int pokerPos =0; pokerPos<6; pokerPos++){
                 if(ocr.pokerPosIndWithNumOnTable[pokerPos]==0)continue;
                 float invest = startStacks[pokerPos];
-                if(ocr.curActsOrInvests[pokerPos]!=-100) for(int i=0; i<4; i++) invest = totalInvestsByStreet[i][pokerPos];
+                if(ocr.curActsOrInvests[pokerPos]!=-100) {  invest = 0; for(int i=0; i<4; i++) invest += totalInvestsByStreet[i][pokerPos];}
+                System.out.println(pokerPos+"  "+resultsAllin[pokerPos]+" "+invest);
                 winLosePlayers[pokerPos] = resultsAllin[pokerPos]-invest;
             }
        // }

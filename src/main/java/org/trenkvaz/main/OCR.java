@@ -20,7 +20,6 @@ public class OCR implements Runnable {
 
     boolean is_run = true, start_hud = false, end_hud = false, show_text_in_hud = false, stop_show_text_in_hud = false;
     int table = -1;
-    int[] coord_of_table;
     Queue<FrameTable> queueFrameTable;
     FrameTable frameTable;
     CurrentHand currentHand;
@@ -58,7 +57,6 @@ public class OCR implements Runnable {
 
     public OCR(int table){
         creatingHUD = new CreatingHUD(table);
-        this.coord_of_table = COORDS_TABLES[table];
         this.table = table+1;
         queueFrameTable = new LinkedBlockingQueue<>();
         for(int i=0; i<6; i++){
@@ -127,7 +125,7 @@ public class OCR implements Runnable {
     private void main_work_on_table(){
         if(isTest){
         //if(table!=1&&table!=2)return;
-        //if(table!=5)return;
+        if(table!=5)return;
         }
 
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
@@ -347,7 +345,7 @@ public class OCR implements Runnable {
 
          for(int pokerPos = 0; pokerPos<6; pokerPos++){
              if(curActsOrInvests[pokerPos]==-10||pokerPosIndWithNumOnTable[pokerPos]==0)continue;
-             float action = getOneAction(pokerPos);
+             float action = getOneAction(pokerPos,true);
              if(action==-1) continue;
              currentHand.resultsAllin[pokerPos] = action;
          }
@@ -493,7 +491,7 @@ public class OCR implements Runnable {
             //System.out.println("*********************************************************");
 
             //show_img_from_arr_long(card_hash_from_table,14,14);
-            int first_of_pair_error = 0, second_of_pair_error = 0, limit_error = 15, total_error = 0,
+            int limit_error = 15, total_error = 0,
             number_with_min_error = -1, min_error = 15;
          out: for(int nominal_ind_list = 0; nominal_ind_list<52; nominal_ind_list++){
                 // сравнение количества черных пикселей между хешем_имдж из массива номиналы_карт с хешем_имдж со стола
@@ -737,7 +735,7 @@ public class OCR implements Runnable {
             float action = 0;
             // действия после херо если он еще не ходил не проверяются
             if(pokerPos>currentHand.pokerPosHero&&currentHand.preflopActionsStats.get(currentHand.pokerPosHero).size()==1)action = curActsOrInvests[pokerPos];
-            else action = getOneAction(pokerPos);
+            else action = getOneAction(pokerPos,true);
             if(action==-1)continue;
 
             float stack_without_action = getOneStack(pokerPos);
@@ -772,22 +770,25 @@ public class OCR implements Runnable {
     }
 
 
-    public float getOneAction(int poker_position){
+    public float getOneAction(int poker_position,boolean isCurrentTableImg){
         int xa = COORDS_ACTIONS[pokerPosIndWithNumOnTable[poker_position]-1][0];
         int ya = COORDS_ACTIONS[pokerPosIndWithNumOnTable[poker_position]-1][1]+2;
         int wa = 80;
         int ha = 11;
+        BufferedImage tableImg = frameTable.tableImg();
+        if(!isCurrentTableImg){if(!images_framestimehands.isEmpty())tableImg = images_framestimehands.get(images_framestimehands.size()-1).imges_frame();}
+        if(tableImg==null)return 0;
         // если поле пустое то действия вообще нет
-        if(!(get_int_MaxBrightnessMiddleImg(frameTable.tableImg(),xa,ya,wa,ha)>200))return 0;
+        if(!(get_int_MaxBrightnessMiddleImg(tableImg,xa,ya,wa,ha)>200))return 0;
         // если действие есть но с помехами нет возможности прочитать
-        if(!is_noCursorInterferenceImage(frameTable.tableImg(),xa,ya,wa,ha,240))return -1;
+        if(!is_noCursorInterferenceImage(tableImg,xa,ya,wa,ha,240))return -1;
         // получении хеша числа и если нулл это ошибка получения хеша
-        List<int[]> nums = get_list_intarr_HashNumberImg(frameTable.tableImg(),xa,ya+1,80,9,205,0,2,6,2);
+        List<int[]> nums = get_list_intarr_HashNumberImg(tableImg,xa,ya+1,80,9,205,0,2,6,2);
         if(nums==null) {
 
             Settings.ErrorLog(" hand "+currentHand.time_hand+" ERROR get_list_intarr_HashNumberImg ");
-            saveImageToFile(frameTable.tableImg().getSubimage(xa,ya,wa,ha),"test3\\"+(pokerPosIndWithNumOnTable[poker_position]-1)+"_"+table);
-            saveImageToFile(frameTable.tableImg(),"test3\\"+(pokerPosIndWithNumOnTable[poker_position]-1)+" hand "+currentHand.time_hand);
+            saveImageToFile(tableImg.getSubimage(xa,ya,wa,ha),"test3\\"+(pokerPosIndWithNumOnTable[poker_position]-1)+"_"+table);
+            saveImageToFile(tableImg,"test3\\"+(pokerPosIndWithNumOnTable[poker_position]-1)+" hand "+currentHand.time_hand);
             return -1;
 
         }
@@ -903,12 +904,13 @@ public class OCR implements Runnable {
                 //System.out.println("FOLD");
             }
              // если херо сходил, значит все остальные сфолдили
-            else for(int i=0; i<6; i++){
+            else {for(int i=0; i<6; i++){
                 if(curActsOrInvests[i]==-10||curActsOrInvests[i]==-100||pokerPosIndWithNumOnTable[i]==0||currentHand.pokerPosHero ==i)continue;
                 currentHand.preflopActionsStats.get(i).add(Float.NEGATIVE_INFINITY);
                 testCurrentHand.setTestStreetTurnsPlayers(PREFLOP,i,"fin_wns_F ");
             }
-            currentHand.resultsAllin[currentHand.pokerPosHero] = getOneAction(currentHand.pokerPosHero);
+            currentHand.resultsAllin[currentHand.pokerPosHero] = getOneAction(currentHand.pokerPosHero,false);
+            }
             currentHand.isFinishedStreets[PREFLOP] = true;
         }
         else {
@@ -1047,7 +1049,7 @@ public class OCR implements Runnable {
 
     private float getTurnOfPlayer(int pokerPos){
         if(is_Fold(pokerPos)){   return -10;}
-        float action = getOneAction(pokerPos);
+        float action = getOneAction(pokerPos,true);
         if(action==0||action==-1)return -1;
         return action;
     }
@@ -1128,12 +1130,13 @@ public class OCR implements Runnable {
                 //System.out.println("FOLD");
             }
             // если херо сходил, значит все остальные сфолдили
-            else for(int p=0; p<6; p++){
+            else {for(int p=0; p<6; p++){
                 if(curActsOrInvests[p]==-10||curActsOrInvests[p]==-100||pokerPosIndWithNumOnTable[p]==0||currentHand.pokerPosHero ==p)continue;
                 actionsStats.get(p).add(Float.NEGATIVE_INFINITY);
                 testCurrentHand.setTestStreetTurnsPlayers(street,p,"fin_wns_F ");
             }
-            currentHand.resultsAllin[currentHand.pokerPosHero] = getOneAction(currentHand.pokerPosHero);
+            currentHand.resultsAllin[currentHand.pokerPosHero] = getOneAction(currentHand.pokerPosHero,false);
+            }
             currentHand.isFinishedStreets[street] = true;
         } // Есть следующая улица
         else {
