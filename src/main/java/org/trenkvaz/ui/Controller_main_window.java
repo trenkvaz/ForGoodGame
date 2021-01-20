@@ -8,6 +8,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import org.trenkvaz.main.CaptureVideo;
 import org.trenkvaz.main.OCR;
+import org.trenkvaz.main.Testing;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -53,6 +54,7 @@ public class Controller_main_window {
         //System.out.println("Average time "+(testTime/testTimecount)+" count "+testTimecount);
         //System.out.println("Average time "+(alltime/counttime)+" count "+counttime);
         System.out.println("stop");
+        Testing.write_LogTest("TOTAL "+totalResultHero+"\r\n","resultHero");
     }
 
     @FXML public void set_show_hud(){

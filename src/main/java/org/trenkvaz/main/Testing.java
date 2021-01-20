@@ -380,6 +380,9 @@ public class Testing {
             Testing.write_LogTest(logtest+resultturns,"allines");
         }
 
+        String resultHero = testCurrentHand.time_hand+" "+testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1]+
+                " "+testCurrentHand.winLosePlayers[testCurrentHand.poker_position_of_hero]+"\r\n";
+        Testing.write_LogTest(resultHero,"resultHero");
        /* String linemethodes = "";
         for(String method:testCurrentHand.methodes)linemethodes+=method+"\r\n";
         System.out.println(linemethodes);*/
@@ -482,7 +485,7 @@ public class Testing {
     }
 
 
-    static void write_LogTest(String test,String namefile){
+    public static void write_LogTest(String test,String namefile){
 
 
         try {

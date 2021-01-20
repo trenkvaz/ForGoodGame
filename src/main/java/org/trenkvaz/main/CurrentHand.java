@@ -4,6 +4,8 @@ import org.trenkvaz.database_hands.ReadHistoryGetStats;
 import org.trenkvaz.database_hands.Work_DataBase;
 import org.trenkvaz.ui.StartAppLauncher;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,6 +13,8 @@ import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OCR.PREFLOP;
+import static org.trenkvaz.ui.StartAppLauncher.SCALE;
+import static org.trenkvaz.ui.StartAppLauncher.totalResultHero;
 //import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
 
 
@@ -24,6 +28,7 @@ public class CurrentHand {
 
 
     int pokerPosHero = -1;
+
 
     //int[] poker_positions_by_pos_table_for_nicks;
     boolean is_nicks_filled = false, is_stacks_filled = false;
@@ -95,6 +100,7 @@ public class CurrentHand {
         }
         nicks = nicks_by_positions;
         countResultHand();
+        roundingAllNums();
         if(let_SaveTempHandsAndCountStatsCurrentGame){
             float[] stacks = new float[6];
             for(int i=0; i<6; i++){ stacks[i]=this.startStacks[i]; }
@@ -110,17 +116,44 @@ public class CurrentHand {
 
 
     private void countResultHand(){
-        //if(streetAllIn!=-1){
             for(int pokerPos =0; pokerPos<6; pokerPos++){
                 if(ocr.pokerPosIndWithNumOnTable[pokerPos]==0)continue;
-                float invest = startStacks[pokerPos];
-                if(ocr.curActsOrInvests[pokerPos]!=-100) {  invest = 0; for(int i=0; i<4; i++) invest += totalInvestsByStreet[i][pokerPos];}
-                System.out.println(pokerPos+"  "+resultsAllin[pokerPos]+" "+invest);
-                winLosePlayers[pokerPos] = resultsAllin[pokerPos]-invest;
+                float invest = 0; for(int i=0; i<4; i++) invest += totalInvestsByStreet[i][pokerPos];
+                winLosePlayers[pokerPos] =  BigDecimal.valueOf(resultsAllin[pokerPos]-invest).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
             }
-       // }
+        totalResultHero+=winLosePlayers[pokerPosHero];
+    }
 
 
+    private void roundingAllNums(){
+        for(int pokerPos = 0; pokerPos<6; pokerPos++){
+            if(ocr.pokerPosIndWithNumOnTable[pokerPos]==0)continue;
+            startStacks[pokerPos] = BigDecimal.valueOf(startStacks[pokerPos]).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
+
+            for(int indAct=1; indAct<preflopActionsStats.get(pokerPos).size(); indAct++){
+                float act = preflopActionsStats.get(pokerPos).get(indAct);
+                if(act==0||act==Float.NEGATIVE_INFINITY||act==Float.POSITIVE_INFINITY)continue;
+                preflopActionsStats.get(pokerPos).set(indAct,BigDecimal.valueOf(act).setScale(SCALE, RoundingMode.HALF_UP).floatValue());
+            }
+
+            for(int indAct=0; indAct<flopActionsStats.get(pokerPos).size(); indAct++){
+                float act = flopActionsStats.get(pokerPos).get(indAct);
+                if(act==0||act==Float.NEGATIVE_INFINITY||act==Float.POSITIVE_INFINITY)continue;
+                flopActionsStats.get(pokerPos).set(indAct,BigDecimal.valueOf(act).setScale(SCALE, RoundingMode.HALF_UP).floatValue());
+            }
+
+            for(int indAct=0; indAct<turnActionsStats.get(pokerPos).size(); indAct++){
+                float act = turnActionsStats.get(pokerPos).get(indAct);
+                if(act==0||act==Float.NEGATIVE_INFINITY||act==Float.POSITIVE_INFINITY)continue;
+                turnActionsStats.get(pokerPos).set(indAct,BigDecimal.valueOf(act).setScale(SCALE, RoundingMode.HALF_UP).floatValue());
+            }
+
+            for(int indAct=0; indAct<riverActionsStats.get(pokerPos).size(); indAct++){
+                float act = riverActionsStats.get(pokerPos).get(indAct);
+                if(act==0||act==Float.NEGATIVE_INFINITY||act==Float.POSITIVE_INFINITY)continue;
+                riverActionsStats.get(pokerPos).set(indAct,BigDecimal.valueOf(act).setScale(SCALE, RoundingMode.HALF_UP).floatValue());
+            }
+        }
     }
 
 }
