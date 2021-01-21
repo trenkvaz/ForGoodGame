@@ -25,7 +25,7 @@ public class CorrectNicksStats {
     // дальше удаляет из списка старых ников такие дубликаты и удаляет эти ники их статы из базы
     // Новый список ников не затрагивается.По нему только определяются наличие дубликатов в базе данных на основе старого списка ников
     // который изменяется удалением из него ников
-    // МЕНЯТЬ НАЗВАНИЯ ФАЙЛОВ чтение последнее число и запись новое число в конце !!!!!!!!!!!
+    // МЕНЯТЬ НАЗВАНИЯ ФАЙЛОВ у нового файла на делетед а старый делетев удалять
 
     public static void read_Newfile_with_nicks_and_img_pixs(){
         try {
@@ -52,7 +52,7 @@ public class CorrectNicksStats {
 
     public static void read_OLDfile_with_nicks_and_img_pixs(){
         try {
-            BufferedReader br = new BufferedReader(new FileReader(new File(home_folder+"\\arhive_nicks\\nicks_img_deleted4.txt")));
+            BufferedReader br = new BufferedReader(new FileReader(new File(home_folder+"\\arhive_nicks\\nicks_img_deleted.txt")));
             String line;
             while ((line = br.readLine()) != null) {
                 if(!(line.startsWith("*")&&line.endsWith("*")))break;
@@ -90,9 +90,10 @@ public class CorrectNicksStats {
     }
 
     // коррекция главного списка ников убирание дубликатов и объединение их стат
+    // полученный новый файл ников переименовывать в стандартный и переносить в папку настроеек и заменять текущий файл с никами
     static void checkDublicatHashLikeImg(){
         read_Newfile_with_nicks_and_img_pixs();
-        read_OLDfile_with_nicks_and_img_pixs();
+        //read_OLDfile_with_nicks_and_img_pixs();
         count_one_in_numbers = Settings.read_ObjectFromFile("count_one_in_numbers");
         boolean printid = true;
         Map<String, List<String>> main_map_newnick_oldnicks = new HashMap<>();
@@ -111,6 +112,7 @@ public class CorrectNicksStats {
                 if(!main_map_newnick_oldnicks.get(nid).contains(nid2)) main_map_newnick_oldnicks.get(nid).add(nid2);
             }
         }
+        main_map_newnick_oldnicks.remove("aenea");
         for(String nick:main_map_newnick_oldnicks.keySet()){
             System.out.print(nick+" : ");
             for(String nicks:main_map_newnick_oldnicks.get(nick)) System.out.print(nicks+" ");
@@ -255,8 +257,8 @@ public class CorrectNicksStats {
     }
 
     public static void main(String[] args) {
-        //select_AllNicks();
-        checkDublicatHashLikeImg();
+        select_AllNicks();
+        //checkDublicatHashLikeImg();
         // смещение битов последнего числа
        /* read_OLDfile_with_nicks_and_img_pixs();
         for(Map.Entry<Long,long[]> entry:sortedmap_all_imgs_pix_of_OLDnicks.entrySet()){
