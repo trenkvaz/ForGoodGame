@@ -27,6 +27,8 @@ import org.bytedeco.ffmpeg.global.avutil;
 import org.trenkvaz.stats.MainStats;
 
 //import static org.trenkvaz.database_hands.Work_DataBase.main_array_of_stats;
+import javax.imageio.ImageIO;
+
 import static org.trenkvaz.main.CaptureVideo.Settings.get_StatsFromDataBase;
 import static org.trenkvaz.main.Testing.saveImageToFile;
 import static org.trenkvaz.ui.Controller_main_window.*;
@@ -104,7 +106,7 @@ public class CaptureVideo {
        }
 
        public void run(){
-
+        boolean start = true;
            while (is_run){
                System.out.println("START CAPTURE");
                grabber = connect_stream();
@@ -116,6 +118,9 @@ public class CaptureVideo {
                } catch (InterruptedException e) {
                    e.printStackTrace();
                }
+
+               /*if(start)testOcr();
+               start = false;*/
            }
        }
 
@@ -132,6 +137,12 @@ public class CaptureVideo {
            ocrList_1.set(table,null);
        }
    }
+
+
+
+
+
+
 
    static FFmpegFrameGrabber connect_stream(){
 

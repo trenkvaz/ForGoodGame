@@ -14,6 +14,9 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.RescaleOp;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -62,6 +65,8 @@ class TestCurrentHand {
     List<String> testAllines = new ArrayList<>();
 
     List<List<String>> turnsPlayersInStreets = new ArrayList<>();
+
+    List<String> signalsGetNumHand = new ArrayList<>();
 
     public TestCurrentHand(OCR ocr1){
         ocr = ocr1;
@@ -150,7 +155,7 @@ class TestCurrentHand {
 
 
 public class Testing {
-
+   static String[] currErrorCards = new String[]{"","","","","",""};
 
 
 
@@ -372,12 +377,14 @@ public class Testing {
         if(!testCurrentHand.testAllines.stream().anyMatch(s->s.contains("ALL"))){
 
         Testing.write_LogTest(logtest+resultturns,"logtest");
-        //Testing.write_LogTest(resultturns,"testturnplayers");
+            writeResultByStreet(testCurrentHand.testAllines,testCurrentHand.time_hand,
+                    testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1],testCurrentHand.winLosePlayers[testCurrentHand.poker_position_of_hero]);
         } else {
             saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
                     "test2\\"+testCurrentHand.time_hand+"_allin");
 
             Testing.write_LogTest(logtest+resultturns,"allines");
+
         }
 
         String resultHero = testCurrentHand.time_hand+" "+testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1]+
@@ -388,6 +395,18 @@ public class Testing {
         System.out.println(linemethodes);*/
     }
 
+
+    public static void writeResultByStreet(List<String> testAllines, long time_hand, String cards, float heroResult){
+        String nameFile = "totalPreflop";
+        String result = time_hand+" "+cards+"  "+heroResult+"\r\n";
+        if(!testAllines.isEmpty()){
+            if(testAllines.size()==1){nameFile = "totalFlop"; totalStreetHero[1]+=heroResult;          }
+            if(testAllines.size()==2){nameFile = "totalTurn"; totalStreetHero[2]+=heroResult;          }
+            if(testAllines.size()==3){nameFile = "totalRiver"; totalStreetHero[3]+=heroResult;         }
+        } else totalStreetHero[0]+=heroResult;
+
+        Testing.write_LogTest(result,nameFile);
+    }
 
 
     public static void testSaveImgFrameTimeHand(List<OCR.TestRecFrameTimeHand> images_framestimehands,String errorname,int amountFrames){
@@ -403,10 +422,26 @@ public class Testing {
 
     public static void showStartEndImg(TestCurrentHand testCurrentHand,String errorname){
         BufferedImage[] images = testCurrentHand.startAndEndImgOfHand.clone();
-        new Thread(()->{  if(images[0]!=null)saveImageToFile(images[0],"test4\\"+testCurrentHand.time_hand+"_start_"+errorname);
-                          if(images[1]!=null)saveImageToFile(images[1],"test4\\"+testCurrentHand.time_hand+"_end_stop_"+testCurrentHand.isEndStopSignal+"_"+errorname);
-        }).start();
+
+        if((testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1]).equals(currErrorCards[testCurrentHand.table-1])){
+            String signals = testCurrentHand.time_hand+" "+testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1]+"\r\n";
+            for(String s:testCurrentHand.signalsGetNumHand)signals+=s+"\r\n";
+            Testing.write_LogTest(signals,"UnknownError");
+            new Thread(()->{  if(images[0]!=null)saveImageToFile(images[0],"UnknownERROR\\"+testCurrentHand.time_hand+"_start_"+errorname);
+            }).start();
+        } else {
+            new Thread(()->{  if(images[0]!=null)saveImageToFile(images[0],"test4\\"+testCurrentHand.time_hand+"_start_"+errorname);
+                if(images[1]!=null)saveImageToFile(images[1],"test4\\"+testCurrentHand.time_hand+"_end_stop_"+testCurrentHand.isEndStopSignal+"_"+errorname);
+            }).start();
+
+            currErrorCards[testCurrentHand.table-1] = testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1];
+
+        }
+
+
     }
+
+
 
 
     static String leftpad(String text, int length) { return String.format("%" + length + "." + length + "s", text); }
@@ -423,12 +458,6 @@ public class Testing {
             e.printStackTrace();
         }
     }
-
-
-
-
-
-
 
 
     public synchronized static void saveImageToFolder(BufferedImage image, String name_file){
@@ -487,7 +516,6 @@ public class Testing {
 
     public static void write_LogTest(String test,String namefile){
 
-
         try {
             OutputStream  os = new FileOutputStream(new File(home_folder+"\\test\\"+namefile+".txt"), true);
             os.write(test.getBytes(StandardCharsets.UTF_8));
@@ -499,6 +527,15 @@ public class Testing {
 
     }
 
+    static void clearTextFiles(){
+        String[] namefiles = {"totalRiver","totalTurn","totalFlop","totalPreflop","UnknownError","resultHero","logtest","allines"};
+        try {
+            for(String namefile:namefiles)
+                Files.newBufferedWriter(Paths.get(home_folder+"\\test\\"+namefile+".txt"), StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     static void write_TextToFile(List<String> strings,String name_file){
         int index = name_file.lastIndexOf("\\");
@@ -1184,6 +1221,19 @@ public class Testing {
         return 1;
     }
 
+    static void testOcr(){
+        boolean[] metaDates = new boolean[4];int[] whoPlayOrNo = {1,1,1,1,1,1};metaDates[0] = true;metaDates[1] = true;int i =0;
+        for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\UnknownERROR2").listFiles()){
+            if(a.isFile()){
+                try { BufferedImage image = ImageIO.read(a);ocrList_1.get(0).addFrameTableToQueue(new FrameTable(image,metaDates,whoPlayOrNo));
+                } catch (IOException e) { e.printStackTrace(); }
+                try { Thread.sleep(30); } catch (InterruptedException e) { e.printStackTrace(); }
+            }
+        }
+    }
+
+
+
     public static void main(String[] args) throws Exception {
 
         OCR ocr = new OCR();
@@ -1213,5 +1263,6 @@ public class Testing {
         String t = "TURN_ALL_PREFIN_am2";
         System.out.println(t.contains("ALL"));*/
 
+       clearTextFiles();
     }
 }

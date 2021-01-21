@@ -55,6 +55,10 @@ public class Controller_main_window {
         //System.out.println("Average time "+(alltime/counttime)+" count "+counttime);
         System.out.println("stop");
         Testing.write_LogTest("TOTAL "+totalResultHero+"\r\n","resultHero");
+        Testing.write_LogTest("TOTAL "+totalStreetHero[0]+"\r\n","totalPreflop");
+        Testing.write_LogTest("TOTAL "+totalStreetHero[1]+"\r\n","totalFlop");
+        Testing.write_LogTest("TOTAL "+totalStreetHero[2]+"\r\n","totalTurn");
+        Testing.write_LogTest("TOTAL "+totalStreetHero[3]+"\r\n","totalRiver");
     }
 
     @FXML public void set_show_hud(){

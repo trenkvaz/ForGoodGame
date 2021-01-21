@@ -90,6 +90,7 @@ public class OCR implements Runnable {
                 } catch (InterruptedException e) { e.printStackTrace(); }
                 }
             }
+
         } catch (Exception e){
 
             show_test_total_hand(testCurrentHand,true);
@@ -103,7 +104,7 @@ public class OCR implements Runnable {
 
     boolean isShowSlowWork = false;
     public synchronized void addFrameTableToQueue(FrameTable frameTable1){ queueFrameTable.offer(frameTable1);
-
+        //System.out.println(queueFrameTable.size());
         if(queueFrameTable.size()>50&&!isShowSlowWork){ isShowSlowWork = true;
 
             System.out.println("table "+table+"    "+ queueFrameTable.size());c++;
@@ -127,7 +128,7 @@ public class OCR implements Runnable {
     private void main_work_on_table(){
         if(isTest){
         //if(table!=1&&table!=2)return;
-        if(table!=3)return;
+        //if(table!=5)return;
         }
 
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
@@ -162,7 +163,7 @@ public class OCR implements Runnable {
             initNewHand();
             testCurrentHand = new TestCurrentHand(this);
             testCurrentHand.setStartConditions(currentHand,testStartByNumHand);
-
+            testCurrentHand.signalsGetNumHand.add(testSignalStartHand);
         }
         //if(currentHand.isStartStreets[RIVER]) saveImageToFile(frameTable.tableImg(),"testM\\_"+(c++));
 
@@ -585,6 +586,7 @@ public class OCR implements Runnable {
 
     int c =0;
 
+    String testSignalStartHand = "";
 
     int get_number_hand(){
         if(testCurrentHand!=null)testCurrentHand.addMethod("get_number_hand");
@@ -606,10 +608,14 @@ public class OCR implements Runnable {
         // БУ может отсутствовать и в начале новой и в конце старой раздачи,новая это раздача или старая проверяется по картам
         // важно наличие БУ в начале новой раздачи, если раздача новая без БУ то кадр пропускается
         // если БУ нет в конце раздачи, то такой кадр обрабатывается
+        testSignalStartHand = "";
+
        if(bu==-1){
            if(currentHand==null)return 0;
            if(hero_cards[0].equals(current_hero_cards[0])&&hero_cards[1].equals(current_hero_cards[1])){
                if(startSecondHand) {
+                   testSignalStartHand = "bu-1";
+
                    int samenumhand = checkSameNumberHand(1);
                    //System.out.println(BLUE+checkSameNumberHand(1));
                    if(samenumhand==1){testStartByNumHand = true;}
@@ -625,13 +631,14 @@ public class OCR implements Runnable {
                current_hero_cards[0] = hero_cards[0];current_hero_cards[1] = hero_cards[1];
                current_bu = bu;
                hud.clear_hud(table-1);
-
+               testSignalStartHand = "CardsBU==cursHandnull";
                if(startSecondHand) return checkSameNumberHand(0);
                    ///System.out.println(RED+checkSameNumberHand(0));
                return 1;
                // если текущая рука есть то проверяется соответствие номера текущему номеру 1 значит новая рука началась
            } else {
                if(startSecondHand) {
+                   testSignalStartHand = "CardsBU==cursHandNotnull";
                int samenumhand =  checkSameNumberHand(1);
                //TEST
                if(samenumhand==1)testStartByNumHand = true;
@@ -643,8 +650,10 @@ public class OCR implements Runnable {
            current_hero_cards[0] = hero_cards[0];current_hero_cards[1] = hero_cards[1];
            if(bu!=current_bu){ current_bu = bu; }
            hud.clear_hud(table-1);
-
+           testSignalStartHand = "CardsBU!=";
            if(startSecondHand) return checkSameNumberHand(0);
+
+
            return 1;
        }
     }
@@ -687,6 +696,9 @@ public class OCR implements Runnable {
             list_of_hashimgs_namberhand.clear();
             list_of_hashimgs_namberhand.add(hashNumberHand);
             currentHashNuberhand = null;
+
+            testSignalStartHand+="checkSameNumberHand_r0";
+
             return 1;
         } else {
             // по ходу руки если номер руки еще не выбран из трех изо, то заполняется список тремя номерами до тех пор пока все номера будут идентичны
@@ -716,7 +728,7 @@ public class OCR implements Runnable {
                        for(int i=1; i<3; i++){ if(compare_LongHashes(list_of_hashimgs_namberhand.get(1),list_of_hashimgs_namberhand.get(i),6))continue;
                            same_number = false; break;
                        }
-                       if(same_number){return 1; }
+                       if(same_number){  testSignalStartHand+="checkSameNumberHand_newHand";   return 1; }
                        else list_of_hashimgs_namberhand.remove(0);
                    }
                    return 0;
@@ -1195,7 +1207,7 @@ public class OCR implements Runnable {
             //if(rounds[pokerPos]>0&&rounds[pokerPos]==round){ pokerPos++; break;}
             //System.out.println(pokerPos);
             float action = getTurnOfPlayer(pokerPos);
-            System.out.println(pokerPos+" "+action);
+            //System.out.println(pokerPos+" "+action);
             if(action==-1||action==curActsOrInvests[pokerPos]){  testCurrentHand.setTestStreetTurnsPlayers(RIVER,pokerPos,"A:"+action+" "); continue;}
             if(action==-10){curActsOrInvests[pokerPos] = -10;  currentHand.riverActionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
                 testCurrentHand.setTestStreetTurnsPlayers(RIVER,pokerPos,"F "); continue;}
@@ -1209,7 +1221,8 @@ public class OCR implements Runnable {
 
             float stack = getOneStack(pokerPos);
             if(stack==-11)continue;
-            if(stack>0){ if(stack==currentHand.startStacksAtStreets[RIVER][pokerPos]){
+            if(stack>0){ if(stack==BigDecimal.valueOf(currentHand.startStacksAtStreets[RIVER][pokerPos]-curActsOrInvests[pokerPos]).
+                    setScale(SCALE, RoundingMode.HALF_UP).floatValue()){
                 currentHand.isStartStreets[ENDRIVER] = true; currentHand.resultsAllin[pokerPos] = action; continue;} }
 
             if(action>maxRaise){ maxRaise = action; round++;
