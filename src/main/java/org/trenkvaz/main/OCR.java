@@ -355,21 +355,27 @@ public class OCR implements Runnable {
             if(bet<0)if(!(currStackHero-Math.abs(bet)<0))currStackHero+=bet;
             lastBet = Math.abs(bet);
         }
+        float startStack = currStackHero;
         for(float bet:currentHand.flopActionsStats.get(currentHand.pokerPosHero)){
             if(bet==Float.NEGATIVE_INFINITY){isFoldHero = true;break;}
-            if(bet>0)currStackHero =currentHand.startStacks[currentHand.pokerPosHero] - bet;
+            if(bet==Float.POSITIVE_INFINITY)continue;
+            if(bet>0)currStackHero =startStack - bet;
             if(bet<0)if(!(currStackHero-Math.abs(bet)<0))currStackHero+=bet;
             lastBet = Math.abs(bet);
         }
+        startStack = currStackHero;
         for(float bet:currentHand.turnActionsStats.get(currentHand.pokerPosHero)){
             if(bet==Float.NEGATIVE_INFINITY){isFoldHero = true;break;}
-            if(bet>0)currStackHero =currentHand.startStacks[currentHand.pokerPosHero] - bet;
+            if(bet==Float.POSITIVE_INFINITY)continue;
+            if(bet>0)currStackHero =startStack - bet;
             if(bet<0)if(!(currStackHero-Math.abs(bet)<0))currStackHero+=bet;
             lastBet = Math.abs(bet);
         }
+        startStack = currStackHero;
         for(float bet:currentHand.riverActionsStats.get(currentHand.pokerPosHero)){
             if(bet==Float.NEGATIVE_INFINITY){isFoldHero = true;break;}
-            if(bet>0)currStackHero =currentHand.startStacks[currentHand.pokerPosHero] - bet;
+            if(bet==Float.POSITIVE_INFINITY)continue;
+            if(bet>0)currStackHero =startStack - bet;
             if(bet<0)if(!(currStackHero-Math.abs(bet)<0))currStackHero+=bet;
             lastBet = Math.abs(bet);
         }
