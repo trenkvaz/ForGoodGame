@@ -46,8 +46,7 @@ class TestCurrentHand {
     BufferedImage[] startAndEndImgOfHand = new BufferedImage[2];
     boolean isEndStopSignal = false;
     float[] definedStacks = new float[6];
-    float[] resultsAllin;
-    float[] winLosePlayers;
+    float resultHero;
     int streetAllIn = -1;
 
     List<String> methodes = new ArrayList<>();
@@ -91,8 +90,6 @@ class TestCurrentHand {
         this.turnActionsStats = currentHand.turnActionsStats;
         this.riverActionsStats = currentHand.riverActionsStats;
         this.startStacks = currentHand.startStacks;
-        this.resultsAllin = currentHand.resultsAllin;
-        this.winLosePlayers = currentHand.winLosePlayers;
     }
 
     public void setNicks(String[] nicks1){ nicks = nicks1.clone(); }
@@ -366,19 +363,15 @@ public class Testing {
         System.out.println(RESET+"******************************************");
 
         //logtest+="****************************************** \r\n";
-        resultturns+="winLose ";
-        for(float r:testCurrentHand.winLosePlayers)resultturns+= r+" ";
-        resultturns+="\r\n";
+        resultturns+="winLose "+testCurrentHand.resultHero+"\r\n";
 
-        resultturns+= "result allin "; for(float r:testCurrentHand.resultsAllin)resultturns+= r+" ";
-        resultturns+="\r\n";
         resultturns+=" ************************************************************************************* \r\n";
 
         if(!testCurrentHand.testAllines.stream().anyMatch(s->s.contains("ALL"))){
 
         Testing.write_LogTest(logtest+resultturns,"logtest");
             writeResultByStreet(testCurrentHand.testAllines,testCurrentHand.time_hand,
-                    testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1],testCurrentHand.winLosePlayers[testCurrentHand.poker_position_of_hero]);
+                    testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1],testCurrentHand.resultHero);
         } else {
             saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
                     "test2\\"+testCurrentHand.time_hand+"_allin");
@@ -388,7 +381,7 @@ public class Testing {
         }
 
         String resultHero = testCurrentHand.time_hand+" "+testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1]+
-                " "+testCurrentHand.winLosePlayers[testCurrentHand.poker_position_of_hero]+"\r\n";
+                " "+testCurrentHand.resultHero+"\r\n";
         Testing.write_LogTest(resultHero,"resultHero");
        /* String linemethodes = "";
         for(String method:testCurrentHand.methodes)linemethodes+=method+"\r\n";

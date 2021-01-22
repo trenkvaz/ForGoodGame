@@ -13,8 +13,7 @@ import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OCR.PREFLOP;
-import static org.trenkvaz.ui.StartAppLauncher.SCALE;
-import static org.trenkvaz.ui.StartAppLauncher.totalResultHero;
+import static org.trenkvaz.ui.StartAppLauncher.*;
 //import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
 
 
@@ -44,14 +43,16 @@ public class CurrentHand {
     boolean[] isStartStreets =  {false,false,false,false,false};
     int startAmountPlayers = 0;
 
-    float[] resultsAllin = new float[6];
-    float[] winLosePlayers = new float[6];
-    float[][] totalInvestsByStreet = new float[4][6];
+    float[] startInvest = {0,0,0,0,SB,1};
 
     List<List<Float>> preflopActionsStats = new ArrayList<>(6);
     List<List<Float>> flopActionsStats = new ArrayList<>(6);
     List<List<Float>> turnActionsStats = new ArrayList<>(6);
     List<List<Float>> riverActionsStats = new ArrayList<>(6);
+
+
+    /*List<List<String>> allActionsTest = new ArrayList<>(6);
+    float[] currentStacks = new float[6];*/
 
     public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, String[] nicks){}
     CreatingHUD creatingHUD;
@@ -67,14 +68,18 @@ public class CurrentHand {
             preflopActionsStats.add(new ArrayList<>()); preflopActionsStats.get(i).add(0.0f);
             flopActionsStats.add(new ArrayList<>());turnActionsStats.add(new ArrayList<>());riverActionsStats.add(new ArrayList<>());
             startStacks[i] = 0f;
+/*
+            allActionsTest.add(new ArrayList<>());
+            if(i<4)allActionsTest.get(i).add("0");
+            if(i==4)allActionsTest.get(i).add(SB+"");
+            if(i==5)allActionsTest.get(i).add("1");*/
         }
         time_hand =  get_HandTime();
         position_bu_on_table = ocr.current_bu;
         nicks[0] = NICK_HERO;
         cards_hero[0] = ocr.current_hero_cards[0];
         cards_hero[1] = ocr.current_hero_cards[1];
-        totalInvestsByStreet[PREFLOP][4]= StartAppLauncher.SB;
-        totalInvestsByStreet[PREFLOP][5]= 1;
+
     }
 
 
@@ -99,7 +104,6 @@ public class CurrentHand {
             nicks_by_positions[i] = nicks[ocr.pokerPosIndWithNumOnTable[i]-1];
         }
         nicks = nicks_by_positions;
-        countResultHand();
         roundingAllNums();
         if(let_SaveTempHandsAndCountStatsCurrentGame){
             float[] stacks = new float[6];
@@ -115,14 +119,6 @@ public class CurrentHand {
             ((byte) Arrays.asList(DECK).indexOf(cards_hero[0])*1000+(byte) Arrays.asList(DECK).indexOf(cards_hero[1])); }
 
 
-    private void countResultHand(){
-            for(int pokerPos =0; pokerPos<6; pokerPos++){
-                if(ocr.pokerPosIndWithNumOnTable[pokerPos]==0)continue;
-                float invest = 0; for(int i=0; i<4; i++) invest += totalInvestsByStreet[i][pokerPos];
-                winLosePlayers[pokerPos] =  BigDecimal.valueOf(resultsAllin[pokerPos]-invest).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
-            }
-        totalResultHero+=winLosePlayers[pokerPosHero];
-    }
 
 
     private void roundingAllNums(){
