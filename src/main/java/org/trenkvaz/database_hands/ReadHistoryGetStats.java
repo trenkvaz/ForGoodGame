@@ -17,15 +17,24 @@ import static org.trenkvaz.database_hands.Work_DataBase.*;
 public class ReadHistoryGetStats {
 
     //static Map<String,Integer> map_nicks_idplayers;
-    static List<List<Float>> preflop_actions = new ArrayList<>(6);
+    static List<List<Float>> preflopActions = new ArrayList<>(6);
+    static List<List<Float>> flopActions = new ArrayList<>(6);
+    static List<List<Float>> turnActions = new ArrayList<>(6);
+    static List<List<Float>> riverActions = new ArrayList<>(6);
     static String[] nicks = new String[6]; static float[] stacks = new float[6];
     static int[] id_players = new int[6];
-    static final String summary = "** Summary", dealing_flop = "** Dealing Flop", folds = " folds ", calls = " calls ", raises = " raises ", checks = " checks ";
+    static final String summary = "** Summary", dealing_flop = "** Dealing Flop", folds = " folds ", calls = " calls ", raises = " raises ", checks = " checks ",
+    bets = " bets ", dealing_turn = "** Dealing Turn", dealing_river = "** Dealing River";
     static float[][] posActions;
     static byte[][][] preflop_players_actions_in_raunds;
     static MainStats[] mainstats;
 
-    static {  for(int f=0; f<6; f++){ preflop_actions.add(new ArrayList<Float>()); preflop_actions.get(f).add(0.0f); } }
+    static {  for(int f=0; f<6; f++){
+        preflopActions.add(new ArrayList<Float>()); preflopActions.get(f).add(0.0f);
+        flopActions.add(new ArrayList<Float>());
+        turnActions.add(new ArrayList<Float>());
+        riverActions.add(new ArrayList<Float>());
+    } }
 
 
     static void start_ReadFilesInFolder(String folder){
@@ -67,10 +76,15 @@ public class ReadHistoryGetStats {
 
 
     private static void read_HandHistory(List<String> hand){
+     //if(!hand.get(0).equals("***** Hand History For Game 1611344734614 *****"))return;
      float bb = read_BB(hand.get(1));
      int amountPlayers = read_StacksAndNicks(hand,bb);
+     int startLine = amountPlayers+7;
 
-     read_PreflopActions(hand,bb);
+     for(int street = 0; street<4; street++) {startLine = read_PreflopActions(hand,bb,startLine,street);
+     if(startLine==-1)break;
+     }
+
         for(int i=0; i<6; i++){
             if(nicks[i]==null)continue;
             nicks[i] = "$ю$"+nicks[i]+"$ю$";
@@ -79,47 +93,78 @@ public class ReadHistoryGetStats {
      for(MainStats stats:mainstats)
          stats.count_Stats_for_map(preflop_players_actions_in_raunds,nicks,stacks,(byte) amountPlayers,posActions,false);
 
+
+     //test_show(hand.get(0));
      clear_UsedArrays();
 
     }
 
+    static final int PREFLOP = 0, FLOP =1, TURN = 2, RIVER = 3;
 
-    private static void read_PreflopActions(List<String> hand,float bb){
-
-        for(int i_line = 13; i_line<hand.size(); i_line++){
-            if(hand.get(i_line).startsWith(summary)||hand.get(i_line).startsWith(dealing_flop))break;
+    private static int read_PreflopActions(List<String> hand,float bb,int startLine,int street){
+        String dealingStreet = summary; List<List<Float>> actions = null;
+        if(street==PREFLOP){dealingStreet = dealing_flop;  actions = preflopActions;            }
+        if(street==FLOP){dealingStreet = dealing_turn;actions = flopActions;}
+        if(street==TURN){dealingStreet = dealing_river;actions = turnActions;}
+        if(street==RIVER)actions = riverActions;
+        int result = 0;
+        for(int i_line = startLine; i_line<hand.size(); i_line++){
+            //System.out.println(street+" "+i_line);
+            if(hand.get(i_line).startsWith(summary)) { result=-1; break; }
+            if(hand.get(i_line).startsWith(dealingStreet)){ result=i_line; break; }
             for(int i_nick = 0; i_nick<6; i_nick++){
                 if(hand.get(i_line).startsWith(nicks[i_nick])){
-                     if(hand.get(i_line).contains(nicks[i_nick]+folds)) preflop_actions.get(i_nick).add(Float.NEGATIVE_INFINITY);
-                     if(hand.get(i_line).contains(nicks[i_nick]+calls)) preflop_actions.get(i_nick).add(new BigDecimal((-Float.parseFloat(hand.get(i_line).
+                     if(hand.get(i_line).contains(nicks[i_nick]+folds)) actions.get(i_nick).add(Float.NEGATIVE_INFINITY);
+                     if(hand.get(i_line).contains(nicks[i_nick]+calls)) actions.get(i_nick).add(new BigDecimal((-Float.parseFloat(hand.get(i_line).
                              substring(nicks[i_nick].length()+8).replaceAll("[^0-9?!.]","")))/bb)
                              .setScale(2, RoundingMode.HALF_UP).floatValue());
-                    if(hand.get(i_line).contains(nicks[i_nick]+raises)) preflop_actions.get(i_nick).add(new BigDecimal((Float.parseFloat(hand.get(i_line).
+                    if(hand.get(i_line).contains(nicks[i_nick]+raises)) actions.get(i_nick).add(new BigDecimal((Float.parseFloat(hand.get(i_line).
                             substring(hand.get(i_line).lastIndexOf(" to ")+4).replaceAll("[^0-9?!.]","")))/bb)
                             .setScale(2, RoundingMode.HALF_UP).floatValue());
-                    if(hand.get(i_line).contains(nicks[i_nick]+checks)) preflop_actions.get(i_nick).add(Float.POSITIVE_INFINITY);
+                    if(hand.get(i_line).contains(nicks[i_nick]+checks)) actions.get(i_nick).add(Float.POSITIVE_INFINITY);
+                    if(hand.get(i_line).contains(nicks[i_nick]+bets)) actions.get(i_nick).add(new BigDecimal((Float.parseFloat(hand.get(i_line).
+                            substring(nicks[i_nick].length()+7).replaceAll("[^0-9?!.]","")))/bb)
+                            .setScale(2, RoundingMode.HALF_UP).floatValue());
                 }
             }
         }
+
+        if(street==PREFLOP){
         posActions = new float[6][];
         for (int v=0; v<6; v++){
-            if(preflop_actions.get(v)!=null){
-                if(preflop_actions.get(v).size()==0) {posActions[v] = null; continue;}
-                posActions[v] = new float[preflop_actions.get(v).size()];
-                for (int p=0; p<preflop_actions.get(v).size(); p++) posActions[v][p] = preflop_actions.get(v).get(p);
+            if(preflopActions.get(v)!=null){
+                if(preflopActions.get(v).size()==0) {posActions[v] = null; continue;}
+                posActions[v] = new float[preflopActions.get(v).size()];
+                for (int p = 0; p< preflopActions.get(v).size(); p++) posActions[v][p] = preflopActions.get(v).get(p);
             }
         }
-
         preflop_players_actions_in_raunds = precount_to_PreflopActions(6,posActions);
+        }
+
+
+
+        return result;
     }
 
 
-    static void test_show(){
+    static void test_show(String firstLine){
+        //if(!firstLine.equals("***** Hand History For Game 1611334751632 *****"))return;
+        System.out.println(firstLine);
         for(int i=0; i<6; i++){
-            System.out.print(nicks[i]+"   ");
-            for(int a=0; a<preflop_actions.get(i).size(); a++)
-                System.out.print(preflop_actions.get(i).get(a)+" ");
+            System.out.print(nicks[i]+"   pre ");
+            for(int a = 0; a< preflopActions.get(i).size(); a++)
+                System.out.print(preflopActions.get(i).get(a)+" ");
+            if(!flopActions.get(i).isEmpty()) System.out.print(" flop ");
+            for(int a = 0; a< flopActions.get(i).size(); a++)
+                System.out.print(flopActions.get(i).get(a)+" ");
+            if(!turnActions.get(i).isEmpty()) System.out.print(" turn ");
+            for(int a = 0; a< turnActions.get(i).size(); a++)
+                System.out.print(turnActions.get(i).get(a)+" ");
+            if(!riverActions.get(i).isEmpty()) System.out.print(" river ");
+            for(int a = 0; a< riverActions.get(i).size(); a++)
+                System.out.print(riverActions.get(i).get(a)+" ");
             System.out.println();
+
         }
         System.out.println("===============================================");
     }
@@ -285,8 +330,11 @@ public class ReadHistoryGetStats {
             nicks[i] = null;
             stacks[i] = 0;
             id_players[i] = 0;
-            preflop_actions.get(i).clear();
-            preflop_actions.get(i).add(0.0f);
+            preflopActions.get(i).clear();
+            preflopActions.get(i).add(0.0f);
+            flopActions.get(i).clear();
+            turnActions.get(i).clear();
+            riverActions.get(i).clear();
         }
     }
 

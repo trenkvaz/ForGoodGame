@@ -390,11 +390,15 @@ public class OCR implements Runnable {
             }
         }
 
-        System.out.println(currStackHero+"_"+currentHand.startStacks[currentHand.pokerPosHero]+"_"+getBack);
+        //System.out.println(currStackHero+"_"+currentHand.startStacks[currentHand.pokerPosHero]+"_"+getBack);
+
+
         float result = BigDecimal.valueOf(currStackHero - currentHand.startStacks[currentHand.pokerPosHero]+getBack).
                 setScale(SCALE, RoundingMode.HALF_UP).floatValue();
 
         testCurrentHand.resultHero = result;
+
+        testCurrentHand.descriptionResultHero = currStackHero+"_"+currentHand.startStacks[currentHand.pokerPosHero]+"_"+getBack+"_pos "+currentHand.pokerPosHero;
         totalResultHero+=result;
     }
 
@@ -773,7 +777,12 @@ public class OCR implements Runnable {
                        for(int i=1; i<3; i++){ if(compare_LongHashes(list_of_hashimgs_namberhand.get(1),list_of_hashimgs_namberhand.get(i),6))continue;
                            same_number = false; break;
                        }
-                       if(same_number){  testSignalStartHand+="checkSameNumberHand_newHand";   return 1; }
+                       if(same_number){  testSignalStartHand+="checkSameNumberHand_newHand";
+                           list_of_hashimgs_namberhand.clear();
+                           list_of_hashimgs_namberhand.add(hashNumberHand);
+                           currentHashNuberhand = null;
+
+                       return 1; }
                        else list_of_hashimgs_namberhand.remove(0);
                    }
                    return 0;
@@ -1060,7 +1069,7 @@ public class OCR implements Runnable {
        else if(stack==-2){  // ситуация аллина, но это может быть оллин уже на флопе поэтому сравнивается с последним рейзом префлопа
          // если последнйи рейз больше или равен стартовому стеку(инвест+текущий стек) то кол равен остатку стека
            if(maxRaise>=currentHand.startStacksAtStreets[street][pokerPos]) {
-               actionsStats.get(pokerPos).add(-currentHand.startStacksAtStreets[street][pokerPos]);
+               actionsStats.get(pokerPos).add(-(currentHand.startStacksAtStreets[street][pokerPos]-curActsOrInvests[pokerPos]));
                currentHand.startStacksAtStreets[street+1][pokerPos]=0;
                curActsOrInvests[pokerPos] = -100;
 

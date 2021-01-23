@@ -48,6 +48,7 @@ class TestCurrentHand {
     float[] definedStacks = new float[6];
     float resultHero;
     int streetAllIn = -1;
+    String descriptionResultHero = "";
 
     List<String> methodes = new ArrayList<>();
 
@@ -371,7 +372,7 @@ public class Testing {
 
         Testing.write_LogTest(logtest+resultturns,"logtest");
             writeResultByStreet(testCurrentHand.testAllines,testCurrentHand.time_hand,
-                    testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1],testCurrentHand.resultHero);
+                    testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1],testCurrentHand.resultHero,testCurrentHand.descriptionResultHero,testCurrentHand);
         } else {
             saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
                     "test2\\"+testCurrentHand.time_hand+"_allin");
@@ -389,15 +390,18 @@ public class Testing {
     }
 
 
-    public static void writeResultByStreet(List<String> testAllines, long time_hand, String cards, float heroResult){
+    public static void writeResultByStreet(List<String> testAllines, long time_hand, String cards, float heroResult, String descrResultHero, TestCurrentHand testCurrentHand){
         String nameFile = "totalPreflop";
-        String result = time_hand+" "+cards+"  "+heroResult+"\r\n";
+        String result = time_hand+" "+cards+"  "+heroResult+" "+descrResultHero+"\r\n";
+        String nameFolder = "";
         if(!testAllines.isEmpty()){
-            if(testAllines.size()==1){nameFile = "totalFlop"; totalStreetHero[1]+=heroResult;          }
-            if(testAllines.size()==2){nameFile = "totalTurn"; totalStreetHero[2]+=heroResult;          }
-            if(testAllines.size()==3){nameFile = "totalRiver"; totalStreetHero[3]+=heroResult;         }
-        } else totalStreetHero[0]+=heroResult;
+            if(testAllines.size()==1){nameFile = "totalFlop"; totalStreetHero[1]+=heroResult;  nameFolder = "test\\imgFlop\\";         }
+            if(testAllines.size()==2){nameFile = "totalTurn"; totalStreetHero[2]+=heroResult;   nameFolder = "test\\imgTurn\\";       }
+            if(testAllines.size()==3){nameFile = "totalRiver"; totalStreetHero[3]+=heroResult;   nameFolder = "test\\imgRiver\\";      }
+        } else {totalStreetHero[0]+=heroResult; nameFolder = "test\\imgPreflop\\"; }
 
+        saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
+                nameFolder+time_hand);
         Testing.write_LogTest(result,nameFile);
     }
 
@@ -529,6 +533,14 @@ public class Testing {
             e.printStackTrace();
         }
     }
+
+    static void clearImgFiles(){
+        String[] namefiles = {"imgRiver","imgTurn","imgFlop","imgPreflop"};
+        for(String namefile:namefiles)
+            for (File myFile : new File(home_folder+"\\test\\"+namefile).listFiles())
+                if (myFile.isFile()) myFile.delete();
+    }
+
 
     static void write_TextToFile(List<String> strings,String name_file){
         int index = name_file.lastIndexOf("\\");
@@ -1257,5 +1269,6 @@ public class Testing {
         System.out.println(t.contains("ALL"));*/
 
        clearTextFiles();
+       clearImgFiles();
     }
 }
