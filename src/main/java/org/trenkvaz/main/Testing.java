@@ -1239,6 +1239,8 @@ public class Testing {
 
 
 
+
+
     public static void main(String[] args) throws Exception {
 
         OCR ocr = new OCR();
@@ -1270,5 +1272,7 @@ public class Testing {
 
        clearTextFiles();
        clearImgFiles();
+
+        //System.out.println((-0.4+(-0.4)+0.4));
     }
 }

@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 //import static org.trenkvaz.database_hands.GetNicksForHands.reverse_MapIdplayersNicks;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
+import static org.trenkvaz.main.CaptureVideo.NICK_HERO;
+import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 
 public class ReadHistoryGetStats {
 
@@ -28,6 +30,9 @@ public class ReadHistoryGetStats {
     static float[][] posActions;
     static byte[][][] preflop_players_actions_in_raunds;
     static MainStats[] mainstats;
+    static HashMap<Long,Float> numHandResultHeroHistory = new HashMap<>();
+
+
 
     static {  for(int f=0; f<6; f++){
         preflopActions.add(new ArrayList<Float>()); preflopActions.get(f).add(0.0f);
@@ -73,10 +78,12 @@ public class ReadHistoryGetStats {
         }
     }
 
-
+    static float totalHero = 0;
 
     private static void read_HandHistory(List<String> hand){
      //if(!hand.get(0).equals("***** Hand History For Game 1611344734614 *****"))return;
+     //long numHand = hand.get(0).substring(28,13);
+        //System.out.println("*"+hand.get(0).substring(28,41)+"*");
      float bb = read_BB(hand.get(1));
      int amountPlayers = read_StacksAndNicks(hand,bb);
      int startLine = amountPlayers+7;
@@ -85,6 +92,10 @@ public class ReadHistoryGetStats {
      if(startLine==-1)break;
      }
 
+     float resulHero = getResultHand(hand,bb,amountPlayers)[Arrays.asList(nicks).indexOf(NICK_HERO)];
+     totalHero+=resulHero;
+     numHandResultHeroHistory.put(Long.parseLong(hand.get(0).substring(28,41)),resulHero);
+
         for(int i=0; i<6; i++){
             if(nicks[i]==null)continue;
             nicks[i] = "$ю$"+nicks[i]+"$ю$";
@@ -92,6 +103,7 @@ public class ReadHistoryGetStats {
 
      for(MainStats stats:mainstats)
          stats.count_Stats_for_map(preflop_players_actions_in_raunds,nicks,stacks,(byte) amountPlayers,posActions,false);
+
 
 
      //test_show(hand.get(0));
@@ -113,6 +125,7 @@ public class ReadHistoryGetStats {
             if(hand.get(i_line).startsWith(summary)) { result=-1; break; }
             if(hand.get(i_line).startsWith(dealingStreet)){ result=i_line; break; }
             for(int i_nick = 0; i_nick<6; i_nick++){
+                if(nicks[i_nick]==null)continue;
                 if(hand.get(i_line).startsWith(nicks[i_nick])){
                      if(hand.get(i_line).contains(nicks[i_nick]+folds)) actions.get(i_nick).add(Float.NEGATIVE_INFINITY);
                      if(hand.get(i_line).contains(nicks[i_nick]+calls)) actions.get(i_nick).add(new BigDecimal((-Float.parseFloat(hand.get(i_line).
@@ -141,11 +154,27 @@ public class ReadHistoryGetStats {
         preflop_players_actions_in_raunds = precount_to_PreflopActions(6,posActions);
         }
 
-
-
         return result;
     }
 
+   static float[] getResultHand(List<String> hand,float bb,int amountPlayers){
+        float[] result = new float[6];
+        int startLine = hand.size()-amountPlayers;
+        for(int line=startLine; line<hand.size(); line++){
+            for(int i_nick = 0; i_nick<6; i_nick++){
+                if(nicks[i_nick]==null)continue;
+                if(hand.get(line).startsWith(nicks[i_nick])){
+                    //String balance = hand.get(line).substring(nicks[i_nick].length()+10,hand.get(line).indexOf(',',nicks[i_nick].length()+10));
+                    //System.out.println(nicks[i_nick]+" *"+balance+"*");
+                    result[i_nick] = BigDecimal.valueOf(Float.parseFloat(hand.get(line).substring(nicks[i_nick].length()+10,
+                            hand.get(line).indexOf(',',nicks[i_nick].length()+10)))/bb-stacks[i_nick])
+                            .setScale(2, RoundingMode.HALF_UP).floatValue();
+                }
+            }
+        }
+       //System.out.println("******************************************************");
+        return result;
+    }
 
     static void test_show(String firstLine){
         //if(!firstLine.equals("***** Hand History For Game 1611334751632 *****"))return;
@@ -386,6 +415,26 @@ public class ReadHistoryGetStats {
 
     }
 
+    static HashMap<Long,Float> numHandResultHeroTest = new HashMap<>();
+
+    static void readResultHero(){
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(home_folder+"\\test\\resultHero.txt"));
+            String line; float res =0;
+            while ((line = br.readLine()) != null) {
+                if(line.startsWith("TOTAL"))continue;
+                //long numHand = Long.parseLong()line.substring(0,13);
+                //res+=Float.parseFloat(line.substring(19));
+                //System.out.println("*"+line.substring(19)+"*");
+                numHandResultHeroTest.put(Long.parseLong(line.substring(0,13)),Float.parseFloat(line.substring(19)));
+            }
+            System.out.println(res);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
 
         //mainstats = main_array_of_stats;
@@ -416,7 +465,16 @@ public class ReadHistoryGetStats {
         System.out.println("Total vpip "+procents(stats[6][1], stats[6][0])+" pfr "+procents(stats[6][2], stats[6][0])+
                 " 3_bet "+procents(stats[6][4], stats[6][3])+" count pfr "+stats[6][2]+" count  select 3bet "+stats[6][3]+" count 3bet "+stats[6][4]+" count vpip "+stats[6][1]);*/
 
+       /* System.out.println("Res "+totalHero);
+      readResultHero();
 
+      for(Map.Entry<Long,Float> entry:numHandResultHeroTest.entrySet()){
+          if(!numHandResultHeroHistory.containsKey(entry.getKey()))continue;
+
+          if(!entry.getValue().equals(numHandResultHeroHistory.get(entry.getKey())))
+              System.out.println(entry.getKey()+" test "+entry.getValue()+" history "+numHandResultHeroHistory.get(entry.getKey()));
+
+      }*/
 
 
     }

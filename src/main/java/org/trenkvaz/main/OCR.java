@@ -48,7 +48,7 @@ public class OCR implements Runnable {
     int round = 1;
     boolean isActionPreflop = false;
     int countCheckEmptyPlaces = 0;
-
+    int[] countAllow = new int[4];
 
 
     // test
@@ -128,7 +128,7 @@ public class OCR implements Runnable {
     private void main_work_on_table(){
         if(isTest){
         //if(table!=1&&table!=2)return;
-        if(table!=2)return;
+        //if(table!=2)return;
         }
 
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
@@ -180,6 +180,8 @@ public class OCR implements Runnable {
         }
         }*/
         //System.out.println(GREEN+"BEFOR PREFLOP");
+        if(!isAllowGetActionsNextStreet())return;
+
         worksPreflop();
 
         worksFlop();
@@ -193,6 +195,16 @@ public class OCR implements Runnable {
         //resultAllin();
 
 
+    }
+
+
+
+    private boolean isAllowGetActionsNextStreet(){
+        // это нужно так как иногда изо действия предидущей улицы остается на следующей, этот кадр нужно пропустить
+        if(currentHand.isStartStreets[FLOP]) if(countAllow[FLOP]==0){ countAllow[FLOP]++; return false; }
+        if(currentHand.isStartStreets[TURN]) if(countAllow[TURN]==0){ countAllow[FLOP]++; return false; }
+        if(currentHand.isStartStreets[RIVER]) if(countAllow[RIVER]==0){ countAllow[FLOP]++; return false; }
+        return true;
     }
 
     private boolean checkEmptyPlaces(){
@@ -213,7 +225,7 @@ public class OCR implements Runnable {
         finishedActionsAtPreflop();
         if(currentHand.isStartStreets[FLOP])finishedActionsPostflop(FLOP);
         if(currentHand.isStartStreets[TURN])finishedActionsPostflop(TURN);
-        //if(currentHand.isStartStreets[RIVER])finishedActionsPostflop(RIVER);
+        if(currentHand.isStartStreets[RIVER])finishedRiver();
         countTotalHero();
     }
 
@@ -231,7 +243,7 @@ public class OCR implements Runnable {
             // с 1 потому что ник героя не определяется и его массивы не надо обнулять
             if(init>0)for(int n=0; n<3; n++) System.arraycopy(zeros_for_clear_current_id,0,current_id_nicks_for_choose[init][n],0,16);
         }
-       maxRaise = 1;posPlayerRound = 0;round = 1; isActionPreflop = false; countCheckEmptyPlaces = 0;
+       maxRaise = 1;posPlayerRound = 0;round = 1; isActionPreflop = false; countCheckEmptyPlaces = 0;countAllow = new int[4];
         // TEST
 
 
@@ -293,6 +305,8 @@ public class OCR implements Runnable {
         ////
 
         if(currentHand.isStartStreets[TURN]||currentHand.streetAllIn!=-1)return;
+
+
         getPostFlopActions(FLOP);
         //System.out.println(GREEN+"FLOP");
     }
@@ -313,6 +327,9 @@ public class OCR implements Runnable {
         ////
 
         if(currentHand.isStartStreets[RIVER]||currentHand.streetAllIn!=-1)return;
+
+
+
         getPostFlopActions(TURN);
     }
 
@@ -323,9 +340,12 @@ public class OCR implements Runnable {
         if(!currentHand.isFinishedStreets[TURN]){finishedActionsPostflop(TURN);if(currentHand.isFinishedStreets[TURN]&&currentHand.streetAllIn==-1)clearForNewStreet();}
 
         if(!currentHand.isFinishedStreets[TURN]||currentHand.streetAllIn!=-1||currentHand.isStartStreets[ENDRIVER])return;
+
+
+
         //System.out.println("RIVER");
         //getPostFlopActions(RIVER);
-        getActionAndFinishedRiver();
+        getActionRiver();
     }
 
 
@@ -380,7 +400,7 @@ public class OCR implements Runnable {
             lastBet = Math.abs(bet);
         }
 
-        float getBack = 0;
+        float getBack = 0,  result = 0;
         if(!isFoldHero){
             for(TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){
                 float action = getOneAction(currentHand.pokerPosHero,testRecFrameTimeHand.imges_frame);
@@ -388,13 +408,26 @@ public class OCR implements Runnable {
                 if(action==lastBet)continue;
                 getBack = action;
             }
-        }
+
+            if(getBack==0){
+            for(TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){
+                float stack = getOneStack(currentHand.pokerPosHero,testRecFrameTimeHand.imges_frame);
+                if(stack==-11)continue;
+                if(stack>0){  result = BigDecimal.valueOf(stack - currentHand.startStacks[currentHand.pokerPosHero]).
+                        setScale(SCALE, RoundingMode.HALF_UP).floatValue();  }
+
+                break;
+            }
+            } else result = BigDecimal.valueOf(currStackHero-currentHand.startStacks[currentHand.pokerPosHero]+getBack).
+                    setScale(SCALE, RoundingMode.HALF_UP).floatValue();
+
+        } else result = BigDecimal.valueOf(currStackHero-currentHand.startStacks[currentHand.pokerPosHero]).
+                setScale(SCALE, RoundingMode.HALF_UP).floatValue();
 
         //System.out.println(currStackHero+"_"+currentHand.startStacks[currentHand.pokerPosHero]+"_"+getBack);
 
 
-        float result = BigDecimal.valueOf(currStackHero - currentHand.startStacks[currentHand.pokerPosHero]+getBack).
-                setScale(SCALE, RoundingMode.HALF_UP).floatValue();
+
 
         testCurrentHand.resultHero = result;
 
@@ -1255,7 +1288,7 @@ public class OCR implements Runnable {
     }
 
 
-    private void getActionAndFinishedRiver(){
+    private void getActionRiver(){
         //System.out.println("RIVER");
 
         int pokerPos = posPlayerRound; int countcycle = 0;String testAct = "";
@@ -1315,6 +1348,30 @@ public class OCR implements Runnable {
             }
         }
         posPlayerRound=pokerPos;
+
+    }
+
+    private void finishedRiver(){
+
+        for(int pokPos = 0; pokPos<6; pokPos++){
+            if(curActsOrInvests[pokPos]==-10||curActsOrInvests[pokPos]==-100||pokerPosIndWithNumOnTable[pokPos]==0)continue;
+            if(rounds[pokPos]>0&&rounds[pokPos]==round){ continue;}
+            for(TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){
+                float stack = getOneStack(pokPos,testRecFrameTimeHand.imges_frame);
+                if(stack==-11)continue;
+                if(stack>0){
+                    if(stack<currentHand.startStacksAtStreets[RIVER][pokPos]-curActsOrInvests[pokPos]){
+                        currentHand.riverActionsStats.get(pokPos).add(-(maxRaise-curActsOrInvests[pokPos]));
+                        testCurrentHand.setTestStreetTurnsPlayers(RIVER,pokPos,"FinRiver_Call");
+                    } else {
+
+                        testCurrentHand.setTestStreetTurnsPlayers(RIVER,pokPos,"FinRiver_Unknown");
+                    }
+
+                } else testCurrentHand.setTestStreetTurnsPlayers(RIVER,pokPos,"FinRiver_NotCorStack:"+stack);
+                break;
+            }
+        }
 
     }
 
