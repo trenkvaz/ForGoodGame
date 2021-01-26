@@ -162,8 +162,8 @@ public class OCR implements Runnable {
             }
             initNewHand();
             testCurrentHand = new TestCurrentHand(this);
-            testCurrentHand.setStartConditions(currentHand,testStartByNumHand);
-            testCurrentHand.signalsGetNumHand.add(testSignalStartHand);
+            testCurrentHand.setStartConditions(currentHand);
+            testCurrentHand.signalsGetNumHand = testSignalStartHand;
         }
         //if(currentHand.isStartStreets[RIVER]) saveImageToFile(frameTable.tableImg(),"testM\\_"+(c++));
 
@@ -180,7 +180,8 @@ public class OCR implements Runnable {
         }
         }*/
         //System.out.println(GREEN+"BEFOR PREFLOP");
-        if(!isAllowGetActionsNextStreet())return;
+
+        //if(!isAllowGetActionsNextStreet())return;
 
         worksPreflop();
 
@@ -201,9 +202,9 @@ public class OCR implements Runnable {
 
     private boolean isAllowGetActionsNextStreet(){
         // это нужно так как иногда изо действия предидущей улицы остается на следующей, этот кадр нужно пропустить
-        if(currentHand.isStartStreets[FLOP]) if(countAllow[FLOP]==0){ countAllow[FLOP]++; return false; }
-        if(currentHand.isStartStreets[TURN]) if(countAllow[TURN]==0){ countAllow[FLOP]++; return false; }
-        if(currentHand.isStartStreets[RIVER]) if(countAllow[RIVER]==0){ countAllow[FLOP]++; return false; }
+        if(currentHand.isStartStreets[FLOP]) if(countAllow[FLOP]<3){ countAllow[FLOP]++; return false; }
+        if(currentHand.isStartStreets[TURN]) if(countAllow[TURN]<3){ countAllow[TURN]++; return false; }
+        if(currentHand.isStartStreets[RIVER]) if(countAllow[RIVER]<3){ countAllow[RIVER]++; return false; }
         return true;
     }
 
@@ -226,7 +227,8 @@ public class OCR implements Runnable {
         if(currentHand.isStartStreets[FLOP])finishedActionsPostflop(FLOP);
         if(currentHand.isStartStreets[TURN])finishedActionsPostflop(TURN);
         if(currentHand.isStartStreets[RIVER])finishedRiver();
-        countTotalHero();
+        //countTotalHero();
+        countTotalHeroNew();
     }
 
     private void initNewHand(){
@@ -247,7 +249,7 @@ public class OCR implements Runnable {
         // TEST
 
 
-        testStartByNumHand = false;
+
         counttest = 0; notempty = true;
     }
     int counttest = 0;
@@ -306,7 +308,7 @@ public class OCR implements Runnable {
 
         if(currentHand.isStartStreets[TURN]||currentHand.streetAllIn!=-1)return;
 
-
+        if(!isAllowGetActionsNextStreet())return;
         getPostFlopActions(FLOP);
         //System.out.println(GREEN+"FLOP");
     }
@@ -329,7 +331,7 @@ public class OCR implements Runnable {
         if(currentHand.isStartStreets[RIVER]||currentHand.streetAllIn!=-1)return;
 
 
-
+        if(!isAllowGetActionsNextStreet())return;
         getPostFlopActions(TURN);
     }
 
@@ -345,6 +347,7 @@ public class OCR implements Runnable {
 
         //System.out.println("RIVER");
         //getPostFlopActions(RIVER);
+        if(!isAllowGetActionsNextStreet())return;
         getActionRiver();
     }
 
@@ -435,6 +438,34 @@ public class OCR implements Runnable {
         totalResultHero+=result;
     }
 
+
+    private void countTotalHeroNew(){
+        float finishStack = 0, result = 0, getBack = 0;
+        for(TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){
+            float stack = getOneStack(currentHand.pokerPosHero,testRecFrameTimeHand.imges_frame);
+            if(stack==-11)continue;
+            if(stack>0)  finishStack=stack;
+            if(stack==-2) {finishStack=0;break;}
+        }
+        if(currentHand.isFoldHero)result = finishStack - currentHand.startStacks[currentHand.pokerPosHero];
+        else {
+            if(finishStack>currentHand.startStacks[currentHand.pokerPosHero])result = finishStack - currentHand.startStacks[currentHand.pokerPosHero];
+            else {
+
+                for(TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){
+                    float action = getOneAction(currentHand.pokerPosHero,testRecFrameTimeHand.imges_frame);
+                    if(action==-1) continue;
+                    getBack = action;
+                }
+                result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]+getBack;
+            }
+        }
+        testCurrentHand.resultHero = result;
+
+        testCurrentHand.descriptionResultHero = "fin:"+finishStack+" stack:"+currentHand.startStacks[currentHand.pokerPosHero]+" back:"+getBack+"  pos:"+currentHand.pokerPosHero;
+        totalResultHero+=result;
+
+    }
 
     void get_nicks(){
 
@@ -700,7 +731,7 @@ public class OCR implements Runnable {
 
                    int samenumhand = checkSameNumberHand(1);
                    //System.out.println(BLUE+checkSameNumberHand(1));
-                   if(samenumhand==1){testStartByNumHand = true;}
+                   //if(samenumhand==1){testStartByNumHand = true;}
                    return samenumhand;
                } else return -1;
            }
@@ -723,7 +754,7 @@ public class OCR implements Runnable {
                    testSignalStartHand = "CardsBU==cursHandNotnull";
                int samenumhand =  checkSameNumberHand(1);
                //TEST
-               if(samenumhand==1)testStartByNumHand = true;
+               //if(samenumhand==1)testStartByNumHand = true;
 
                return samenumhand;
            } else return -1;
@@ -1018,11 +1049,12 @@ public class OCR implements Runnable {
 
         if(curActsOrInvests[currentHand.pokerPosHero]==-10){
             currentHand.isFinishedStreets[PREFLOP] = true;
+            currentHand.isFoldHero = true;
             return;}//ситуация когда херо сфолдил но смотрит продолжение раздачи пока это не будет обрабатыватся
 
         if(!currentHand.isStartStreets[FLOP]){ // ситуация когда херо не сходил свой раунд значит сфолдил
             if(rounds[currentHand.pokerPosHero]<round){currentHand.preflopActionsStats.get(currentHand.pokerPosHero).add(Float.NEGATIVE_INFINITY);
-                //System.out.println("FOLD");
+                currentHand.isFoldHero = true;
             }
              // если херо сходил, значит все остальные сфолдили
             else {for(int i=0; i<6; i++){
@@ -1235,13 +1267,13 @@ public class OCR implements Runnable {
             currentHand.isFinishedStreets[street] = true; return;
         }
         //ситуация когда херо сфолдил но смотрит продолжение раздачи пока это не будет обрабатыватся
-        if(curActsOrInvests[currentHand.pokerPosHero]==-10){ currentHand.isFinishedStreets[street] = true;return;}
+        if(curActsOrInvests[currentHand.pokerPosHero]==-10){ currentHand.isFinishedStreets[street] = true;   currentHand.isFoldHero = true;     return;}
 
         //if(street==RIVER){ currentHand.isFinishedStreets[street] = true;return;}
 
         if(!currentHand.isStartStreets[street+1]){ // ситуация когда херо не сходил свой раунд значит сфолдил
             if(rounds[currentHand.pokerPosHero]<round){actionsStats.get(currentHand.pokerPosHero).add(Float.NEGATIVE_INFINITY);
-                //System.out.println("FOLD");
+                currentHand.isFoldHero = true;
             }
             // если херо сходил, значит все остальные сфолдили
             else {for(int p=0; p<6; p++){
@@ -1319,6 +1351,12 @@ public class OCR implements Runnable {
 
             }
 
+            if(action>BigDecimal.valueOf(currentHand.startStacksAtStreets[RIVER][pokerPos]-curActsOrInvests[pokerPos]).
+                    setScale(SCALE, RoundingMode.HALF_UP).floatValue()){
+                currentHand.riverActionsStats.get(pokerPos).add(-(currentHand.startStacksAtStreets[RIVER][pokerPos]-curActsOrInvests[pokerPos]));
+                testAct = "CallAll:";  curActsOrInvests[pokerPos] = -100;
+            } else
+
             if(action>maxRaise){ maxRaise = action; round++;
                 if(currentHand.firstBetPostflopPokerPos[RIVER]==-1){
                     currentHand.firstBetPostflopPokerPos[RIVER] = pokerPos;
@@ -1352,8 +1390,8 @@ public class OCR implements Runnable {
     }
 
     private void finishedRiver(){
-
-        for(int pokPos = 0; pokPos<6; pokPos++){
+        if(maxRaise==0f)return;
+      out:  for(int pokPos = 4,countcycle =0; countcycle<6; pokPos++, countcycle++){if(pokPos==6){pokPos=0;}
             if(curActsOrInvests[pokPos]==-10||curActsOrInvests[pokPos]==-100||pokerPosIndWithNumOnTable[pokPos]==0)continue;
             if(rounds[pokPos]>0&&rounds[pokPos]==round){ continue;}
             for(TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){
@@ -1366,6 +1404,9 @@ public class OCR implements Runnable {
                     } else {
 
                         testCurrentHand.setTestStreetTurnsPlayers(RIVER,pokPos,"FinRiver_Unknown");
+                        if(pokPos==currentHand.pokerPosHero){  currentHand.riverActionsStats.get(pokPos).add(Float.NEGATIVE_INFINITY);
+                            currentHand.isFoldHero = true; break out;
+                        }
                     }
 
                 } else testCurrentHand.setTestStreetTurnsPlayers(RIVER,pokPos,"FinRiver_NotCorStack:"+stack);

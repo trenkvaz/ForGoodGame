@@ -52,8 +52,8 @@ public class ReadHistoryGetStats {
             }
         }
 
-        record_MainArrayOfStatsToDateBase(mainstats);
-        delete_and_copy_WorkNicksStats();
+       /* record_MainArrayOfStatsToDateBase(mainstats);
+        delete_and_copy_WorkNicksStats();*/
         close_DataBase();
     }
 
@@ -465,7 +465,7 @@ public class ReadHistoryGetStats {
         System.out.println("Total vpip "+procents(stats[6][1], stats[6][0])+" pfr "+procents(stats[6][2], stats[6][0])+
                 " 3_bet "+procents(stats[6][4], stats[6][3])+" count pfr "+stats[6][2]+" count  select 3bet "+stats[6][3]+" count 3bet "+stats[6][4]+" count vpip "+stats[6][1]);*/
 
-       /* System.out.println("Res "+totalHero);
+        System.out.println("Res "+totalHero);
       readResultHero();
 
       for(Map.Entry<Long,Float> entry:numHandResultHeroTest.entrySet()){
@@ -474,7 +474,7 @@ public class ReadHistoryGetStats {
           if(!entry.getValue().equals(numHandResultHeroHistory.get(entry.getKey())))
               System.out.println(entry.getKey()+" test "+entry.getValue()+" history "+numHandResultHeroHistory.get(entry.getKey()));
 
-      }*/
+      }
 
 
     }

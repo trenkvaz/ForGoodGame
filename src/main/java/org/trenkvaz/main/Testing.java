@@ -66,7 +66,8 @@ class TestCurrentHand {
 
     List<List<String>> turnsPlayersInStreets = new ArrayList<>();
 
-    List<String> signalsGetNumHand = new ArrayList<>();
+    //List<String> signalsGetNumHand = new ArrayList<>();
+    String signalsGetNumHand;
 
     public TestCurrentHand(OCR ocr1){
         ocr = ocr1;
@@ -81,8 +82,8 @@ class TestCurrentHand {
         }
     }
 
-    public void setStartConditions(CurrentHand currentHand,boolean testStartByNumHand){
-        this.table = currentHand.testTable; this.time_hand = currentHand.time_hand; this.testStartByNumHand = testStartByNumHand;
+    public void setStartConditions(CurrentHand currentHand){
+        this.table = currentHand.testTable; this.time_hand = currentHand.time_hand;
         this.poker_position_of_hero = currentHand.pokerPosHero; this.position_bu_on_table = currentHand.position_bu_on_table;
         this.cards_hero[0] = currentHand.cards_hero[0];this.cards_hero[1] = currentHand.cards_hero[1];
         this.nicks[0] = NICK_HERO;
@@ -352,19 +353,23 @@ public class Testing {
          if(ispostflop)resultturns+="\r\n";
 
 
-        if(testCurrentHand.testStartByNumHand){
+       /* if(testCurrentHand.testStartByNumHand){
             System.out.println(RED+"START BY NUMBERHAND ////////////////////////////////////////////");
             Settings.ErrorLog("START BY NUMBERHAND "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p ");
             logtest+="START BY NUMBERHAND ////////////////////////////////////////////////\r\n";
 
             testSaveImgFrameTimeHand(testCurrentHand.ocr.images_framestimehands,"startnum",3);
-        }
+        }*/
 
         //logtest+="testFinished "+testCurrentHand.testFinished+" \r\n";
         System.out.println(RESET+"******************************************");
 
         //logtest+="****************************************** \r\n";
         resultturns+="winLose "+testCurrentHand.resultHero+"\r\n";
+
+        if(testCurrentHand.signalsGetNumHand.contains("_newHand")){resultturns+=testCurrentHand.signalsGetNumHand+"\r\n";
+            Settings.ErrorLog("START BY NUMBERHAND "+testCurrentHand.time_hand+" t "+testCurrentHand.table+" p ");
+        }
 
         resultturns+=" ************************************************************************************* \r\n";
 
@@ -422,7 +427,7 @@ public class Testing {
 
         if((testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1]).equals(currErrorCards[testCurrentHand.table-1])){
             String signals = testCurrentHand.time_hand+" "+testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1]+"\r\n";
-            for(String s:testCurrentHand.signalsGetNumHand)signals+=s+"\r\n";
+            signals+=testCurrentHand.signalsGetNumHand+"\r\n";
             Testing.write_LogTest(signals,"UnknownError");
             new Thread(()->{  if(images[0]!=null)saveImageToFile(images[0],"UnknownERROR\\"+testCurrentHand.time_hand+"_start_"+errorname);
             }).start();

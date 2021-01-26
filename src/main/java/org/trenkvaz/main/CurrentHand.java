@@ -42,6 +42,7 @@ public class CurrentHand {
     boolean[] isFinishedStreets = {false,false,false,false};
     boolean[] isStartStreets =  {false,false,false,false,false};
     int startAmountPlayers = 0;
+    boolean isFoldHero = false;
 
     float[] startInvest = {0,0,0,0,SB,1};
 
