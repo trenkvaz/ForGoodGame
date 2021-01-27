@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 //import static org.trenkvaz.database_hands.GetNicksForHands.reverse_MapIdplayersNicks;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.NICK_HERO;
+import static org.trenkvaz.ui.StartAppLauncher.SCALE;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 
 public class ReadHistoryGetStats {
@@ -31,7 +32,7 @@ public class ReadHistoryGetStats {
     static byte[][][] preflop_players_actions_in_raunds;
     static MainStats[] mainstats;
     static HashMap<Long,Float> numHandResultHeroHistory = new HashMap<>();
-
+    static boolean isRecordStats = false;
 
 
     static {  for(int f=0; f<6; f++){
@@ -45,15 +46,25 @@ public class ReadHistoryGetStats {
     static void start_ReadFilesInFolder(String folder){
         Work_DataBase work_dataBase = new Work_DataBase();
         mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase("main_nicks_stats");
-
+        boolean isAllowRec = true;
         for(File a: Objects.requireNonNull(new File(folder).listFiles())){
             if(a.isFile()&&a.getName().endsWith(".txt")){
+                if(isRecordStats&&a.getName().endsWith("_recstats.txt")) { isAllowRec = false; break; }
                 read_File(a.getPath());
+                if(isRecordStats){
+                File newFile = new File(folder+"\\"+a.getName().replaceFirst("[.][^.]+$", "")+"_recstats.txt");
+                if(a.renameTo(newFile)){
+                    System.out.println("Файл переименован успешно");
+                }else{
+                    System.out.println("Файл не был переименован");
+                }
+                }
             }
         }
-
-       /* record_MainArrayOfStatsToDateBase(mainstats);
-        delete_and_copy_WorkNicksStats();*/
+        if(isRecordStats&&isAllowRec){
+        record_MainArrayOfStatsToDateBase(mainstats);
+        delete_and_copy_WorkNicksStats();
+        }
         close_DataBase();
     }
 
@@ -73,6 +84,7 @@ public class ReadHistoryGetStats {
                 } else if(hand!=null)hand.add(line);
             }
             if(hand!=null) read_HandHistory(hand);
+            br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -91,7 +103,10 @@ public class ReadHistoryGetStats {
      for(int street = 0; street<4; street++) {startLine = read_PreflopActions(hand,bb,startLine,street);
      if(startLine==-1)break;
      }
-
+     int posHero = Arrays.asList(nicks).indexOf(NICK_HERO);
+     if(posHero==-1){
+         System.out.println(hand.get(0)); return;
+     }
      float resulHero = getResultHand(hand,bb,amountPlayers)[Arrays.asList(nicks).indexOf(NICK_HERO)];
      totalHero+=resulHero;
      numHandResultHeroHistory.put(Long.parseLong(hand.get(0).substring(28,41)),resulHero);
@@ -427,7 +442,8 @@ public class ReadHistoryGetStats {
                 //long numHand = Long.parseLong()line.substring(0,13);
                 //res+=Float.parseFloat(line.substring(19));
                 //System.out.println("*"+line.substring(19)+"*");
-                numHandResultHeroTest.put(Long.parseLong(line.substring(0,13)),Float.parseFloat(line.substring(19)));
+                numHandResultHeroTest.put(Long.parseLong(line.substring(0,13)),BigDecimal.valueOf(Float.parseFloat(line.substring(19))).
+                        setScale(SCALE, RoundingMode.HALF_UP).floatValue());
             }
             System.out.println(res);
         } catch (IOException e) {
