@@ -128,7 +128,7 @@ public class OCR implements Runnable {
     private void main_work_on_table(){
         if(isTest){
         //if(table!=1&&table!=2)return;
-        //if(table!=2)return;
+        //if(table!=1)return;
         }
 
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
@@ -366,39 +366,50 @@ public class OCR implements Runnable {
 
 
 
-    private float getStackHeroWithInvest(){
+    private float[] getStackMinusInvestLastBet(){
 
         float currStackHero =currentHand.startStacks[currentHand.pokerPosHero]-currentHand.startInvest[currentHand.pokerPosHero];
-
+        float lastBet = 0;
+        if(currentHand.pokerPosHero==4)lastBet = SB;
+        if(currentHand.pokerPosHero==5)lastBet = 1;
         for(float bet:currentHand.preflopActionsStats.get(currentHand.pokerPosHero)){
             if(bet==Float.NEGATIVE_INFINITY){break;}
             if(bet==Float.POSITIVE_INFINITY)break;
+            if(bet==0)continue;
+            if(currStackHero-Math.abs(bet)<0)break;
             if(bet>0)currStackHero =currentHand.startStacks[currentHand.pokerPosHero] - bet;
-            if(bet<0)if(!(currStackHero-Math.abs(bet)<0))currStackHero+=bet;
+            if(bet<0)currStackHero+=bet;
+            lastBet = bet;
         }
         float startStack = currStackHero;
         for(float bet:currentHand.flopActionsStats.get(currentHand.pokerPosHero)){
             if(bet==Float.NEGATIVE_INFINITY){break;}
             if(bet==Float.POSITIVE_INFINITY)continue;
+            if(currStackHero-Math.abs(bet)<0)break;
             if(bet>0)currStackHero =startStack - bet;
-            if(bet<0)if(!(currStackHero-Math.abs(bet)<0))currStackHero+=bet;
+            if(bet<0)currStackHero+=bet;
+            lastBet = bet;
         }
         startStack = currStackHero;
         for(float bet:currentHand.turnActionsStats.get(currentHand.pokerPosHero)){
             if(bet==Float.NEGATIVE_INFINITY){break;}
             if(bet==Float.POSITIVE_INFINITY)continue;
+            if(currStackHero-Math.abs(bet)<0)break;
             if(bet>0)currStackHero =startStack - bet;
-            if(bet<0)if(!(currStackHero-Math.abs(bet)<0))currStackHero+=bet;
+            if(bet<0)currStackHero+=bet;
+            lastBet = bet;
         }
         startStack = currStackHero;
         for(float bet:currentHand.riverActionsStats.get(currentHand.pokerPosHero)){
             if(bet==Float.NEGATIVE_INFINITY){break;}
             if(bet==Float.POSITIVE_INFINITY)continue;
+            if(currStackHero-Math.abs(bet)<0)break;
             if(bet>0)currStackHero =startStack - bet;
-            if(bet<0)if(!(currStackHero-Math.abs(bet)<0))currStackHero+=bet;
+            if(bet<0)currStackHero+=bet;
+            lastBet = bet;
         }
 
-        return BigDecimal.valueOf(currStackHero).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
+        return new float[]{BigDecimal.valueOf(currStackHero).setScale(SCALE, RoundingMode.HALF_UP).floatValue(),lastBet};
     }
 
 
@@ -410,26 +421,32 @@ public class OCR implements Runnable {
             if(stack>0)  finishStack=stack;
             if(stack==-2) {finishStack=0;break;}
         }
-        float stackWithInvest = getStackHeroWithInvest();
+        float[] investLastbet = getStackMinusInvestLastBet();
 
-        String acts = "";
-            if(finishStack>currentHand.startStacks[currentHand.pokerPosHero]||finishStack>stackWithInvest)result = finishStack - currentHand.startStacks[currentHand.pokerPosHero];
+
+        String testActs = "", testRes = "";
+            if(finishStack>currentHand.startStacks[currentHand.pokerPosHero]||finishStack>investLastbet[0]){
+                result = finishStack - currentHand.startStacks[currentHand.pokerPosHero];
+            testRes = "finstack>starttack";
+            }
             else {
                 for(TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){
                     float action = getOneAction(currentHand.pokerPosHero,testRecFrameTimeHand.imges_frame);
-                    acts+=action+" ";
+                    testActs+=action+" ";
                     if(action==-1) continue;
+                    if(action==investLastbet[1])continue;
                     getBack = action;
                 }
-                if(getBack==finishStack)result = finishStack - currentHand.startStacks[currentHand.pokerPosHero];
-                else result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]+getBack;
+                if(getBack==finishStack){result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]; testRes = "finstack==getBack";            }
+                else {result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]+getBack;   testRes = "finstack!=getBack";          }
             }
       //  }
 
         result = BigDecimal.valueOf(result).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
         testCurrentHand.resultHero = result;
 
-        testCurrentHand.descriptionResultHero = "finstack:"+finishStack+" startstack:"+currentHand.startStacks[currentHand.pokerPosHero]+" stackInv:"+stackWithInvest+" back:"+getBack+"  pos:"+currentHand.pokerPosHero+" "+acts;
+        testCurrentHand.descriptionResultHero = "finstack:"+finishStack+" startstack:"+currentHand.startStacks[currentHand.pokerPosHero]
+                +" stackInv:"+investLastbet[0]+" back:"+getBack+" lastBet:"+investLastbet[1]+"  pos:"+currentHand.pokerPosHero+" testRes:"+testRes+"  "+testActs;
         totalResultHero+=result;
 
     }
