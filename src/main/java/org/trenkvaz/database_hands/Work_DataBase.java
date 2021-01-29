@@ -130,9 +130,12 @@ static String work_database;
         String createtable_idplayers_nicks = "CREATE TABLE idplayers_nicks (idplayers integer PRIMARY KEY, nicks text );";*/
         String main_nicks_stats = "CREATE TABLE main_nicks_stats (nicks text UNIQUE );";
         String createtable_temphands = "CREATE TABLE temphands ( time_hand bigint PRIMARY KEY, cards_hero smallint, position_hero smallint, stacks float4[], nicks text[] );";
+
+        String main_nicks_stats_new = "CREATE TABLE main_nicks_stats_new (nicks text UNIQUE );";
         try {
             //stmt_of_db.executeUpdate(BEGIN);
             stmt_of_db.executeUpdate(main_nicks_stats);
+            stmt_of_db.executeUpdate(main_nicks_stats_new);
             stmt_of_db.executeUpdate(createtable_temphands);
             //stmt_of_db.executeUpdate(COMMIT);
             System.out.println(" sozdana tables");
@@ -174,6 +177,39 @@ static String work_database;
         }
     }
 
+    public static void addColumnsMainNicksStatsNew(Map<String, Stata> statsMap){
+        // добавление колонок со статами в таблицу idplayers_stats
+        // названия и типа колонок берутся из находящихся в массиве Объектов класса МайнСтатс
+
+        String query = "SELECT column_name FROM information_schema.columns WHERE table_name =  'main_nicks_stats_new' ";
+        try {
+            //stmt_of_db.executeUpdate(BEGIN);
+            ResultSet rs = stmt_of_db.executeQuery(query);
+            ArrayList<String> colomns = new ArrayList<>();
+            while (rs.next()) {
+                String colomn = rs.getString("column_name");
+                System.out.println(colomn);
+                colomns.add(colomn);
+            }
+            //stmt_of_db.executeUpdate(COMMIT);
+            System.out.println("no newstats: ");
+            String adding = null;
+            for(String nameStata: statsMap.keySet()){
+                if(colomns.stream().anyMatch(s->s.contains(nameStata)))continue;
+                System.out.println(nameStata);
+                Stata stata = statsMap.get(nameStata);
+                if(stata.isSelect){adding = "ALTER TABLE main_nicks_stats_new ADD COLUMN "+nameStata+"_select integer ;"; stmt_of_db.addBatch(adding); }
+                if(stata.isMeans){adding = "ALTER TABLE main_nicks_stats_new ADD COLUMN "+nameStata+"_means integer ;"; stmt_of_db.addBatch(adding); }
+                if(stata.isPreflopRange){adding = "ALTER TABLE main_nicks_stats_new ADD COLUMN "+nameStata+"_range integer[] ;"; stmt_of_db.addBatch(adding); }
+            }
+            stmt_of_db.executeBatch();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     public MainStats[] fill_MainArrayOfStatsFromDateBase(String table){
 
@@ -202,6 +238,9 @@ static String work_database;
         System.out.println(" read stats");
         return mainStats;
     }
+
+
+
 
 
     public static void record_MainArrayOfStatsToDateBase(MainStats[] mainstats){
@@ -494,7 +533,7 @@ static String work_database;
     }
 
     public static void main(String[] args) {
-       delete_DataBase("fg_testing");
+       delete_DataBase("fg_testnewstats");
 
        /* new Work_DataBase();
         test_select();

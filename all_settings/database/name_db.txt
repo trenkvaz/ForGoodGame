@@ -1,2 +1,3 @@
 fg_testing
 fg_test3 W
+fg_testnewstats

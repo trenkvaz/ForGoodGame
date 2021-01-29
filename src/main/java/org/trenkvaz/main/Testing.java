@@ -930,7 +930,7 @@ public class Testing {
     }
 
 
-    static void show_HashShablonNumber(int[] shortarr_shablon,int W,int H){
+  public static void show_HashShablonNumber(int[] shortarr_shablon,int W,int H){
 
         for(int y=0; y<H; y++){
             for(int x=0; x<W; x++){
@@ -996,7 +996,7 @@ public class Testing {
     }
 
 
-    static void show_HashShablonNumber(long[] shortarr_shablon,int W,int H){
+   public static void show_HashShablonNumber(long[] shortarr_shablon,int W,int H){
 
         for(int y=0; y<H; y++){
             for(int x=0; x<W; x++){
@@ -1262,8 +1262,9 @@ public class Testing {
         System.out.println(iWf[1]+" "+iWf[0]);
         show_HashShablonNumber(iWf,6,10);*/
 
-       /* ocr.pokerPosIndWithNumOnTable = new int[]{5, 6, 1, 2, 3, 4};
-        ocr.frameTable = new FrameTable(read_image("testM\\_7110a"),null,null);
+        /*ocr.pokerPosIndWithNumOnTable = new int[]{4, 5, 6, 1, 2, 3};
+        System.out.println(ocr.getOneAction(3,read_image("testM\\1611860570766")));*/
+        /*ocr.frameTable = new FrameTable(read_image("testM\\_7110a"),null,null);
         ocr.testCurrentHand = new TestCurrentHand(ocr);
         String[] card = ocr.set_cards_hero();
         if(card==null) System.out.println("null");

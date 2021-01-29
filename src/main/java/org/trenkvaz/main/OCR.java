@@ -377,8 +377,8 @@ public class OCR implements Runnable {
             if(bet==Float.POSITIVE_INFINITY)break;
             if(bet==0)continue;
             if(currStackHero-Math.abs(bet)<0)break;
-            if(bet>0)currStackHero =currentHand.startStacks[currentHand.pokerPosHero] - bet;
-            if(bet<0)currStackHero+=bet;
+            if(bet>0)currStackHero =BigDecimal.valueOf(currentHand.startStacks[currentHand.pokerPosHero] - bet).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
+            if(bet<0)currStackHero=BigDecimal.valueOf(currentHand.startStacks[currentHand.pokerPosHero] + bet).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
             lastBet = bet;
         }
         float startStack = currStackHero;
@@ -386,8 +386,8 @@ public class OCR implements Runnable {
             if(bet==Float.NEGATIVE_INFINITY){break;}
             if(bet==Float.POSITIVE_INFINITY)continue;
             if(currStackHero-Math.abs(bet)<0)break;
-            if(bet>0)currStackHero =startStack - bet;
-            if(bet<0)currStackHero+=bet;
+            if(bet>0)currStackHero =BigDecimal.valueOf(startStack - bet).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
+            if(bet<0)currStackHero =BigDecimal.valueOf(startStack + bet).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
             lastBet = bet;
         }
         startStack = currStackHero;
@@ -395,8 +395,8 @@ public class OCR implements Runnable {
             if(bet==Float.NEGATIVE_INFINITY){break;}
             if(bet==Float.POSITIVE_INFINITY)continue;
             if(currStackHero-Math.abs(bet)<0)break;
-            if(bet>0)currStackHero =startStack - bet;
-            if(bet<0)currStackHero+=bet;
+            if(bet>0)currStackHero =BigDecimal.valueOf(startStack - bet).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
+            if(bet<0)currStackHero =BigDecimal.valueOf(startStack + bet).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
             lastBet = bet;
         }
         startStack = currStackHero;
@@ -404,12 +404,19 @@ public class OCR implements Runnable {
             if(bet==Float.NEGATIVE_INFINITY){break;}
             if(bet==Float.POSITIVE_INFINITY)continue;
             if(currStackHero-Math.abs(bet)<0)break;
-            if(bet>0)currStackHero =startStack - bet;
-            if(bet<0)currStackHero+=bet;
+            if(bet>0)currStackHero =BigDecimal.valueOf(startStack - bet).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
+            if(bet<0)currStackHero =BigDecimal.valueOf(startStack + bet).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
             lastBet = bet;
         }
 
         return new float[]{BigDecimal.valueOf(currStackHero).setScale(SCALE, RoundingMode.HALF_UP).floatValue(),lastBet};
+    }
+
+    private boolean isWinWoShHero(){
+        int countPlayers = 6;
+        for(int pokPos =0; pokPos<6; pokPos++){
+            if(curActsOrInvests[pokPos]==-10||pokerPosIndWithNumOnTable[pokPos]==0||pokPos==currentHand.pokerPosHero)countPlayers--; }
+        return countPlayers==0;
     }
 
 
@@ -422,7 +429,7 @@ public class OCR implements Runnable {
             if(stack==-2) {finishStack=0;break;}
         }
         float[] investLastbet = getStackMinusInvestLastBet();
-
+        boolean winWOSH = isWinWoShHero();
 
         String testActs = "", testRes = "";
             if(finishStack>currentHand.startStacks[currentHand.pokerPosHero]||finishStack>investLastbet[0]){
@@ -434,10 +441,11 @@ public class OCR implements Runnable {
                     float action = getOneAction(currentHand.pokerPosHero,testRecFrameTimeHand.imges_frame);
                     testActs+=action+" ";
                     if(action==-1) continue;
-                    if(action==investLastbet[1])continue;
+                    if(action==investLastbet[1]&&!winWOSH)continue;
                     getBack = action;
                 }
-                if(getBack==finishStack){result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]; testRes = "finstack==getBack";            }
+                if(winWOSH&&getBack==0){ result = 0; testRes = "errorwinWOSH";}
+                else if(getBack==finishStack){result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]; testRes = "finstack==getBack";            }
                 else {result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]+getBack;   testRes = "finstack!=getBack";          }
             }
       //  }
@@ -446,7 +454,7 @@ public class OCR implements Runnable {
         testCurrentHand.resultHero = result;
 
         testCurrentHand.descriptionResultHero = "finstack:"+finishStack+" startstack:"+currentHand.startStacks[currentHand.pokerPosHero]
-                +" stackInv:"+investLastbet[0]+" back:"+getBack+" lastBet:"+investLastbet[1]+"  pos:"+currentHand.pokerPosHero+" testRes:"+testRes+"  "+testActs;
+                +" stackInv:"+investLastbet[0]+" back:"+getBack+" lastBet:"+investLastbet[1]+" WwSH:"+winWOSH+"  pos:"+currentHand.pokerPosHero+" testRes:"+testRes+"  "+testActs;
         totalResultHero+=result;
 
     }
@@ -906,6 +914,7 @@ public class OCR implements Runnable {
         if(!(get_int_MaxBrightnessMiddleImg(tableImg,xa,ya,wa,ha)>200))return 0;
         // если действие есть но с помехами нет возможности прочитать
         if(!is_noCursorInterferenceImage(tableImg,xa,ya,wa,ha,240))return -1;
+
         // получении хеша числа и если нулл это ошибка получения хеша
         List<int[]> nums = get_list_intarr_HashNumberImg(tableImg,xa,ya+1,80,9,205,0,2,6,2);
         if(nums==null) {
@@ -916,7 +925,8 @@ public class OCR implements Runnable {
             return -1;
 
         }
-
+       /* for(int[] num:nums)
+        show_HashShablonNumber(num,6,9);*/
         if(!hashesNumsActionsForCompare.get(poker_position).isEmpty())
             // если лист не пустой то сравнивает его с текущим числом если они одинаковые, то значит не нужно распознавать
             if(compare_CurrentListNumsAndNewListNums(hashesNumsActionsForCompare.get(poker_position),nums,10))
@@ -925,6 +935,7 @@ public class OCR implements Runnable {
         float action = get_OcrNum(nums,10,"actions");
         // ошибка распознавания
         if(action==-1)return -1;
+
         action = BigDecimal.valueOf(action).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
         hashesNumsActionsForCompare.set(poker_position,nums);
         actionsForCompare[poker_position] = action;

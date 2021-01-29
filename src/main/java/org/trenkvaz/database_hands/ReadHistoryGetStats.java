@@ -49,7 +49,7 @@ public class ReadHistoryGetStats {
         boolean isAllowRec = true;
         for(File a: Objects.requireNonNull(new File(folder).listFiles())){
             if(a.isFile()&&a.getName().endsWith(".txt")){
-                if(isRecordStats&&a.getName().endsWith("_recstats.txt")) { isAllowRec = false; break; }
+                if(isRecordStats&&a.getName().endsWith("_recstats.txt")) { isAllowRec = false; }
                 read_File(a.getPath());
                 if(isRecordStats){
                 File newFile = new File(folder+"\\"+a.getName().replaceFirst("[.][^.]+$", "")+"_recstats.txt");
