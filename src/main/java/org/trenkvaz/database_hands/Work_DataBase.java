@@ -131,18 +131,107 @@ static String work_database;
         String main_nicks_stats = "CREATE TABLE main_nicks_stats (nicks text UNIQUE );";
         String createtable_temphands = "CREATE TABLE temphands ( time_hand bigint PRIMARY KEY, cards_hero smallint, position_hero smallint, stacks float4[], nicks text[] );";
 
-        String main_nicks_stats_new = "CREATE TABLE main_nicks_stats_new (nicks text UNIQUE );";
+        //String main_nicks_stats_new = "CREATE TABLE main_nicks_stats_new (nicks text UNIQUE );";
+
+       /* String mainNicks = "CREATE TABLE main_nicks (nicks text PRIMARY KEY);";
+        String workNicks = "CREATE TABLE work_nicks (nicks text PRIMARY KEY );";*/
         try {
             //stmt_of_db.executeUpdate(BEGIN);
             stmt_of_db.executeUpdate(main_nicks_stats);
-            stmt_of_db.executeUpdate(main_nicks_stats_new);
+            //stmt_of_db.executeUpdate(main_nicks_stats_new);
             stmt_of_db.executeUpdate(createtable_temphands);
+            /*stmt_of_db.executeUpdate(mainNicks);
+            stmt_of_db.executeUpdate(workNicks);*/
             //stmt_of_db.executeUpdate(COMMIT);
             System.out.println(" sozdana tables");
         } catch (SQLException e) {
             e.printStackTrace();
         }
         add_columns_in_TableIdplayersStats();
+    }
+
+
+    public static void creatNewTablesStata(String nameStata,Stata stata){
+
+        String mainStata = "CREATE TABLE main_"+nameStata+" (nicks text UNIQUE, ";
+        String workStata = "CREATE TABLE work_"+nameStata+" (nicks text UNIQUE, ";
+        if(stata.isSelect) {mainStata += " sel integer,"; workStata += " sel integer,";  }
+        if(stata.isMeans) { mainStata += " means integer,"; workStata += " means integer,"; }
+        if(stata.isPreflopRange){mainStata += " range integer,"; workStata += " range integer,";}
+        mainStata = mainStata.substring(0,mainStata.length()-1);
+        workStata = workStata.substring(0,workStata.length()-1);
+        mainStata+=");";
+        workStata+=");";
+        System.out.println(mainStata);
+        System.out.println(workStata);
+        try {
+            stmt_of_db.executeUpdate(mainStata);
+            stmt_of_db.executeUpdate(workStata);
+            System.out.println(" created tables new stats ");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void recordNewStatsOneHand(String[] nicks, Map<String,Stata> statsMap){
+        //String insertNick = "INSERT INTO main_nicks VALUES ('"+nick+"') ON CONFLICT(nicks) DO NOTHING;";
+
+        try {
+            connect_to_db.setAutoCommit(false);
+            PreparedStatement pstmt = null;
+            for(String nameStata:statsMap.keySet()){
+
+            String insert = "INSERT INTO main_"+nameStata+" VALUES ( ?, ";
+            String update = " ON CONFLICT (nicks) DO UPDATE SET ";
+            Stata stata = statsMap.get(nameStata); int countParametrs =1;
+                if(stata.isSelect) {insert+=" ?,";update+=" sel= ?,"; countParametrs++; }
+                if(stata.isMeans) { insert+=" ?,";update+=" means= ?,";countParametrs++; }
+                if(stata.isPreflopRange){insert+=" ?,";update+=" range= ?,";countParametrs++;}
+                insert = insert.substring(0,insert.length()-1);
+                update = update.substring(0,update.length()-1);
+                insert+=")";
+                update+=";";
+            //if(b==1)return;
+            pstmt = connect_to_db.prepareStatement(insert+update);
+            //System.out.println(insert);
+            //Array[] arrays_stats = new Array[count_stats];
+            MeansStata meansStata = null;
+            for(String nick: nicks){
+                if(nick==null)continue;
+                pstmt.setString(1,nick);
+                meansStata = stata.stataMap.get(nick);
+                if(stata.isSelect) {pstmt.setInt(2,meansStata.select);pstmt.setInt(5,meansStata.select); }
+                if(stata.isMeans) { insert+=" ?,";update+=" means= ?,";countParametrs++; }
+                if(stata.isPreflopRange){insert+=" ?,";update+=" range= ?,";countParametrs++;}
+
+
+                for(int i=2; i<countParametrs; i++){
+
+
+                }
+
+
+               /* for(int i=2; i<count_stats+2; i++){
+                    Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[i-2].getMap_of_Idplayer_stats().get(nick));
+                    //System.out.println(arraystata.toString()+" "+(i+1));
+                    pstmt.setArray(i, arraystata);
+                    pstmt.setArray(i+count_stats, arraystata);
+                }*/
+                //System.out.println(pstmt.toString());
+                pstmt.addBatch();
+            }
+            }
+            assert pstmt != null;
+         /* int[]  r = pstmt.executeBatch();
+          for(int a:r) System.out.println(a);*/
+            pstmt.executeBatch();
+            connect_to_db.commit();
+            connect_to_db.setAutoCommit(true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
 

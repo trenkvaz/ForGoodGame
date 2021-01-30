@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Stata implements Serializable {
 
-    transient Map<String, MeansStata> stataMap;
+    transient public Map<String, MeansStata> stataMap;
     boolean isOnlyMainDB = false;
     public boolean isSelect = false;
     public boolean isMeans = false;
