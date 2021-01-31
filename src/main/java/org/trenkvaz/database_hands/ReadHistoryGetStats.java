@@ -32,7 +32,7 @@ public class ReadHistoryGetStats {
     static byte[][][] preflop_players_actions_in_raunds;
     static MainStats[] mainstats;
     static HashMap<Long,Float> numHandResultHeroHistory = new HashMap<>();
-    static boolean isRecordStats = true;
+    static boolean isRecordStats = false;
 
 
     static {  for(int f=0; f<6; f++){
@@ -51,7 +51,7 @@ public class ReadHistoryGetStats {
             if(a.isFile()&&a.getName().endsWith(".txt")){
                 if(isRecordStats&&a.getName().endsWith("_recstats.txt")) { isAllowRec = false; }
                 read_File(a.getPath());
-                if(isRecordStats){
+                if(isRecordStats&&!a.getName().endsWith("_recstats.txt")){
                 File newFile = new File(folder+"\\"+a.getName().replaceFirst("[.][^.]+$", "")+"_recstats.txt");
                 if(a.renameTo(newFile)){
                     System.out.println("Файл переименован успешно");
@@ -59,6 +59,8 @@ public class ReadHistoryGetStats {
                     System.out.println("Файл не был переименован");
                 }
                 }
+
+
             }
         }
         if(isRecordStats&&isAllowRec){

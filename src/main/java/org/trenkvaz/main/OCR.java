@@ -409,7 +409,7 @@ public class OCR implements Runnable {
             lastBet = bet;
         }
 
-        return new float[]{BigDecimal.valueOf(currStackHero).setScale(SCALE, RoundingMode.HALF_UP).floatValue(),lastBet};
+        return new float[]{BigDecimal.valueOf(currStackHero).setScale(SCALE, RoundingMode.HALF_UP).floatValue(),Math.abs(lastBet)};
     }
 
     private boolean isWinWoShHero(){
@@ -1070,7 +1070,7 @@ public class OCR implements Runnable {
              // если херо сходил, значит все остальные сфолдили
             else {for(int i=0; i<6; i++){
                 if(curActsOrInvests[i]==-10||curActsOrInvests[i]==-100||pokerPosIndWithNumOnTable[i]==0||currentHand.pokerPosHero ==i)continue;
-                currentHand.preflopActionsStats.get(i).add(Float.NEGATIVE_INFINITY);
+                currentHand.preflopActionsStats.get(i).add(Float.NEGATIVE_INFINITY); curActsOrInvests[i]=-10;
                 testCurrentHand.setTestStreetTurnsPlayers(PREFLOP,i,"fin_wns_F ");
             }
             //currentHand.resultsAllin[currentHand.pokerPosHero] = getOneAction(currentHand.pokerPosHero,false);
@@ -1362,11 +1362,26 @@ public class OCR implements Runnable {
 
             }
 
+            if(stack==BigDecimal.valueOf(currentHand.startStacksAtStreets[RIVER][pokerPos]-curActsOrInvests[pokerPos]-maxRaise).
+                    setScale(SCALE, RoundingMode.HALF_UP).floatValue()){
+                currentHand.riverActionsStats.get(pokerPos).add(-(maxRaise-curActsOrInvests[pokerPos]));
+                curActsOrInvests[pokerPos] = maxRaise; rounds[pokerPos] = round;
+
+                testAct = "CallStack:";
+                testCurrentHand.setTestStreetTurnsPlayers(RIVER,pokerPos,testAct+action+" ");
+                continue;
+            }
+
+
+
+
             if(action>BigDecimal.valueOf(currentHand.startStacksAtStreets[RIVER][pokerPos]-curActsOrInvests[pokerPos]).
                     setScale(SCALE, RoundingMode.HALF_UP).floatValue()){
                 currentHand.riverActionsStats.get(pokerPos).add(-(currentHand.startStacksAtStreets[RIVER][pokerPos]-curActsOrInvests[pokerPos]));
                 testAct = "CallAll:";  curActsOrInvests[pokerPos] = -100;
             } else
+
+
 
             if(action>maxRaise){ maxRaise = action; round++;
                 if(currentHand.firstBetPostflopPokerPos[RIVER]==-1){
