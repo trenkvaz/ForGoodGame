@@ -1,7 +1,7 @@
 package org.trenkvaz.database_hands;
 
-import org.trenkvaz.main.CaptureVideo;
 import org.trenkvaz.main.CurrentHand;
+import org.trenkvaz.newstats.FilterStata;
 import org.trenkvaz.stats.*;
 
 import java.io.BufferedReader;
@@ -11,7 +11,6 @@ import java.sql.*;
 import java.util.*;
 
 
-import static org.trenkvaz.database_hands.GetNicksForHands.get_str_Cards;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 
 public class Work_DataBase {
@@ -151,29 +150,36 @@ static String work_database;
     }
 
 
-    public static void creatNewTablesStata(String nameStata,Stata stata){
+    public static void addStructureOneNewStataToDB(FilterStata filterStata){
 
-        String mainStata = "CREATE TABLE main_"+nameStata+" (nicks text UNIQUE, ";
-        String workStata = "CREATE TABLE work_"+nameStata+" (nicks text UNIQUE, ";
-        if(stata.isSelect) {mainStata += " sel integer,"; workStata += " sel integer,";  }
-        if(stata.isMeans) { mainStata += " means integer,"; workStata += " means integer,"; }
-        if(stata.isPreflopRange){mainStata += " range integer,"; workStata += " range integer,";}
-        mainStata = mainStata.substring(0,mainStata.length()-1);
-        workStata = workStata.substring(0,workStata.length()-1);
-        mainStata+=");";
-        workStata+=");";
-        System.out.println(mainStata);
-        System.out.println(workStata);
+        String mainStata = "CREATE TABLE IF NOT EXISTS main_"+filterStata.mainNameFilter+" (nicks text UNIQUE );";
+        String workStata = "CREATE TABLE IF NOT EXISTS work_"+filterStata.mainNameFilter+" (nicks text UNIQUE );";
         try {
             stmt_of_db.executeUpdate(mainStata);
             stmt_of_db.executeUpdate(workStata);
             System.out.println(" created tables new stats ");
+
+            stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value integer[] ;");
+            stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value integer[] ;");
+            if(filterStata.isRanges){
+                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_call_range integer[] ;");
+                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_call_range integer[] ;");
+                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_raise_range integer[][] ;");
+                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_raise_range integer[][] ;");
+            }
+
+            stmt_of_db.executeBatch();
+            System.out.println(" added columns");
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+
+
+
     }
 
-    public static void recordNewStatsOneHand(String[] nicks, Map<String,Stata> statsMap){
+    /*public static void recordNewStatsOneHand(String[] nicks, Map<String,Stata> statsMap){
         //String insertNick = "INSERT INTO main_nicks VALUES ('"+nick+"') ON CONFLICT(nicks) DO NOTHING;";
 
         try {
@@ -211,19 +217,19 @@ static String work_database;
                 }
 
 
-               /* for(int i=2; i<count_stats+2; i++){
+               *//* for(int i=2; i<count_stats+2; i++){
                     Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[i-2].getMap_of_Idplayer_stats().get(nick));
                     //System.out.println(arraystata.toString()+" "+(i+1));
                     pstmt.setArray(i, arraystata);
                     pstmt.setArray(i+count_stats, arraystata);
-                }*/
+                }*//*
                 //System.out.println(pstmt.toString());
                 pstmt.addBatch();
             }
             }
             assert pstmt != null;
-         /* int[]  r = pstmt.executeBatch();
-          for(int a:r) System.out.println(a);*/
+         *//* int[]  r = pstmt.executeBatch();
+          for(int a:r) System.out.println(a);*//*
             pstmt.executeBatch();
             connect_to_db.commit();
             connect_to_db.setAutoCommit(true);
@@ -232,7 +238,7 @@ static String work_database;
         }
 
 
-    }
+    }*/
 
 
     private static void add_columns_in_TableIdplayersStats(){
@@ -266,37 +272,6 @@ static String work_database;
         }
     }
 
-    public static void addColumnsMainNicksStatsNew(Map<String, Stata> statsMap){
-        // добавление колонок со статами в таблицу idplayers_stats
-        // названия и типа колонок берутся из находящихся в массиве Объектов класса МайнСтатс
-
-        String query = "SELECT column_name FROM information_schema.columns WHERE table_name =  'main_nicks_stats_new' ";
-        try {
-            //stmt_of_db.executeUpdate(BEGIN);
-            ResultSet rs = stmt_of_db.executeQuery(query);
-            ArrayList<String> colomns = new ArrayList<>();
-            while (rs.next()) {
-                String colomn = rs.getString("column_name");
-                System.out.println(colomn);
-                colomns.add(colomn);
-            }
-            //stmt_of_db.executeUpdate(COMMIT);
-            System.out.println("no newstats: ");
-            String adding = null;
-            for(String nameStata: statsMap.keySet()){
-                if(colomns.stream().anyMatch(s->s.contains(nameStata)))continue;
-                System.out.println(nameStata);
-                Stata stata = statsMap.get(nameStata);
-                if(stata.isSelect){adding = "ALTER TABLE main_nicks_stats_new ADD COLUMN "+nameStata+"_select integer ;"; stmt_of_db.addBatch(adding); }
-                if(stata.isMeans){adding = "ALTER TABLE main_nicks_stats_new ADD COLUMN "+nameStata+"_means integer ;"; stmt_of_db.addBatch(adding); }
-                if(stata.isPreflopRange){adding = "ALTER TABLE main_nicks_stats_new ADD COLUMN "+nameStata+"_range integer[] ;"; stmt_of_db.addBatch(adding); }
-            }
-            stmt_of_db.executeBatch();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
 
 

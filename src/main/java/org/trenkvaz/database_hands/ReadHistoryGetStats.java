@@ -32,7 +32,7 @@ public class ReadHistoryGetStats {
     static byte[][][] preflop_players_actions_in_raunds;
     static MainStats[] mainstats;
     static HashMap<Long,Float> numHandResultHeroHistory = new HashMap<>();
-    static boolean isRecordStats = false;
+    static boolean isRecordStats = true;
 
 
     static {  for(int f=0; f<6; f++){
