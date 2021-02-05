@@ -46,9 +46,22 @@ public class CaptureVideo {
    static final int[][] coord_2_3_cards_flop = {{270,202},{318,202}};
    static final int[] CORRECTS_COORDS_NICKS = {1,2,2,2,1,1};
    static final int[][] COORDS_EMPTY_PLACES = {null,{40,258},{40,133},{279,72},{518,133},{518,258}};
-   static final String[] NOMINALS_CARDS = {"2","3","4","5","6","7","8","9","T","J","Q","K","A"};
+   public static final String[] NOMINALS_CARDS = {"2","3","4","5","6","7","8","9","T","J","Q","K","A"};
    public static final String[] DECK = {null,"Ac","Ad","Ah","As","Kc","Kd","Kh","Ks","Qc","Qd","Qh","Qs","Jc","Jd","Jh","Js","Tc","Td","Th","Ts","9c","9d","9h","9s","8c","8d","8h","8s",
             "7c","7d","7h","7s","6c","6d","6h","6s","5c","5d","5h","5s","4c","4d","4h","4s","3c","3d","3h","3s","2c","2d","2h","2s"};
+   public static final String[] PREFLOP_RANGE = {null,"AA","AKs","AQs","AJs","ATs","A9s","A8s","A7s","A6s","A5s","A4s","A3s","A2s",
+            "AKo","KK","KQs","KJs","KTs","K9s","K8s","K7s","K6s","K5s","K4s","K3s","K2s",
+            "AQo","KQo","QQ","QJs","QTs","Q9s","Q8s","Q7s","Q6s","Q5s","Q4s","Q3s","Q2s",
+            "AJo","KJo","QJo","JJ","JTs","J9s","J8s","J7s","J6s","J5s","J4s","J3s","J2s",
+            "ATo","KTo","QTo","JTo","TT","T9s","T8s","T7s","T6s","T5s","T4s","T3s","T2s",
+            "A9o","K9o","Q9o","J9o","T9o","99","98s","97s","96s","95s","94s","93s","92s",
+            "A8o","K8o","Q8o","J8o","T8o","98o","88","87s","86s","85s","84s","83s","82s",
+            "A7o","K7o","Q7o","J7o","T7o","97o","87o","77","76s","75s","74s","73s","72s",
+            "A6o","K6o","Q6o","J6o","T6o","96o","86o","76o","66","65s","64s","63s","62s",
+            "A5o","K5o","Q5o","J5o","T5o","95o","85o","75o","65o","55","54s","53s","52s",
+            "A4o","K4o","Q4o","J4o","T4o","94o","84o","74o","64o","54o","44","43s","42s",
+            "A3o","K3o","Q3o","J3o","T3o","93o","83o","73o","63o","53o","43o","33","32s",
+            "A2o","K2o","Q2o","J2o","T2o","92o","82o","72o","62o","52o","42o","32o","22"};
    public static final String NICK_HERO = "trenkvaz";
    public static List<OCR> ocrList_1;
    static final int COUNT_TABLES = 6;
