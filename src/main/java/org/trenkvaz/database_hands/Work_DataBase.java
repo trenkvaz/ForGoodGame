@@ -174,6 +174,11 @@ static String work_database;
                 stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_raise_range integer[][] ;");
             }
 
+            if(filterStata.vsBetSizes!=null){
+                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value_vsbetsize integer[][] ;");
+                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value_vsbetsize integer[][] ;");
+            }
+
             stmt_of_db.executeBatch();
             System.out.println(" added columns");
         } catch (SQLException e) {

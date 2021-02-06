@@ -198,6 +198,7 @@ public class Testing {
         if(testCurrentHand.cards_hero[0].equals(""))Settings.ErrorLog("NO CARDS hand "+testCurrentHand.time_hand+" t "+testCurrentHand.table);
         boolean isNoNicksNostacks =false, isNoNicks = false, isNoStacks = false;
         for(int i=0; i<6; i++) {
+            if(testCurrentHand.poker_positions_by_pos_table_for_nicks[i]==0)continue;
             logtest += rightpad(testCurrentHand.nicks[i],16)+"    "+rightpad(testCurrentHand.startStacks[i].toString(),6)+"  ";
             if(testCurrentHand.poker_position_of_hero==i) System.out.print(BLUE+rightpad(testCurrentHand.nicks[i],16)+"    "
                     +rightpad(testCurrentHand.startStacks[i].toString(),6)+"  ");

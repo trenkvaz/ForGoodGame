@@ -28,15 +28,15 @@ public class WorkStats implements Serializable {
 
    public void countOneHand(String[] cards, String[] nicks, float[] stacks, float[] resultsHand, List<List<List<Float>>> actionsStreetsStats, int[]alliners){
         boolean isWin = false, isShowDown = false, isInitDataStatsOneHand = false;
-        for(int i=0; i<6; i++){
-            if(nicks[i]==null)continue;
-            nicks[i] = "$ю$"+nicks[i]+"$ю$";
+        for(int pokPos=0; pokPos<6; pokPos++){
+            if(nicks[pokPos]==null)continue;
+            nicks[pokPos] = "$ю$"+nicks[pokPos]+"$ю$";
             // вин и щоудаун на игрока нужны для разных фильтров поэтому нужно один раз определить заранее
-            isWin = isWin(resultsHand[i]);
-            isShowDown = isShowDown(i,alliners[i],actionsStreetsStats.get(3));
+            isWin = isWin(resultsHand[pokPos]);
+            isShowDown = isShowDown(pokPos,alliners[pokPos],actionsStreetsStats.get(3));
             for(FilterStata filterStata:statsMap.values()){
                if(isInGame&&!isInitDataStatsOneHand){ filterStata.dataStatsOneHand = new FilterStata.DataStata[6]; isInitDataStatsOneHand = true;}
-               filterStata.countOnePlayerStata(isInGame,i,nicks[i],stacks[i],actionsStreetsStats,isWin,isShowDown);
+               filterStata.countOnePlayerStata(isInGame,pokPos,nicks[pokPos],stacks[pokPos],actionsStreetsStats,isWin,isShowDown);
             }
         }
    }
