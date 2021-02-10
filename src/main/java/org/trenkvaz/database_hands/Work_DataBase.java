@@ -158,9 +158,10 @@ static String work_database;
             stmt_of_db.executeUpdate(mainStata);
             stmt_of_db.executeUpdate(workStata);
             System.out.println(" created tables new stats ");
-
+            if(filterStata.streetOfActs!=-1){
             stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value integer[] ;");
             stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value integer[] ;");
+            }
 
             if(filterStata.isVsHero){
                 stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value_vs_hero integer[] ;");
