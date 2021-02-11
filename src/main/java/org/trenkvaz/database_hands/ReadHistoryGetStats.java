@@ -1,5 +1,6 @@
 package org.trenkvaz.database_hands;
 
+import org.trenkvaz.newstats.FilterStata;
 import org.trenkvaz.stats.MainStats;
 
 import java.io.BufferedReader;
@@ -33,7 +34,7 @@ public class ReadHistoryGetStats {
     static MainStats[] mainstats;
     static HashMap<Long,Float> numHandResultHeroHistory = new HashMap<>();
     static boolean isRecordStats = true;
-
+    static FilterStata filterStata;
 
     static {  for(int f=0; f<6; f++){
         preflopActions.add(new ArrayList<Float>()); preflopActions.get(f).add(0.0f);
@@ -44,14 +45,15 @@ public class ReadHistoryGetStats {
 
 
     static void start_ReadFilesInFolder(String folder){
+        filterStata = new FilterStata();
         Work_DataBase work_dataBase = new Work_DataBase();
         mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase("main_nicks_stats");
         boolean isAllowRec = true;
         for(File a: Objects.requireNonNull(new File(folder).listFiles())){
             if(a.isFile()&&a.getName().endsWith(".txt")){
-                if(isRecordStats&&a.getName().endsWith("_recstats.txt")) { isAllowRec = false; }
+                if(a.getName().endsWith("_recstats.txt")) { isAllowRec = false; }
                 read_File(a.getPath());
-                if(isRecordStats&&!a.getName().endsWith("_recstats.txt")){
+                if(!a.getName().endsWith("_recstats.txt")){
                 File newFile = new File(folder+"\\"+a.getName().replaceFirst("[.][^.]+$", "")+"_recstats.txt");
                 if(a.renameTo(newFile)){
                     System.out.println("Файл переименован успешно");
@@ -196,22 +198,43 @@ public class ReadHistoryGetStats {
 
     static void test_show(String firstLine){
         //if(!firstLine.equals("***** Hand History For Game 1611334751632 *****"))return;
+
+        int[][] roundactPre = filterStata.getActionsInRoundsByPositions(preflopActions,true);
+        int[][] roundactFlop = filterStata.getActionsInRoundsByPositions(flopActions,false);
+        int[][] roundactTurn = filterStata.getActionsInRoundsByPositions(turnActions,false);
+        int[][] roundactRiver = filterStata.getActionsInRoundsByPositions(riverActions,false);
+
         System.out.println(firstLine);
         for(int i=0; i<6; i++){
             System.out.print(nicks[i]+"   pre ");
             for(int a = 0; a< preflopActions.get(i).size(); a++)
                 System.out.print(preflopActions.get(i).get(a)+" ");
-            if(!flopActions.get(i).isEmpty()) System.out.print(" flop ");
+            System.out.print("  ////  ");
+            for(int act=0; act<roundactPre.length; act++)
+                System.out.print(roundactPre[act][i]+" ");
+            if(!flopActions.get(i).isEmpty()) {System.out.print(" flop ");
             for(int a = 0; a< flopActions.get(i).size(); a++)
                 System.out.print(flopActions.get(i).get(a)+" ");
-            if(!turnActions.get(i).isEmpty()) System.out.print(" turn ");
+                System.out.print("  ////  ");
+                for(int act=0; act<roundactFlop.length; act++)
+                    System.out.print(roundactFlop[act][i]+" ");
+            }
+            if(!turnActions.get(i).isEmpty()) {System.out.print(" turn ");
             for(int a = 0; a< turnActions.get(i).size(); a++)
                 System.out.print(turnActions.get(i).get(a)+" ");
-            if(!riverActions.get(i).isEmpty()) System.out.print(" river ");
+                System.out.print("  ////  ");
+                for(int act=0; act<roundactTurn.length; act++)
+                    System.out.print(roundactTurn[act][i]+" ");
+            }
+            if(!riverActions.get(i).isEmpty()) {System.out.print(" river ");
             for(int a = 0; a< riverActions.get(i).size(); a++)
                 System.out.print(riverActions.get(i).get(a)+" ");
-            System.out.println();
+                System.out.print("  ////  ");
+                for(int act=0; act<roundactRiver.length; act++)
+                    System.out.print(roundactRiver[act][i]+" ");
+            }
 
+            System.out.println();
         }
         System.out.println("===============================================");
     }
@@ -484,7 +507,7 @@ public class ReadHistoryGetStats {
         System.out.println("Total vpip "+procents(stats[6][1], stats[6][0])+" pfr "+procents(stats[6][2], stats[6][0])+
                 " 3_bet "+procents(stats[6][4], stats[6][3])+" count pfr "+stats[6][2]+" count  select 3bet "+stats[6][3]+" count 3bet "+stats[6][4]+" count vpip "+stats[6][1]);*/
 
-        System.out.println("Res "+totalHero);
+       /* System.out.println("Res "+totalHero);
       readResultHero();
 
       for(Map.Entry<Long,Float> entry:numHandResultHeroTest.entrySet()){
@@ -493,7 +516,7 @@ public class ReadHistoryGetStats {
           if(!entry.getValue().equals(numHandResultHeroHistory.get(entry.getKey())))
               System.out.println(entry.getKey()+" test "+entry.getValue()+" history "+numHandResultHeroHistory.get(entry.getKey()));
 
-      }
+      }*/
 
 
     }

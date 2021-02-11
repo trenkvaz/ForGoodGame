@@ -1279,6 +1279,9 @@ public class Testing {
 
        clearTextFiles();
        clearImgFiles();
+       ArrayList<String> a =new ArrayList<>();
+       a.get(0);
+       String d ="";
 
         //System.out.println((-0.4+(-0.4)+0.4));
     }
