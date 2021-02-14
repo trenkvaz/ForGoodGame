@@ -26,17 +26,21 @@ public class WorkStats implements Serializable {
 
    }
 
-   public void countOneHand(String[] cards, String[] nicks, float[] stacks, float[] resultsHand, List<List<List<Float>>> actionsStreetsStats, int[]alliners){
-        boolean isWin = false, isShowDown = false, isInitDataStatsOneHand = false;
+   public void countOneHand(String[][] cards, String[] nicks, float[] stacks, float[] resultsHand, List<List<List<Float>>> actionsStreetsStats,
+                            int[]alliners,int posHero){
+        boolean isWin = false, isShowDown = false, isInitDataStatsOneHand = false; int rangePlayer = 0;
         for(int pokPos=0; pokPos<6; pokPos++){
             if(nicks[pokPos]==null)continue;
+            rangePlayer = 0;
+            if(!isInGame){ if(cards[pokPos]!=null) rangePlayer = getPreflopRange(cards[pokPos]);  } // карты обрабатываются только вне игры
             nicks[pokPos] = "$ю$"+nicks[pokPos]+"$ю$";
             // вин и щоудаун на игрока нужны для разных фильтров поэтому нужно один раз определить заранее
             isWin = isWin(resultsHand[pokPos]);
-            isShowDown = isShowDown(pokPos,alliners[pokPos],actionsStreetsStats.get(3));
+            isShowDown = isShowDown(pokPos,alliners[pokPos],actionsStreetsStats.get(3),cards[pokPos]);
             for(FilterStata filterStata:statsMap.values()){
                if(isInGame&&!isInitDataStatsOneHand){ filterStata.dataStatsOneHand = new FilterStata.DataStata[6]; isInitDataStatsOneHand = true;}
-               filterStata.countOnePlayerStata(isInGame,pokPos,nicks[pokPos],stacks[pokPos],actionsStreetsStats,isWin,isShowDown);
+               filterStata.countOnePlayerStata(isInGame,pokPos,nicks[pokPos],stacks[pokPos],actionsStreetsStats,isWin,isShowDown,
+                       cards[pokPos],rangePlayer,posHero);
             }
         }
    }
@@ -44,7 +48,10 @@ public class WorkStats implements Serializable {
 
    private boolean isWin(float resultPlayer){ return resultPlayer>0; }
 
-   private boolean isShowDown(int indPlayer, int alliner, List<List<Float>> actionsRiver){
+   private boolean isShowDown(int indPlayer, int alliner, List<List<Float>> actionsRiver,String[] cards){
+        if(!isInGame){ return cards != null; }
+
+        // ПОСМОТРЕТЬ в ОСР определение оллинера который рейзил не до конца стека !!!!!!!!!!!!!!!!!!!!!!!!
         if(alliner>0)return true;
         if(actionsRiver.get(indPlayer).isEmpty())return false;
         if(actionsRiver.get(indPlayer).get(actionsRiver.get(indPlayer).size()-1)==Float.NEGATIVE_INFINITY)return false;
@@ -58,12 +65,8 @@ public class WorkStats implements Serializable {
    }
 
    private int getPreflopRange(String[] cards){
-       String nom1 = cards[0].substring(0,1);
-       String nom2 = cards[1].substring(0,1);
-       String mast1 =  cards[0].substring(1,2);
-       String mast2 =  cards[1].substring(1,2);
+       String nom1 = cards[0].substring(0,1), nom2 = cards[1].substring(0,1), mast1 =  cards[0].substring(1,2), mast2 =  cards[1].substring(1,2), strRange = "";
        if(Arrays.asList(NOMINALS_CARDS).indexOf(nom1)<Arrays.asList(NOMINALS_CARDS).indexOf(nom2)){ String savecard = nom2; nom2 = nom1; nom1 = savecard; }
-       String strRange = "";
        if(nom1.equals(nom2))strRange = nom1+nom2;
        else { if(mast1.equals(mast2))strRange = nom1+nom2+"s";
               else strRange = nom1+nom2+"o"; }

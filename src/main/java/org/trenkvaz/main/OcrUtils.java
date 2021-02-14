@@ -19,7 +19,7 @@ public class OcrUtils {
             first_of_pair_error = 0; second_of_pair_error = 0;
             for(int i=0; i<amount_nums; i++){
                 if(i%2==0)first_of_pair_error = get_AmountOneBitInLong(shablons[ind_shablon][i]^hash_for_compare[i]);
-                if(i%2!=0)second_of_pair_error = get_AmountOneBitInLong(shablons[ind_shablon][i]^hash_for_compare[i]);
+                else second_of_pair_error = get_AmountOneBitInLong(shablons[ind_shablon][i]^hash_for_compare[i]);
                 //System.out.println(ind_shablon+"  "+(first_of_pair_error+second_of_pair_error));
                 if(i>0&&(first_of_pair_error+second_of_pair_error)>error){ continue out;  }
             }

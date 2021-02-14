@@ -112,6 +112,7 @@ public class OCR implements Runnable {
             String linemethodes = "";
             for(String method:testCurrentHand.methodes)linemethodes+=method+"\r\n";
             Settings.ErrorLog("SLOW "+currentHand.time_hand+"\r\n"+linemethodes);
+            hud.stop_show_hud(table-1);
             show_test_total_hand(testCurrentHand,true);
             is_run = false;
             startStopCapture.removeOcrInOcrList_1(table-1);

@@ -1244,16 +1244,18 @@ public class Testing {
     }
 
 
-
-
-
-    public static void main(String[] args) throws Exception {
-
+    static void initTest(){
         OCR ocr = new OCR();
         UseTesseract useTesseract = new UseTesseract();
         UseTesseract useTesseract_ltsm = new UseTesseract(7);
         CaptureVideo captureVideo = new CaptureVideo("");
         Settings.setting_capture_video();
+    }
+
+
+    public static void main(String[] args) throws Exception {
+
+
         //127,9,6,10
         //saveImageToFile(set_grey_and_inverse_or_no(read_image("Mtest\\empt"),true),"Mtest\\iempt");
         //BufferedImage niBF = read_image("Mtest\\sl5W");
@@ -1277,12 +1279,19 @@ public class Testing {
         String t = "TURN_ALL_PREFIN_am2";
         System.out.println(t.contains("ALL"));*/
 
-       clearTextFiles();
-       clearImgFiles();
-       ArrayList<String> a =new ArrayList<>();
+       /*clearTextFiles();
+       clearImgFiles();*/
+       /*ArrayList<String> a =new ArrayList<>();
        a.get(0);
-       String d ="";
+       String d ="";*/
 
         //System.out.println((-0.4+(-0.4)+0.4));
+        int[] raiseSizesForRange = {2,3,4,5};
+        int first = 0, second =0;
+        for(int i=0; i<4; i++){
+            if(i%2==0)first = raiseSizesForRange[i];
+            else second = raiseSizesForRange[i];
+            System.out.println(first+" "+second);
+        }
     }
 }

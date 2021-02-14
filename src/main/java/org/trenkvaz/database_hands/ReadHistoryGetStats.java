@@ -33,7 +33,7 @@ public class ReadHistoryGetStats {
     static byte[][][] preflop_players_actions_in_raunds;
     static MainStats[] mainstats;
     static HashMap<Long,Float> numHandResultHeroHistory = new HashMap<>();
-    static boolean isRecordStats = true;
+    static boolean isRecordStats = false;
     static FilterStata filterStata;
 
     static {  for(int f=0; f<6; f++){
@@ -43,9 +43,15 @@ public class ReadHistoryGetStats {
         riverActions.add(new ArrayList<Float>());
     } }
 
+    static void initTestFilterStata(){
+        List<int[]> conditions = new ArrayList<>();
+        conditions.add(new int[]{0,-1,-1,-1,2,-1,-1,-1});
+        filterStata = new FilterStata.Builder().setPosStata(new int[][]{{0,0,0,1,1,1},{1,0,0,0,0,0}}).setConditionsPreflopActions(conditions).build();
+
+    }
 
     static void start_ReadFilesInFolder(String folder){
-        filterStata = new FilterStata();
+        //initTestFilterStata();
         Work_DataBase work_dataBase = new Work_DataBase();
         mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase("main_nicks_stats");
         boolean isAllowRec = true;
@@ -113,6 +119,8 @@ public class ReadHistoryGetStats {
          System.out.println(hand.get(0)); return;
      }
      float resulHero = getResultHand(hand,bb,amountPlayers)[Arrays.asList(nicks).indexOf(NICK_HERO)];
+
+     String[][] cards = getCardsShowDown(hand,amountPlayers);
      totalHero+=resulHero;
      numHandResultHeroHistory.put(Long.parseLong(hand.get(0).substring(28,41)),resulHero);
 
@@ -124,7 +132,7 @@ public class ReadHistoryGetStats {
      for(MainStats stats:mainstats)
          stats.count_Stats_for_map(preflop_players_actions_in_raunds,nicks,stacks,(byte) amountPlayers,posActions,false);
 
-
+     //testStata(posHero,hand);
 
      //test_show(hand.get(0));
      clear_UsedArrays();
@@ -196,6 +204,29 @@ public class ReadHistoryGetStats {
         return result;
     }
 
+    static String[][] getCardsShowDown(List<String> hand,int amountPlayers){
+        String[][] result = new String[6][2];
+        int startLine = hand.size()-amountPlayers;
+        int startRIT = 0;
+        for(int line=hand.size()-1; line>0; line--){
+            if(hand.get(line).startsWith("SECOND Board: ")){ startRIT = line+1; break;}
+            if(hand.get(line).startsWith("** Summary **")){ break;}
+        }
+        if(startRIT!=0)startLine = startRIT;
+        for(int line=startLine; line<hand.size(); line++){
+            for(int i_nick = 0; i_nick<6; i_nick++){
+                if(nicks[i_nick]==null)continue;
+                if(hand.get(line).startsWith(nicks[i_nick])){
+                    int indStart = hand.get(line).indexOf('[');
+                    if(indStart>0){ result[i_nick][0] = hand.get(line).substring(indStart+2,indStart+4); result[i_nick][1] = hand.get(line).substring(indStart+6,indStart+8);
+                        System.out.println("*"+result[i_nick][0]+result[i_nick][1]+"*");
+                    }
+                }
+            }
+        }
+     return result;
+    }
+
     static void test_show(String firstLine){
         //if(!firstLine.equals("***** Hand History For Game 1611334751632 *****"))return;
 
@@ -238,6 +269,16 @@ public class ReadHistoryGetStats {
         }
         System.out.println("===============================================");
     }
+
+
+    private static void testStata(int posHero,List<String> hand){
+        if(filterStata.countPreflop(null,preflopActions,posHero,null,0,0,0)){
+            for(String line:hand) System.out.println(line);
+            System.out.println();
+            System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        }
+    }
+
 
 
     private static int read_StacksAndNicks(List<String> hand, float bb){
@@ -507,7 +548,7 @@ public class ReadHistoryGetStats {
         System.out.println("Total vpip "+procents(stats[6][1], stats[6][0])+" pfr "+procents(stats[6][2], stats[6][0])+
                 " 3_bet "+procents(stats[6][4], stats[6][3])+" count pfr "+stats[6][2]+" count  select 3bet "+stats[6][3]+" count 3bet "+stats[6][4]+" count vpip "+stats[6][1]);*/
 
-       /* System.out.println("Res "+totalHero);
+     /*   System.out.println("Res "+totalHero);
       readResultHero();
 
       for(Map.Entry<Long,Float> entry:numHandResultHeroTest.entrySet()){

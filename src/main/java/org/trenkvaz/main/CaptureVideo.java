@@ -229,7 +229,7 @@ public class CaptureVideo {
                 if(count_error_in_compare>privat_error){is_equal = false; break;}*/
                 if(i%2==0)first_of_pair_error = Long.bitCount(img_min_error[i]^img_nick_for_compare[i]);
                         //get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
-                if(i%2!=0)second_of_pair_error = Long.bitCount(img_min_error[i]^img_nick_for_compare[i]);
+                else second_of_pair_error = Long.bitCount(img_min_error[i]^img_nick_for_compare[i]);
                         //get_AmountOneBitInLong(img_min_error[i]^img_nick_for_compare[i]);
                 int local_error = first_of_pair_error+second_of_pair_error;
                 if(i>0&&local_error>privat_error){ continue out;  }

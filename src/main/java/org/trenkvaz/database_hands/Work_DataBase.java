@@ -169,10 +169,13 @@ static String work_database;
             }
 
             if(filterStata.raiseSizesForRange!=null){
-                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_call_range integer[] ;");
-                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_call_range integer[] ;");
                 stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_raise_range integer[][] ;");
                 stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_raise_range integer[][] ;");
+            }
+
+            if(filterStata.isRangeCall){
+                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_call_range integer[] ;");
+                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_call_range integer[] ;");
             }
 
             if(filterStata.vsBetSizes!=null){

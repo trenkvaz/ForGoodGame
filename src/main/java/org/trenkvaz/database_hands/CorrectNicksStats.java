@@ -106,6 +106,7 @@ public class CorrectNicksStats {
             }
         }
         main_map_newnick_oldnicks.remove("aenea");
+        main_map_newnick_oldnicks.remove("Negan");
         for(String nick:main_map_newnick_oldnicks.keySet()){
             System.out.print(nick+" : ");
             for(String nicks:main_map_newnick_oldnicks.get(nick)) System.out.print(nicks+" ");
