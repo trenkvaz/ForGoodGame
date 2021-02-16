@@ -16,8 +16,11 @@ public class WorkStats implements Serializable {
     public boolean isInGame;
 
     Map<String, FilterStata> statsMap = new HashMap<>();
+    Map<String,Map<String, DataStata>> mapNicksMapsNameFilterDataStata = new HashMap<>();
 
-    public WorkStats(boolean isInGame1){ isInGame = isInGame1; }
+    public WorkStats(boolean isInGame1){ isInGame = isInGame1;
+        readStatsMap();
+    }
 
 
 
@@ -29,6 +32,7 @@ public class WorkStats implements Serializable {
    public void countOneHand(String[][] cards, String[] nicks, float[] stacks, float[] resultsHand, List<List<List<Float>>> actionsStreetsStats,
                             int[]alliners,int posHero){
         boolean isWin = false, isShowDown = false, isInitDataStatsOneHand = false; int rangePlayer = 0;
+       Map<String, DataStata> mapNameFilterDataStata = null; FilterStata filterStata2 = null; DataStata dataStata = null;
         for(int pokPos=0; pokPos<6; pokPos++){
             if(nicks[pokPos]==null)continue;
             rangePlayer = 0;
@@ -37,10 +41,20 @@ public class WorkStats implements Serializable {
             // вин и щоудаун на игрока нужны для разных фильтров поэтому нужно один раз определить заранее
             isWin = isWin(resultsHand[pokPos]);
             isShowDown = isShowDown(pokPos,alliners[pokPos],actionsStreetsStats.get(3),cards[pokPos]);
-            for(FilterStata filterStata:statsMap.values()){
+           /* for(FilterStata filterStata:statsMap.values()){
                if(isInGame&&!isInitDataStatsOneHand){ filterStata.dataStatsOneHand = new FilterStata.DataStata[6]; isInitDataStatsOneHand = true;}
                filterStata.countOnePlayerStata(isInGame,pokPos,nicks[pokPos],stacks[pokPos],actionsStreetsStats,isWin,isShowDown,
                        cards[pokPos],rangePlayer,posHero);
+            }*/
+
+            mapNameFilterDataStata = mapNicksMapsNameFilterDataStata.get(nicks[pokPos]);
+            if(mapNameFilterDataStata==null){ mapNameFilterDataStata = creatMapNameFilterDataStataOnePlayer();mapNicksMapsNameFilterDataStata.put(nicks[pokPos],mapNameFilterDataStata);}
+
+            for(String nameFilter:statsMap.keySet()){
+                filterStata2 = statsMap.get(nameFilter);
+                dataStata = mapNameFilterDataStata.get(nameFilter);
+                filterStata2.countOnePlayerStata(isInGame,pokPos,nicks[pokPos],stacks[pokPos],actionsStreetsStats,isWin,isShowDown,
+                        cards[pokPos],rangePlayer,posHero,dataStata);
             }
         }
    }
@@ -79,7 +93,32 @@ public class WorkStats implements Serializable {
        addStructureOneNewStataToDB(stata);
    }
 
-    public void readStatsMap(){
+
+   public Map<String, DataStata> creatMapNameFilterDataStataOnePlayer(){
+       Map<String, DataStata> result = new HashMap<>();
+       for(String nameFilter:statsMap.keySet()){ result.put(nameFilter,new DataStata(statsMap.get(nameFilter))); }
+       return result;
+   }
+
+
+   private void addNewStatsToMapNicksMaps(FilterStata stata){
+        for(Map<String, DataStata> mapNameDataStata:mapNicksMapsNameFilterDataStata.values()){
+            mapNameDataStata.put(stata.getFullNameStata(),new DataStata(stata));
+        }
+   }
+
+   float getValueOneStata(String nick,String nameFilter,String nameData,int CallOrRaise,int specStata){
+        DataStata dataStata = mapNicksMapsNameFilterDataStata.get(nick).get(nameFilter);
+        if(specStata!=-1) return procents(dataStata.getSpecStats(specStata));
+        return 0;
+   }
+
+    private float procents(int[] stata){
+        if(stata[0]==0)return 0;
+        return ((float)stata[1]/(float)stata[0])*100;
+    }
+
+   public void readStatsMap(){
        try {	FileInputStream file=new FileInputStream(home_folder+"\\all_settings\\capture_video\\statsMap.file");
            ObjectInput out = new ObjectInputStream(file);
            statsMap = (Map<String, FilterStata>) out.readObject();
@@ -107,14 +146,14 @@ public class WorkStats implements Serializable {
     public static void main(String[] args) {
 
 
-        //new Work_DataBase();
+        /*new Work_DataBase();
         WorkStats workStats1 = new WorkStats(false);
-       /* FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("v4bet").setPosStata(new int[][]{{0,1,1,1,1,1},{1,1,1,1,1,1}}).isRange().build();
-        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("v4bet").setPosStata(new int[][]{{0,0,1,1,1,1},{1,1,1,1,1,1}}).isRange().build();
+        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("WWSF").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
+
         workStats1.createOneNewStata(filterStata);
-        workStats1.createOneNewStata(filterStata2);*/
-        System.out.println(workStats1.getPreflopRange(new String[]{"2c","As"}));
-        //close_DataBase();
+
+        //System.out.println(workStats1.getPreflopRange(new String[]{"2c","As"}));
+        close_DataBase();*/
     }
 
 

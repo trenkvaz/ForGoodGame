@@ -1279,19 +1279,19 @@ public class Testing {
         String t = "TURN_ALL_PREFIN_am2";
         System.out.println(t.contains("ALL"));*/
 
-       /*clearTextFiles();
-       clearImgFiles();*/
+       clearTextFiles();
+       clearImgFiles();
        /*ArrayList<String> a =new ArrayList<>();
        a.get(0);
        String d ="";*/
 
         //System.out.println((-0.4+(-0.4)+0.4));
-        int[] raiseSizesForRange = {2,3,4,5};
+        /*int[] raiseSizesForRange = {2,3,4,5};
         int first = 0, second =0;
         for(int i=0; i<4; i++){
             if(i%2==0)first = raiseSizesForRange[i];
             else second = raiseSizesForRange[i];
             System.out.println(first+" "+second);
-        }
+        }*/
     }
 }

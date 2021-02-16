@@ -252,6 +252,7 @@ public class GetNicksForHands {
            String line = sublist_players.get(i);
            //if(!line.startsWith("Seat "+(i+1)+": "))break;
            seat_nick[i][0] = line.substring(8,line.indexOf("(")-1);
+           if(seat_nick[i][0].equals("")) return "";
            seat_nick[i][1] = nicks[position];
            sublist_players.set(i,line.replace(seat_nick[i][0],seat_nick[i][1]));
        }

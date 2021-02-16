@@ -183,6 +183,21 @@ static String work_database;
                 stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value_vsbetsize integer[][] ;");
             }
 
+            if(filterStata.specStats[0]){
+                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_wwsf integer[] ;");
+                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_wwsf integer[] ;");
+            }
+
+            if(filterStata.specStats[1]){
+                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_wtsd integer[] ;");
+                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_wtsd integer[] ;");
+            }
+
+            if(filterStata.specStats[2]){
+                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_wsd integer[] ;");
+                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_wsd integer[] ;");
+            }
+
             stmt_of_db.executeBatch();
             System.out.println(" added columns");
         } catch (SQLException e) {

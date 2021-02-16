@@ -13,8 +13,8 @@ public class FilterStata implements Serializable {
     static final int SELECT = 0, CALL = 1, RAISE = 2;
     static final String[] strPositions = {"utg","mp","co","bu","sb","bb"};
 
-    public Map<String, DataStata> mapNicksDates = new HashMap<>();
-    public transient DataStata[] dataStatsOneHand;
+    /*public Map<String, DataStata> mapNicksDates = new HashMap<>();
+    public transient DataStata[] dataStatsOneHand;*/
 
     public String mainNameFilter;
     // 0 позиции игрока, 1 позиции оппов;  0 нет позы, 1 есть поза
@@ -45,14 +45,14 @@ public class FilterStata implements Serializable {
 
 
     public void countOnePlayerStata(boolean isInGame,int posPlayer,String nick, float stack, List<List<List<Float>>> actionsStreetsStats,
-                                    boolean isWin,boolean isShowDown,String[] cardsPlayer,int rangePlayer,int posHero){
+                                    boolean isWin,boolean isShowDown,String[] cardsPlayer,int rangePlayer,int posHero,DataStata dataStata){
         if(isInGame)if(!isAllowInGame)return;
         if(posStata[0][posPlayer]==0)return;
-        DataStata dataStata = getNewDataStata(nick);
+        //DataStata dataStata = getNewDataStata(nick);
         if(streetOfActs==-1){ countSpecialNotActionStats(dataStata,actionsStreetsStats,posPlayer,isWin,isShowDown);}
         else if(streetOfActs==0){countPreflop(dataStata,actionsStreetsStats.get(0),posPlayer,nick,stack,rangePlayer,posHero);}
         else countPostFlop(dataStata,actionsStreetsStats.get(streetOfActs),streetOfActs,posPlayer,nick,stack);
-        mapNicksDates.put(nick,dataStata);
+        //mapNicksDates.put(nick,dataStata);
     }
 
 
@@ -178,7 +178,7 @@ public class FilterStata implements Serializable {
     private void countW$SD(DataStata dataStata,boolean isWin, boolean isShowDown){ if(isShowDown){dataStata.W$SD[0]++;if(isWin)dataStata.W$SD[1]++; } }
 
 
-    private DataStata getNewDataStata(String nick){ DataStata dataStata = mapNicksDates.get(nick);if(dataStata==null) dataStata = new DataStata();return dataStata; }
+    //private DataStata getNewDataStata(String nick){ DataStata dataStata = mapNicksDates.get(nick);if(dataStata==null) dataStata = new DataStata();return dataStata; }
 
 
     public static class Builder {
@@ -220,12 +220,14 @@ public class FilterStata implements Serializable {
 
         public Builder setConditionsPreflopActions(List<int[]> conditionsPreflopActions){stata.conditionsPreflopActions = conditionsPreflopActions; return this;}
 
+        public Builder setSpecStats(int stata1){ stata.specStats[stata1] = true; return this;}
+
 
 
         public FilterStata build(){return stata;}
     }
 
-    public class DataStata {
+    /*public class DataStata {
         public int[] mainSelCallRaise;// основная стата выборка, колл, рейз
         public int[][] vsBetSizeSelCallRaise; // статы против определенных рейзов для каждого сайза рейза оппа ответ - выборка, колл, рейз
         public int[] selCallRaiseVsHero; // основная стата против Херо ответ - выборка, колл, рейз
@@ -248,7 +250,7 @@ public class FilterStata implements Serializable {
             if(specStats[2]) W$SD = new int[2];
         }
 
-    }
+    }*/
 
     public static void main(String[] args) {
         FilterStata filterStats = new Builder().setPosStata(new int[][]{{0,1,1,1,1,1},{1,1,1,1,1,1}}).build();
