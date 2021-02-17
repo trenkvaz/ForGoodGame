@@ -44,30 +44,30 @@ public class FilterStata implements Serializable {
     public String getFullNameStata(){return mainNameFilter+strPosStata;}
 
 
-    public void countOnePlayerStata(boolean isInGame,int posPlayer,String nick, float stack, List<List<List<Float>>> actionsStreetsStats,
-                                    boolean isWin,boolean isShowDown,String[] cardsPlayer,int rangePlayer,int posHero,DataStata dataStata){
+    public void countOnePlayerStata(boolean isInGame,int posPlayer,String nick, float stack, List<List<List<Float>>> sizeActionsStreetsStats,
+                                    boolean isWin,boolean isShowDown,String[] cardsPlayer,int rangePlayer,int posHero,DataStata dataStata,List<int[][]> listPokerActionsInRoundsByPositions){
         if(isInGame)if(!isAllowInGame)return;
         if(posStata[0][posPlayer]==0)return;
         //DataStata dataStata = getNewDataStata(nick);
-        if(streetOfActs==-1){ countSpecialNotActionStats(dataStata,actionsStreetsStats,posPlayer,isWin,isShowDown);}
-        else if(streetOfActs==0){countPreflop(dataStata,actionsStreetsStats.get(0),posPlayer,nick,stack,rangePlayer,posHero);}
-        else countPostFlop(dataStata,actionsStreetsStats.get(streetOfActs),streetOfActs,posPlayer,nick,stack);
+        if(streetOfActs==-1){ countSpecialNotActionStats(dataStata,sizeActionsStreetsStats,posPlayer,isWin,isShowDown,listPokerActionsInRoundsByPositions.get(0));}
+        else if(streetOfActs==0){countPreflop(dataStata,sizeActionsStreetsStats.get(0),posPlayer,nick,stack,rangePlayer,posHero, listPokerActionsInRoundsByPositions.get(0));}
+        else countPostFlop(dataStata,sizeActionsStreetsStats.get(streetOfActs),streetOfActs,posPlayer,nick,stack);
         //mapNicksDates.put(nick,dataStata);
     }
 
 
-    public boolean countPreflop(DataStata dataStata,List<List<Float>> preflopActions, int posPlayer, String nick, float stack, int rangePlayer,int posHero){
+    public boolean countPreflop(DataStata dataStata,List<List<Float>> preflopSizeActions, int posPlayer, String nick, float stack, int rangePlayer,int posHero,int[][] pokerActsRoundsByPoses){
 
-        int[][] actsRoundsByPoses = getActionsInRoundsByPositions(preflopActions,true);
-        if(actsRoundsByPoses[0][posPlayer]==0)return false; // ситуация когда херо на ББ и все сфолдили
-        for(int round =0; round<conditionsPreflopActions.size(); round++){ if(!isEqualsPreflopConditionsToActions(actsRoundsByPoses,round,posPlayer))return false;}
+        if(pokerActsRoundsByPoses[0][posPlayer]==0)return false; // ситуация когда херо на ББ и все сфолдили
+        for(int round =0; round<conditionsPreflopActions.size(); round++){ if(!isEqualsPreflopConditionsToActions(pokerActsRoundsByPoses,round,posPlayer))return false;}
         //return true;
         dataStata.mainSelCallRaise[SELECT]++;
-        int actPlayer = actsRoundsByPoses[conditionsPreflopActions.size()-1][posPlayer];
-        if(actPlayer==-10||actPlayer==10)return false;
-        if(actPlayer<0){dataStata.mainSelCallRaise[CALL]++; if(isRangeCall&&rangePlayer!=0)dataStata.rangeCall[rangePlayer]++; }
-        if(actPlayer>0){dataStata.mainSelCallRaise[RAISE]++;
-        if(raiseSizesForRange!=null&&rangePlayer!=0)countRaiseSizesForRange(dataStata,preflopActions.get(posPlayer),rangePlayer,stack);}
+        int pokerActPlayer = pokerActsRoundsByPoses[conditionsPreflopActions.size()-1][posPlayer];
+        if(pokerActPlayer==-10||pokerActPlayer==10)return false;
+        if(pokerActPlayer<0){dataStata.mainSelCallRaise[CALL]++; if(isRangeCall&&rangePlayer!=0)dataStata.rangeCall[rangePlayer]++; }
+        if(pokerActPlayer>0){dataStata.mainSelCallRaise[RAISE]++;
+        // если нужно просчитать Рейндж Сайзы и есть карты
+        if(raiseSizesForRange!=null&&rangePlayer!=0)countRaiseSizesForRange(dataStata,preflopSizeActions.get(posPlayer),rangePlayer,stack); }
         return true;
     }
 
@@ -140,29 +140,12 @@ public class FilterStata implements Serializable {
     }
 
 
-    public int[][] getActionsInRoundsByPositions(List<List<Float>> actions,boolean isPreflop){
-        int maxSizeListActions = actions.stream().mapToInt(List::size).max().getAsInt();
-        int cor = 0; if(isPreflop)cor=1;
-        int[][] roundsPosAct = new int[maxSizeListActions-cor][6];
-        int raise = cor;
-        for(int act=cor; act<maxSizeListActions; act++)
-            for(int pokPos=0; pokPos<6; pokPos++){
-                if(actions.get(pokPos).size()-1<act)continue;
-                float action = actions.get(pokPos).get(act);
-                if(action==Float.NEGATIVE_INFINITY)roundsPosAct[act-cor][pokPos]=-10;
-                else if(action==Float.POSITIVE_INFINITY)roundsPosAct[act-cor][pokPos]= 10;
-                else if(action!=Float.NEGATIVE_INFINITY&&action<0)roundsPosAct[act-cor][pokPos]= -(raise);
-                else if(action!=Float.POSITIVE_INFINITY&&action>0){ if(raise==5)roundsPosAct[act-cor][pokPos] = raise;else roundsPosAct[act-cor][pokPos] = ++raise;}
-            }
-        return roundsPosAct;
-    }
-
-
-
-    private void countSpecialNotActionStats(DataStata dataStata,List<List<List<Float>>> actionsStreetsStats,int posPlayer,boolean isWin,boolean isShowDown){
+    private void countSpecialNotActionStats(DataStata dataStata,List<List<List<Float>>> actionsStreetsStats,int posPlayer,
+                                            boolean isWin,boolean isShowDown,int[][] actsRoundsByPoses){
         if(specStats[0]) countW$WSF(dataStata,actionsStreetsStats,posPlayer,isWin,isShowDown);
-        if(specStats[1]) countWTSD(dataStata,isShowDown);
+        if(specStats[1]) countWTSDafFLOP(dataStata,actionsStreetsStats.get(1),posPlayer,isShowDown);
         if(specStats[2]) countW$SD(dataStata,isWin,isShowDown);
+        if(specStats[3]) countVPIPandPFR(dataStata,actsRoundsByPoses,posPlayer);
     }
 
 
@@ -172,13 +155,23 @@ public class FilterStata implements Serializable {
     }
 
 
-    private void countWTSD(DataStata dataStata, boolean isShowDown){ dataStata.WTSD[0]++;if(isShowDown)dataStata.WTSD[1]++; }
+    private void countWTSDafFLOP(DataStata dataStata, List<List<Float>> actionsStreetStats, int posPlayer, boolean isShowDown){
+        if(actionsStreetStats.get(posPlayer).isEmpty()&&!isShowDown)return;
+        dataStata.WTSD[0]++;if(isShowDown)dataStata.WTSD[1]++;
+    }
 
 
     private void countW$SD(DataStata dataStata,boolean isWin, boolean isShowDown){ if(isShowDown){dataStata.W$SD[0]++;if(isWin)dataStata.W$SD[1]++; } }
 
 
-    //private DataStata getNewDataStata(String nick){ DataStata dataStata = mapNicksDates.get(nick);if(dataStata==null) dataStata = new DataStata();return dataStata; }
+    private void countVPIPandPFR(DataStata dataStata,int[][] actsRoundsByPoses,int posPlayer){
+        if(actsRoundsByPoses[0][posPlayer]==0)return;
+        dataStata.VPIP_PFR[SELECT]++;
+        int actPlayer = actsRoundsByPoses[0][posPlayer];
+        if(actPlayer==-10||actPlayer==10)return;
+        if(actPlayer<0)dataStata.VPIP_PFR[CALL]++;
+        if(actPlayer>0)dataStata.VPIP_PFR[RAISE]++;
+    }
 
 
     public static class Builder {

@@ -50,8 +50,10 @@ public class ReadHistoryGetStats {
         conditions.add(new int[]{0,-1,-1,-1,2,-1,-1,-1});
         filterStata = new FilterStata.Builder().setPosStata(new int[][]{{0,0,0,1,1,1},{1,0,0,0,0,0}}).setConditionsPreflopActions(conditions).build();*/
        workStats = new WorkStats(false);
+       isTest = true;
     }
 
+    static boolean isTest = false;
     static void start_ReadFilesInFolder(String folder){
         //initTestFilterStata();
         Work_DataBase work_dataBase = new Work_DataBase();
@@ -141,7 +143,7 @@ public class ReadHistoryGetStats {
          stats.count_Stats_for_map(preflop_players_actions_in_raunds,nicksOldStata,stacks,(byte) amountPlayers,posActions,false);
 
      //testStata(posHero,hand);
-     //workStats.countOneHand(cards,nicks,stacks,resultHand,unionActionsStreetsStats(),null,posHero);
+     if(isTest)workStats.countOneHand(cards,nicks,stacks,resultHand,unionActionsStreetsStats(),null,posHero);
      //test_show(hand.get(0));
      clear_UsedArrays();
 
@@ -238,39 +240,35 @@ public class ReadHistoryGetStats {
     static void test_show(String firstLine){
         //if(!firstLine.equals("***** Hand History For Game 1611334751632 *****"))return;
 
-        int[][] roundactPre = filterStata.getActionsInRoundsByPositions(preflopActions,true);
-        int[][] roundactFlop = filterStata.getActionsInRoundsByPositions(flopActions,false);
-        int[][] roundactTurn = filterStata.getActionsInRoundsByPositions(turnActions,false);
-        int[][] roundactRiver = filterStata.getActionsInRoundsByPositions(riverActions,false);
-
+        List<int[][]> listActionsInRoundsByPositions = workStats.getListPokerActionsInRoundsByPositions(unionActionsStreetsStats());
         System.out.println(firstLine);
         for(int i=0; i<6; i++){
             System.out.print(nicks[i]+"   pre ");
             for(int a = 0; a< preflopActions.get(i).size(); a++)
                 System.out.print(preflopActions.get(i).get(a)+" ");
             System.out.print("  ////  ");
-            for(int act=0; act<roundactPre.length; act++)
-                System.out.print(roundactPre[act][i]+" ");
+            for(int act=0; act<listActionsInRoundsByPositions.get(0).length; act++)
+                System.out.print(listActionsInRoundsByPositions.get(0)[act][i]+" ");
             if(!flopActions.get(i).isEmpty()) {System.out.print(" flop ");
             for(int a = 0; a< flopActions.get(i).size(); a++)
                 System.out.print(flopActions.get(i).get(a)+" ");
                 System.out.print("  ////  ");
-                for(int act=0; act<roundactFlop.length; act++)
-                    System.out.print(roundactFlop[act][i]+" ");
+                for(int act=0; act<listActionsInRoundsByPositions.get(1).length; act++)
+                    System.out.print(listActionsInRoundsByPositions.get(1)[act][i]+" ");
             }
             if(!turnActions.get(i).isEmpty()) {System.out.print(" turn ");
             for(int a = 0; a< turnActions.get(i).size(); a++)
                 System.out.print(turnActions.get(i).get(a)+" ");
                 System.out.print("  ////  ");
-                for(int act=0; act<roundactTurn.length; act++)
-                    System.out.print(roundactTurn[act][i]+" ");
+                for(int act=0; act<listActionsInRoundsByPositions.get(2).length; act++)
+                    System.out.print(listActionsInRoundsByPositions.get(2)[act][i]+" ");
             }
             if(!riverActions.get(i).isEmpty()) {System.out.print(" river ");
             for(int a = 0; a< riverActions.get(i).size(); a++)
                 System.out.print(riverActions.get(i).get(a)+" ");
                 System.out.print("  ////  ");
-                for(int act=0; act<roundactRiver.length; act++)
-                    System.out.print(roundactRiver[act][i]+" ");
+                for(int act=0; act<listActionsInRoundsByPositions.get(3).length; act++)
+                    System.out.print(listActionsInRoundsByPositions.get(3)[act][i]+" ");
             }
 
             System.out.println();
@@ -572,6 +570,17 @@ public class ReadHistoryGetStats {
 
       }*/
 
+     /* int[] wwsf = workStats.getValueOneStata("trenkvaz","WWSFall_v_all",6);
+        System.out.println(procents(wwsf[1],wwsf[0]));
+        int[] wtsd = workStats.getValueOneStata("trenkvaz","WTSDall_v_all",7);
+        System.out.println(wtsd[1]+"  "+wtsd[0]);
+        System.out.println(procents(wtsd[1],wtsd[0]));
+        int[] w$sd = workStats.getValueOneStata("trenkvaz","W$SDall_v_all",8);
+        System.out.println(procents(w$sd[1],w$sd[0]));
+        System.out.println(WorkStats.countSD);*/
+       /* int[] vpip = workStats.getValueOneStata("trenkvaz","vpip_pfrall_v_all",9);
+        System.out.println(vpip[0]+"  "+vpip[1]+" "+vpip[2]);
+        System.out.println(procents(vpip[1]+vpip[2],vpip[0]));*/
 
     }
 }
