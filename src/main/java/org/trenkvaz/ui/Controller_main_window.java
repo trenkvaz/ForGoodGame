@@ -97,6 +97,7 @@ public class Controller_main_window {
     }
 
 
+    public void setTestMessage(String message){ Platform.runLater(() -> { timer.setText(message); }); }
 
 
     class MyTimer implements Runnable {

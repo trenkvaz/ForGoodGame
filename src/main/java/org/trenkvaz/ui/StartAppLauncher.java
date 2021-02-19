@@ -21,6 +21,7 @@ public class StartAppLauncher {
     public static boolean isTest = false;
 
 
+    // ПОМЕНЯТЬ БАЗУ !
 
     public static float[] totalStreetHero = new float[4];
 

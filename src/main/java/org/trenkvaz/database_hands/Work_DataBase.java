@@ -1,6 +1,7 @@
 package org.trenkvaz.database_hands;
 
 import org.trenkvaz.main.CurrentHand;
+import org.trenkvaz.newstats.DataStata;
 import org.trenkvaz.newstats.FilterStata;
 import org.trenkvaz.stats.*;
 
@@ -190,18 +191,17 @@ static String work_database;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-
-
-
     }
 
-    /*public static void recordNewStatsOneHand(String[] nicks, Map<String,Stata> statsMap){
-        //String insertNick = "INSERT INTO main_nicks VALUES ('"+nick+"') ON CONFLICT(nicks) DO NOTHING;";
+
+
+
+    /*public static void recordNewStatsToMain(Map<String,Map<String, DataStata>> mapNicksMapsNameFilterDataStata){
 
         try {
             connect_to_db.setAutoCommit(false);
             PreparedStatement pstmt = null;
+
             for(String nameStata:statsMap.keySet()){
 
             String insert = "INSERT INTO main_"+nameStata+" VALUES ( ?, ";
@@ -234,19 +234,19 @@ static String work_database;
                 }
 
 
-               *//* for(int i=2; i<count_stats+2; i++){
+                for(int i=2; i<count_stats+2; i++){
                     Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[i-2].getMap_of_Idplayer_stats().get(nick));
                     //System.out.println(arraystata.toString()+" "+(i+1));
                     pstmt.setArray(i, arraystata);
                     pstmt.setArray(i+count_stats, arraystata);
-                }*//*
+                }
                 //System.out.println(pstmt.toString());
                 pstmt.addBatch();
             }
             }
             assert pstmt != null;
-         *//* int[]  r = pstmt.executeBatch();
-          for(int a:r) System.out.println(a);*//*
+          int[]  r = pstmt.executeBatch();
+          for(int a:r) System.out.println(a);
             pstmt.executeBatch();
             connect_to_db.commit();
             connect_to_db.setAutoCommit(true);
@@ -254,8 +254,67 @@ static String work_database;
             e.printStackTrace();
         }
 
-
     }*/
+
+
+
+
+    private final static String[] strStatsValues = {"_value","_value_vs_hero","_raise_range","_call_range","_value_vsbetsize","_wwsf","_wtsd","_wsd","_vpip_pfr"};
+    public static void recordAllMapStats(Map<String, FilterStata> statsMap,Map<String,Map<String, DataStata>> mapNicksMapsNameFilterDataStata){
+        String insert = "", update = "", namesValues = "", values = ""; DataStata dataStata = null; Array arraystata = null;
+        try {
+            connect_to_db.setAutoCommit(false);
+            for(Map.Entry<String,FilterStata> entry:statsMap.entrySet()){
+                update = " ON CONFLICT (nicks) DO UPDATE SET ";
+                for(int i=0;  i<entry.getValue().structureParametres.length; i++){
+                    if(entry.getValue().structureParametres[i]){ namesValues+=entry.getValue().strPosStata+strStatsValues[i]+",";
+                        values+="?,";
+                        update+=entry.getValue().strPosStata+strStatsValues[i]+"=?,"; }
+                }
+                namesValues=namesValues.substring(0,namesValues.length()-1);
+                values = values.substring(0,values.length()-1)+")";
+                update = update.substring(0,update.length()-1)+";";
+                insert = "INSERT INTO main_"+entry.getValue().mainNameFilter+" ("+namesValues+") VALUES ( ?,"+values;
+                PreparedStatement pstmt = connect_to_db.prepareStatement(insert+update);
+                System.out.println(insert+update);
+               for(String nick:mapNicksMapsNameFilterDataStata.keySet()){
+                   dataStata = mapNicksMapsNameFilterDataStata.get(nick).get(entry.getKey());
+                   if(!dataStata.isRecord)continue;
+                   pstmt.setString(1,nick);
+                   int paramindex = 1;
+                   for(int i=0;  i<entry.getValue().structureParametres.length; i++){
+                       if(!entry.getValue().structureParametres[i])continue;
+                           paramindex++;
+                       if(i==0)arraystata = connect_to_db.createArrayOf("integer", new int[][]{dataStata.mainSelCallRaise});
+                       if(i==8)arraystata = connect_to_db.createArrayOf("integer", new int[][]{dataStata.VPIP_PFR});
+                       pstmt.setArray(paramindex,arraystata);
+
+                   }
+                   dataStata.isRecord = false;
+                   System.out.println(pstmt.toString());
+               }
+
+
+
+
+
+
+
+
+            }
+
+
+
+
+
+
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+
+    }
 
 
     private static void add_columns_in_TableIdplayersStats(){
@@ -350,7 +409,7 @@ static String work_database;
                 pstmt.setString(1,String.valueOf(nick));
                 //pstmt.setString(count_stats*2+2,(String) nick);
 
-                for(int i=2; i<count_stats+2; i++){
+                for(int i=2; i<count_stats+2; i++){ // правильно +2
                     Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[i-2].getMap_of_Idplayer_stats().get(nick));
                     //System.out.println(arraystata.toString()+" "+(i+1));
                     pstmt.setArray(i, arraystata);
@@ -421,7 +480,7 @@ static String work_database;
     }
 
 
-   public static Array get_stats_of_one_player(String nick,String stata){
+    public static Array get_stats_of_one_player(String nick,String stata){
         Array result = null;
         String query = "SELECT "+stata+" FROM main_nicks_stats WHERE nicks='"+nick+"'  ;";
 
@@ -439,8 +498,6 @@ static String work_database;
         }
         return result;
     }
-
-
 
 
     public static synchronized void record_rec_to_TableTempHands(CurrentHand.TempHand temphand){

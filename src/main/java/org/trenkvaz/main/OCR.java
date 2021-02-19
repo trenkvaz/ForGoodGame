@@ -15,6 +15,7 @@ import static org.bytedeco.javacpp.opencv_core.cvResetImageROI;*/
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OcrUtils.*;
 import static org.trenkvaz.main.Testing.*;
+import static org.trenkvaz.ui.Controller_main_window.controller_main_window;
 import static org.trenkvaz.ui.StartAppLauncher.*;
 //import static org.trenkvaz.main.Settings.write_nicks_keys_img_pix;
 
@@ -105,6 +106,7 @@ public class OCR implements Runnable {
     boolean isShowSlowWork = false;
     public synchronized void addFrameTableToQueue(FrameTable frameTable1){ queueFrameTable.offer(frameTable1);
         //System.out.println(queueFrameTable.size());
+        if(queueFrameTable.size()>5){ controller_main_window.setTestMessage("SIZE "+queueFrameTable.size());  }
         if(queueFrameTable.size()>50&&!isShowSlowWork){ isShowSlowWork = true;
 
             System.out.println("table "+table+"    "+ queueFrameTable.size());c++;

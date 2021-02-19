@@ -3,6 +3,7 @@ package org.trenkvaz.newstats;
 import java.io.*;
 import java.util.*;
 
+import static org.trenkvaz.database_hands.Work_DataBase.recordAllMapStats;
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 
@@ -25,7 +26,7 @@ public class WorkStats implements Serializable {
 
    public static int countSD = 0;
 
-   public void countOneHand(String[][] cards, String[] nicks, float[] stacks, float[] resultsHand, List<List<List<Float>>> sizeActionsStreetsStats,
+   public synchronized void countOneHand(String[][] cards, String[] nicks, float[] stacks, float[] resultsHand, List<List<List<Float>>> sizeActionsStreetsStats,
                             int[]alliners,int posHero){
         boolean isWin = false, isShowDown = false; int rangePlayer = 0;
         Map<String, DataStata> mapNameFilterDataStata = null; FilterStata filterStata = null; DataStata dataStata = null;
@@ -51,6 +52,7 @@ public class WorkStats implements Serializable {
                 filterStata.countOnePlayerStata(isInGame,pokPos,nicks[pokPos],stacks[pokPos],sizeActionsStreetsStats,isWin,isShowDown,
                         cards[pokPos],rangePlayer,posHero,dataStata,listPokerActionsInRoundsByPositions);
             }
+            recordAllMapStats(statsMap,mapNicksMapsNameFilterDataStata);
         }
    }
 

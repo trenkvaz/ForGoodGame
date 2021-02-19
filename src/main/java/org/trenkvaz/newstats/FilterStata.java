@@ -39,6 +39,7 @@ public class FilterStata implements Serializable {
     public boolean[] specStats = new boolean[4];
     // 1 раунд акт 0, если важна позиция действия и было действие 2, нет действие -1, было действие поза не важна 1
     public List<int[]> conditionsPreflopActions;
+    public boolean[] structureParametres = new boolean[9];
 
 
     public String getFullNameStata(){return mainNameFilter+strPosStata;}
@@ -61,10 +62,11 @@ public class FilterStata implements Serializable {
         if(pokerActsRoundsByPoses[0][posPlayer]==0)return false; // ситуация когда херо на ББ и все сфолдили
         for(int round =0; round<conditionsPreflopActions.size(); round++){ if(!isEqualsPreflopConditionsToActions(pokerActsRoundsByPoses,round,posPlayer))return false;}
         //return true;
+        dataStata.isRecord =true;
         dataStata.mainSelCallRaise[SELECT]++;
         int pokerActPlayer = pokerActsRoundsByPoses[conditionsPreflopActions.size()-1][posPlayer];
         if(pokerActPlayer==-10||pokerActPlayer==10)return false;
-        if(pokerActPlayer<0){dataStata.mainSelCallRaise[CALL]++; if(isRangeCall&&rangePlayer!=0)dataStata.rangeCall[rangePlayer]++; }
+        if(pokerActPlayer<0){dataStata.mainSelCallRaise[CALL]++; if(isRangeCall&&rangePlayer!=0){dataStata.rangeCall[rangePlayer]++; } }
         if(pokerActPlayer>0){dataStata.mainSelCallRaise[RAISE]++;
         // если нужно просчитать Рейндж Сайзы и есть карты
         if(raiseSizesForRange!=null&&rangePlayer!=0)countRaiseSizesForRange(dataStata,preflopSizeActions.get(posPlayer),rangePlayer,stack); }
@@ -82,6 +84,7 @@ public class FilterStata implements Serializable {
         for(int[] condRaund:conditionsPreflopActions) isImpPos = IntStream.range(1, condRaund.length).anyMatch(i -> condRaund[i] == 2);
         if(!isImpPos)return;
         if(posStata[1][posHero]==0)return;
+        dataStata.isRecord = true;
         dataStata.selCallRaiseVsHero[SELECT]++;
         // последнее действие на основе последнего индекса условий действий, указывает на последний раунд где есть нужное действие
         int actPlayer = actsRoundsByPoses[conditionsPreflopActions.size()-1][posPlayer];
@@ -99,7 +102,7 @@ public class FilterStata implements Serializable {
             raise = preflopActions.get(conditionsPreflopActions.size());
             if(raise==stack)raise = 100000; // эквивалент оллина
             // первое число в rangeRaiseSizes это количество рейзов данным сайзом, следующие 169 это количество рейз конкретной комбой
-            if(raise>first&&raise<=second){ dataStata.rangeRaiseSizes.get(i)[0]++; dataStata.rangeRaiseSizes.get(i)[rangePlayer]++; break;}
+            if(raise>first&&raise<=second){ dataStata.rangeRaiseSizes.get(i)[0]++; dataStata.rangeRaiseSizes.get(i)[rangePlayer]++;break;}
         }
     }
 
@@ -151,21 +154,27 @@ public class FilterStata implements Serializable {
 
     private void countW$WSF(DataStata dataStata, List<List<List<Float>>> actionsStreetsStats, int posPlayer, boolean isWin, boolean isShowDown){
          // проверка что игрок видел флоп шоудаун это флоп или действие на флопе
-         if(!isShowDown){ if(actionsStreetsStats.get(1).get(posPlayer).isEmpty())return; } dataStata.W$WSF[0]++; if(isWin)dataStata.W$WSF[1]++;
+         if(!isShowDown){ if(actionsStreetsStats.get(1).get(posPlayer).isEmpty())return; }
+         dataStata.isRecord =true;
+         dataStata.W$WSF[0]++; if(isWin)dataStata.W$WSF[1]++;
     }
 
 
     private void countWTSDafFLOP(DataStata dataStata, List<List<Float>> actionsStreetStats, int posPlayer, boolean isShowDown){
         if(actionsStreetStats.get(posPlayer).isEmpty()&&!isShowDown)return;
+        dataStata.isRecord =true;
         dataStata.WTSD[0]++;if(isShowDown)dataStata.WTSD[1]++;
     }
 
 
-    private void countW$SD(DataStata dataStata,boolean isWin, boolean isShowDown){ if(isShowDown){dataStata.W$SD[0]++;if(isWin)dataStata.W$SD[1]++; } }
+    private void countW$SD(DataStata dataStata,boolean isWin, boolean isShowDown){
+        if(isShowDown){ dataStata.isRecord=true; dataStata.W$SD[0]++;if(isWin)dataStata.W$SD[1]++; }
+    }
 
 
     private void countVPIPandPFR(DataStata dataStata,int[][] actsRoundsByPoses,int posPlayer){
         if(actsRoundsByPoses[0][posPlayer]==0)return;
+        dataStata.isRecord=true;
         dataStata.VPIP_PFR[SELECT]++;
         int actPlayer = actsRoundsByPoses[0][posPlayer];
         if(actPlayer==-10||actPlayer==10)return;
@@ -197,53 +206,31 @@ public class FilterStata implements Serializable {
 
         //public Builder isRange(){stata.isRanges = true; return this;}
 
-        public Builder isVsHero(){stata.isVsHero = true; return this;}
+        public Builder isVsHero(){stata.isVsHero = true; stata.structureParametres[2] = true; return this;}
 
         public Builder isAllowInGame(){stata.isAllowInGame = true; return this;}
 
-        public Builder isRangeCall(){stata.isRangeCall = true; return this;}
+        public Builder isRangeCall(){stata.isRangeCall = true; stata.structureParametres[3] = true;return this;}
 
-        public Builder setStreetOfActs(int streetOfActs){ stata.streetOfActs = streetOfActs; return this; }
+        public Builder setStreetOfActs(int streetOfActs){ stata.streetOfActs = streetOfActs; stata.structureParametres[0] = true; return this; }
 
         public Builder setSeenStreet(int seenStreet1){ stata.seenStreet = seenStreet1; return this; }
 
-        public Builder setVsBetSizes(int[] vsBetSizes1){ stata.vsBetSizes = vsBetSizes1; return this; }
+        public Builder setVsBetSizes(int[] vsBetSizes1){ stata.vsBetSizes = vsBetSizes1; stata.structureParametres[1] = true; return this; }
 
-        public Builder setRaiseSizesForRange(int[] raiseSizesForRange){ stata.raiseSizesForRange = raiseSizesForRange; return this; }
+        public Builder setRaiseSizesForRange(int[] raiseSizesForRange){ stata.raiseSizesForRange = raiseSizesForRange; stata.structureParametres[4] = true;return this; }
 
         public Builder setConditionsPreflopActions(List<int[]> conditionsPreflopActions){stata.conditionsPreflopActions = conditionsPreflopActions; return this;}
 
-        public Builder setSpecStats(int stata1){ stata.specStats[stata1] = true; return this;}
+        public Builder setSpecStats(int stata1){ stata.specStats[stata1] = true;
+            stata.structureParametres[stata1+5] = true;
+        return this;}
 
 
 
         public FilterStata build(){return stata;}
     }
 
-    /*public class DataStata {
-        public int[] mainSelCallRaise;// основная стата выборка, колл, рейз
-        public int[][] vsBetSizeSelCallRaise; // статы против определенных рейзов для каждого сайза рейза оппа ответ - выборка, колл, рейз
-        public int[] selCallRaiseVsHero; // основная стата против Херо ответ - выборка, колл, рейз
-        public int[] rangeCall; // 170 1-169 показывает карты с которыми был колл прибавляется единица за каждую карту
-        public List<int[]> rangeRaiseSizes; // показывает карты с которыми был рейз, рейзы разные на каждый рейз массив как в колле
-        public int[]W$WSF;
-        public int[]WTSD;
-        public int[]W$SD;
-        public int[]Ag;
-
-        public DataStata(){
-            if(streetOfActs!=-1)mainSelCallRaise = new int[3];
-            if(vsBetSizes!=null)vsBetSizeSelCallRaise = new int[vsBetSizes.length][3];
-            if(isVsHero)selCallRaiseVsHero = new int[3];
-            if(isRangeCall)rangeCall = new int[170];
-            if(raiseSizesForRange!=null){  rangeRaiseSizes = new ArrayList<>(raiseSizesForRange.length);
-                for(int i=0; i<raiseSizesForRange.length; i++){ int[] rangeRaiseSize = new int[170]; rangeRaiseSizes.add(rangeRaiseSize); }    }
-            if(specStats[0]) W$WSF = new int[2];
-            if(specStats[1]) WTSD = new int[2];
-            if(specStats[2]) W$SD = new int[2];
-        }
-
-    }*/
 
     public static void main(String[] args) {
         FilterStata filterStats = new Builder().setPosStata(new int[][]{{0,1,1,1,1,1},{1,1,1,1,1,1}}).build();

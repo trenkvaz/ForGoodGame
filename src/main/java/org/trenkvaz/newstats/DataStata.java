@@ -5,15 +5,19 @@ import java.util.List;
 
 public class DataStata {
 
-    public int[] mainSelCallRaise;// основная стата выборка, колл, рейз
-    public int[][] vsBetSizeSelCallRaise; // статы против определенных рейзов для каждого сайза рейза оппа ответ - выборка, колл, рейз
-    public int[] selCallRaiseVsHero; // основная стата против Херо ответ - выборка, колл, рейз
-    public int[] rangeCall; // 170 1-169 показывает карты с которыми был колл прибавляется единица за каждую карту
-    public List<int[]> rangeRaiseSizes; // показывает карты с которыми был рейз, рейзы разные на каждый рейз массив как в колле
-    public int[]W$WSF;
-    public int[]WTSD;
-    public int[]W$SD;
-    public int[]VPIP_PFR;
+    public boolean isRecord = false;
+    public String mainNameFilter;
+    public String strPosStata;
+    public int[] mainSelCallRaise;//  0 основная стата выборка, колл, рейз
+    public int[] selCallRaiseVsHero;   //  1 основная стата против Херо ответ - выборка, колл, рейз
+    public List<int[]> rangeRaiseSizes; // 2    показывает карты с которыми был рейз, рейзы разные на каждый рейз массив как в колле
+    public int[] rangeCall; // 3         170 1-169 показывает карты с которыми был колл прибавляется единица за каждую карту
+    public int[][] vsBetSizeSelCallRaise; // 4 статы против определенных рейзов для каждого сайза рейза оппа ответ - выборка, колл, рейз
+    public int[]W$WSF; // 5
+    public int[]WTSD;  // 6
+    public int[]W$SD;  // 7
+    public int[]VPIP_PFR; // 8
+
 
     public DataStata(FilterStata filterStata){
         if(filterStata.streetOfActs!=-1)mainSelCallRaise = new int[3];
@@ -26,6 +30,8 @@ public class DataStata {
         if(filterStata.specStats[1]) WTSD = new int[2];
         if(filterStata.specStats[2]) W$SD = new int[2];
         if(filterStata.specStats[3]) VPIP_PFR = new int[3];
+        mainNameFilter = filterStata.mainNameFilter;
+        strPosStata = filterStata.strPosStata;
     }
 
 
