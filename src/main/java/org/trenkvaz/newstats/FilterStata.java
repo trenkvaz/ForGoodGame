@@ -103,6 +103,7 @@ public class FilterStata implements Serializable {
             if(raise==stack)raise = 100000; // эквивалент оллина
             // первое число в rangeRaiseSizes это количество рейзов данным сайзом, следующие 169 это количество рейз конкретной комбой
             if(raise>first&&raise<=second){ dataStata.rangeRaiseSizes.get(i)[0]++; dataStata.rangeRaiseSizes.get(i)[rangePlayer]++;break;}
+            // лист с массивами на два элимента
         }
     }
 

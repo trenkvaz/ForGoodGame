@@ -104,9 +104,12 @@ public class OCR implements Runnable {
 
 
     boolean isShowSlowWork = false;
+    boolean isTestSpeed = false;
     public synchronized void addFrameTableToQueue(FrameTable frameTable1){ queueFrameTable.offer(frameTable1);
         //System.out.println(queueFrameTable.size());
-        if(queueFrameTable.size()>5){ controller_main_window.setTestMessage("SIZE "+queueFrameTable.size());  }
+        if(queueFrameTable.size()>=5&&!isTestSpeed){ controller_main_window.setTestMessage("SIZE "+queueFrameTable.size());isTestSpeed = true; }
+        if(queueFrameTable.size()<5&&isTestSpeed){   controller_main_window.setTestMessage(""); isTestSpeed = false;  }
+
         if(queueFrameTable.size()>50&&!isShowSlowWork){ isShowSlowWork = true;
 
             System.out.println("table "+table+"    "+ queueFrameTable.size());c++;

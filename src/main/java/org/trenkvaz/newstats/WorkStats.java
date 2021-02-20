@@ -1,9 +1,11 @@
 package org.trenkvaz.newstats;
 
+import org.trenkvaz.database_hands.Work_DataBase;
+
 import java.io.*;
 import java.util.*;
 
-import static org.trenkvaz.database_hands.Work_DataBase.recordAllMapStats;
+import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 
@@ -52,9 +54,14 @@ public class WorkStats implements Serializable {
                 filterStata.countOnePlayerStata(isInGame,pokPos,nicks[pokPos],stacks[pokPos],sizeActionsStreetsStats,isWin,isShowDown,
                         cards[pokPos],rangePlayer,posHero,dataStata,listPokerActionsInRoundsByPositions);
             }
-            recordAllMapStats(statsMap,mapNicksMapsNameFilterDataStata);
         }
+       recordNewStats(nicks,statsMap,mapNicksMapsNameFilterDataStata);
    }
+
+
+    public void saveAllCountedStats(){ recordNewStats(null,statsMap,mapNicksMapsNameFilterDataStata); }
+
+
 
     public List<int[][]> getListPokerActionsInRoundsByPositions(List<List<List<Float>>> sizeActionsStreetsStats){
         List<int[][]> result = new ArrayList<>(4);
@@ -101,7 +108,7 @@ public class WorkStats implements Serializable {
    public void createOneNewStata(FilterStata stata){
        statsMap.put(stata.getFullNameStata(),stata);
        saveStatsMap();
-       //addStructureOneNewStataToDB(stata);
+       addStructureOneNewStataToDB(stata);
    }
 
 
@@ -130,10 +137,16 @@ public class WorkStats implements Serializable {
         return null;
    }
 
-    private float procents(int[] stata){
-        if(stata[0]==0)return 0;
-        return ((float)stata[1]/(float)stata[0])*100;
+    private static float procents(int stata, int select){
+        if(select==0)return 0;
+        return ((float)stata/(float)select)*100;
     }
+
+
+    public void fullMapNicksMapsNameFilterDataStata(){
+       mapNicksMapsNameFilterDataStata = getMapNicksMapsNameFilterDataStata(statsMap,"main_");
+    }
+
 
    public void readStatsMap(){
        try {	FileInputStream file=new FileInputStream(home_folder+"\\all_settings\\capture_video\\statsMap.file");
@@ -163,14 +176,18 @@ public class WorkStats implements Serializable {
     public static void main(String[] args) {
 
 
-        //new Work_DataBase();
+        new Work_DataBase();
         WorkStats workStats1 = new WorkStats(false);
-        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("vpip_pfr").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(3).build();
+        //FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("vpip_pfr").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(3).build();
         //FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("W$SD").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();
-        workStats1.createOneNewStata(filterStata);
+        //workStats1.createOneNewStata(filterStata);
         //workStats1.createOneNewStata(filterStata1);
         //System.out.println(workStats1.getPreflopRange(new String[]{"2c","As"}));
-        //close_DataBase();
+        workStats1.fullMapNicksMapsNameFilterDataStata();
+        close_DataBase();
+        int[] vpip = workStats1.getValueOneStata("trenkvaz","vpip_pfrall_v_all",9);
+        System.out.println(vpip[0]+"  "+vpip[1]+" "+vpip[2]);
+        System.out.println(procents(vpip[1]+vpip[2],vpip[0]));
         //WorkStats workStats1 = new WorkStats(false);
         //int[] t= workStats1.getValueOneStata("","",0);
         String name = "WWSFall_v_all";

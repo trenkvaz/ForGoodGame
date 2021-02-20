@@ -34,5 +34,7 @@ public class DataStata {
         strPosStata = filterStata.strPosStata;
     }
 
-
+    public Object[] getRangeRaiseSizes() {
+        return rangeRaiseSizes.toArray();
+    }
 }

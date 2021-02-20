@@ -75,14 +75,16 @@ public class ReadHistoryGetStats {
 
             }
         }
-
-
+       // record_MainArrayOfStatsToDateBase(mainstats);
+       //workStats.saveAllCountedStats();
         if(isRecordStats&&isAllowRec){
             System.out.println("RECORD");
         record_MainArrayOfStatsToDateBase(mainstats);
         delete_and_copy_WorkNicksStats();
         }
         close_DataBase();
+
+        System.out.println("speed record hand "+time+"  "+count);
     }
 
 
@@ -580,7 +582,7 @@ public class ReadHistoryGetStats {
         int[] w$sd = workStats.getValueOneStata("trenkvaz","W$SDall_v_all",8);
         System.out.println(procents(w$sd[1],w$sd[0]));
         System.out.println(WorkStats.countSD);*/
-       /* int[] vpip = workStats.getValueOneStata("trenkvaz","vpip_pfrall_v_all",9);
+        /*int[] vpip = workStats.getValueOneStata("trenkvaz","vpip_pfrall_v_all",9);
         System.out.println(vpip[0]+"  "+vpip[1]+" "+vpip[2]);
         System.out.println(procents(vpip[1]+vpip[2],vpip[0]));*/
 
