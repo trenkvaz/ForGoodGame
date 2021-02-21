@@ -6,7 +6,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.trenkvaz.main.CreatingHUD;
@@ -17,6 +19,7 @@ import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.COORDS_TABLES;
 import static org.trenkvaz.ui.MainWindow.anchorPane;
+import static org.trenkvaz.ui.StartAppLauncher.isNewHudTest;
 
 public class HUD {
 
@@ -32,6 +35,7 @@ public class HUD {
     public HUD(){
         for(int i=0; i<6; i++) list_one_table_texts_huds_each_player.add(null);
         start_coords = CreatingHUD.Setting.read_coords_hud();
+        initPanesNewHUD();
     }
 
 
@@ -121,6 +125,9 @@ public class HUD {
 
     public void clear_hud(int table){
         //if(arr_one_table_texts_huds_each_player[table]==null)return;
+        if(isNewHudTest){ clearNewHUD(table); return; }
+
+
         if(list_one_table_texts_huds_each_player.get(table)==null) return;
         Platform.runLater(() -> {
             for(int player = 0; player<6; player++){
@@ -133,7 +140,9 @@ public class HUD {
     }
 
     public void refresh_hud(int table){
-        //if(arr_one_table_texts_huds_each_player[table]==null)return;
+
+        if(isNewHudTest){ refreshNewHUD(table); return; }
+
         if(list_one_table_texts_huds_each_player.get(table)==null) return;
         Platform.runLater(() -> {
             for(int player = 0; player<6; player++){
@@ -150,7 +159,45 @@ public class HUD {
 
     }
 
+    private final Pane[][] panesTablesPlayers = new Pane[6][6];
 
+    private void initPanesNewHUD(){
+        for(int i=0; i<6; i++)
+            for(int a=0; a<6; a++)panesTablesPlayers[i][a] = new Pane();
+    }
 
+    public void setNewHUD(List<List<Text>> arr_one_table_texts_huds_each_player, int table){
+        Platform.runLater(()->{
+            for(int i=0; i<6; i++){
+                panesTablesPlayers[table][i].getChildren().clear();
+                if(arr_one_table_texts_huds_each_player.get(i).isEmpty())continue;
+                for(Text text:arr_one_table_texts_huds_each_player.get(i)) panesTablesPlayers[table][i].getChildren().add(text);
+            }
+        });
+        refreshNewHUD(table);
+    }
+
+    public void refreshNewHUD(int table){
+        //if(panesTablesPlayers[table]==null)return;
+        Platform.runLater(() -> {
+            for(int player = 0; player<6; player++){
+               //if(panesTablesPlayers[table][player]==null)continue;
+                anchorpanes_huds_each_player[table][player].getChildren().clear();
+                anchorpanes_huds_each_player[table][player].getChildren().add(panesTablesPlayers[table][player]);
+            }
+            anchorPane.requestFocus();
+        });
+    }
+
+    public void clearNewHUD(int table){
+        //if(panesTablesPlayers[table]==null)return;
+        Platform.runLater(() -> {
+            for(int player = 0; player<6; player++){
+                //if(panesTablesPlayers[table][player]==null)continue;
+                anchorpanes_huds_each_player[table][player].getChildren().clear();
+            }
+            anchorPane.requestFocus();
+        });
+    }
 }
 

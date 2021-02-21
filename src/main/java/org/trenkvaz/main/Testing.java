@@ -380,8 +380,8 @@ public class Testing {
             writeResultByStreet(testCurrentHand.testAllines,testCurrentHand.time_hand,
                     testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1],testCurrentHand.resultHero,testCurrentHand.descriptionResultHero,testCurrentHand);
         } else {
-            saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
-                    "test2\\"+testCurrentHand.time_hand+"_allin");
+            /*saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
+                    "test2\\"+testCurrentHand.time_hand+"_allin");*/
 
             Testing.write_LogTest(logtest+resultturns,"allines");
 
@@ -406,8 +406,8 @@ public class Testing {
             if(testAllines.size()==3){nameFile = "totalRiver"; totalStreetHero[3]+=heroResult;   nameFolder = "test\\imgRiver\\";      }
         } else {totalStreetHero[0]+=heroResult; nameFolder = "test\\imgPreflop\\"; }
 
-        saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
-                nameFolder+time_hand);
+        /*saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
+                nameFolder+time_hand);*/
         Testing.write_LogTest(result,nameFile);
     }
 

@@ -1,9 +1,12 @@
 package org.trenkvaz.main;
 
+import javafx.application.Platform;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -79,8 +82,28 @@ public class CreatingHUD {
            check_LinesOfTexts(list_current_one_table_texts_huds_each_player.get(table_place));
          }
 
-         hud.set_hud(copy_ListCreatingHUDtoListHUD(list_current_one_table_texts_huds_each_player),table);
+         //hud.set_hud(copy_ListCreatingHUDtoListHUD(list_current_one_table_texts_huds_each_player),table);
+
+         hud.setNewHUD(list_current_one_table_texts_huds_each_player,table);
      }
+
+
+   private Pane[] createPanesPlayers(List<List<Text>> arr_one_table_texts_huds_each_player){
+         Pane[] result = new Pane[6];
+         Platform.runLater(()->{
+           for(int i=0; i<6; i++){
+               if(arr_one_table_texts_huds_each_player.get(i).isEmpty())continue;
+               result[i] = new Pane();
+               for(Text text:arr_one_table_texts_huds_each_player.get(i)) result[i].getChildren().add(text);
+           }
+       });
+     /*  for(int i=0; i<6; i++){
+           if(arr_one_table_texts_huds_each_player.get(i).isEmpty())continue;
+           result[i] = new TextFlow();
+           for(Text text:arr_one_table_texts_huds_each_player.get(i)) result[i].se;
+       }*/
+         return result;
+   }
 
 
     private void check_LinesOfTexts(List<Text> list_text_hud_one_player){

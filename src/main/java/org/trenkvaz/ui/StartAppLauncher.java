@@ -13,14 +13,14 @@ public class StartAppLauncher {
     public static Work_DataBase work_dataBase;
     public static HUD hud;
 
-    public static final float SB = 0.4f;
+    public static final float SB = 0.5f;
     public static final int SCALE = 1;
     public static float totalResultHero = 0;
 
     //TEST
-    public static boolean isTest = false;
+    public static boolean isTest = true;
 
-
+    public static boolean isNewHudTest = true;
     // ПОМЕНЯТЬ БАЗУ !
 
     public static float[] totalStreetHero = new float[4];

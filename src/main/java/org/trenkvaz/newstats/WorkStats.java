@@ -55,7 +55,7 @@ public class WorkStats implements Serializable {
                         cards[pokPos],rangePlayer,posHero,dataStata,listPokerActionsInRoundsByPositions);
             }
         }
-       recordNewStats(nicks,statsMap,mapNicksMapsNameFilterDataStata);
+       //recordNewStats(nicks,statsMap,mapNicksMapsNameFilterDataStata);
    }
 
 
@@ -128,11 +128,11 @@ public class WorkStats implements Serializable {
    public <T> T getValueOneStata(String nick, String nameFilter, int stata){
         DataStata dataStata = mapNicksMapsNameFilterDataStata.get("$ю$"+nick+"$ю$").get(nameFilter);
         switch (stata){
-            case 1->{ return (T) dataStata.mainSelCallRaise;}
-            case 6->{ return (T) dataStata.W$WSF;}
-            case 7->{ return (T) dataStata.WTSD;}
-            case 8->{ return (T) dataStata.W$SD;}
-            case 9->{ return (T) dataStata.VPIP_PFR;}
+            case 0->{ return (T) dataStata.mainSelCallRaise;}
+            case 5->{ return (T) dataStata.W$WSF;}
+            case 6->{ return (T) dataStata.WTSD;}
+            case 7->{ return (T) dataStata.W$SD;}
+            case 8->{ return (T) dataStata.VPIP_PFR;}
         }
         return null;
    }
@@ -143,8 +143,8 @@ public class WorkStats implements Serializable {
     }
 
 
-    public void fullMapNicksMapsNameFilterDataStata(){
-       mapNicksMapsNameFilterDataStata = getMapNicksMapsNameFilterDataStata(statsMap,"main_");
+    public void fullMapNicksMapsNameFilterDataStata(String mainORwork){
+       mapNicksMapsNameFilterDataStata = getMapNicksMapsNameFilterDataStata(statsMap,mainORwork);
     }
 
 
@@ -183,9 +183,9 @@ public class WorkStats implements Serializable {
         //workStats1.createOneNewStata(filterStata);
         //workStats1.createOneNewStata(filterStata1);
         //System.out.println(workStats1.getPreflopRange(new String[]{"2c","As"}));
-        workStats1.fullMapNicksMapsNameFilterDataStata();
+        workStats1.fullMapNicksMapsNameFilterDataStata("work_");
         close_DataBase();
-        int[] vpip = workStats1.getValueOneStata("trenkvaz","vpip_pfrall_v_all",9);
+        int[] vpip = workStats1.getValueOneStata("trenkvaz","vpip_pfrall_v_all",8);
         System.out.println(vpip[0]+"  "+vpip[1]+" "+vpip[2]);
         System.out.println(procents(vpip[1]+vpip[2],vpip[0]));
         //WorkStats workStats1 = new WorkStats(false);

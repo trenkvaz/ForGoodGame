@@ -177,6 +177,7 @@ public class CaptureVideo {
            System.out.println(grabber.getFrameRate());
            System.out.println("start");
            controller_main_window.setMessage_work("Start capture", Color.GREEN);
+           System.out.println(Thread.currentThread().getId());
            while(is_getting_frame){
                frame = grabber.grabImage();
                if(frame!=null){

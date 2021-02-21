@@ -328,6 +328,9 @@ static String work_database;
                 pstmt.executeBatch();
                 connect_to_db.commit();
                 connect_to_db.setAutoCommit(true);
+
+
+                if(nicks==null)copyWorksTables(entry.getValue().mainNameFilter);
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -337,6 +340,19 @@ static String work_database;
     }
 
 
+   private static void copyWorksTables(String nameTable){
+       String delete = "DROP TABLE IF EXISTS work_"+nameTable;
+       String copy2 = "CREATE TABLE work_"+nameTable+" (LIKE main_"+nameTable+" INCLUDING ALL);";
+       String insert = "INSERT INTO work_"+nameTable+" SELECT * FROM main_"+nameTable+" ;";
+       try {
+           stmt_of_db.executeUpdate(delete);
+           stmt_of_db.executeUpdate(copy2);
+           stmt_of_db.executeUpdate(insert);
+       } catch (SQLException throwables) {
+           throwables.printStackTrace();
+       }
+       System.out.println("delete and copy "+nameTable);
+   }
 
    public static Map<String,Map<String, DataStata>> getMapNicksMapsNameFilterDataStata(Map<String, FilterStata> statsMap,String mainORwork){
         Map<String,Map<String, DataStata>> result = new HashMap<>();
