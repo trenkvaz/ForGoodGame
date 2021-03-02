@@ -52,7 +52,7 @@ public class Controller_main_window {
             if(ocr==null)continue;ocr.stop();}}
         //for(OCR ocr:captureVideo.ocrList_2)ocr.stop();
         //System.out.println("Average time "+(testTime/testTimecount)+" count "+testTimecount);
-        //System.out.println("Average time "+(alltime/counttime)+" count "+counttime);
+        if(counttime!=0)System.out.println("Average time "+(alltime/counttime)+" count "+counttime);
         System.out.println("stop");
         Testing.write_LogTest("TOTAL "+totalResultHero+"\r\n","resultHero");
         Testing.write_LogTest("TOTAL "+totalStreetHero[0]+"\r\n","totalPreflop");

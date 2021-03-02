@@ -5,6 +5,8 @@ import org.bytedeco.javacv.Frame;
 
 import org.opencv.core.CvType;
 import org.trenkvaz.database_hands.Work_DataBase;
+import org.trenkvaz.newstats.CreateNewHUD;
+import org.trenkvaz.newstats.DataStata;
 import org.trenkvaz.stats.MainStats;
 
 import javax.imageio.ImageIO;
@@ -1279,8 +1281,9 @@ public class Testing {
         String t = "TURN_ALL_PREFIN_am2";
         System.out.println(t.contains("ALL"));*/
 
-       clearTextFiles();
-       clearImgFiles();
+      /* clearTextFiles();
+       clearImgFiles();*/
+
        /*ArrayList<String> a =new ArrayList<>();
        a.get(0);
        String d ="";*/

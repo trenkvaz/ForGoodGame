@@ -65,9 +65,9 @@ public class FilterStata implements Serializable {
         dataStata.isRecord =true;
         dataStata.mainSelCallRaise[SELECT]++;
         int pokerActPlayer = pokerActsRoundsByPoses[conditionsPreflopActions.size()-1][posPlayer];
-        if(pokerActPlayer==-10||pokerActPlayer==10)return false;
-        if(pokerActPlayer<0){dataStata.mainSelCallRaise[CALL]++; if(isRangeCall&&rangePlayer!=0){dataStata.rangeCall[rangePlayer]++; } }
-        if(pokerActPlayer>0){dataStata.mainSelCallRaise[RAISE]++;
+        if(pokerActPlayer==-10)return false;
+        if(pokerActPlayer<0||pokerActPlayer==10){dataStata.mainSelCallRaise[CALL]++; if(isRangeCall&&rangePlayer!=0){dataStata.rangeCall[rangePlayer]++; } }
+        else if(pokerActPlayer>0){dataStata.mainSelCallRaise[RAISE]++;
         // если нужно просчитать Рейндж Сайзы и есть карты
         if(raiseSizesForRange!=null&&rangePlayer!=0)countRaiseSizesForRange(dataStata,preflopSizeActions.get(posPlayer),rangePlayer,stack); }
         return true;
@@ -88,9 +88,9 @@ public class FilterStata implements Serializable {
         dataStata.selCallRaiseVsHero[SELECT]++;
         // последнее действие на основе последнего индекса условий действий, указывает на последний раунд где есть нужное действие
         int actPlayer = actsRoundsByPoses[conditionsPreflopActions.size()-1][posPlayer];
-        if(actPlayer==-10||actPlayer==10)return;
-        if(actPlayer<0)dataStata.selCallRaiseVsHero[CALL]++;
-        if(actPlayer>0)dataStata.selCallRaiseVsHero[RAISE]++;
+        if(actPlayer==-10)return;
+        if(actPlayer<0||actPlayer==10)dataStata.selCallRaiseVsHero[CALL]++;
+        else if(actPlayer>0)dataStata.selCallRaiseVsHero[RAISE]++;
     }
 
 

@@ -34,7 +34,7 @@ public class ReadHistoryGetStats {
     static byte[][][] preflop_players_actions_in_raunds;
     static MainStats[] mainstats;
     static HashMap<Long,Float> numHandResultHeroHistory = new HashMap<>();
-    static boolean isRecordStats = false;
+    static boolean isRecordStats = true;
     static FilterStata filterStata;
     static WorkStats workStats;
 
@@ -52,15 +52,15 @@ public class ReadHistoryGetStats {
        workStats = new WorkStats(false);
        workStats.fullMapNicksMapsNameFilterDataStata("main_");
        isTest = true;
-        int[] vpip = workStats.getValueOneStata("trenkvaz","vpip_pfrall_v_all",8);
+       /* int[] vpip = workStats.getValueOneStata("trenkvaz","vpip_pfrall_v_all",8);
         System.out.println("main 1 "+vpip[0]+"  "+vpip[1]+" "+vpip[2]);
-        System.out.println(procents(vpip[1]+vpip[2],vpip[0]));
+        System.out.println(procents(vpip[1]+vpip[2],vpip[0]));*/
     }
 
     static boolean isTest = false;
     static void start_ReadFilesInFolder(String folder){
         Work_DataBase work_dataBase = new Work_DataBase();
-        initTestFilterStata();
+        //initTestFilterStata();
         mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase("main_nicks_stats");
         boolean isAllowRec = true;
         for(File a: Objects.requireNonNull(new File(folder).listFiles())){
@@ -79,8 +79,11 @@ public class ReadHistoryGetStats {
 
             }
         }
-       // record_MainArrayOfStatsToDateBase(mainstats);
-       workStats.saveAllCountedStats();
+
+       if(isTest){workStats.saveAllCountedStats();
+           record_MainArrayOfStatsToDateBase(mainstats);
+           delete_and_copy_WorkNicksStats();
+       }
         if(isRecordStats&&isAllowRec){
             System.out.println("RECORD");
         record_MainArrayOfStatsToDateBase(mainstats);
@@ -586,9 +589,9 @@ public class ReadHistoryGetStats {
         int[] w$sd = workStats.getValueOneStata("trenkvaz","W$SDall_v_all",8);
         System.out.println(procents(w$sd[1],w$sd[0]));
         System.out.println(WorkStats.countSD);*/
-        int[] vpip = workStats.getValueOneStata("trenkvaz","vpip_pfrall_v_all",8);
+      /* if(isTest) {int[] vpip = workStats.getValueOneStata("trenkvaz","vpip_pfrall_v_all",8);
         System.out.println("main 2 "+vpip[0]+"  "+vpip[1]+" "+vpip[2]);
-        System.out.println(procents(vpip[1]+vpip[2],vpip[0]));
+        System.out.println(procents(vpip[1]+vpip[2],vpip[0]));}*/
 
     }
 }

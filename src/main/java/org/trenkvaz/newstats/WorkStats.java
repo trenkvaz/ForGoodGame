@@ -21,11 +21,6 @@ public class WorkStats implements Serializable {
 
 
 
-
-   public void fillStataMapsInStatsForGame(){
-
-   }
-
    public static int countSD = 0;
 
    public synchronized void countOneHand(String[][] cards, String[] nicks, float[] stacks, float[] resultsHand, List<List<List<Float>>> sizeActionsStreetsStats,
@@ -125,14 +120,15 @@ public class WorkStats implements Serializable {
         }
    }
 
-   public <T> T getValueOneStata(String nick, String nameFilter, int stata){
+   public int[] getValueOneStata(String nick, String nameFilter, int stata){
+        if(mapNicksMapsNameFilterDataStata.get("$ю$"+nick+"$ю$")==null)return null;
         DataStata dataStata = mapNicksMapsNameFilterDataStata.get("$ю$"+nick+"$ю$").get(nameFilter);
         switch (stata){
-            case 0->{ return (T) dataStata.mainSelCallRaise;}
-            case 5->{ return (T) dataStata.W$WSF;}
-            case 6->{ return (T) dataStata.WTSD;}
-            case 7->{ return (T) dataStata.W$SD;}
-            case 8->{ return (T) dataStata.VPIP_PFR;}
+            case 0->{ return  dataStata.mainSelCallRaise;}
+            case 5->{ return  dataStata.W$WSF;}
+            case 6->{ return  dataStata.WTSD;}
+            case 7->{ return  dataStata.W$SD;}
+            case 8->{ return  dataStata.VPIP_PFR;}
         }
         return null;
    }
@@ -178,16 +174,16 @@ public class WorkStats implements Serializable {
 
         new Work_DataBase();
         WorkStats workStats1 = new WorkStats(false);
-        //FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("vpip_pfr").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(3).build();
+        //FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
         //FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("W$SD").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();
         //workStats1.createOneNewStata(filterStata);
         //workStats1.createOneNewStata(filterStata1);
         //System.out.println(workStats1.getPreflopRange(new String[]{"2c","As"}));
         workStats1.fullMapNicksMapsNameFilterDataStata("work_");
         close_DataBase();
-        int[] vpip = workStats1.getValueOneStata("trenkvaz","vpip_pfrall_v_all",8);
-        System.out.println(vpip[0]+"  "+vpip[1]+" "+vpip[2]);
-        System.out.println(procents(vpip[1]+vpip[2],vpip[0]));
+        int[] vpip = workStats1.getValueOneStata("trenkvaz","main_wwsf_all_v_all",5);
+        //System.out.println(vpip[0]+"  "+vpip[1]+" "+vpip[2]);
+        System.out.println(procents(vpip[1],vpip[0]));
         //WorkStats workStats1 = new WorkStats(false);
         //int[] t= workStats1.getValueOneStata("","",0);
         String name = "WWSFall_v_all";

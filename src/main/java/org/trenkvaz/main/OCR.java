@@ -34,7 +34,7 @@ public class OCR implements Runnable {
     long[][][] current_id_nicks_for_choose = new long[6][3][16];
     long[] zeros_for_clear_current_id = new long[16];
     CreatingHUD creatingHUD;
-    static final int PREFLOP = 0, FLOP =1, TURN = 2, RIVER = 3, ENDRIVER = 4;
+    public static final int PREFLOP = 0,FLOP =1,TURN = 2,RIVER = 3, ENDRIVER = 4;
     List<List<long[]>> list_of_lists_current_id_nicks_for_choose = new ArrayList<>(6);
     List<long[]> list_of_hashimgs_namberhand = new ArrayList<>(3);
     boolean startSecondHand = false;

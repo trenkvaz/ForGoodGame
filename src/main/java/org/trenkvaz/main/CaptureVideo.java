@@ -127,7 +127,7 @@ public class CaptureVideo {
                    screen2(grabber);
                }
                try {
-                   Thread.sleep(1000);
+                   Thread.sleep(300);
                } catch (InterruptedException e) {
                    e.printStackTrace();
                }
@@ -162,8 +162,12 @@ public class CaptureVideo {
         //FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(System.getProperty("user.dir")+"\\test_video9.avi");
         FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("rtmp://127.0.0.1/live/test");
        // FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("udp://192.168.0.129:1234");
+
         try {
             grabber.start();
+            if(grabber.getFrameRate()==0){
+                System.out.println("rate 0 "); return null;
+            }
         } catch (FrameGrabber.Exception e) {
             return null;
         }
@@ -177,7 +181,7 @@ public class CaptureVideo {
            System.out.println(grabber.getFrameRate());
            System.out.println("start");
            controller_main_window.setMessage_work("Start capture", Color.GREEN);
-           System.out.println(Thread.currentThread().getId());
+           //System.out.println(Thread.currentThread().getId());
            while(is_getting_frame){
                frame = grabber.grabImage();
                if(frame!=null){
@@ -309,6 +313,7 @@ public class CaptureVideo {
 
 
    static void allocationTables(Frame frame){
+       long s =System.currentTimeMillis();
        if(bufferedImageframe==null) bufferedImageframe = new Java2DFrameConverter().getBufferedImage(frame);
        createBufferedImage(frame, bufferedImageframe);
        boolean[] metaDates = null; // есть стол, есть раздача, есть помехи, есть шоудаун
@@ -345,7 +350,8 @@ public class CaptureVideo {
            ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(cutImageTable(indTable),metaDates,whoPlayOrNo));
            //System.out.println("FRAME");
        }
-
+       alltime+=System.currentTimeMillis()-s;
+       counttime++;
    }
 
 

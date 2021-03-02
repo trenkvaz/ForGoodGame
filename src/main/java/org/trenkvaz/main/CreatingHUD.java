@@ -17,8 +17,9 @@ import java.text.NumberFormat;
 import java.util.*;
 
 import static org.trenkvaz.main.CaptureVideo.current_map_stats;
-import static org.trenkvaz.ui.StartAppLauncher.home_folder;
-import static org.trenkvaz.ui.StartAppLauncher.hud;
+import static org.trenkvaz.main.OCR.PREFLOP;
+import static org.trenkvaz.ui.StartAppLauncher.*;
+import static org.trenkvaz.ui.StartAppLauncher.createNewHUD;
 
 public class CreatingHUD {
 
@@ -46,12 +47,12 @@ public class CreatingHUD {
 
      static DecimalFormat notZeroFormat = (DecimalFormat)NumberFormat.getNumberInstance(Locale.UK);
 
-
+     static boolean isSetting = false;
      public CreatingHUD(int table1){
          table = table1;
          //for(int i=0; i<6; i++) arr_player_indstat_stata[i] = new Object[current_map_stats.length][];
          list_current_one_table_texts_huds_each_player = set_ListCurrentOneTableTextsHudsEachPlayer();
-         Setting.setting_CreatingHUD();
+         if(!isSetting){Setting.setting_CreatingHUD(); isSetting = true;   }
      }
 
 
@@ -66,13 +67,19 @@ public class CreatingHUD {
 
 
 
-     public void send_current_hand_to_creating_hud(String[] nicks, int[] inds_poker_pos_elements_places_table,int poker_position_of_hero){
+     public void send_current_hand_to_creating_hud(String[] nicks, int[] inds_poker_pos_elements_places_table,int poker_position_of_hero,int street,int[] typesPots){
+
+         //if(addList!=null){hud.setNewHUD(addList,table);return;}
+         List<List<Text>> hudList = null;
+         if(isTest)hudList = createNewHUD.createHUDoneTable(nicks,table,typesPots,inds_poker_pos_elements_places_table,poker_position_of_hero);
+
 
          for(int table_place = 0; table_place<6; table_place++){
              if(nicks[table_place]==null)continue;
            // если ник и статы уже были преобразованы в текст и сохранены в текущем списке, то они берутся для нового списка текста
              // ПОКА ТАК !!! так как это может в будущем мешать сделать изменяемый по улицам и действиям ХАД
              // по идеи тогда не нужен массив nicks_for_hud , так как проверяется тоже самое
+
              if(!list_current_one_table_texts_huds_each_player.get(table_place).isEmpty())continue;
              list_current_one_table_texts_huds_each_player.get(table_place).add(get_NickText(nicks[table_place]));
 
@@ -80,30 +87,25 @@ public class CreatingHUD {
                    get_ArrayIndex(inds_poker_pos_elements_places_table,table_place+1),table_place,poker_position_of_hero);
 
            check_LinesOfTexts(list_current_one_table_texts_huds_each_player.get(table_place));
+
+
+             if(hudList!=null&&street==PREFLOP){for(Text text:hudList.get(table_place))
+                 list_current_one_table_texts_huds_each_player.get(table_place).add(text);}
          }
 
          //hud.set_hud(copy_ListCreatingHUDtoListHUD(list_current_one_table_texts_huds_each_player),table);
-
+        /* if(addList!=null){
+             for(int i=0; i<6; i++){
+                 if(addList.get(i).isEmpty())continue;
+                 for(Text text:addList.get(i))
+                 list_current_one_table_texts_huds_each_player.get(i).add(text);
+             }
+         }*/
          hud.setNewHUD(list_current_one_table_texts_huds_each_player,table);
      }
 
 
-   private Pane[] createPanesPlayers(List<List<Text>> arr_one_table_texts_huds_each_player){
-         Pane[] result = new Pane[6];
-         Platform.runLater(()->{
-           for(int i=0; i<6; i++){
-               if(arr_one_table_texts_huds_each_player.get(i).isEmpty())continue;
-               result[i] = new Pane();
-               for(Text text:arr_one_table_texts_huds_each_player.get(i)) result[i].getChildren().add(text);
-           }
-       });
-     /*  for(int i=0; i<6; i++){
-           if(arr_one_table_texts_huds_each_player.get(i).isEmpty())continue;
-           result[i] = new TextFlow();
-           for(Text text:arr_one_table_texts_huds_each_player.get(i)) result[i].se;
-       }*/
-         return result;
-   }
+
 
 
     private void check_LinesOfTexts(List<Text> list_text_hud_one_player){
@@ -418,8 +420,8 @@ public class CreatingHUD {
 
             /*int[] co_buPosHero = {2,3};
             int[] sb_bbPosHero = {4,5};*/
-            result_list.add(new SettingOneStata("VPIP",new int[]{50,12},14,vpipRangeColor,10,new int[][]{allPositions,allPositions}));
-            result_list.add(new SettingOneStata("PFR",new int[]{75,12},14,pfrRangeColor,10,new int[][]{allPositions,allPositions}));
+            result_list.add(new SettingOneStata("VPIP",new int[]{45,12},14,vpipRangeColor,10,new int[][]{allPositions,allPositions}));
+            result_list.add(new SettingOneStata("PFR",new int[]{67,12},14,pfrRangeColor,10,new int[][]{allPositions,allPositions}));
             result_list.add(new SettingOneStata("RFI_UTG",new int[]{1,25},14,rfiUtgRangeColor,10,new int[][]{allPositions,allPositions}));
             result_list.add(new SettingOneStata("RFI_MP",new int[]{23,25},14,rfiMpRangeColor,10,new int[][]{allPositions,allPositions}));
             result_list.add(new SettingOneStata("RFI_CO",new int[]{45,25},14,rfiCoRangeColor,10,new int[][]{allPositions,allPositions}));

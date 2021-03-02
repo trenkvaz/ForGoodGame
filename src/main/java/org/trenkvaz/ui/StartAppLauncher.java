@@ -3,6 +3,8 @@ package org.trenkvaz.ui;
 import org.trenkvaz.database_hands.Work_DataBase;
 import org.trenkvaz.main.CaptureVideo;
 import org.trenkvaz.main.CreatingHUD;
+import org.trenkvaz.newstats.CreateNewHUD;
+import org.trenkvaz.newstats.WorkStats;
 
 public class StartAppLauncher {
 
@@ -12,13 +14,15 @@ public class StartAppLauncher {
     public static CaptureVideo captureVideo;
     public static Work_DataBase work_dataBase;
     public static HUD hud;
+    public static WorkStats workStats;
+    public static CreateNewHUD createNewHUD;
 
-    public static final float SB = 0.5f;
+    public static final float SB = 0.4f;
     public static final int SCALE = 1;
     public static float totalResultHero = 0;
 
     //TEST
-    public static boolean isTest = true;
+    public static boolean isTest = false;
 
     public static boolean isNewHudTest = true;
     // ПОМЕНЯТЬ БАЗУ !
@@ -31,6 +35,10 @@ public class StartAppLauncher {
         work_dataBase = new Work_DataBase();
         captureVideo = new CaptureVideo();
         hud = new HUD();
+        if(isTest){workStats = new WorkStats(false);
+        workStats.fullMapNicksMapsNameFilterDataStata("work_");
+        createNewHUD = new CreateNewHUD();
+        }
         MainWindow.main(args);
     }
 }

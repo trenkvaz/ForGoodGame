@@ -1,5 +1,6 @@
 package org.trenkvaz.main;
 
+import javafx.scene.text.Text;
 import org.trenkvaz.database_hands.ReadHistoryGetStats;
 import org.trenkvaz.database_hands.Work_DataBase;
 import org.trenkvaz.ui.StartAppLauncher;
@@ -64,6 +65,7 @@ public class CurrentHand {
         this.ocr = ocr;
         this.creatingHUD = ocr.creatingHUD;
         creatingHUD.clear_MapStats();
+        if(isTest)createNewHUD.initNewTableHUD(ocr.table-1);
         testTable = ocr.table;
         for(int i=0; i<6; i++){
             preflopActionsStats.add(new ArrayList<>()); preflopActionsStats.get(i).add(0.0f);
@@ -84,9 +86,19 @@ public class CurrentHand {
     }
 
 
+    public void setDataToCreateNewHUD(int[] typesPots){
+        createNewHUD.createHUDoneTable(nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero);
+    }
+
+
 
     void setIs_nicks_filled(){
-        creatingHUD.send_current_hand_to_creating_hud(nicks,ocr.pokerPosIndWithNumOnTable, pokerPosHero);
+
+        //hudList = null;
+        int[] typesPots = null;
+        if(isTest)typesPots = new int[6];
+
+        creatingHUD.send_current_hand_to_creating_hud(nicks,ocr.pokerPosIndWithNumOnTable, pokerPosHero,PREFLOP,typesPots);
         // проверка что все ники распознаны, чтобы не обращатся к методу распознавания ников
         for(int i=1; i<6; i++){
             if(ocr.frameTable.whoPlayOrNo()[i]==0)continue;

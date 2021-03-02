@@ -18,6 +18,7 @@ public class DataStata {
     public int[]W$SD;  // 7
     public int[]VPIP_PFR; // 8
 
+    //public DataStata(){}
 
     public DataStata(FilterStata filterStata){
         if(filterStata.streetOfActs!=-1)mainSelCallRaise = new int[3];
