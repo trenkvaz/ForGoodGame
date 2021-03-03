@@ -26,7 +26,7 @@ public class CreateNewHUD implements Serializable{
     static final int SIZE_FONT_STATA = 14;
     static final int SIZE_FONT_SELECT = 10;
     static final int[] COORDS_LINES = {12,25,38,51,64};
-    static final int[] COORDS_STATS = {1,23,45,67,89,111,133};
+    static final int[] COORDS_STATS = {1,21,41,61,81,101,121};
     private static final DisplayStata[][][][] tablesPlayerMatrixDisplayStata = new DisplayStata[6][6][5][7];
     private static final Text[][][][][] tablesPlayerMatrixText = new Text[6][6][5][7][2];
 
@@ -35,6 +35,7 @@ public class CreateNewHUD implements Serializable{
         readDisplayStataList();
     }
 
+    public CreateNewHUD(int a){}
 
     public void initNewTableHUD(int table){
         for(int player=0; player<6; player++ )
@@ -48,9 +49,9 @@ public class CreateNewHUD implements Serializable{
 
 
 
-    public List<List<Text>> createHUDoneTable(String[] nicks,int table, int[] typesPots, int[] pokerPosIndWithNumOnTable,int posHero){
+    public Text[][][][] createHUDoneTable(String[] nicks,int table, int[] typesPots, int[] pokerPosIndWithNumOnTable,int posHero){
           // типыПоты игроки должны быть по своим местам за столом
-        List<List<Text>> resultList = new ArrayList<>();
+        //List<List<Text>> resultList = new ArrayList<>();
 
         for(int player = 0; player<6; player++){if(nicks[player]==null)continue;
             for(int line=0; line<5; line++) for(int stata=0; stata<7; stata++){
@@ -83,7 +84,7 @@ public class CreateNewHUD implements Serializable{
             }
         }
         }
-        for(int i=0; i<6; i++){resultList.add(new ArrayList<>());
+       /* for(int i=0; i<6; i++){resultList.add(new ArrayList<>());
             if(nicks[i]==null)continue;
            for(int l=0; l<5; l++)
                for(int s=0; s<7; s++){
@@ -93,8 +94,8 @@ public class CreateNewHUD implements Serializable{
                    resultList.get(i).add(tablesPlayerMatrixText[table][i][l][s][1]);
                }
            //if(nicks[i].equals(NICK_HERO)) System.out.println("text "+resultList.get(i).get(0).getText()+" "+resultList.get(i).get(0).getFill().toString());
-        }
-        return resultList;
+        }*/
+        return tablesPlayerMatrixText[table];
     }
 
     private void addStataToText(Text[] text,DisplayStata displayStata,String nick){
@@ -223,7 +224,7 @@ public class CreateNewHUD implements Serializable{
    }
 
     public static void main(String[] args) {
-        CreateNewHUD createNewHUD = new CreateNewHUD();
+        CreateNewHUD createNewHUD = new CreateNewHUD(0);
         createNewHUD.creatNewDisplayStata("main_wwsf_all_v_all",null,null,10,5,1,null,
                 0,4,new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},0,new int[]{0,101},new Color[]{Color.BLUE},0,0);
 

@@ -12,13 +12,18 @@ import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 public class WorkStats implements Serializable {
     public boolean isInGame;
 
-    Map<String, FilterStata> statsMap = new HashMap<>();
+    Map<String, FilterStata> statsMap;
     Map<String,Map<String, DataStata>> mapNicksMapsNameFilterDataStata = new HashMap<>();
 
     public WorkStats(boolean isInGame1){ isInGame = isInGame1;
         readStatsMap();
     }
 
+    public WorkStats(String type){
+        if(type.equals("addAndCountNewStats")){
+            statsMap = new HashMap<>();
+        }
+    }
 
 
    public static int countSD = 0;
@@ -102,7 +107,7 @@ public class WorkStats implements Serializable {
 
    public void createOneNewStata(FilterStata stata){
        statsMap.put(stata.getFullNameStata(),stata);
-       saveStatsMap();
+       //saveStatsMap();
        addStructureOneNewStataToDB(stata);
    }
 
@@ -144,6 +149,14 @@ public class WorkStats implements Serializable {
     }
 
 
+   public void saveNewMapToOldMap(){
+       Map<String, FilterStata> newMap = new HashMap<>(statsMap);
+       readStatsMap();
+       statsMap.putAll(newMap);
+       saveStatsMap();
+   }
+
+
    public void readStatsMap(){
        try {	FileInputStream file=new FileInputStream(home_folder+"\\all_settings\\capture_video\\statsMap.file");
            ObjectInput out = new ObjectInputStream(file);
@@ -175,19 +188,22 @@ public class WorkStats implements Serializable {
         new Work_DataBase();
         WorkStats workStats1 = new WorkStats(false);
         //FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
-        //FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("W$SD").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();
-        //workStats1.createOneNewStata(filterStata);
-        //workStats1.createOneNewStata(filterStata1);
+        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(1).build();
+        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_w$sd").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();
+        workStats1.createOneNewStata(filterStata);
+        workStats1.createOneNewStata(filterStata1);
         //System.out.println(workStats1.getPreflopRange(new String[]{"2c","As"}));
-        workStats1.fullMapNicksMapsNameFilterDataStata("work_");
+       /* workStats1.fullMapNicksMapsNameFilterDataStata("work_");
         close_DataBase();
-        int[] vpip = workStats1.getValueOneStata("trenkvaz","main_wwsf_all_v_all",5);
+        int[] vpip = workStats1.getValueOneStata("trenkvaz","main_wwsf_all_v_all",5);*/
         //System.out.println(vpip[0]+"  "+vpip[1]+" "+vpip[2]);
-        System.out.println(procents(vpip[1],vpip[0]));
+        //System.out.println(procents(vpip[1],vpip[0]));
         //WorkStats workStats1 = new WorkStats(false);
         //int[] t= workStats1.getValueOneStata("","",0);
         String name = "WWSFall_v_all";
         //System.out.println(workStats1.statsMap.get("WWSFall_v_all"));
+
+        close_DataBase();
     }
 
 

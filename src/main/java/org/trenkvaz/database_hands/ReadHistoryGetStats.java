@@ -34,9 +34,11 @@ public class ReadHistoryGetStats {
     static byte[][][] preflop_players_actions_in_raunds;
     static MainStats[] mainstats;
     static HashMap<Long,Float> numHandResultHeroHistory = new HashMap<>();
-    static boolean isRecordStats = true;
+    static boolean isRecordStats = false;
     static FilterStata filterStata;
     static WorkStats workStats;
+    static boolean isNewStatsCount = false;
+    static boolean isAddStats = false;
 
     static {  for(int f=0; f<6; f++){
         preflopActions.add(new ArrayList<Float>()); preflopActions.get(f).add(0.0f);
@@ -45,19 +47,27 @@ public class ReadHistoryGetStats {
         riverActions.add(new ArrayList<Float>());
     } }
 
-    static void initTestFilterStata(){
-        /*List<int[]> conditions = new ArrayList<>();
-        conditions.add(new int[]{0,-1,-1,-1,2,-1,-1,-1});
-        filterStata = new FilterStata.Builder().setPosStata(new int[][]{{0,0,0,1,1,1},{1,0,0,0,0,0}}).setConditionsPreflopActions(conditions).build();*/
+
+    static void initCountFilterStata(){
        workStats = new WorkStats(false);
        workStats.fullMapNicksMapsNameFilterDataStata("main_");
-       isTest = true;
+       isNewStatsCount = true;
        /* int[] vpip = workStats.getValueOneStata("trenkvaz","vpip_pfrall_v_all",8);
         System.out.println("main 1 "+vpip[0]+"  "+vpip[1]+" "+vpip[2]);
         System.out.println(procents(vpip[1]+vpip[2],vpip[0]));*/
     }
 
-    static boolean isTest = false;
+
+
+    static void initAddCountNewFilterStats(){
+        workStats = new WorkStats("addAndCountNewStats");
+        isNewStatsCount = true;
+
+
+    }
+
+
+
     static void start_ReadFilesInFolder(String folder){
         Work_DataBase work_dataBase = new Work_DataBase();
         //initTestFilterStata();
@@ -80,15 +90,19 @@ public class ReadHistoryGetStats {
             }
         }
 
-       if(isTest){workStats.saveAllCountedStats();
-           record_MainArrayOfStatsToDateBase(mainstats);
-           delete_and_copy_WorkNicksStats();
+
+       if(isNewStatsCount){
+           workStats.saveAllCountedStats();
+           if(isAddStats)workStats.saveNewMapToOldMap();
        }
+
+
         if(isRecordStats&&isAllowRec){
             System.out.println("RECORD");
         record_MainArrayOfStatsToDateBase(mainstats);
         delete_and_copy_WorkNicksStats();
         }
+
         close_DataBase();
 
         System.out.println("speed record hand "+time+"  "+count);
@@ -154,7 +168,7 @@ public class ReadHistoryGetStats {
          stats.count_Stats_for_map(preflop_players_actions_in_raunds,nicksOldStata,stacks,(byte) amountPlayers,posActions,false);
 
      //testStata(posHero,hand);
-     if(isTest)workStats.countOneHand(cards,nicks,stacks,resultHand,unionActionsStreetsStats(),null,posHero);
+     if(isNewStatsCount)workStats.countOneHand(cards,nicks,stacks,resultHand,unionActionsStreetsStats(),null,posHero);
      //test_show(hand.get(0));
      clear_UsedArrays();
 

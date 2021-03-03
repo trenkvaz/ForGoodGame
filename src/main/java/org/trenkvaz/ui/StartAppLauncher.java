@@ -22,7 +22,7 @@ public class StartAppLauncher {
     public static float totalResultHero = 0;
 
     //TEST
-    public static boolean isTest = false;
+    public static boolean isTest = true;
 
     public static boolean isNewHudTest = true;
     // ПОМЕНЯТЬ БАЗУ !

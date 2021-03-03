@@ -87,7 +87,7 @@ public class CurrentHand {
 
 
     public void setDataToCreateNewHUD(int[] typesPots){
-        createNewHUD.createHUDoneTable(nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero);
+        creatingHUD.addNewHUDToOldHUD(createNewHUD.createHUDoneTable(nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero));
     }
 
 
@@ -95,10 +95,15 @@ public class CurrentHand {
     void setIs_nicks_filled(){
 
         //hudList = null;
-        int[] typesPots = null;
-        if(isTest)typesPots = new int[6];
 
-        creatingHUD.send_current_hand_to_creating_hud(nicks,ocr.pokerPosIndWithNumOnTable, pokerPosHero,PREFLOP,typesPots);
+
+        creatingHUD.send_current_hand_to_creating_hud(nicks,ocr.pokerPosIndWithNumOnTable, pokerPosHero);
+
+
+        if(isTest)setDataToCreateNewHUD(new int[6]);
+
+
+
         // проверка что все ники распознаны, чтобы не обращатся к методу распознавания ников
         for(int i=1; i<6; i++){
             if(ocr.frameTable.whoPlayOrNo()[i]==0)continue;

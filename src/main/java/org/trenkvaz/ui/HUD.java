@@ -16,6 +16,7 @@ import org.trenkvaz.main.CreatingHUD;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.trenkvaz.main.CaptureVideo.COORDS_TABLES;
 import static org.trenkvaz.ui.MainWindow.anchorPane;
@@ -166,7 +167,7 @@ public class HUD {
             for(int a=0; a<6; a++)panesTablesPlayers[i][a] = new Pane();
     }
 
-    public void setNewHUD(List<List<Text>> arr_one_table_texts_huds_each_player, int table){
+    public void setNewHUD(List<Set<Text>> arr_one_table_texts_huds_each_player, int table){
         Platform.runLater(()->{
             for(int i=0; i<6; i++){
                 panesTablesPlayers[table][i].getChildren().clear();
