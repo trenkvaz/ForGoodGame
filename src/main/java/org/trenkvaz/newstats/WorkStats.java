@@ -3,6 +3,7 @@ package org.trenkvaz.newstats;
 import org.trenkvaz.database_hands.Work_DataBase;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.trenkvaz.database_hands.Work_DataBase.*;
@@ -17,11 +18,13 @@ public class WorkStats implements Serializable {
 
     public WorkStats(boolean isInGame1){ isInGame = isInGame1;
         readStatsMap();
+        checkExistStructureDBofFilterStats();
     }
 
     public WorkStats(String type){
         if(type.equals("addAndCountNewStats")){
             statsMap = new HashMap<>();
+
         }
     }
 
@@ -106,11 +109,21 @@ public class WorkStats implements Serializable {
    }
 
    public void createOneNewStata(FilterStata stata){
+       stata.isCreateStructureDB = true;
        statsMap.put(stata.getFullNameStata(),stata);
        //saveStatsMap();
        addStructureOneNewStataToDB(stata);
+       writeDescriptionFilterStata(stata);
    }
 
+
+   private void checkExistStructureDBofFilterStats(){
+       for(FilterStata filterStata:statsMap.values())
+           if(!filterStata.isCreateStructureDB){
+               filterStata.isCreateStructureDB = true;
+               addStructureOneNewStataToDB(filterStata);
+           }
+   }
 
    public Map<String, DataStata> creatMapNameFilterDataStataOnePlayer(){
        Map<String, DataStata> result = new HashMap<>();
@@ -182,28 +195,53 @@ public class WorkStats implements Serializable {
         }
     }
 
+
+    public void writeDescriptionFilterStata(FilterStata stata){
+        String line = "";
+
+        line+="\""+stata.getFullNameStata()+"\"  ";
+        for(int i=0; i<stata.structureParametres.length; i++)
+            if(stata.structureParametres[i])line+="\""+strStatsValues[i]+"\"  ";
+        line+="\r\n";
+
+        try (OutputStream os = new FileOutputStream(home_folder+"\\all_settings\\capture_video\\descriptions_filterstata.txt",true)) {
+            os.write(line.getBytes(StandardCharsets.UTF_8));
+        } catch (FileNotFoundException e) {
+        } catch (IOException s) {
+        }
+
+    }
+
     public static void main(String[] args) {
 
 
-        new Work_DataBase();
-        WorkStats workStats1 = new WorkStats(false);
+    /*    new Work_DataBase();
+        WorkStats workStats1 = new WorkStats("addAndCountNewStats");
         //FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
         FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(1).build();
-        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_w$sd").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();
+        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();
+        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
         workStats1.createOneNewStata(filterStata);
         workStats1.createOneNewStata(filterStata1);
-        //System.out.println(workStats1.getPreflopRange(new String[]{"2c","As"}));
-       /* workStats1.fullMapNicksMapsNameFilterDataStata("work_");
-        close_DataBase();
-        int[] vpip = workStats1.getValueOneStata("trenkvaz","main_wwsf_all_v_all",5);*/
-        //System.out.println(vpip[0]+"  "+vpip[1]+" "+vpip[2]);
-        //System.out.println(procents(vpip[1],vpip[0]));
-        //WorkStats workStats1 = new WorkStats(false);
-        //int[] t= workStats1.getValueOneStata("","",0);
-        String name = "WWSFall_v_all";
-        //System.out.println(workStats1.statsMap.get("WWSFall_v_all"));
+        workStats1.createOneNewStata(filterStata2);
+        close_DataBase();*/
+        WorkStats workStats = new WorkStats(false);
+        for(Map.Entry<String, FilterStata> entry:workStats.statsMap.entrySet())
+            System.out.println(entry.getKey());
 
-        close_DataBase();
+      /* workStats.statsMap.entrySet().removeIf(entry -> entry.getKey().contains("$"));
+       workStats.saveStatsMap();*/
+
+       /* Iterator<Map.Entry<String,FilterStata>> iter = workStats.statsMap.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry<String,FilterStata> entry = iter.next();
+            if(entry.getKey().contains("$")){
+                iter.remove();
+            }
+        }*/
+      /*  System.out.println("===========");
+        for(Map.Entry<String, FilterStata> entry:workStats.statsMap.entrySet())
+            System.out.println(entry.getKey());*/
     }
 
 

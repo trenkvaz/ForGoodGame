@@ -34,7 +34,7 @@ public class ReadHistoryGetStats {
     static byte[][][] preflop_players_actions_in_raunds;
     static MainStats[] mainstats;
     static HashMap<Long,Float> numHandResultHeroHistory = new HashMap<>();
-    static boolean isRecordStats = false;
+    static boolean isRecordStats = true;
     static FilterStata filterStata;
     static WorkStats workStats;
     static boolean isNewStatsCount = false;
@@ -62,15 +62,23 @@ public class ReadHistoryGetStats {
     static void initAddCountNewFilterStats(){
         workStats = new WorkStats("addAndCountNewStats");
         isNewStatsCount = true;
+        isAddStats = true;
 
+        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(1).build();
+        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();
+        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
 
+        workStats.createOneNewStata(filterStata);
+        workStats.createOneNewStata(filterStata1);
+        workStats.createOneNewStata(filterStata2);
     }
 
 
 
     static void start_ReadFilesInFolder(String folder){
         Work_DataBase work_dataBase = new Work_DataBase();
-        //initTestFilterStata();
+        //initCountFilterStata();
+        //initAddCountNewFilterStats();
         mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase("main_nicks_stats");
         boolean isAllowRec = true;
         for(File a: Objects.requireNonNull(new File(folder).listFiles())){
@@ -94,6 +102,9 @@ public class ReadHistoryGetStats {
        if(isNewStatsCount){
            workStats.saveAllCountedStats();
            if(isAddStats)workStats.saveNewMapToOldMap();
+           // TEST
+           record_MainArrayOfStatsToDateBase(mainstats);
+           delete_and_copy_WorkNicksStats();
        }
 
 
@@ -493,7 +504,7 @@ public class ReadHistoryGetStats {
 
     public static synchronized void count_StatsCurrentGame(ConcurrentHashMap[] current_map_stats,MainStats[] main_stats,String[] nicks,
                                                            float[] stacks, List<List<Float>> preflop_actions_for_stats,int startAmountPlayers){
-        System.out.println("CREATE STATS");
+       // System.out.println("CREATE STATS");
        /* for(int i=0; i<6; i++){
             System.out.print(nicks[i]+"   ");
         for(int a=1; a<preflop_actions_for_stats.get(i).size(); a++) {

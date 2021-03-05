@@ -15,7 +15,7 @@ public class FilterStata implements Serializable {
 
     /*public Map<String, DataStata> mapNicksDates = new HashMap<>();
     public transient DataStata[] dataStatsOneHand;*/
-
+    public boolean isCreateStructureDB = false;
     public String mainNameFilter;
     // 0 позиции игрока, 1 позиции оппов;  0 нет позы, 1 есть поза
     int[][] posStata;

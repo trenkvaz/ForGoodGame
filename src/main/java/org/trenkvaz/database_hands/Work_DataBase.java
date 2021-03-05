@@ -187,6 +187,8 @@ static String work_database;
             if(filterStata.specStats[3]){
                 stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_vpip_pfr integer[] ;");
                 stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_vpip_pfr integer[] ;"); }
+
+            //System.out.println(stmt_of_db.);
             stmt_of_db.executeBatch();
             System.out.println(" added columns");
         } catch (SQLException e) {
@@ -261,10 +263,10 @@ static String work_database;
 
     static long time = 0;
     static long count =0;
-    private final static String[] strStatsValues = {"_value","_value_vs_hero","_raise_range","_call_range","_value_vsbetsize","_wwsf","_wtsd","_wsd","_vpip_pfr"};
+    public final static String[] strStatsValues = {"_value","_value_vs_hero","_raise_range","_call_range","_value_vsbetsize","_wwsf","_wtsd","_wsd","_vpip_pfr"};
     public static void recordNewStats(String[] nicks,Map<String, FilterStata> statsMap, Map<String,Map<String, DataStata>> mapNicksMapsNameFilterDataStata){
         //long s =System.currentTimeMillis(); count++;
-        String insert = "", update = "", namesValues = "nicks, ", values = "", mainOrwork = "main_"; Set<String> setNicks = null;
+        String insert = "", update = "", namesValues = "", values = "", mainOrwork = "main_"; Set<String> setNicks = null;
         DataStata dataStata = null; Array arraystata = null;
         if(nicks!=null){mainOrwork = "work_"; setNicks = new HashSet<>(Arrays.asList(nicks));}
         else setNicks = mapNicksMapsNameFilterDataStata.keySet();
@@ -272,6 +274,7 @@ static String work_database;
             connect_to_db.setAutoCommit(false);
             for(Map.Entry<String,FilterStata> entry:statsMap.entrySet()){
                 update = " ON CONFLICT (nicks) DO UPDATE SET ";
+                namesValues = "nicks, ";values = "";
                 for(int i=0;  i<entry.getValue().structureParametres.length; i++){
                     if(entry.getValue().structureParametres[i]){ namesValues+=entry.getValue().strPosStata+strStatsValues[i]+",";
                         values+="?,";
@@ -282,7 +285,7 @@ static String work_database;
                 update = update.substring(0,update.length()-1)+";";
                 insert = "INSERT INTO "+mainOrwork+entry.getValue().mainNameFilter+" ("+namesValues+") VALUES ( ?,"+values;
                 PreparedStatement pstmt = connect_to_db.prepareStatement(insert+update);
-                //System.out.println(insert+update);
+                System.out.println(insert+update);
                 try {
                     for(String nick:setNicks){
                         if(nick==null)continue;
@@ -326,12 +329,10 @@ static String work_database;
          /* int[]  r = pstmt.executeBatch();
           for(int a:r) System.out.println(a);*/
                 pstmt.executeBatch();
-                connect_to_db.commit();
-                connect_to_db.setAutoCommit(true);
-
-
                 if(nicks==null)copyWorksTables(entry.getValue().mainNameFilter);
             }
+            connect_to_db.commit();
+            connect_to_db.setAutoCommit(true);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

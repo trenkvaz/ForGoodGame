@@ -86,7 +86,7 @@ public class CurrentHand {
     }
 
 
-    public void setDataToCreateNewHUD(int[] typesPots){
+    public void setDataToCreateNewHUD(String[] typesPots){
         creatingHUD.addNewHUDToOldHUD(createNewHUD.createHUDoneTable(nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero));
     }
 
@@ -100,7 +100,10 @@ public class CurrentHand {
         creatingHUD.send_current_hand_to_creating_hud(nicks,ocr.pokerPosIndWithNumOnTable, pokerPosHero);
 
 
-        if(isTest)setDataToCreateNewHUD(new int[6]);
+       if(isTest){
+           String[] typesPots = {"PRE","PRE","PRE","PRE","PRE","PRE"};
+           setDataToCreateNewHUD(typesPots);
+       }
 
 
 

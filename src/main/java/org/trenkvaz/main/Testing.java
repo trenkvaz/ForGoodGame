@@ -1,5 +1,6 @@
 package org.trenkvaz.main;
 
+import javafx.scene.text.Text;
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
 
@@ -1296,5 +1297,15 @@ public class Testing {
             else second = raiseSizesForRange[i];
             System.out.println(first+" "+second);
         }*/
+        Set<Text> test = new HashSet<>();
+        Text a = new Text(1,2,"");
+        Text b = new Text(1,3,"");
+        test.add(b);
+        Text c = a;
+        b = new Text(1,2,"");
+        test.add(a); test.add(b); test.add(c);
+
+        for(Text v:test)if(v.getY()==3)v.setY(4);
+        System.out.println(test.size());
     }
 }
