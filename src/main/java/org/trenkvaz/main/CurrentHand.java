@@ -65,7 +65,7 @@ public class CurrentHand {
         this.ocr = ocr;
         this.creatingHUD = ocr.creatingHUD;
         creatingHUD.clear_MapStats();
-        if(isTest)createNewHUD.initNewTableHUD(ocr.table-1);
+        if(isNewStats)createNewHUD.initNewTableHUD(ocr.table-1);
         testTable = ocr.table;
         for(int i=0; i<6; i++){
             preflopActionsStats.add(new ArrayList<>()); preflopActionsStats.get(i).add(0.0f);
@@ -100,7 +100,7 @@ public class CurrentHand {
         creatingHUD.send_current_hand_to_creating_hud(nicks,ocr.pokerPosIndWithNumOnTable, pokerPosHero);
 
 
-       if(isTest){
+       if(isNewStats){
            String[] typesPots = {"PRE","PRE","PRE","PRE","PRE","PRE"};
            setDataToCreateNewHUD(typesPots);
        }

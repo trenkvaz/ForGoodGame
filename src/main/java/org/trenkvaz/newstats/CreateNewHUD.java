@@ -116,7 +116,7 @@ public class CreateNewHUD {
         } else result = BigDecimal.valueOf(getProcents(val,select)).setScale(1, RoundingMode.HALF_UP).floatValue();
         }
         if(result>=10)text[0].setText((result>=99)? "99":Integer.toString(Math.round(result)));
-        else  text[0].setText((result==0)? "0":notZeroFormat.format(stata));
+        else  text[0].setText((result==0)? "0":notZeroFormat.format(result));
         if(result==0)text[0].setFill(Color.WHITE);else text[0].setFill(displayStata.get_ColorByRangeOfStata(result));
 
         if(select<displayStata.condSelect){
@@ -166,6 +166,7 @@ public class CreateNewHUD {
             file.close();
         } catch(IOException e) {
             System.out.println(e);
+            initListDisplayStata();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

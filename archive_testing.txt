@@ -292,3 +292,14 @@ BufferedImage table = read_image("Mtest\\longnum").getSubimage(0,0,639,468);    
 
             for(int[]num:shablons_numbers_0_9_for_actions){show_HashShablonNumber(num,6,9);                                   // ПРОСМОТР ШАБЛОНОВ ДЕЙСТВИЙ
                         System.out.println("+++++++++");}
+
+
+
+
+            bufferedImageframe = read_image("Mtest\\nickl");                                                                     // РАСПОЗНАВАНИЕ НИКА
+                    int[] correction_for_place_of_nicks = {1,2,2,2,1,1};
+                    int w = 86, h = 14;
+                    int x = COORDS_TABLES[5][0]+COORDS_NICKS[3][0]+correction_for_place_of_nicks[3]-5;
+                    int y = COORDS_TABLES[5][1]+COORDS_NICKS[3][1]+1;
+                    System.out.println(useTesseract.get_ocr(get_white_black_image(set_grey_and_inverse_or_no
+                            (get_scale_image(bufferedImageframe.getSubimage(x,y,w,h),4),true),105)).trim());

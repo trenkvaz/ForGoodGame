@@ -67,7 +67,7 @@ public class CaptureVideo {
    static final int COUNT_TABLES = 6;
    static FFmpegFrameGrabber grabber;
    static CanvasFrame canvasFrame;
-   static BufferedImage bufferedImageframe;
+   public static BufferedImage bufferedImageframe;
 
    static final UseTesseract[] use_tessearts = new UseTesseract[4];
    public static byte[] count_one_in_numbers;
@@ -427,9 +427,10 @@ public class CaptureVideo {
     }
 
 
-    private static int[] getWhoPlayOrNo(int indTable){
+    public static int[] getWhoPlayOrNo(int indTable){
         int[] result = new int[6];c++;
         for(int placePlayer=1; placePlayer<6; placePlayer++ ){
+            //System.out.println("place "+placePlayer);
             if(is_CorrectImageOfNumberHandAndNicks(COORDS_TABLES[indTable][0]+COORDS_NICKS[placePlayer][0]+CORRECTS_COORDS_NICKS[placePlayer]-8,
                     COORDS_TABLES[indTable][1]+COORDS_NICKS[placePlayer][1]+1,91,14,
                     220,220,210,bufferedImageframe)) {  result[0] =1; result[placePlayer] =1; continue;}
@@ -498,12 +499,12 @@ public class CaptureVideo {
             }
         }
         // правые и левые линии периметра ограничены на 10 пикселй снизу
-            for(int x=X; x<w+X; x+=w-1)
+           /* for(int x=X; x<w+X; x+=w-1)
                 for(int y=Y; y<h+Y-10; y++){
-                    //System.out.println("2 grey "+get_intGreyColor(frame,x,y));
+                    System.out.println("2 grey "+get_intGreyColor(frame,x,y));
                 //checknicktest_nick.add("2 "+grey);
                 if(get_intGreyColor(frame,x,y)>brightness_of_perimeter_left_right)return false;
-            }
+            }*/
       //System.out.println("=========================================");
        // проверка яркости текста
         int max = 0, y = Y+h/2;

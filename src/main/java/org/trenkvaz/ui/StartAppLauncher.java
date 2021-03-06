@@ -25,6 +25,8 @@ public class StartAppLauncher {
     public static boolean isTest = true;
 
     public static boolean isNewHudTest = true;
+
+    public static boolean isNewStats = true;
     // ПОМЕНЯТЬ БАЗУ !
 
     public static float[] totalStreetHero = new float[4];
@@ -35,7 +37,7 @@ public class StartAppLauncher {
         work_dataBase = new Work_DataBase();
         captureVideo = new CaptureVideo();
         hud = new HUD();
-        if(isTest){workStats = new WorkStats(false);
+        if(isNewStats){workStats = new WorkStats(false);
         workStats.fullMapNicksMapsNameFilterDataStata("work_");
         createNewHUD = new CreateNewHUD();
         }

@@ -153,42 +153,21 @@ static String work_database;
 
 
     public static void addStructureOneNewStataToDB(FilterStata filterStata){
-
         String mainStata = "CREATE TABLE IF NOT EXISTS main_"+filterStata.mainNameFilter+" (nicks text UNIQUE );";
         String workStata = "CREATE TABLE IF NOT EXISTS work_"+filterStata.mainNameFilter+" (nicks text UNIQUE );";
         try {
             stmt_of_db.executeUpdate(mainStata);
             stmt_of_db.executeUpdate(workStata);
             System.out.println(" created tables new stats ");
-            if(filterStata.streetOfActs!=-1){
-            stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value integer[] ;");
-            stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value integer[] ;"); }
-            if(filterStata.isVsHero){
-                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value_vs_hero integer[] ;");
-                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value_vs_hero integer[] ;"); }
-            if(filterStata.raiseSizesForRange!=null){
-                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_raise_range integer[][] ;");
-                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_raise_range integer[][] ;"); }
-            if(filterStata.isRangeCall){
-                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_call_range integer[] ;");
-                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_call_range integer[] ;"); }
-            if(filterStata.vsBetSizes!=null){
-                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value_vsbetsize integer[][] ;");
-                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_value_vsbetsize integer[][] ;"); }
-            if(filterStata.specStats[0]){
-                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_wwsf integer[] ;");
-                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_wwsf integer[] ;"); }
-            if(filterStata.specStats[1]){
-                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_wtsd integer[] ;");
-                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_wtsd integer[] ;"); }
-            if(filterStata.specStats[2]){
-                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_wsd integer[] ;");
-                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_wsd integer[] ;"); }
-            if(filterStata.specStats[3]){
-                stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_vpip_pfr integer[] ;");
-                stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+"_vpip_pfr integer[] ;"); }
-
-            //System.out.println(stmt_of_db.);
+            String typeData = "";
+            for(int i=0; i<filterStata.structureParametres.length; i++){
+                if(i==2||i==4)typeData = " integer[][]";
+                else typeData = " integer[]";
+                if(filterStata.structureParametres[i]){
+                    stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+strStatsValues[i]+typeData+" ;");
+                    stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" ADD COLUMN "+filterStata.strPosStata+strStatsValues[i]+typeData+" ;");
+                }
+            }
             stmt_of_db.executeBatch();
             System.out.println(" added columns");
         } catch (SQLException e) {
@@ -197,73 +176,28 @@ static String work_database;
     }
 
 
-
-
-    /*public static void recordNewStatsToMain(Map<String,Map<String, DataStata>> mapNicksMapsNameFilterDataStata){
-
+    public static void deleteStructureOneNewStataToDB(FilterStata filterStata){
         try {
-            connect_to_db.setAutoCommit(false);
-            PreparedStatement pstmt = null;
-
-            for(String nameStata:statsMap.keySet()){
-
-            String insert = "INSERT INTO main_"+nameStata+" VALUES ( ?, ";
-            String update = " ON CONFLICT (nicks) DO UPDATE SET ";
-            Stata stata = statsMap.get(nameStata); int countParametrs =1;
-                if(stata.isSelect) {insert+=" ?,";update+=" sel= ?,"; countParametrs++; }
-                if(stata.isMeans) { insert+=" ?,";update+=" means= ?,";countParametrs++; }
-                if(stata.isPreflopRange){insert+=" ?,";update+=" range= ?,";countParametrs++;}
-                insert = insert.substring(0,insert.length()-1);
-                update = update.substring(0,update.length()-1);
-                insert+=")";
-                update+=";";
-            //if(b==1)return;
-            pstmt = connect_to_db.prepareStatement(insert+update);
-            //System.out.println(insert);
-            //Array[] arrays_stats = new Array[count_stats];
-            MeansStata meansStata = null;
-            for(String nick: nicks){
-                if(nick==null)continue;
-                pstmt.setString(1,nick);
-                meansStata = stata.stataMap.get(nick);
-                if(stata.isSelect) {pstmt.setInt(2,meansStata.select);pstmt.setInt(5,meansStata.select); }
-                if(stata.isMeans) { insert+=" ?,";update+=" means= ?,";countParametrs++; }
-                if(stata.isPreflopRange){insert+=" ?,";update+=" range= ?,";countParametrs++;}
-
-
-                for(int i=2; i<countParametrs; i++){
-
-
+            System.out.println(" delete stats ");
+            for(int i=0; i<filterStata.structureParametres.length; i++){
+                if(filterStata.structureParametres[i]){
+                    stmt_of_db.addBatch("ALTER TABLE main_"+filterStata.mainNameFilter+" DROP COLUMN "+filterStata.strPosStata+strStatsValues[i]+" ;");
+                    stmt_of_db.addBatch("ALTER TABLE work_"+filterStata.mainNameFilter+" DROP COLUMN "+filterStata.strPosStata+strStatsValues[i]+" ;");
                 }
-
-
-                for(int i=2; i<count_stats+2; i++){
-                    Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[i-2].getMap_of_Idplayer_stats().get(nick));
-                    //System.out.println(arraystata.toString()+" "+(i+1));
-                    pstmt.setArray(i, arraystata);
-                    pstmt.setArray(i+count_stats, arraystata);
-                }
-                //System.out.println(pstmt.toString());
-                pstmt.addBatch();
             }
-            }
-            assert pstmt != null;
-          int[]  r = pstmt.executeBatch();
-          for(int a:r) System.out.println(a);
-            pstmt.executeBatch();
-            connect_to_db.commit();
-            connect_to_db.setAutoCommit(true);
+            stmt_of_db.executeBatch();
+            System.out.println(" deleted columns");
+            checkDeleteTable(filterStata);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-    }*/
-
+    }
 
 
     static long time = 0;
     static long count =0;
     public final static String[] strStatsValues = {"_value","_value_vs_hero","_raise_range","_call_range","_value_vsbetsize","_wwsf","_wtsd","_wsd","_vpip_pfr"};
+
     public static void recordNewStats(String[] nicks,Map<String, FilterStata> statsMap, Map<String,Map<String, DataStata>> mapNicksMapsNameFilterDataStata){
         //long s =System.currentTimeMillis(); count++;
         String insert = "", update = "", namesValues = "", values = "", mainOrwork = "main_"; Set<String> setNicks = null;
@@ -738,16 +672,28 @@ static String work_database;
         }
     }
 
-    static void test_select(){
+
+    public static void checkDeleteTable(FilterStata filterStata){
+
         String q = "SELECT column_name, column_default, data_type \n" +
                 "FROM INFORMATION_SCHEMA.COLUMNS \n" +
-                "WHERE table_name = 'main_nicks_stats';";
+                "WHERE table_name = 'main_"+filterStata.mainNameFilter+"';";
         try {
             //stmt_of_db.executeUpdate(BEGIN);
             ResultSet rs = stmt_of_db.executeQuery(q);
+            int countColumn = 0;
             while (rs.next()) {
+                countColumn++;
                 System.out.println(rs.getString("column_name")+"   "+rs.getString("column_default")+"    "+rs.getString("data_type")+"     ");
             }
+            if(countColumn==1){
+                String deleteMainTable = "DROP TABLE IF EXISTS main_"+filterStata.mainNameFilter+" ";
+                String deleteWorkTable = "DROP TABLE IF EXISTS work_"+filterStata.mainNameFilter+" ";
+                stmt_of_db.executeUpdate(deleteMainTable);
+                stmt_of_db.executeUpdate(deleteWorkTable);
+                System.out.println("delete tables");
+            }
+
             //stmt_of_db.executeUpdate(COMMIT);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -755,6 +701,34 @@ static String work_database;
 
 
     }
+
+    /*static void test(){
+        String query = "SELECT table_name FROM information_schema.tables\n" +
+                "WHERE table_schema NOT IN ('information_schema', 'pg_catalog')\n" +
+                "AND table_schema IN('public', 'myschema'); ";
+        try {
+            stmt_of_db.executeUpdate(Begin);
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                String colomn = rs.getString("table_name");
+                //System.out.println(colomn);
+                if(type_bases.equals("HM")&&colomn.equals("handhistories")){ hm_bases.add(name); break;}
+                if(type_bases.equals("Stats")){
+                    if(colomn.equals("testnick")){ my_bases.add(name); break;}
+                    if(colomn.equals("handhistories")){ hm_bases.add(name); break;}
+                }
+
+                    *//*if(colomn.equals("handhistories")){ hm_bases.add(name); break; }
+                    if(colomn.equals("testnick")){ my_bases.add(name); break; }*//*
+            }
+
+            //System.out.println("count tables "+i);
+            stmt_of_db.executeUpdate(Commit);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    }*/
 
     public static void main(String[] args) {
        delete_DataBase("fg_testnewstats");

@@ -34,7 +34,7 @@ public class ReadHistoryGetStats {
     static byte[][][] preflop_players_actions_in_raunds;
     static MainStats[] mainstats;
     static HashMap<Long,Float> numHandResultHeroHistory = new HashMap<>();
-    static boolean isRecordStats = true;
+    static boolean isRecordStats = false;
     static FilterStata filterStata;
     static WorkStats workStats;
     static boolean isNewStatsCount = false;
@@ -77,7 +77,7 @@ public class ReadHistoryGetStats {
 
     static void start_ReadFilesInFolder(String folder){
         Work_DataBase work_dataBase = new Work_DataBase();
-        //initCountFilterStata();
+        initCountFilterStata();
         //initAddCountNewFilterStats();
         mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase("main_nicks_stats");
         boolean isAllowRec = true;
@@ -101,7 +101,7 @@ public class ReadHistoryGetStats {
 
        if(isNewStatsCount){
            workStats.saveAllCountedStats();
-           if(isAddStats)workStats.saveNewMapToOldMap();
+           //if(isAddStats)workStats.saveNewMapToOldMap();
            // TEST
            record_MainArrayOfStatsToDateBase(mainstats);
            delete_and_copy_WorkNicksStats();

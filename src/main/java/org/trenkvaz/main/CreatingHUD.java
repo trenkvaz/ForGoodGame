@@ -93,14 +93,15 @@ public class CreatingHUD {
 
            check_LinesOfTexts(list_current_one_table_texts_huds_each_player.get(table_place));
 
+           for(Text text:list_current_one_table_texts_huds_each_player.get(table_place))listSetText.get(table_place).add(text);
         }
 
-         for(int i=0; i<6; i++){
+         /*for(int i=0; i<6; i++){
              if(list_current_one_table_texts_huds_each_player.get(i).isEmpty())continue;
              for(Text text:list_current_one_table_texts_huds_each_player.get(i))listSetText.get(i).add(text);
-         }
+         }*/
 
-         if(!isTest) hud.setNewHUD(listSetText,table);
+         if(!isNewStats) hud.setNewHUD(listSetText,table);
      }
 
 

@@ -18,15 +18,18 @@ public class WorkStats implements Serializable {
 
     public WorkStats(boolean isInGame1){ isInGame = isInGame1;
         readStatsMap();
+        //statsMap = new HashMap<>();
         checkExistStructureDBofFilterStats();
     }
 
     public WorkStats(String type){
+        //readStatsMap();
         if(type.equals("addAndCountNewStats")){
             statsMap = new HashMap<>();
 
         }
     }
+
 
 
    public static int countSD = 0;
@@ -109,11 +112,54 @@ public class WorkStats implements Serializable {
    }
 
    public void createOneNewStata(FilterStata stata){
+       // проверка на дубликат имени статы или перезапись статы
+       if(statsMap.get(stata.getFullNameStata())!=null){ deleteFilterStata(stata); }
        stata.isCreateStructureDB = true;
        statsMap.put(stata.getFullNameStata(),stata);
-       //saveStatsMap();
+       saveStatsMap();
        addStructureOneNewStataToDB(stata);
        writeDescriptionFilterStata(stata);
+   }
+
+
+   public void deleteFilterStata(FilterStata stata){
+       System.out.println("DELETE");
+       List<String> listFilterStata =new ArrayList<>();
+       try { BufferedReader br = new BufferedReader(new FileReader(new File(home_folder+"\\all_settings\\capture_video\\descriptions_filterstata.txt")));
+           String line;while ((line = br.readLine()) != null) { listFilterStata.add(line); }br.close();
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+       List<String> listFiltersStataForDelete = new ArrayList<>();
+       if(stata!=null){
+           listFiltersStataForDelete.add(stata.getFullNameStata());
+           listFilterStata.removeIf(s -> s.contains(stata.getFullNameStata()));
+           listFilterStata.forEach(System.out::println);
+           System.out.println("for delete");
+           for(String l:listFiltersStataForDelete) System.out.println("*"+l+"*");
+
+       } else {
+           Iterator<String> iterator = listFilterStata.listIterator();
+           while (iterator.hasNext()){
+               String line = iterator.next();
+               if(line.contains("D ")){
+                   listFiltersStataForDelete.add(line.split(" ")[1].replace("\"",""));
+                   iterator.remove();
+               }
+           }
+       }
+
+
+
+       String writeLines = "";
+       for(String line:listFilterStata)writeLines+=line+"\r\n";
+       //System.out.println(writeLines);
+       writeDescriptions(writeLines,false);
+       for(String nameForDelete:listFiltersStataForDelete){
+           deleteStructureOneNewStataToDB(statsMap.get(nameForDelete));
+           statsMap.remove(nameForDelete);
+       }
+       if(stata==null)saveStatsMap();
    }
 
 
@@ -132,11 +178,6 @@ public class WorkStats implements Serializable {
    }
 
 
-   private void addNewStatsToMapNicksMaps(FilterStata stata){
-        for(Map<String, DataStata> mapNameDataStata:mapNicksMapsNameFilterDataStata.values()){
-            mapNameDataStata.put(stata.getFullNameStata(),new DataStata(stata));
-        }
-   }
 
    public int[] getValueOneStata(String nick, String nameFilter, int stata){
         if(mapNicksMapsNameFilterDataStata.get("$ю$"+nick+"$ю$")==null)return null;
@@ -177,9 +218,11 @@ public class WorkStats implements Serializable {
            out.close();
            file.close();
        } catch(IOException e) {
-           System.out.println(e);
+           System.out.println("HERE   "+e);
+           statsMap = new HashMap<>();
        } catch (ClassNotFoundException e) {
            e.printStackTrace();
+           statsMap = new HashMap<>();
        }
    }
 
@@ -198,36 +241,43 @@ public class WorkStats implements Serializable {
 
     public void writeDescriptionFilterStata(FilterStata stata){
         String line = "";
-
         line+="\""+stata.getFullNameStata()+"\"  ";
         for(int i=0; i<stata.structureParametres.length; i++)
             if(stata.structureParametres[i])line+="\""+strStatsValues[i]+"\"  ";
         line+="\r\n";
+        writeDescriptions(line,true);
+    }
 
-        try (OutputStream os = new FileOutputStream(home_folder+"\\all_settings\\capture_video\\descriptions_filterstata.txt",true)) {
-            os.write(line.getBytes(StandardCharsets.UTF_8));
+
+    private void writeDescriptions(String lines,boolean isAppend){
+        System.out.println("WRITE");
+        try (OutputStream os = new FileOutputStream(home_folder+"\\all_settings\\capture_video\\descriptions_filterstata.txt",isAppend)) {
+            os.write(lines.getBytes(StandardCharsets.UTF_8));
         } catch (FileNotFoundException e) {
         } catch (IOException s) {
         }
-
     }
 
     public static void main(String[] args) {
 
 
-    /*    new Work_DataBase();
-        WorkStats workStats1 = new WorkStats("addAndCountNewStats");
+        new Work_DataBase();
+        WorkStats workStats1 = new WorkStats(false);
         //FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
-        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(1).build();
-        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();
+        /*FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(1).build();
+        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();*/
         FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
-        workStats1.createOneNewStata(filterStata);
-        workStats1.createOneNewStata(filterStata1);
+      /*  workStats1.createOneNewStata(filterStata);
+        workStats1.createOneNewStata(filterStata1);*/
         workStats1.createOneNewStata(filterStata2);
+        //workStats1.deleteFilterStata(null);
+        close_DataBase();
+        /*new Work_DataBase();
+        WorkStats workStats = new WorkStats("test");
+        workStats.deleteFilterStata(null);
         close_DataBase();*/
-        WorkStats workStats = new WorkStats(false);
-        for(Map.Entry<String, FilterStata> entry:workStats.statsMap.entrySet())
-            System.out.println(entry.getKey());
+       /* for(Map.Entry<String, FilterStata> entry:workStats.statsMap.entrySet())
+            System.out.println(entry.getKey());*/
 
       /* workStats.statsMap.entrySet().removeIf(entry -> entry.getKey().contains("$"));
        workStats.saveStatsMap();*/

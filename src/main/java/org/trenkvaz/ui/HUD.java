@@ -167,6 +167,7 @@ public class HUD {
             for(int a=0; a<6; a++)panesTablesPlayers[i][a] = new Pane();
     }
 
+
     public void setNewHUD(List<Set<Text>> arr_one_table_texts_huds_each_player, int table){
         Platform.runLater(()->{
             for(int i=0; i<6; i++){
@@ -178,6 +179,7 @@ public class HUD {
         refreshNewHUD(table);
     }
 
+
     public void refreshNewHUD(int table){
         //if(panesTablesPlayers[table]==null)return;
         Platform.runLater(() -> {
@@ -186,9 +188,10 @@ public class HUD {
                 anchorpanes_huds_each_player[table][player].getChildren().clear();
                 anchorpanes_huds_each_player[table][player].getChildren().add(panesTablesPlayers[table][player]);
             }
-            anchorPane.requestFocus();
+            //anchorPane.requestFocus();
         });
     }
+
 
     public void clearNewHUD(int table){
         //if(panesTablesPlayers[table]==null)return;
@@ -197,7 +200,7 @@ public class HUD {
                 //if(panesTablesPlayers[table][player]==null)continue;
                 anchorpanes_huds_each_player[table][player].getChildren().clear();
             }
-            anchorPane.requestFocus();
+            //anchorPane.requestFocus();
         });
     }
 }
