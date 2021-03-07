@@ -219,7 +219,7 @@ static String work_database;
                 update = update.substring(0,update.length()-1)+";";
                 insert = "INSERT INTO "+mainOrwork+entry.getValue().mainNameFilter+" ("+namesValues+") VALUES ( ?,"+values;
                 PreparedStatement pstmt = connect_to_db.prepareStatement(insert+update);
-                System.out.println(insert+update);
+                //System.out.println(insert+update);
                 try {
                     for(String nick:setNicks){
                         if(nick==null)continue;
@@ -253,7 +253,7 @@ static String work_database;
                             pstmt.setArray(paramIndex,arraystata);
                         }
                         dataStata.isRecord = false;
-                        //System.out.println(pstmt.toString());
+                        if(nick.equals("$ю$trenkvaz$ю$"))System.out.println(pstmt.toString());
                         pstmt.addBatch();
                     }
                 } catch (SQLException throwables) {
@@ -311,6 +311,7 @@ static String work_database;
                     for(int i=0;  i<entry.getValue().structureParametres.length; i++){
                         if(!entry.getValue().structureParametres[i])continue;
                         paramIndex++;
+                        if(rs.getArray(paramIndex)==null)continue;
                         if(i==0)dataStata.mainSelCallRaise =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
                         if(i==1)dataStata.selCallRaiseVsHero =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
                         if(i==5)dataStata.W$WSF =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
@@ -334,6 +335,57 @@ static String work_database;
         }
         return result;
     }
+
+
+
+    public static Map<String,Map<String, DataStata>> getMapNicksMapsNameFilterDataStataTest(Map<String, FilterStata> statsMap,String mainORwork){
+        Map<String,Map<String, DataStata>> result = new HashMap<>();
+        String select = "", nick = null;DataStata dataStata = null;
+        try {
+            for(Map.Entry<String,FilterStata> entry:statsMap.entrySet()){
+                select = "SELECT * FROM "+mainORwork+entry.getValue().mainNameFilter+" ;";
+                stmt_of_db.executeUpdate(BEGIN);
+                PreparedStatement ps = connect_to_db.prepareStatement(select);
+                ResultSet rs = ps.executeQuery();
+                while(rs.next()) {
+                    nick = rs.getString(1);
+                    //System.out.println(nick);
+                    if(result.get(nick)==null){
+                        Map<String, DataStata> nickDataStata = new HashMap<>();
+                        for(String nameFilter:statsMap.keySet()){ nickDataStata.put(nameFilter,new DataStata(statsMap.get(nameFilter))); }
+                        result.put(nick,nickDataStata);
+                    }
+                    dataStata = result.get(nick).get(entry.getKey());
+                    int paramIndex = 1;
+                    for(int i=0;  i<entry.getValue().structureParametres.length; i++){
+                        if(!entry.getValue().structureParametres[i])continue;
+                        paramIndex++;
+                        if(rs.getArray(paramIndex)==null)continue;
+                        if(i==0)dataStata.mainSelCallRaise =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
+                        if(i==1)dataStata.selCallRaiseVsHero =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
+                        if(i==5)dataStata.W$WSF =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
+                        if(i==6)dataStata.WTSD =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
+                        if(i==7)dataStata.W$SD =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
+                        if(i==8){dataStata.VPIP_PFR =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
+                       /* if(dataStata.VPIP_PFR!=null){
+                            for(int a: dataStata.VPIP_PFR) System.out.print(a+" ");
+                            System.out.println();
+                        }*/
+
+                        }
+
+                    }
+                }
+
+                stmt_of_db.executeUpdate(COMMIT);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+
 
 
     private static void add_columns_in_TableIdplayersStats(){
@@ -544,28 +596,6 @@ static String work_database;
 
     }
 
-    /*public record TempHand2(long time_hand, short cards_hero, short position_hero, Float[] stacks, Integer[] nicks){}
-
-
-    public static List<TempHand2> get_list_TempHandsMinMaxTime_test(long min, long max){
-        String query = "SELECT * FROM temphands WHERE time_hand>"+min+" AND time_hand<"+max+";";
-        List<TempHand2> result = new ArrayList<>();
-        ResultSet rs = null;
-        try {
-            //stmt_of_db.executeUpdate(BEGIN);
-            rs = stmt_of_db.executeQuery(query);
-            while (rs.next()) {
-              result.add(new TempHand2(rs.getLong("time_hand"),rs.getShort("cards_hero"),
-                      rs.getShort("position_hero"),(Float[]) rs.getArray("stacks").getArray(),(Integer[]) rs.getArray("idplayers").getArray()));
-
-            }
-            //stmt_of_db.executeUpdate(COMMIT);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-      return result;
-    }*/
 
 
     public static List<CurrentHand.TempHand> get_list_TempHandsMinMaxTime(long min, long max){
@@ -577,7 +607,6 @@ static String work_database;
             while (rs.next()) {
                 result.add(new CurrentHand.TempHand(rs.getLong("time_hand"),rs.getShort("cards_hero"),
                         rs.getShort("position_hero"),(Float[]) rs.getArray("stacks").getArray(),(String[]) rs.getArray("nicks").getArray()));
-
             }
             //stmt_of_db.executeUpdate(COMMIT);
         } catch (SQLException e) {
@@ -731,7 +760,7 @@ static String work_database;
     }*/
 
     public static void main(String[] args) {
-       delete_DataBase("fg_testnewstats");
+       delete_DataBase("fg_testing");
 
        /* new Work_DataBase();
         test_select();

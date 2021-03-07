@@ -10,6 +10,7 @@ public class FilterStata implements Serializable {
 
     static final int UTG = 0, MP = 1, CO = 2, BU = 3, SB = 4, BB = 5;
     static final int ACT_PLAYER = 0,  LIMPS = 1, CALLERS = 2, LIMP = 3, RAISER = 4, _3BET = 5, _4BET = 6, _5BET = 7;
+    // new int[]{0,-1,1,-1,2,-1,-1,-1}
     static final int SELECT = 0, CALL = 1, RAISE = 2;
     static final String[] strPositions = {"utg","mp","co","bu","sb","bb"};
 
@@ -38,6 +39,7 @@ public class FilterStata implements Serializable {
     // W$WSF, WTSD, W$SD, AG
     public boolean[] specStats = new boolean[4];
     // 1 раунд акт 0, если важна позиция действия и было действие 2, нет действие -1, было действие поза не важна 1
+    // поза может быть важна только для рейзов и первого лимпа
     public List<int[]> conditionsPreflopActions;
     public boolean[] structureParametres = new boolean[9];
 
@@ -114,7 +116,7 @@ public class FilterStata implements Serializable {
         Arrays.fill(resultActions,-1);
         if(round==0) { for (int pokPos=0; pokPos<posPlayer; pokPos++) setResultActions(resultActions,pokPos,actsRoundsByPoses[round][pokPos]); }
         else if(round==1){
-            // проверка необходимое действие первого раунда игрока совпадало с рейальным действием в первом раунде
+            // проверка необходимое действие первого раунда игрока совпадало с реальным действием в первом раунде
             if(conditionsPreflopActions.get(0)[0]!=actsRoundsByPoses[0][posPlayer])return false;
             for(int pokPos = posPlayer+1; pokPos<6; pokPos++) setResultActions(resultActions,pokPos,actsRoundsByPoses[0][pokPos]);
             for(int pokPos = 0; pokPos<posPlayer; pokPos++) setResultActions(resultActions,pokPos,actsRoundsByPoses[1][pokPos]);
@@ -134,6 +136,7 @@ public class FilterStata implements Serializable {
 
     private void setResultActions(int[] resultActions,int pokPos, int act){
         switch (act) {
+            // если первый лимпер то указывается его поза, если есть еще лимперы то указывается что есть лимперы
             case -1 -> {if(resultActions[LIMP]==-1) resultActions[LIMP] = pokPos; else resultActions[LIMPS]=1;}
             case -2 ->  resultActions[CALLERS] = 1;
             case 2 -> resultActions[RAISER] = pokPos;
@@ -197,8 +200,8 @@ public class FilterStata implements Serializable {
             long countPosOpps = Arrays.stream(posStata1[1]).filter(c->c>0).count();
             stata.strPosStata = "";
             if(countPosHero==6){stata.strPosStata+="all_v";}
-            else {for(int i=0; i<6; i++){ if(posStata1[0][i]==0)continue;stata.strPosStata+=strPositions[i]+"_"; } stata.strPosStata+="v";}
-            if(countPosOpps==6)stata.strPosStata+="_all";
+            else {for(int i=0; i<6; i++){ if(posStata1[0][i]==0)continue;stata.strPosStata+=strPositions[i]+"_"; } stata.strPosStata+="v_";}
+            if(countPosOpps==6)stata.strPosStata+="all";
             else for(int i=0; i<6; i++){ if(posStata1[1][i]==0)continue;stata.strPosStata+=strPositions[i]+"_"; }
             return this;
         }

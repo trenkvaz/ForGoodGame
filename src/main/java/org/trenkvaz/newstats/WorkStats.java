@@ -18,7 +18,6 @@ public class WorkStats implements Serializable {
 
     public WorkStats(boolean isInGame1){ isInGame = isInGame1;
         readStatsMap();
-        //statsMap = new HashMap<>();
         checkExistStructureDBofFilterStats();
     }
 
@@ -27,7 +26,7 @@ public class WorkStats implements Serializable {
         if(type.equals("addAndCountNewStats")){
             statsMap = new HashMap<>();
 
-        }
+        } else readStatsMap();
     }
 
 
@@ -258,40 +257,76 @@ public class WorkStats implements Serializable {
         }
     }
 
+    static void initOldFilteStats(){
+        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(1).build();
+        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();
+        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
+
+    }
+
+
+    static void addNewFilteStats(){
+        new Work_DataBase();
+        WorkStats workStats1 = new WorkStats("addAndCountNewStats");
+        List<int[]> conditionsPreflopActions = new ArrayList<>();
+        conditionsPreflopActions.add(new int[]{0,-1,1,-1,2,-1,-1,-1});
+        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("squeeze_")
+                .setPosStata(new int[][]{{0,0,1,0,0,0},{1,0,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata);
+        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("squeeze_")
+                .setPosStata(new int[][]{{0,0,0,1,0,0},{1,1,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata1);
+        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("squeeze_")
+                .setPosStata(new int[][]{{0,0,0,0,1,0},{1,1,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata2);
+        FilterStata filterStata3 = new FilterStata.Builder().setMainNameFilter("squeeze_")
+                .setPosStata(new int[][]{{0,0,0,0,1,0},{0,0,1,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata3);
+        FilterStata filterStata4 = new FilterStata.Builder().setMainNameFilter("squeeze_")
+                .setPosStata(new int[][]{{0,0,0,0,0,1},{1,1,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata4);
+        FilterStata filterStata5 = new FilterStata.Builder().setMainNameFilter("squeeze_")
+                .setPosStata(new int[][]{{0,0,0,0,0,1},{0,0,1,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata5);
+        FilterStata filterStata6 = new FilterStata.Builder().setMainNameFilter("squeeze_")
+                .setPosStata(new int[][]{{0,0,0,0,0,1},{0,0,0,1,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata6);
+        close_DataBase();
+    }
+
+    static void testGetStata(){
+       new Work_DataBase();
+      WorkStats  workStats = new WorkStats(false);
+      workStats.fullMapNicksMapsNameFilterDataStata("work_");
+        close_DataBase();
+       /* squeeze_co_v_utg_
+                squeeze_bu_v_utg_mp_
+        squeeze_sb_v_co_
+                squeeze_sb_v_utg_mp_
+        squeeze_bb_v_co_
+                squeeze_bb_v_utg_mp_
+        squeeze_bb_v_bu_*/
+      int[] stats = workStats.getValueOneStata("trenkvaz","squeeze_bu_v_utg_mp_",0);
+
+        System.out.println("stata "+stats[0]+" "+stats[1]+" "+stats[2]);
+    }
+
+    static void getNamesFilterStats(){
+        WorkStats  workStats = new WorkStats("stats");
+       for(Map.Entry<String,FilterStata> entry:workStats.statsMap.entrySet())
+           System.out.println(entry.getKey());
+    }
+
     public static void main(String[] args) {
 
-
-        new Work_DataBase();
-        WorkStats workStats1 = new WorkStats(false);
-        //FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
-        /*FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(1).build();
-        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();*/
-        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
-      /*  workStats1.createOneNewStata(filterStata);
-        workStats1.createOneNewStata(filterStata1);*/
-        workStats1.createOneNewStata(filterStata2);
-        //workStats1.deleteFilterStata(null);
-        close_DataBase();
         /*new Work_DataBase();
         WorkStats workStats = new WorkStats("test");
         workStats.deleteFilterStata(null);
         close_DataBase();*/
-       /* for(Map.Entry<String, FilterStata> entry:workStats.statsMap.entrySet())
-            System.out.println(entry.getKey());*/
-
-      /* workStats.statsMap.entrySet().removeIf(entry -> entry.getKey().contains("$"));
-       workStats.saveStatsMap();*/
-
-       /* Iterator<Map.Entry<String,FilterStata>> iter = workStats.statsMap.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry<String,FilterStata> entry = iter.next();
-            if(entry.getKey().contains("$")){
-                iter.remove();
-            }
-        }*/
-      /*  System.out.println("===========");
-        for(Map.Entry<String, FilterStata> entry:workStats.statsMap.entrySet())
-            System.out.println(entry.getKey());*/
+        /*addNewFilteStats();
+        getNamesFilterStats();*/
+        getNamesFilterStats();
+        testGetStata();
     }
 
 
