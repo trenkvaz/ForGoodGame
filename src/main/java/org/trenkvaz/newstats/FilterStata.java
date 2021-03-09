@@ -199,7 +199,7 @@ public class FilterStata implements Serializable {
             long countPosHero = Arrays.stream(posStata1[0]).filter(c->c>0).count();
             long countPosOpps = Arrays.stream(posStata1[1]).filter(c->c>0).count();
             stata.strPosStata = "";
-            if(countPosHero==6){stata.strPosStata+="all_v";}
+            if(countPosHero==6){stata.strPosStata+="all_v_";}
             else {for(int i=0; i<6; i++){ if(posStata1[0][i]==0)continue;stata.strPosStata+=strPositions[i]+"_"; } stata.strPosStata+="v_";}
             if(countPosOpps==6)stata.strPosStata+="all";
             else for(int i=0; i<6; i++){ if(posStata1[1][i]==0)continue;stata.strPosStata+=strPositions[i]+"_"; }

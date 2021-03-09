@@ -50,8 +50,7 @@ public class ReadHistoryGetStats {
 
     static void initCountFilterStata(){
        workStats = new WorkStats(false);
-       //workStats.fullMapNicksMapsNameFilterDataStata("main_");
-
+       workStats.fullMapNicksMapsNameFilterDataStata("main_");
        isNewStatsCount = true;
        /* int[] vpip = workStats.getValueOneStata("trenkvaz","vpip_pfrall_v_all",8);
         System.out.println("main 1 "+vpip[0]+"  "+vpip[1]+" "+vpip[2]);
@@ -102,13 +101,16 @@ public class ReadHistoryGetStats {
 
        if(isNewStatsCount){
            workStats.saveAllCountedStats();
-
+/*
            int[] stats = workStats.getValueOneStata("trenkvaz","squeeze_bu_v_utg_mp_",0);
 
-           System.out.println("stata "+stats[0]+" "+stats[1]+" "+stats[2]);
+           System.out.println("stata "+stats[0]+" "+stats[1]+" "+stats[2]);*/
 
            //if(isAddStats)workStats.saveNewMapToOldMap();
-           // TEST
+
+
+
+           // WORK
           /* record_MainArrayOfStatsToDateBase(mainstats);
            delete_and_copy_WorkNicksStats();*/
        }

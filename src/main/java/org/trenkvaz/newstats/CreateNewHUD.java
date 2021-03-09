@@ -17,8 +17,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.trenkvaz.database_hands.Work_DataBase.strStatsValues;
-import static org.trenkvaz.ui.StartAppLauncher.home_folder;
-import static org.trenkvaz.ui.StartAppLauncher.workStats;
+import static org.trenkvaz.ui.StartAppLauncher.*;
 
 public class CreateNewHUD {
 
@@ -50,7 +49,7 @@ public class CreateNewHUD {
 
 
 
-    public Text[][][][] createHUDoneTable(String[] nicks,int table, String[] typesPots, int[] pokerPosIndWithNumOnTable,int posHero){
+    public Text[][][][] createHUDoneTable(String[] nicks,int table, String[] typesPots, int[] pokerPosIndWithNumOnTable,int posHero, int street, List<List<Float>> streetActionStats){
           // типыПоты игроки должны быть по своим местам за столом
         //List<List<Text>> resultList = new ArrayList<>();
 
@@ -159,7 +158,9 @@ public class CreateNewHUD {
     }
 
     public void readDisplayStataList(){
-        try {	FileInputStream file=new FileInputStream(home_folder+"\\all_settings\\capture_video\\displayStataList.file");
+        String workOrTest = "\\all_settings\\capture_video\\displayStataList.file";
+        if(isTest)workOrTest = "\\all_settings_test\\displayStataList.file";
+        try {	FileInputStream file=new FileInputStream(home_folder+workOrTest);
             ObjectInput out = new ObjectInputStream(file);
             displayStataList = (List<List<List<DisplayStata>>>) out.readObject();
             out.close();
@@ -175,8 +176,11 @@ public class CreateNewHUD {
     public void saveDisplayStata(DisplayStata displayStata,int line, int stata){
         if(displayStataList==null)initListDisplayStata();
         displayStataList.get(line).get(stata).add(displayStata);
+        String workOrTest = "\\all_settings\\capture_video\\displayStataList.file";
+        if(isTest)workOrTest = "\\all_settings_test\\displayStataList.file";
+
         try {
-            FileOutputStream file=new FileOutputStream(home_folder+"\\all_settings\\capture_video\\displayStataList.file");
+            FileOutputStream file=new FileOutputStream(home_folder+workOrTest);
             ObjectOutput out = new ObjectOutputStream(file);
             out.writeObject(displayStataList);
             out.close();
@@ -196,16 +200,36 @@ public class CreateNewHUD {
    }
 
 
+   static void addNewDidsplayStats(){
+
+       CreateNewHUD createNewHUD = new CreateNewHUD(0);
+       createNewHUD.creatNewDisplayStata("main_wwsf_all_v_all",null,10,SPEC_VALUE,"_wwsf",
+               0,4,new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,48,101},new Color[]{Color.GREEN,Color.PURPLE},0,0);
+       createNewHUD.creatNewDisplayStata("main_wtsd_all_v_all",null,10,SPEC_VALUE,"_wtsd",
+               1,5,new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,24,101},new Color[]{Color.GREEN,Color.PURPLE},0,0);
+       createNewHUD.creatNewDisplayStata("main_wsd_all_v_all",null,10,SPEC_VALUE,"_wsd",
+               1,6,new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,42,101},new Color[]{Color.GREEN,Color.PURPLE},0,0);
+
+
+       createNewHUD.creatNewDisplayStata("squeeze_co_v_utg_",null,10,RAISE,"_value", 2,0,
+               new int[]{1,1,0,0,0,0},new int[]{0,0,1,0,0,0},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
+       createNewHUD.creatNewDisplayStata("squeeze_bu_v_utg_mp_",null,10,RAISE,"_value", 2,0,
+               new int[]{1,1,1,0,0,0},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
+       createNewHUD.creatNewDisplayStata("squeeze_sb_v_utg_mp_",null,10,RAISE,"_value", 2,0,
+               new int[]{1,1,1,1,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
+       createNewHUD.creatNewDisplayStata("squeeze_sb_v_co_",null,10,RAISE,"_value", 2,0,
+               new int[]{1,1,1,1,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
+       createNewHUD.creatNewDisplayStata("squeeze_bb_v_utg_mp_",null,10,RAISE,"_value", 2,0,
+               new int[]{1,1,1,1,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
+       createNewHUD.creatNewDisplayStata("squeeze_bb_v_co_",null,10,RAISE,"_value", 2,0,
+               new int[]{0,0,0,1,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
+       createNewHUD.creatNewDisplayStata("squeeze_bb_v_bu_",null,10,RAISE,"_value", 2,0,
+               new int[]{0,0,0,1,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
+
+   }
 
     public static void main(String[] args) {
-        CreateNewHUD createNewHUD = new CreateNewHUD(0);
-        createNewHUD.creatNewDisplayStata("main_wwsf_all_v_all",null,10,SPEC_VALUE,"_wwsf",
-                0,4,new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,48,101},new Color[]{Color.GREEN,Color.PURPLE},0,0);
-        createNewHUD.creatNewDisplayStata("main_wtsd_all_v_all",null,10,SPEC_VALUE,"_wtsd",
-                1,5,new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,24,101},new Color[]{Color.GREEN,Color.PURPLE},0,0);
-        createNewHUD.creatNewDisplayStata("main_wsd_all_v_all",null,10,SPEC_VALUE,"_wsd",
-                1,6,new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,42,101},new Color[]{Color.GREEN,Color.PURPLE},0,0);
-
+       new CreateNewHUD();
     }
 }
 
@@ -225,6 +249,7 @@ class DisplayStata implements Serializable{
     String typePot; // PRE префлоп, ALL всегда, постфлоп свои имена
     int[] posHero; // условие отображения в зависимости от позы Херо
     int[] posPlayer; // условие отображения в зависимости от позы Игрока на которого стата
+    //int[] posActions; // условие отображения в зависимости от сделанных действий по позициям
     int[] rangesForColor; // диапазоны процентов от которых зависит цвет отображения статы
     double[][] rgbForPaints;
     Paint[] paintsForRange;

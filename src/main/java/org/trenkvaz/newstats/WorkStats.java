@@ -9,12 +9,14 @@ import java.util.*;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
+import static org.trenkvaz.ui.StartAppLauncher.isTest;
 
 public class WorkStats implements Serializable {
     public boolean isInGame;
 
     Map<String, FilterStata> statsMap;
     Map<String,Map<String, DataStata>> mapNicksMapsNameFilterDataStata = new HashMap<>();
+
 
     public WorkStats(boolean isInGame1){ isInGame = isInGame1;
         readStatsMap();
@@ -121,6 +123,12 @@ public class WorkStats implements Serializable {
    }
 
 
+   public void recoverFilterStata(FilterStata stata){
+       stata.isCreateStructureDB = true;
+       statsMap.put(stata.getFullNameStata(),stata);
+       saveStatsMap();
+   }
+
    public void deleteFilterStata(FilterStata stata){
        System.out.println("DELETE");
        List<String> listFilterStata =new ArrayList<>();
@@ -199,19 +207,18 @@ public class WorkStats implements Serializable {
 
     public void fullMapNicksMapsNameFilterDataStata(String mainORwork){
        mapNicksMapsNameFilterDataStata = getMapNicksMapsNameFilterDataStata(statsMap,mainORwork);
+
+       if(isTest)mapNicksMapsNameFilterDataStata = getMapNicksMapsNameFilterDataStataTest(statsMap,mainORwork);
     }
 
 
-   public void saveNewMapToOldMap(){
-       Map<String, FilterStata> newMap = new HashMap<>(statsMap);
-       readStatsMap();
-       statsMap.putAll(newMap);
-       saveStatsMap();
-   }
+
 
 
    public void readStatsMap(){
-       try {	FileInputStream file=new FileInputStream(home_folder+"\\all_settings\\capture_video\\statsMap.file");
+       String workOrTest = "\\all_settings\\capture_video\\statsMap.file";
+       if(isTest)workOrTest = "\\all_settings_test\\statsMap.file";
+       try {	FileInputStream file=new FileInputStream(home_folder+workOrTest);
            ObjectInput out = new ObjectInputStream(file);
            statsMap = (Map<String, FilterStata>) out.readObject();
            out.close();
@@ -226,8 +233,10 @@ public class WorkStats implements Serializable {
    }
 
     public void saveStatsMap(){
+       String workOrTest = "\\all_settings\\capture_video\\statsMap.file";
+       if(isTest)workOrTest = "\\all_settings_test\\statsMap.file";
         try {
-            FileOutputStream file=new FileOutputStream(home_folder+"\\all_settings\\capture_video\\statsMap.file");
+            FileOutputStream file=new FileOutputStream(home_folder+workOrTest);
             ObjectOutput out = new ObjectOutputStream(file);
             out.writeObject(statsMap);
             out.close();
@@ -250,24 +259,33 @@ public class WorkStats implements Serializable {
 
     private void writeDescriptions(String lines,boolean isAppend){
         System.out.println("WRITE");
-        try (OutputStream os = new FileOutputStream(home_folder+"\\all_settings\\capture_video\\descriptions_filterstata.txt",isAppend)) {
+        String workOrTest = "\\all_settings\\capture_video\\descriptions_filterstata.txt";
+        if(isTest)workOrTest = "\\all_settings_test\\descriptions_filterstata.txt";
+        try (OutputStream os = new FileOutputStream(home_folder+workOrTest,isAppend)) {
             os.write(lines.getBytes(StandardCharsets.UTF_8));
         } catch (FileNotFoundException e) {
         } catch (IOException s) {
         }
     }
 
-    static void initOldFilteStats(){
-        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(1).build();
+
+    static void initOldFilterStats(){
+        new Work_DataBase();
+        WorkStats workStats1 = new WorkStats("addAndCountNewStats");
         FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();
+        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(1).build();
         FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
 
+        workStats1.createOneNewStata(filterStata);
+        workStats1.createOneNewStata(filterStata1);
+        workStats1.createOneNewStata(filterStata2);
+        close_DataBase();
     }
 
 
     static void addNewFilteStats(){
         new Work_DataBase();
-        WorkStats workStats1 = new WorkStats("addAndCountNewStats");
+        WorkStats workStats1 = new WorkStats(false);
         List<int[]> conditionsPreflopActions = new ArrayList<>();
         conditionsPreflopActions.add(new int[]{0,-1,1,-1,2,-1,-1,-1});
         FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("squeeze_")
@@ -306,9 +324,9 @@ public class WorkStats implements Serializable {
         squeeze_bb_v_co_
                 squeeze_bb_v_utg_mp_
         squeeze_bb_v_bu_*/
-      int[] stats = workStats.getValueOneStata("trenkvaz","squeeze_bu_v_utg_mp_",0);
-
-        System.out.println("stata "+stats[0]+" "+stats[1]+" "+stats[2]);
+      int[] stats = workStats.getValueOneStata("trenkvaz","main_wwsf_all_v_all",5);
+        System.out.println("stata "+stats[0]+" "+stats[1]+" ");
+        //System.out.println("stata "+stats[0]+" "+stats[1]+" "+stats[2]);
     }
 
     static void getNamesFilterStats(){
@@ -319,13 +337,10 @@ public class WorkStats implements Serializable {
 
     public static void main(String[] args) {
 
-        /*new Work_DataBase();
-        WorkStats workStats = new WorkStats("test");
-        workStats.deleteFilterStata(null);
-        close_DataBase();*/
-        /*addNewFilteStats();
+
+       /* initOldFilterStats();
+        addNewFilteStats();
         getNamesFilterStats();*/
-        getNamesFilterStats();
         testGetStata();
     }
 

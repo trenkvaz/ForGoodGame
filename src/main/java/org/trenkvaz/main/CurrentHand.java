@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.trenkvaz.main.CaptureVideo.*;
-import static org.trenkvaz.main.OCR.PREFLOP;
+import static org.trenkvaz.main.OCR.*;
 import static org.trenkvaz.ui.StartAppLauncher.*;
 //import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
 
@@ -87,7 +87,19 @@ public class CurrentHand {
 
 
     public void setDataToCreateNewHUD(String[] typesPots){
-        creatingHUD.addNewHUDToOldHUD(createNewHUD.createHUDoneTable(nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero));
+        int street = 0;
+        if(streetAllIn!=-1){
+            street = streetAllIn;
+        } else {
+            if(isStartStreets[RIVER]||isStartStreets[ENDRIVER])street = RIVER;
+            else if(isStartStreets[TURN])street = TURN;
+            else if(isStartStreets[FLOP])street = FLOP;
+        }
+        List<List<Float>> streetActionsStats = preflopActionsStats;
+        if(street==1) streetActionsStats = flopActionsStats;
+        if(street==2) streetActionsStats = turnActionsStats;
+        if(street==3) streetActionsStats = riverActionsStats;
+        creatingHUD.addNewHUDToOldHUD(createNewHUD.createHUDoneTable(nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero,street,streetActionsStats));
     }
 
 

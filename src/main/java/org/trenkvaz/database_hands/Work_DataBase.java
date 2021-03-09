@@ -14,6 +14,7 @@ import java.util.*;
 
 
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
+import static org.trenkvaz.ui.StartAppLauncher.isTest;
 
 public class Work_DataBase {
 
@@ -52,8 +53,11 @@ static String work_database;
         /* получение имени базы из файла
            проверка наличия базы по имени, если есть, то подключение к базе
            если нет, создание базы с полученным именем, подключение к базе, создание таблиц, отключение от сервера*/
+
+        String dataBaseWorkOrTest = "\\all_settings\\database\\name_db.txt";
+        if(isTest)dataBaseWorkOrTest = "\\all_settings_test\\name_db.txt";
         try {
-            BufferedReader br = new BufferedReader(new FileReader(home_folder+"\\all_settings\\database\\name_db.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(home_folder+dataBaseWorkOrTest));
             String name_database;
             while ((name_database = br.readLine())!=null){
                 if(name_database.endsWith("W")) {work_database = name_database.split(" ")[0]; break;}
@@ -337,13 +341,18 @@ static String work_database;
     }
 
 
-
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     public static Map<String,Map<String, DataStata>> getMapNicksMapsNameFilterDataStataTest(Map<String, FilterStata> statsMap,String mainORwork){
         Map<String,Map<String, DataStata>> result = new HashMap<>();
-        String select = "", nick = null;DataStata dataStata = null;
+        String select = "", nick = null, columns = ""; DataStata dataStata = null;
         try {
             for(Map.Entry<String,FilterStata> entry:statsMap.entrySet()){
-                select = "SELECT * FROM "+mainORwork+entry.getValue().mainNameFilter+" ;";
+                columns = "nicks, ";
+                for(int i=0;  i<entry.getValue().structureParametres.length; i++){
+                    if(entry.getValue().structureParametres[i]){ columns+=entry.getValue().strPosStata+strStatsValues[i]+","; }
+                }
+                columns=columns.substring(0,columns.length()-1);
+                select = "SELECT "+columns+" FROM "+mainORwork+entry.getValue().mainNameFilter+" ;";
                 stmt_of_db.executeUpdate(BEGIN);
                 PreparedStatement ps = connect_to_db.prepareStatement(select);
                 ResultSet rs = ps.executeQuery();
@@ -760,7 +769,7 @@ static String work_database;
     }*/
 
     public static void main(String[] args) {
-       delete_DataBase("fg_testing");
+       delete_DataBase("fg_testnewstats");
 
        /* new Work_DataBase();
         test_select();

@@ -541,9 +541,9 @@ public class CaptureVideo {
         }
 
         public static void read_file_with_nicks_and_img_pixs(){
-            String testnicks = "";
-            if(isTest)testnicks = "_test";
-            file_with_nicks = new File(home_folder+"\\all_settings\\capture_video\\nicks_img"+testnicks+".txt");
+            String nicksWorkOrTest = "\\all_settings\\capture_video\\nicks_img.txt";
+            if(isTest)nicksWorkOrTest = "\\all_settings_test\\nicks_img_test.txt";
+            file_with_nicks = new File(home_folder+nicksWorkOrTest);
             if(!file_with_nicks.isFile())return;
             try {
                 BufferedReader br = new BufferedReader(new FileReader(file_with_nicks));
