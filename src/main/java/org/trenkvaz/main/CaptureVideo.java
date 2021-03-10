@@ -27,10 +27,8 @@ import org.bytedeco.ffmpeg.global.avutil;
 import org.trenkvaz.stats.MainStats;
 
 //import static org.trenkvaz.database_hands.Work_DataBase.main_array_of_stats;
-import javax.imageio.ImageIO;
 
 import static org.trenkvaz.main.CaptureVideo.Settings.get_StatsFromDataBase;
-import static org.trenkvaz.main.Testing.saveImageToFile;
 import static org.trenkvaz.ui.Controller_main_window.*;
 import static org.trenkvaz.ui.StartAppLauncher.*;
 import static org.trenkvaz.main.OcrUtils.*;
@@ -87,9 +85,12 @@ public class CaptureVideo {
        //settings_capturevideo = new Settings();
        Settings.setting_capture_video();
        current_map_stats = get_StatsFromDataBase();
-       if(isTest){
-       System.out.println(RED+"START TEST NICKS IMG");
+       if(isTestDBandStats){
+       System.out.println(RED+"START TEST DATABASE AND STATS");
        System.out.println(RESET);}
+       if(isTestNicks){
+           System.out.println(RED+"START TEST NICKS");
+           System.out.println(RESET);}
       /* map_idplayers_nicks = work_dataBase.get_map_IdPlayersNicks();
        if(!map_idplayers_nicks.isEmpty()) id_for_nick = Collections.max(map_idplayers_nicks.values());*/
        //System.out.println("id_for_nick "+id_for_nick);
@@ -318,7 +319,7 @@ public class CaptureVideo {
        createBufferedImage(frame, bufferedImageframe);
        boolean[] metaDates = null; // есть стол, есть раздача, есть помехи, есть шоудаун
        int[] whoPlayOrNo = null; int condCardsHero = 0;
-       for(int indTable=0; indTable<COUNT_TABLES; indTable++){           if(isTest) {
+       for(int indTable=0; indTable<COUNT_TABLES; indTable++){           if(isTestDBandStats) {
            //if(indTable!=3)continue;
        }
            if(ocrList_1.get(indTable)==null)continue;
@@ -542,7 +543,7 @@ public class CaptureVideo {
 
         public static void read_file_with_nicks_and_img_pixs(){
             String nicksWorkOrTest = "\\all_settings\\capture_video\\nicks_img.txt";
-            if(isTest)nicksWorkOrTest = "\\all_settings_test\\nicks_img_test.txt";
+            if(isTestNicks)nicksWorkOrTest = "\\all_settings_test\\nicks_img_test.txt";
             file_with_nicks = new File(home_folder+nicksWorkOrTest);
             if(!file_with_nicks.isFile())return;
             try {

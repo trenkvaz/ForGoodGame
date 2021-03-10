@@ -59,7 +59,7 @@ public class ReadHistoryGetStats {
 
 
 
-    static void initAddCountNewFilterStats(){
+    /*static void initAddCountNewFilterStats(){
         workStats = new WorkStats("addAndCountNewStats");
         isNewStatsCount = true;
         isAddStats = true;
@@ -71,7 +71,7 @@ public class ReadHistoryGetStats {
         workStats.createOneNewStata(filterStata);
         workStats.createOneNewStata(filterStata1);
         workStats.createOneNewStata(filterStata2);
-    }
+    }*/
 
 
 

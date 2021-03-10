@@ -19,7 +19,8 @@ public class FilterStata implements Serializable {
     public boolean isCreateStructureDB = false;
     public String mainNameFilter;
     // 0 позиции игрока, 1 позиции оппов;  0 нет позы, 1 есть поза
-    int[][] posStata;
+    int[] posesPlayer;
+    int[][] posOpps;
     public String strPosStata;
     private boolean isAllowInGame = false;
     //public boolean isRanges = false;
@@ -50,7 +51,7 @@ public class FilterStata implements Serializable {
     public void countOnePlayerStata(boolean isInGame,int posPlayer,String nick, float stack, List<List<List<Float>>> sizeActionsStreetsStats,
                                     boolean isWin,boolean isShowDown,String[] cardsPlayer,int rangePlayer,int posHero,DataStata dataStata,List<int[][]> listPokerActionsInRoundsByPositions){
         if(isInGame)if(!isAllowInGame)return;
-        if(posStata[0][posPlayer]==0)return;
+        if(posesPlayer[posPlayer]==0)return;
         //DataStata dataStata = getNewDataStata(nick);
         if(streetOfActs==-1){ countSpecialNotActionStats(dataStata,sizeActionsStreetsStats,posPlayer,isWin,isShowDown,listPokerActionsInRoundsByPositions.get(0));}
         else if(streetOfActs==0){countPreflop(dataStata,sizeActionsStreetsStats.get(0),posPlayer,nick,stack,rangePlayer,posHero, listPokerActionsInRoundsByPositions.get(0));}
@@ -85,7 +86,8 @@ public class FilterStata implements Serializable {
         boolean isImpPos = false;
         for(int[] condRaund:conditionsPreflopActions) isImpPos = IntStream.range(1, condRaund.length).anyMatch(i -> condRaund[i] == 2);
         if(!isImpPos)return;
-        if(posStata[1][posHero]==0)return;
+        // здесь может быть несколько раундов с позами оппов нужно выбрать где будет херо
+        //if(posesPlayer[posHero]==0)return;
         dataStata.isRecord = true;
         dataStata.selCallRaiseVsHero[SELECT]++;
         // последнее действие на основе последнего индекса условий действий, указывает на последний раунд где есть нужное действие
@@ -129,7 +131,7 @@ public class FilterStata implements Serializable {
             if(conditionsPreflopActions.get(round)[act]!=-1&&resultActions[act]==-1)return false; // должно быть действие и нет действия
             if(conditionsPreflopActions.get(round)[act]==-1&&resultActions[act]!=-1)return false;// не должно быть действия и есть действие
             // поза действия важна проверка что в индексах поз оппов нет нуля, значит нет соответсвия необходимых позиций оппов и его позиций действия
-            if(conditionsPreflopActions.get(round)[act]==2){ if(posStata[1][resultActions[act]]==0)return false;}
+            if(conditionsPreflopActions.get(round)[act]==2){ if(posOpps[round][resultActions[act]]==0)return false;}
         }
         return true;
     }
@@ -194,15 +196,20 @@ public class FilterStata implements Serializable {
             stata = new FilterStata();
         }
 
-        public Builder setPosStata(int[][] posStata1){
-            stata.posStata = posStata1;
-            long countPosHero = Arrays.stream(posStata1[0]).filter(c->c>0).count();
-            long countPosOpps = Arrays.stream(posStata1[1]).filter(c->c>0).count();
+        public Builder setPosStata(int[] posPlayer1,int[][] posOpps){
+            stata.posesPlayer = posPlayer1;
+            stata.posOpps = posOpps;
+
             stata.strPosStata = "";
-            if(countPosHero==6){stata.strPosStata+="all_v_";}
-            else {for(int i=0; i<6; i++){ if(posStata1[0][i]==0)continue;stata.strPosStata+=strPositions[i]+"_"; } stata.strPosStata+="v_";}
-            if(countPosOpps==6)stata.strPosStata+="all";
-            else for(int i=0; i<6; i++){ if(posStata1[1][i]==0)continue;stata.strPosStata+=strPositions[i]+"_"; }
+            if(Arrays.stream(posPlayer1).filter(c->c>0).count()==6){stata.strPosStata+="all_v_";}
+            else {for(int i=0; i<6; i++){ if(posPlayer1[i]==0)continue;stata.strPosStata+=strPositions[i]+"_"; } stata.strPosStata+="v_";}
+
+            for(int r=0; r<posOpps.length; r++){
+            if(Arrays.stream(posOpps[r]).filter(c->c>0).count()==6)stata.strPosStata+="all";
+            else for(int i=0; i<6; i++){ if(posOpps[r][i]==0)continue;stata.strPosStata+=strPositions[i]+"_"; }
+            if(posOpps.length>1&&r<posOpps.length-1)stata.strPosStata+="_v_";
+            }
+
             return this;
         }
 
@@ -237,11 +244,11 @@ public class FilterStata implements Serializable {
 
 
     public static void main(String[] args) {
-        FilterStata filterStats = new Builder().setPosStata(new int[][]{{0,1,1,1,1,1},{1,1,1,1,1,1}}).build();
+        FilterStata filterStats = new Builder().setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).build();
 
 
         System.out.println(filterStats.strPosStata);
-        int[] streetsActs = {0,0,0,1};
-        System.out.println(IntStream.range(0, streetsActs.length).filter(i -> streetsActs[i] == 1).findFirst().getAsInt());
+    /*    int[] streetsActs = {0,0,0,1};
+        System.out.println(IntStream.range(0, streetsActs.length).filter(i -> streetsActs[i] == 1).findFirst().getAsInt());*/
     }
 }

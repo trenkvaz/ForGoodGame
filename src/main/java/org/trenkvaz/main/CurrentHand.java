@@ -87,7 +87,7 @@ public class CurrentHand {
 
 
     public void setDataToCreateNewHUD(String[] typesPots){
-        int street = 0;
+        /*int street = 0;
         if(streetAllIn!=-1){
             street = streetAllIn;
         } else {
@@ -98,8 +98,8 @@ public class CurrentHand {
         List<List<Float>> streetActionsStats = preflopActionsStats;
         if(street==1) streetActionsStats = flopActionsStats;
         if(street==2) streetActionsStats = turnActionsStats;
-        if(street==3) streetActionsStats = riverActionsStats;
-        creatingHUD.addNewHUDToOldHUD(createNewHUD.createHUDoneTable(nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero,street,streetActionsStats));
+        if(street==3) streetActionsStats = riverActionsStats;*/
+        creatingHUD.addNewHUDToOldHUD(createNewHUD.createHUDoneTable(nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero,0,null));
     }
 
 

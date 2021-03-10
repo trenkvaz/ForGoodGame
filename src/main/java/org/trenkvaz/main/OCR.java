@@ -132,7 +132,7 @@ public class OCR implements Runnable {
     boolean testStartByNumHand = false;
     boolean notempty = true;
     private void main_work_on_table(){
-        if(isTest){
+        if(isTestDBandStats){
         //if(table!=1&&table!=2)return;
         //if(table!=1)return;
         }

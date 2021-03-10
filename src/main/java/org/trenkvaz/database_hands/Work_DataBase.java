@@ -14,7 +14,7 @@ import java.util.*;
 
 
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
-import static org.trenkvaz.ui.StartAppLauncher.isTest;
+import static org.trenkvaz.ui.StartAppLauncher.isTestDBandStats;
 
 public class Work_DataBase {
 
@@ -55,7 +55,7 @@ static String work_database;
            если нет, создание базы с полученным именем, подключение к базе, создание таблиц, отключение от сервера*/
 
         String dataBaseWorkOrTest = "\\all_settings\\database\\name_db.txt";
-        if(isTest)dataBaseWorkOrTest = "\\all_settings_test\\name_db.txt";
+        if(isTestDBandStats)dataBaseWorkOrTest = "\\all_settings_test\\name_db.txt";
         try {
             BufferedReader br = new BufferedReader(new FileReader(home_folder+dataBaseWorkOrTest));
             String name_database;

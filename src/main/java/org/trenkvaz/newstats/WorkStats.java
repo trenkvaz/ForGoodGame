@@ -9,7 +9,7 @@ import java.util.*;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
-import static org.trenkvaz.ui.StartAppLauncher.isTest;
+import static org.trenkvaz.ui.StartAppLauncher.isTestDBandStats;
 
 public class WorkStats implements Serializable {
     public boolean isInGame;
@@ -208,7 +208,7 @@ public class WorkStats implements Serializable {
     public void fullMapNicksMapsNameFilterDataStata(String mainORwork){
        mapNicksMapsNameFilterDataStata = getMapNicksMapsNameFilterDataStata(statsMap,mainORwork);
 
-       if(isTest)mapNicksMapsNameFilterDataStata = getMapNicksMapsNameFilterDataStataTest(statsMap,mainORwork);
+       if(isTestDBandStats)mapNicksMapsNameFilterDataStata = getMapNicksMapsNameFilterDataStataTest(statsMap,mainORwork);
     }
 
 
@@ -217,7 +217,7 @@ public class WorkStats implements Serializable {
 
    public void readStatsMap(){
        String workOrTest = "\\all_settings\\capture_video\\statsMap.file";
-       if(isTest)workOrTest = "\\all_settings_test\\statsMap.file";
+       if(isTestDBandStats)workOrTest = "\\all_settings_test\\statsMap.file";
        try {	FileInputStream file=new FileInputStream(home_folder+workOrTest);
            ObjectInput out = new ObjectInputStream(file);
            statsMap = (Map<String, FilterStata>) out.readObject();
@@ -234,7 +234,7 @@ public class WorkStats implements Serializable {
 
     public void saveStatsMap(){
        String workOrTest = "\\all_settings\\capture_video\\statsMap.file";
-       if(isTest)workOrTest = "\\all_settings_test\\statsMap.file";
+       if(isTestDBandStats)workOrTest = "\\all_settings_test\\statsMap.file";
         try {
             FileOutputStream file=new FileOutputStream(home_folder+workOrTest);
             ObjectOutput out = new ObjectOutputStream(file);
@@ -260,7 +260,7 @@ public class WorkStats implements Serializable {
     private void writeDescriptions(String lines,boolean isAppend){
         System.out.println("WRITE");
         String workOrTest = "\\all_settings\\capture_video\\descriptions_filterstata.txt";
-        if(isTest)workOrTest = "\\all_settings_test\\descriptions_filterstata.txt";
+        if(isTestDBandStats)workOrTest = "\\all_settings_test\\descriptions_filterstata.txt";
         try (OutputStream os = new FileOutputStream(home_folder+workOrTest,isAppend)) {
             os.write(lines.getBytes(StandardCharsets.UTF_8));
         } catch (FileNotFoundException e) {
@@ -272,10 +272,12 @@ public class WorkStats implements Serializable {
     static void initOldFilterStats(){
         new Work_DataBase();
         WorkStats workStats1 = new WorkStats("addAndCountNewStats");
-        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(2).build();
-        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(1).build();
-        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[][]{{1,1,1,1,1,1},{1,1,1,1,1,1}}).setSpecStats(0).build();
-
+        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wsd_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(2).build();
+        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(1).build();
+        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(0).build();
+       /* workStats1.recoverFilterStata(filterStata);
+        workStats1.recoverFilterStata(filterStata1);
+        workStats1.recoverFilterStata(filterStata2);*/
         workStats1.createOneNewStata(filterStata);
         workStats1.createOneNewStata(filterStata1);
         workStats1.createOneNewStata(filterStata2);
@@ -287,28 +289,44 @@ public class WorkStats implements Serializable {
         new Work_DataBase();
         WorkStats workStats1 = new WorkStats(false);
         List<int[]> conditionsPreflopActions = new ArrayList<>();
-        conditionsPreflopActions.add(new int[]{0,-1,1,-1,2,-1,-1,-1});
-        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("squeeze_")
-                .setPosStata(new int[][]{{0,0,1,0,0,0},{1,0,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+       /* conditionsPreflopActions.add(new int[]{0,-1,-1,-1,2,-1,-1,-1});
+        String nameStata = "vRFI_";*/
+        conditionsPreflopActions.add(new int[]{3,-1,-1,-1,2,-1,-1,-1});
+        conditionsPreflopActions.add(new int[]{0,-1,-1,-1,-1,-1,2,-1});
+        String nameStata = "v4bet_";
+        /*FilterStata filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[][]{{0,1,0,0,0,0},{1,0,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
         workStats1.createOneNewStata(filterStata);
-        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("squeeze_")
-                .setPosStata(new int[][]{{0,0,0,1,0,0},{1,1,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[][]{{0,0,1,1,0,0},{1,0,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
         workStats1.createOneNewStata(filterStata1);
-        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("squeeze_")
-                .setPosStata(new int[][]{{0,0,0,0,1,0},{1,1,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[][]{{0,0,0,0,1,1},{1,0,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
         workStats1.createOneNewStata(filterStata2);
-        FilterStata filterStata3 = new FilterStata.Builder().setMainNameFilter("squeeze_")
-                .setPosStata(new int[][]{{0,0,0,0,1,0},{0,0,1,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        FilterStata filterStata3 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[][]{{0,0,1,1,0,0},{0,1,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
         workStats1.createOneNewStata(filterStata3);
-        FilterStata filterStata4 = new FilterStata.Builder().setMainNameFilter("squeeze_")
-                .setPosStata(new int[][]{{0,0,0,0,0,1},{1,1,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        FilterStata filterStata4 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[][]{{0,0,0,0,1,1},{0,1,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
         workStats1.createOneNewStata(filterStata4);
-        FilterStata filterStata5 = new FilterStata.Builder().setMainNameFilter("squeeze_")
-                .setPosStata(new int[][]{{0,0,0,0,0,1},{0,0,1,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        FilterStata filterStata5 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[][]{{0,0,0,1,0,0},{0,0,1,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
         workStats1.createOneNewStata(filterStata5);
-        FilterStata filterStata6 = new FilterStata.Builder().setMainNameFilter("squeeze_")
-                .setPosStata(new int[][]{{0,0,0,0,0,1},{0,0,0,1,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        FilterStata filterStata6 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[][]{{0,0,0,0,1,0},{0,0,1,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
         workStats1.createOneNewStata(filterStata6);
+        FilterStata filterStata7 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[][]{{0,0,0,0,0,1},{0,0,1,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata7);
+        FilterStata filterStata8 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[][]{{0,0,0,0,1,0},{0,0,0,1,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata8);
+        FilterStata filterStata9 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[][]{{0,0,0,0,0,1},{0,0,0,1,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata9);
+        FilterStata filterStata10 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[][]{{0,0,0,0,0,1},{0,0,0,0,1,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata10);*/
         close_DataBase();
     }
 
@@ -338,10 +356,11 @@ public class WorkStats implements Serializable {
     public static void main(String[] args) {
 
 
-       /* initOldFilterStats();
-        addNewFilteStats();
-        getNamesFilterStats();*/
-        testGetStata();
+        initOldFilterStats();
+        //addNewFilteStats();
+        getNamesFilterStats();
+        //addNewFilteStats();
+        //testGetStata();
     }
 
 

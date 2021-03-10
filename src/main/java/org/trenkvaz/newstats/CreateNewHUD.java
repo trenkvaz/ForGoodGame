@@ -159,7 +159,7 @@ public class CreateNewHUD {
 
     public void readDisplayStataList(){
         String workOrTest = "\\all_settings\\capture_video\\displayStataList.file";
-        if(isTest)workOrTest = "\\all_settings_test\\displayStataList.file";
+        if(isTestDBandStats)workOrTest = "\\all_settings_test\\displayStataList.file";
         try {	FileInputStream file=new FileInputStream(home_folder+workOrTest);
             ObjectInput out = new ObjectInputStream(file);
             displayStataList = (List<List<List<DisplayStata>>>) out.readObject();
@@ -177,7 +177,7 @@ public class CreateNewHUD {
         if(displayStataList==null)initListDisplayStata();
         displayStataList.get(line).get(stata).add(displayStata);
         String workOrTest = "\\all_settings\\capture_video\\displayStataList.file";
-        if(isTest)workOrTest = "\\all_settings_test\\displayStataList.file";
+        if(isTestDBandStats)workOrTest = "\\all_settings_test\\displayStataList.file";
 
         try {
             FileOutputStream file=new FileOutputStream(home_folder+workOrTest);
