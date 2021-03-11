@@ -5,6 +5,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.apache.commons.lang3.ArrayUtils;
+import org.trenkvaz.main.CreatingHUD;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -68,7 +69,7 @@ public class CreateNewHUD {
 
             for(DisplayStata displayStata:displayStataList.get(line).get(stata)){
                if(!displayStata.typePot.equals("ALL")&&(!displayStata.typePot.equals(typesPots[player])))continue;
-
+                //System.out.println(displayStata.posHero.length+" heropos "+posHero);
                if(displayStata.posHero[posHero]==0)continue;
                if(displayStata.posPlayer[ArrayUtils.indexOf(pokerPosIndWithNumOnTable,player+1)]==0)continue;
 
@@ -210,26 +211,103 @@ public class CreateNewHUD {
        createNewHUD.creatNewDisplayStata("main_wsd_all_v_all",null,10,SPEC_VALUE,"_wsd",
                1,6,new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,42,101},new Color[]{Color.GREEN,Color.PURPLE},0,0);
 
+       Color[] colors = new Color[]{Color.RED,Color.ORANGE,Color.PURPLE};
+       int action = RAISE; int vertical = 2;
+       // 3 BET !!!!
+       createNewHUD.creatNewDisplayStata("vRFI_mp_v_utg_",null,10,action,"_value", 2,vertical,
+               new int[]{1,0,0,0,0,0},new int[]{0,1,0,0,0,0},"ALL",new int[]{0,2,3,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_co_bu_v_utg_",null,10,action,"_value", 2,vertical,
+               new int[]{1,0,0,0,0,0},new int[]{0,0,1,1,0,0},"ALL",new int[]{0,3,4,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_sb_bb_v_utg_",null,10,action,"_value", 2,vertical,
+               new int[]{1,0,0,0,0,0},new int[]{0,0,0,0,1,1},"ALL",new int[]{0,3,4,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_co_bu_v_mp_",null,10,action,"_value", 2,vertical,
+               new int[]{0,1,0,0,0,0},new int[]{0,0,1,1,0,0},"ALL",new int[]{0,3,5,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_sb_bb_v_mp_",null,10,action,"_value", 2,vertical,
+               new int[]{0,1,0,0,0,0},new int[]{0,0,0,0,1,1},"ALL",new int[]{0,3,5,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_bu_v_co_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,5,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_sb_v_co_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,5,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_bb_v_co_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,5,7,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_sb_v_bu_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,5,12,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_bb_v_bu_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,5,11,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_bb_v_sb_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,5,10,101},colors,0,0);
 
-       createNewHUD.creatNewDisplayStata("squeeze_co_v_utg_",null,10,RAISE,"_value", 2,0,
-               new int[]{1,1,0,0,0,0},new int[]{0,0,1,0,0,0},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
-       createNewHUD.creatNewDisplayStata("squeeze_bu_v_utg_mp_",null,10,RAISE,"_value", 2,0,
-               new int[]{1,1,1,0,0,0},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
-       createNewHUD.creatNewDisplayStata("squeeze_sb_v_utg_mp_",null,10,RAISE,"_value", 2,0,
-               new int[]{1,1,1,1,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
-       createNewHUD.creatNewDisplayStata("squeeze_sb_v_co_",null,10,RAISE,"_value", 2,0,
-               new int[]{1,1,1,1,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
-       createNewHUD.creatNewDisplayStata("squeeze_bb_v_utg_mp_",null,10,RAISE,"_value", 2,0,
-               new int[]{1,1,1,1,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
-       createNewHUD.creatNewDisplayStata("squeeze_bb_v_co_",null,10,RAISE,"_value", 2,0,
-               new int[]{0,0,0,1,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
-       createNewHUD.creatNewDisplayStata("squeeze_bb_v_bu_",null,10,RAISE,"_value", 2,0,
-               new int[]{0,0,0,1,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,1,3,5,101},new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
+
+       // FOLD to STEAL
+       colors = new Color[]{Color.RED,Color.GREEN}; action = FOLD; vertical = 3;
+       createNewHUD.creatNewDisplayStata("vRFI_bu_v_co_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,80,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_sb_v_co_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,80,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_bb_v_co_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,80,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_sb_v_bu_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,75,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_bb_v_bu_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,70,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_bb_v_sb_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,65,101},colors,0,0);
+
+       // FOLD to 4bet
+       vertical = 1;
+       createNewHUD.creatNewDisplayStata("v4bet_mp_v_utg__v_utg_",null,10,action,"_value", 2,vertical,
+               new int[]{1,0,0,0,0,0},new int[]{0,1,0,0,0,0},"ALL",new int[]{0,75,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_co_bu_v_utg__v_utg_",null,10,action,"_value", 2,vertical,
+               new int[]{1,0,0,0,0,0},new int[]{0,0,1,1,0,0},"ALL",new int[]{0,75,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_sb_bb_v_utg__v_utg_",null,10,action,"_value", 2,vertical,
+               new int[]{1,0,0,0,0,0},new int[]{0,0,0,0,1,1},"ALL",new int[]{0,75,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_co_bu_v_mp__v_mp_",null,10,action,"_value", 2,vertical,
+               new int[]{0,1,0,0,0,0},new int[]{0,0,1,1,0,0},"ALL",new int[]{0,75,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_sb_bb_v_mp__v_mp_",null,10,action,"_value", 2,vertical,
+               new int[]{0,1,0,0,0,0},new int[]{0,0,0,0,1,1},"ALL",new int[]{0,75,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_bu_v_co__v_co_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,75,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_sb_v_co__v_co_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,75,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_bb_v_co__v_co_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,75,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_sb_v_bu__v_bu_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,75,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_bb_v_bu__v_bu_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,75,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_bb_v_sb__v_sb_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,75,101},colors,0,0);
+
+
+       vertical = 0; action = RAISE;
+       createNewHUD.creatNewDisplayStata("v4bet_mp_v_utg__v_utg_",null,10,action,"_value", 2,vertical,
+               new int[]{1,0,0,0,0,0},new int[]{0,1,0,0,0,0},"ALL",new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_co_bu_v_utg__v_utg_",null,10,action,"_value", 2,vertical,
+               new int[]{1,0,0,0,0,0},new int[]{0,0,1,1,0,0},"ALL",new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_sb_bb_v_utg__v_utg_",null,10,action,"_value", 2,vertical,
+               new int[]{1,0,0,0,0,0},new int[]{0,0,0,0,1,1},"ALL",new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_co_bu_v_mp__v_mp_",null,10,action,"_value", 2,vertical,
+               new int[]{0,1,0,0,0,0},new int[]{0,0,1,1,0,0},"ALL",new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_sb_bb_v_mp__v_mp_",null,10,action,"_value", 2,vertical,
+               new int[]{0,1,0,0,0,0},new int[]{0,0,0,0,1,1},"ALL",new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_bu_v_co__v_co_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_sb_v_co__v_co_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_bb_v_co__v_co_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_sb_v_bu__v_bu_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_bb_v_bu__v_bu_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v4bet_bb_v_sb__v_sb_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,10,101},colors,0,0);
 
    }
 
     public static void main(String[] args) {
-       new CreateNewHUD();
+
+        addNewDidsplayStats();
     }
 }
 

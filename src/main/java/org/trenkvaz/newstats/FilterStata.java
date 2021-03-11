@@ -9,7 +9,7 @@ import java.util.stream.IntStream;
 public class FilterStata implements Serializable {
 
     static final int UTG = 0, MP = 1, CO = 2, BU = 3, SB = 4, BB = 5;
-    static final int ACT_PLAYER = 0,  LIMPS = 1, CALLERS = 2, LIMP = 3, RAISER = 4, _3BET = 5, _4BET = 6, _5BET = 7;
+    static final int ACT_PLAYER = 0,  LIMP = 1, LIMPS = 2, RAISER = 3, CALLERS = 4,  _3BET = 5, CALLERS_3BET= 6, _4BET = 7, CALLERS_4BET= 8, _5BET = 9, CALLERS_5BET= 10;
     // new int[]{0,-1,1,-1,2,-1,-1,-1}
     static final int SELECT = 0, CALL = 1, RAISE = 2;
     static final String[] strPositions = {"utg","mp","co","bu","sb","bb"};
@@ -114,19 +114,29 @@ public class FilterStata implements Serializable {
 
 
     private boolean isEqualsPreflopConditionsToActions(int[][] actsRoundsByPoses, int round, int posPlayer){
-        int[] resultActions = new int[8];
+        int[] resultActions = new int[11];
         Arrays.fill(resultActions,-1);
         if(round==0) { for (int pokPos=0; pokPos<posPlayer; pokPos++) setResultActions(resultActions,pokPos,actsRoundsByPoses[round][pokPos]); }
         else if(round==1){
             // проверка необходимое действие первого раунда игрока совпадало с реальным действием в первом раунде
             if(conditionsPreflopActions.get(0)[0]!=actsRoundsByPoses[0][posPlayer])return false;
+            if(actsRoundsByPoses.length<2)return false;
+            /*System.out.println("action player 1 raund "+conditionsPreflopActions.get(0)[0]+" stataction "+actsRoundsByPoses[0][posPlayer]);
+            for(int i=0; i<actsRoundsByPoses.length;i++){
+                System.out.print("act "+(i+1)+"  ");
+                for(int a=0; a<6; a++) System.out.print(actsRoundsByPoses[i][a]+" ");
+                System.out.println();
+            }*/
             for(int pokPos = posPlayer+1; pokPos<6; pokPos++) setResultActions(resultActions,pokPos,actsRoundsByPoses[0][pokPos]);
             for(int pokPos = 0; pokPos<posPlayer; pokPos++) setResultActions(resultActions,pokPos,actsRoundsByPoses[1][pokPos]);
         }
-        // не совпадают условия и действия
-        if(conditionsPreflopActions.get(round)[LIMPS]!=resultActions[LIMPS])return false;
-        if(conditionsPreflopActions.get(round)[CALLERS]!=resultActions[CALLERS])return false;
-        for(int act=3; act<8; act++){
+        // не совпадают условия и действия липеров коллеров всех банков
+        /*if(conditionsPreflopActions.get(round)[LIMPS]!=resultActions[LIMPS])return false;
+        if(conditionsPreflopActions.get(round)[CALLERS]!=resultActions[CALLERS])return false;*/
+
+        for(int c=2; c<11; c+=2)if(conditionsPreflopActions.get(round)[c]!=resultActions[c])return false;
+
+        for(int act=1; act<10; act+=2){
             if(conditionsPreflopActions.get(round)[act]==-1&&resultActions[act]==-1)continue; // не должно быть действия и нет действия
             if(conditionsPreflopActions.get(round)[act]!=-1&&resultActions[act]==-1)return false; // должно быть действие и нет действия
             if(conditionsPreflopActions.get(round)[act]==-1&&resultActions[act]!=-1)return false;// не должно быть действия и есть действие
@@ -143,8 +153,11 @@ public class FilterStata implements Serializable {
             case -2 ->  resultActions[CALLERS] = 1;
             case 2 -> resultActions[RAISER] = pokPos;
             case 3 -> resultActions[_3BET] = pokPos;
+            case -3 -> resultActions[CALLERS_3BET] = 1;
             case 4 -> resultActions[_4BET] = pokPos;
+            case -4 -> resultActions[CALLERS_4BET] = 1;
             case 5 -> resultActions[_5BET] = pokPos;
+            case -5 -> resultActions[CALLERS_5BET] = 1;
         }
     }
 

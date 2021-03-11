@@ -16,8 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 //import static org.trenkvaz.database_hands.GetNicksForHands.reverse_MapIdplayersNicks;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.NICK_HERO;
-import static org.trenkvaz.ui.StartAppLauncher.SCALE;
-import static org.trenkvaz.ui.StartAppLauncher.home_folder;
+import static org.trenkvaz.ui.StartAppLauncher.*;
 
 public class ReadHistoryGetStats {
 
@@ -84,6 +83,8 @@ public class ReadHistoryGetStats {
         for(File a: Objects.requireNonNull(new File(folder).listFiles())){
             if(a.isFile()&&a.getName().endsWith(".txt")){
                 if(a.getName().endsWith("_recstats.txt")) { isAllowRec = false; }
+                System.out.println(RED+a.getName());
+                System.out.println(RESET);
                 read_File(a.getPath());
                 if(!a.getName().endsWith("_recstats.txt")){
                 File newFile = new File(folder+"\\"+a.getName().replaceFirst("[.][^.]+$", "")+"_recstats.txt");
@@ -111,8 +112,8 @@ public class ReadHistoryGetStats {
 
 
            // WORK
-          /* record_MainArrayOfStatsToDateBase(mainstats);
-           delete_and_copy_WorkNicksStats();*/
+           record_MainArrayOfStatsToDateBase(mainstats);
+           delete_and_copy_WorkNicksStats();
        }
 
 
@@ -187,6 +188,7 @@ public class ReadHistoryGetStats {
          stats.count_Stats_for_map(preflop_players_actions_in_raunds,nicksOldStata,stacks,(byte) amountPlayers,posActions,false);
 
      //testStata(posHero,hand);
+        //System.out.println(hand.get(0));
      if(isNewStatsCount)workStats.countOneHand(cards,nicks,stacks,resultHand,unionActionsStreetsStats(),null,posHero);
      //test_show(hand.get(0));
      clear_UsedArrays();

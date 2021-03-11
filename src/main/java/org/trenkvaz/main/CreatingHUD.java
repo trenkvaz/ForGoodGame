@@ -442,6 +442,7 @@ public class CreatingHUD {
             result_list.add(new SettingOneStata("RFI_CO",new int[]{COORDS_STATS[2],25},14,rfiCoRangeColor,10,new int[][]{allPositions,allPositions}));
             result_list.add(new SettingOneStata("RFI_BU",new int[]{COORDS_STATS[3],25},14,rfiBuRangeColor,10,new int[][]{allPositions,allPositions}));
             result_list.add(new SettingOneStata("RFI_SB",new int[]{COORDS_STATS[4],25},14,rfiSbRangeColor,10,new int[][]{allPositions,allPositions}));
+
             result_list.add(new SettingOneStata("fold_to_steal_BUvCO",new int[]{COORDS_STATS[2],51},14,foldToStealBUvCORangeColor,10,new int[][]{{BU},{CO}}));
             result_list.add(new SettingOneStata("fold_to_steal_SBvCO",new int[]{COORDS_STATS[2],51},14,foldToStealSBvCORangeColor,10,new int[][]{{SB},{CO}}));
             result_list.add(new SettingOneStata("fold_to_steal_BBvCO",new int[]{COORDS_STATS[2],51},14,foldToStealBBvCORangeColor,10,new int[][]{{BB},{CO}}));
