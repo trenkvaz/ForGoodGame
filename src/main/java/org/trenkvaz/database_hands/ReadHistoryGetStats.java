@@ -83,8 +83,8 @@ public class ReadHistoryGetStats {
         for(File a: Objects.requireNonNull(new File(folder).listFiles())){
             if(a.isFile()&&a.getName().endsWith(".txt")){
                 if(a.getName().endsWith("_recstats.txt")) { isAllowRec = false; }
-                System.out.println(RED+a.getName());
-                System.out.println(RESET);
+                /*System.out.println(RED+a.getName());
+                System.out.println(RESET);*/
                 read_File(a.getPath());
                 if(!a.getName().endsWith("_recstats.txt")){
                 File newFile = new File(folder+"\\"+a.getName().replaceFirst("[.][^.]+$", "")+"_recstats.txt");

@@ -108,13 +108,16 @@ public class CreateNewHUD {
 
         int select = stata[0];
         int[] rangeStata = null; int val = -1;
-        if(displayStata.value==3)val = select-stata[1]+stata[2]; else  val = stata[displayStata.value];
+        if(displayStata.value==3)val = select-stata[1]-stata[2]; else  val = stata[displayStata.value];
         float result = 0;
         if(val>0){
         if(displayStata.nameOfRange!=null) {rangeStata = workStats.getValueOneStata(nick,displayStata.nameOfRange,displayStata.numStataRange);
         result = BigDecimal.valueOf(getProcents(rangeStata[1],rangeStata[0])/100*getProcents(val,select)).setScale(1, RoundingMode.HALF_UP).floatValue();
         } else result = BigDecimal.valueOf(getProcents(val,select)).setScale(1, RoundingMode.HALF_UP).floatValue();
         }
+
+        //if(displayStata.value==3) {System.out.println("value "+displayStata.value+"  sel "+select+" s1 "+stata[1]+" s2 "+stata[2]+" res "+result);  }
+
         if(result>=10)text[0].setText((result>=99)? "99":Integer.toString(Math.round(result)));
         else  text[0].setText((result==0)? "0":notZeroFormat.format(result));
         if(result==0)text[0].setFill(Color.WHITE);else text[0].setFill(displayStata.get_ColorByRangeOfStata(result));
@@ -238,8 +241,18 @@ public class CreateNewHUD {
                new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,5,10,101},colors,0,0);
 
 
-       // FOLD to STEAL
+       // FOLD to Open Raise
        colors = new Color[]{Color.RED,Color.GREEN}; action = FOLD; vertical = 3;
+       createNewHUD.creatNewDisplayStata("vRFI_mp_v_utg_",null,10,action,"_value", 2,vertical,
+               new int[]{1,0,0,0,0,0},new int[]{0,1,0,0,0,0},"ALL",new int[]{0,90,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_co_bu_v_utg_",null,10,action,"_value", 2,vertical,
+               new int[]{1,0,0,0,0,0},new int[]{0,0,1,1,0,0},"ALL",new int[]{0,87,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_sb_bb_v_utg_",null,10,action,"_value", 2,vertical,
+               new int[]{1,0,0,0,0,0},new int[]{0,0,0,0,1,1},"ALL",new int[]{0,85,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_co_bu_v_mp_",null,10,action,"_value", 2,vertical,
+               new int[]{0,1,0,0,0,0},new int[]{0,0,1,1,0,0},"ALL",new int[]{0,85,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("vRFI_sb_bb_v_mp_",null,10,action,"_value", 2,vertical,
+               new int[]{0,1,0,0,0,0},new int[]{0,0,0,0,1,1},"ALL",new int[]{0,85,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("vRFI_bu_v_co_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,80,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("vRFI_sb_v_co_",null,10,action,"_value", 2,vertical,
@@ -303,11 +316,32 @@ public class CreateNewHUD {
        createNewHUD.creatNewDisplayStata("v4bet_bb_v_sb__v_sb_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,10,101},colors,0,0);
 
+
+       /*CreatingHUD.RangeColor rfiUtgRangeColor = new CreatingHUD.RangeColor(new int[]{0,10,20,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
+       CreatingHUD.RangeColor rfiMpRangeColor = new CreatingHUD.RangeColor(new int[]{0,12,22,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
+       CreatingHUD.RangeColor rfiCoRangeColor = new CreatingHUD.RangeColor(new int[]{0,22,30,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
+       CreatingHUD.RangeColor rfiBuRangeColor = new CreatingHUD.RangeColor(new int[]{0,30,45,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
+       CreatingHUD.RangeColor rfiSbRangeColor = new CreatingHUD.RangeColor(new int[]{0,32,45,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});*/
+
+
+       colors = new Color[]{Color.RED,Color.ORANGE,Color.GREEN};
+       createNewHUD.creatNewDisplayStata("rfi_utg_v_all",null,10,action,"_value", 1,0,
+               new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,10,20,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("rfi_mp_v_all",null,10,action,"_value", 1,1,
+               new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,12,22,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("rfi_co_v_all",null,10,action,"_value", 1,2,
+               new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,22,30,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("rfi_bu_v_all",null,10,action,"_value", 1,3,
+               new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,30,45,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("rfi_sb_v_all",null,10,action,"_value", 1,4,
+               new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,32,45,101},colors,0,0);
+
    }
 
     public static void main(String[] args) {
 
-        addNewDidsplayStats();
+        //addNewDidsplayStats();
+        new CreateNewHUD();
     }
 }
 
@@ -335,6 +369,7 @@ class DisplayStata implements Serializable{
     public Paint get_ColorByRangeOfStata(float stata){
         int range= -1;
         for (int i : rangesForColor) { if (i < stata) { range++;continue; }break; }
+        //System.out.println("stata "+stata);
         return getPaint(range);
     }
 
@@ -345,6 +380,7 @@ class DisplayStata implements Serializable{
                 paintsForRange[i] = new Color(rgbForPaints[i][0], rgbForPaints[i][1], rgbForPaints[i][2],1);
             }
         }
+        //System.out.println("sizeRanges "+rangesForColor.length+"  range "+range+" paintForRange  "+paintsForRange.length);
         return paintsForRange[range];
     }
 }

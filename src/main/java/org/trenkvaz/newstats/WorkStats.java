@@ -275,12 +275,12 @@ public class WorkStats implements Serializable {
         FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wsd_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(2).build();
         FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(1).build();
         FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(0).build();
-       /* workStats1.recoverFilterStata(filterStata);
+        workStats1.recoverFilterStata(filterStata);
         workStats1.recoverFilterStata(filterStata1);
-        workStats1.recoverFilterStata(filterStata2);*/
-        workStats1.createOneNewStata(filterStata);
+        workStats1.recoverFilterStata(filterStata2);
+     /*   workStats1.createOneNewStata(filterStata);
         workStats1.createOneNewStata(filterStata1);
-        workStats1.createOneNewStata(filterStata2);
+        workStats1.createOneNewStata(filterStata2);*/
         close_DataBase();
     }
 
@@ -290,11 +290,11 @@ public class WorkStats implements Serializable {
         WorkStats workStats1 = new WorkStats(false);
         List<int[]> conditionsPreflopActions = new ArrayList<>();
         // ACT_PLAYER = 0,  LIMP = 1, LIMPS = 2, RAISER = 3, CALLERS = 4,  _3BET = 5, CALLERS_3BET= 6, _4BET = 7, CALLERS_4BET= 8, _5BET = 9, CALLERS_5BET= 10;
-        conditionsPreflopActions.add(new int[]{0,-1,-1, 2, -1,-1,-1,-1,-1,-1,-1});
-        String nameStata = "vRFI_";
-        /*conditionsPreflopActions.add(new int[]{3,-1,-1, 2, -1,-1,-1,-1,-1,-1,-1});
-        conditionsPreflopActions.add(new int[]{0,-1,-1, -1, -1,-1,-1,2,-1,-1,-1});
-        String nameStata = "v4bet_";*/
+        String nameStata = "";
+        // СДЕЛАТЬ СТАТЫ ДОСТУПНЫМИ ДЛЯ РАСЧЕТА ВО ВРЕМЯ ИГРЫ !!!
+
+        /*conditionsPreflopActions.add(new int[]{0,-1,-1, 2, -1,-1,-1,-1,-1,-1,-1});
+        nameStata = "v_rfi_";
         FilterStata filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
                 .setPosStata(new int[]{0,1,0,0,0,0},new int[][]{{1,0,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
         workStats1.createOneNewStata(filterStata);
@@ -327,8 +327,12 @@ public class WorkStats implements Serializable {
         workStats1.createOneNewStata(filterStata9);
         FilterStata filterStata10 = new FilterStata.Builder().setMainNameFilter(nameStata)
                 .setPosStata(new int[]{0,0,0,0,0,1},new int[][]{{0,0,0,0,1,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
-        workStats1.createOneNewStata(filterStata10);
-        /*FilterStata filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
+        workStats1.createOneNewStata(filterStata10);*/
+
+        /*conditionsPreflopActions.add(new int[]{3,-1,-1, 2, -1,-1,-1,-1,-1,-1,-1});
+        conditionsPreflopActions.add(new int[]{0,-1,-1, -1, -1,-1,-1,2,-1,-1,-1});
+        nameStata = "v4bet_";
+        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
                 .setPosStata(new int[]{0,1,0,0,0,0},new int[][]{{1,0,0,0,0,0},{1,0,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
         workStats1.createOneNewStata(filterStata);
         FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter(nameStata)
@@ -361,6 +365,64 @@ public class WorkStats implements Serializable {
         FilterStata filterStata10 = new FilterStata.Builder().setMainNameFilter(nameStata)
                 .setPosStata(new int[]{0,0,0,0,0,1},new int[][]{{0,0,0,0,1,0},{0,0,0,0,1,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
         workStats1.createOneNewStata(filterStata10);*/
+
+        /*conditionsPreflopActions.add(new int[]{0,-1,-1, -1, -1,-1,-1,-1,-1,-1,-1});
+        nameStata = "rfi_";
+        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{1,0,0,0,0,0},new int[][]{{1,1,1,1,1,1}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata);
+        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,1,0,0,0,0},new int[][]{{1,1,1,1,1,1}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata1);
+        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,1,0,0,0},new int[][]{{1,1,1,1,1,1}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata2);
+        FilterStata filterStata3 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,0,1,0,0},new int[][]{{1,1,1,1,1,1}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata3);
+        FilterStata filterStata4 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,0,0,1,0},new int[][]{{1,1,1,1,1,1}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata4);*/
+
+
+
+        conditionsPreflopActions.add(new int[]{2,-1,-1, -1, -1,-1,-1,-1,-1,-1,-1});
+        conditionsPreflopActions.add(new int[]{0,-1,-1, -1, -1,2,-1,-1,-1,-1,-1});
+        nameStata = "v3bet_";
+        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{1,0,0,0,0,0},new int[][]{{1,1,1,1,1,1},{0,1,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata);
+        FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{1,0,0,0,0,0},new int[][]{{1,1,1,1,1,1},{0,0,1,1,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata1);
+        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{1,0,0,0,0,0},new int[][]{{1,1,1,1,1,1},{0,0,0,0,1,1}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata2);
+        FilterStata filterStata3 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,1,0,0,0,0},new int[][]{{1,1,1,1,1,1},{0,0,1,1,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata3);
+        FilterStata filterStata4 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,1,0,0,0,0},new int[][]{{1,1,1,1,1,1},{0,0,0,0,1,1}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata4);
+        FilterStata filterStata5 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,1,0,0,0},new int[][]{{1,1,1,1,1,1},{0,0,0,1,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata5);
+        FilterStata filterStata6 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,1,0,0,0},new int[][]{{1,1,1,1,1,1},{0,0,0,0,1,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata6);
+        FilterStata filterStata7 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,1,0,0,0},new int[][]{{1,1,1,1,1,1},{0,0,0,0,0,1}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata7);
+        FilterStata filterStata8 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,0,1,0,0},new int[][]{{1,1,1,1,1,1},{0,0,0,0,1,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata8);
+        FilterStata filterStata9 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,0,1,0,0},new int[][]{{1,1,1,1,1,1},{0,0,0,0,0,1}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata9);
+        FilterStata filterStata10 = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,0,0,1,0},new int[][]{{1,1,1,1,1,1},{0,0,0,0,0,1}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).build();
+        workStats1.createOneNewStata(filterStata10);
+
         close_DataBase();
     }
 

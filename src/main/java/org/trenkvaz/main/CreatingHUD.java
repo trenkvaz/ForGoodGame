@@ -476,7 +476,6 @@ public class CreatingHUD {
             result_list.add(new SettingOneStata("3bet_BBvBU",new int[]{COORDS_STATS[1],51},14,new RangeColor(new int[]{0,5,11,101},RedOrangePurpule),10,new int[][]{{BB},{BU}}));
             result_list.add(new SettingOneStata("3bet_BBvSB",new int[]{COORDS_STATS[1],51},14,new RangeColor(new int[]{0,5,10,101},RedOrangePurpule),10,new int[][]{{BB},{SB}}));
 
-
             result_list.add(new SettingOneStata("4bet_UTGvMP",new int[]{COORDS_STATS[1],38},14,_4bet,10,new int[][]{{UTG},{MP}}));
             result_list.add(new SettingOneStata("4bet_UTGvCO_BU",new int[]{COORDS_STATS[1],38},14,_4bet,10,new int[][]{{UTG},{CO, BU}}));
             result_list.add(new SettingOneStata("4bet_UTGvSB_BB",new int[]{COORDS_STATS[1],38},14,_4bet,10,new int[][]{{UTG},{SB, BB}}));
