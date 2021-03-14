@@ -1,6 +1,6 @@
 package org.trenkvaz.database_hands;
 
-import org.trenkvaz.stats.MainStats;
+
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -115,7 +115,7 @@ public class CorrectNicksStats {
         boolean iswork = false;
         if(!iswork)return;
 
-        rewriteStats(main_map_newnick_oldnicks);
+        //rewriteStats(main_map_newnick_oldnicks);
         // удаление неправильных дубликатов из списка старых ников
         out:for(Map.Entry<Long,String> entry:hashmap_id_img_pix_NEWnick.entrySet()){
             for(List<String> deletednick:main_map_newnick_oldnicks.values())
@@ -161,7 +161,7 @@ public class CorrectNicksStats {
         boolean iswork = false;
         if(!iswork)return;
 
-        rewriteStats(main_map_newnick_oldnicks);
+        //rewriteStats(main_map_newnick_oldnicks);
 
 
         // удаление неправильных дубликатов из списка старых ников
@@ -185,7 +185,7 @@ public class CorrectNicksStats {
     }
 
 
-    static void rewriteStats(Map<String, List<String>> main_map_newnick_oldnicks){
+    /*static void rewriteStats(Map<String, List<String>> main_map_newnick_oldnicks){
 
         Work_DataBase work_dataBase = new Work_DataBase();
         MainStats[] mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase("main_nicks_stats");
@@ -212,9 +212,9 @@ public class CorrectNicksStats {
                                     if(New_stata[A][B][C]==null){
                                         //System.out.print("New==null"); if(Old_stata[A][B][C]==null) System.out.println( "   oldstata C=NULL");
                                         continue; }
-                                    /*if(Old_stata[A][B][C]==null) {
+                                    *//*if(Old_stata[A][B][C]==null) {
                                         System.out.print("Old==null"); if(New_stata[A][B][C]==null) System.out.println( "   newstata C=NULL");
-                                        continue; }*/
+                                        continue; }*//*
                                     New_stata[A][B][C]=(int)New_stata[A][B][C]+(int)Old_stata[A][B][C];
                                 }
                         }
@@ -253,7 +253,7 @@ public class CorrectNicksStats {
 
         delete_and_copy_WorkNicksStats();
         close_DataBase();
-    }
+    }*/
 
     public static void main(String[] args) {
         //select_AllNicks();

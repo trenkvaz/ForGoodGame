@@ -85,7 +85,7 @@ public class GetNicksForHands {
         Long[]timeTampHandAndAmountPlayer = {null,(long)sublist_players.size()};
         String[] strStacks = new String[6];
         float[] stacks =  read_StacksForHistoryHand(sublist_players, read_BBforHistoryHand(hand.get(1)),strStacks);
-        list_handsfromhistory.add(new HistoryHand(read_TimeHandForHistoryHand(hand.get(1)), read_CardsHeroForHistoryHand(hand.get(13-cor)),
+        list_handsfromhistory.add(new HistoryHand(read_TimeHandForHistoryHand(hand.get(1)), read_CardsHeroForHistoryHand(hand),
                 read_PositionHeroForHistoryHand(sublist_players), stacks,strStacks,hand,new String[6],timeTampHandAndAmountPlayer));
     }
 
@@ -112,6 +112,10 @@ public class GetNicksForHands {
         return -1;
     }
 
+    public String get_str_Cards(int cards_hero){
+        int c = (cards_hero < 0) ? cards_hero+65536 : cards_hero;
+        return DECK[c/1000]+" "+ DECK[c%1000];
+    }
 
     private static float read_BBforHistoryHand(String line){ return Float.parseFloat(line.substring(line.indexOf("/")+1,line.indexOf(" "))); }
 
@@ -134,7 +138,11 @@ public class GetNicksForHands {
 
 
 
-    private static short read_CardsHeroForHistoryHand(String line){ return (short)((byte)Arrays.asList(DECK).indexOf(line.subSequence(16,18))*1000+(byte)Arrays.asList(DECK).indexOf(line.subSequence(20,22)));}
+    private static short read_CardsHeroForHistoryHand(List<String> hand){
+        int i_deal = -1;
+        for(int i=7; i<hand.size(); i++ )if(hand.get(i).startsWith("** Dealing down cards **")){i_deal = i+1;break;}
+        return (short)((byte)Arrays.asList(DECK).indexOf(hand.get(i_deal).subSequence(16,18))*1000+(byte)Arrays.asList(DECK).indexOf(hand.get(i_deal).subSequence(20,22)));
+    }
 
     public static String get_str_Cards(short cards){
         int c = (cards < 0) ? cards+65536 : cards;
@@ -158,10 +166,17 @@ public class GetNicksForHands {
         for(HistoryHand handfromhistory:list_handsfromhistory){
            // фильтр временных рук по времени относительно рук из истории если рука больше чем на 30 секунд отличается от истории, то она не отбирается
            for(CurrentHand.TempHand temphand:list_temphands_for_select){
+               /*if(temphand.time_hand()==1615562900693L) {
+                   System.out.println("HAND ! "+temphand.cards_hero()+" "+temphand.position_hero()+" " +
+                           ""+handfromhistory.cards_hero+" "+handfromhistory.position_hero+" "+get_str_Cards(temphand.cards_hero())+"  "+get_str_Cards(handfromhistory.cards_hero));
+               }*/
+
                if(temphand.cards_hero()==handfromhistory.cards_hero&&temphand.position_hero()==handfromhistory.position_hero){
+                   //System.out.println("EST !!!!!!!!!!!!");
                    if(Math.abs(handfromhistory.time_hand-temphand.time_hand())<30_000) list_selected_temphands.add(temphand);
                }
            }
+            //System.out.println("isemty "+list_selected_temphands.isEmpty());
            if(list_selected_temphands.isEmpty())continue;
            CurrentHand.TempHand selected_temphand = null;
            if(list_selected_temphands.size()==1) { //System.out.print(get_str_Date(handfromhistory.time_hand)+"   "+get_str_Date(list_selected_temphands.get(0).time_hand()));

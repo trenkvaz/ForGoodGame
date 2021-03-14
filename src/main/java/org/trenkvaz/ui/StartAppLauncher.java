@@ -2,7 +2,6 @@ package org.trenkvaz.ui;
 
 import org.trenkvaz.database_hands.Work_DataBase;
 import org.trenkvaz.main.CaptureVideo;
-import org.trenkvaz.main.CreatingHUD;
 import org.trenkvaz.newstats.CreateNewHUD;
 import org.trenkvaz.newstats.WorkStats;
 
@@ -17,19 +16,15 @@ public class StartAppLauncher {
     public static WorkStats workStats;
     public static CreateNewHUD createNewHUD;
 
-    public static final float SB = 0.4f;
+    public static final float SB = 0.5f;
     public static final int SCALE = 1;
     public static float totalResultHero = 0;
 
     //TEST
     public static boolean isTestDBandStats = false;
 
-    public static boolean isTestNicks = false;
+    public static boolean isTestNicks = true;
 
-    public static boolean isNewHudTest = true;
-
-    public static boolean isNewStats = true;
-    // ПОМЕНЯТЬ БАЗУ !
 
     public static float[] totalStreetHero = new float[4];
 
@@ -39,10 +34,10 @@ public class StartAppLauncher {
         work_dataBase = new Work_DataBase();
         captureVideo = new CaptureVideo();
         hud = new HUD();
-        if(isNewStats){workStats = new WorkStats(false);
+        workStats = new WorkStats(true);
         workStats.fullMapNicksMapsNameFilterDataStata("work_");
         createNewHUD = new CreateNewHUD();
-        }
+
         MainWindow.main(args);
     }
 }

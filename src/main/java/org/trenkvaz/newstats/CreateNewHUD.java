@@ -5,19 +5,17 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.apache.commons.lang3.ArrayUtils;
-import org.trenkvaz.main.CreatingHUD;
+
 
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static org.trenkvaz.database_hands.Work_DataBase.strStatsValues;
+import static org.trenkvaz.main.CaptureVideo.NICK_HERO;
 import static org.trenkvaz.ui.StartAppLauncher.*;
 
 public class CreateNewHUD {
@@ -30,9 +28,11 @@ public class CreateNewHUD {
     public static final int[] COORDS_STATS = {1,20,39,58,77,96,115};
     private static final DisplayStata[][][][] tablesPlayerMatrixDisplayStata = new DisplayStata[6][6][5][7];
     private static final Text[][][][][] tablesPlayerMatrixText = new Text[6][6][5][7][2];
+    private static final List<List<Set<Text>>> listSetText = new ArrayList<>(6);
     static final int SPEC_VALUE = 1, VPIP = 1, PFR =2, CALL =1, RAISE = 2, FOLD =3;
 
     public CreateNewHUD(){
+        initListSetText();
         readDisplayStataList();
     }
 
@@ -46,15 +46,23 @@ public class CreateNewHUD {
                     tablesPlayerMatrixText[table][player][line][stata][0]=null;
                     tablesPlayerMatrixText[table][player][line][stata][1]=null;
                 }
+
+        for(int i=0; i<6; i++) for(int p=0; p<6; p++)listSetText.get(i).get(p).clear();
     }
 
+    private void initListSetText(){
+        for(int i=0; i<6; i++) {
+            listSetText.add(new ArrayList<>());
+            for(int p=0; p<6; p++)listSetText.get(i).add(new HashSet<>());
+        }
+    }
 
-
-    public Text[][][][] createHUDoneTable(String[] nicks,int table, String[] typesPots, int[] pokerPosIndWithNumOnTable,int posHero, int street, List<List<Float>> streetActionStats){
+    public void createHUDoneTable(String[] nicks,int table, String[] typesPots, int[] pokerPosIndWithNumOnTable,int posHero, int street, List<List<Float>> streetActionStats){
           // типыПоты игроки должны быть по своим местам за столом
         //List<List<Text>> resultList = new ArrayList<>();
 
         for(int player = 0; player<6; player++){if(nicks[player]==null)continue;
+            addNickAndNumHands(nicks[player],table,player);
             for(int line=0; line<5; line++) for(int stata=0; stata<7; stata++){
             if(tablesPlayerMatrixDisplayStata[table][player][line][stata]!=null){
                 // пока так стата может вообще не завистеть от типа пота тогда отображается всегда на любой улице это -1
@@ -85,18 +93,45 @@ public class CreateNewHUD {
             }
         }
         }
-       /* for(int i=0; i<6; i++){resultList.add(new ArrayList<>());
-            if(nicks[i]==null)continue;
-           for(int l=0; l<5; l++)
-               for(int s=0; s<7; s++){
-                   if(tablesPlayerMatrixText[table][i][l][s][0]==null)continue;
-                   resultList.get(i).add(tablesPlayerMatrixText[table][i][l][s][0]);
-                   if(tablesPlayerMatrixText[table][i][l][s][1]==null)continue;
-                   resultList.get(i).add(tablesPlayerMatrixText[table][i][l][s][1]);
-               }
-           //if(nicks[i].equals(NICK_HERO)) System.out.println("text "+resultList.get(i).get(0).getText()+" "+resultList.get(i).get(0).getFill().toString());
-        }*/
-        return tablesPlayerMatrixText[table];
+
+        for(int table_place = 0; table_place<6; table_place++){
+            for(int l=0; l<5; l++)
+                for(int s=0; s<7; s++){
+                    if(tablesPlayerMatrixText[table][table_place][l][s][0]==null)continue;
+                    listSetText.get(table).get(table_place).add(tablesPlayerMatrixText[table][table_place][l][s][0]);
+                    if(tablesPlayerMatrixText[table][table_place][l][s][1]==null)continue;
+                    listSetText.get(table).get(table_place).add(tablesPlayerMatrixText[table][table_place][l][s][1]); }
+        }
+
+        hud.setNewHUD(listSetText.get(table),table);
+
+        //return tablesPlayerMatrixText[table];
+    }
+
+
+    private void addNickAndNumHands(String nick, int table, int player){
+        if(tablesPlayerMatrixText[table][player][0][0][0]!=null)return;
+
+        if(!nick.equals(NICK_HERO)){
+        String numHands = "0";
+        if(workStats.getValueOneStata(nick,"main_vpip_pfr_all_v_all",8)!=null){
+            //System.out.println(nick+" not null "+workStats.getValueOneStata(nick,"main_vpip_pfr_all_v_all",8)[0]);
+            if(workStats.getValueOneStata(nick,"main_vpip_pfr_all_v_all",8)[0]>=10000)numHands = "10000";
+            else numHands = Integer.toString(workStats.getValueOneStata(nick,"main_vpip_pfr_all_v_all",8)[0]);
+        }
+        //System.out.println(nick+"  "+numHands);
+        tablesPlayerMatrixText[table][player][0][5][0] = new Text(96, 12, numHands );
+        tablesPlayerMatrixText[table][player][0][5][0].setFont(new Font(12));
+        tablesPlayerMatrixText[table][player][0][5][0].setFill(Color.WHITE);
+        }
+
+
+
+        if(nick.length()>5)nick = nick.substring(0,5);
+        tablesPlayerMatrixText[table][player][0][0][0] = new Text(1, 12, nick);
+        tablesPlayerMatrixText[table][player][0][0][0].setFont(new Font(12));
+        tablesPlayerMatrixText[table][player][0][0][0].setFill(Color.YELLOW);
+
     }
 
     private void addStataToText(Text[] text,DisplayStata displayStata,String nick){
@@ -112,7 +147,7 @@ public class CreateNewHUD {
         float result = 0;
         if(val>0){
         if(displayStata.nameOfRange!=null) {rangeStata = workStats.getValueOneStata(nick,displayStata.nameOfRange,displayStata.numStataRange);
-        result = BigDecimal.valueOf(getProcents(rangeStata[1],rangeStata[0])/100*getProcents(val,select)).setScale(1, RoundingMode.HALF_UP).floatValue();
+        result = BigDecimal.valueOf(getProcents(rangeStata[displayStata.valueRange],rangeStata[0])/100*getProcents(val,select)).setScale(1, RoundingMode.HALF_UP).floatValue();
         } else result = BigDecimal.valueOf(getProcents(val,select)).setScale(1, RoundingMode.HALF_UP).floatValue();
         }
 
@@ -214,56 +249,63 @@ public class CreateNewHUD {
        createNewHUD.creatNewDisplayStata("main_wsd_all_v_all",null,10,SPEC_VALUE,"_wsd",
                1,6,new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,42,101},new Color[]{Color.GREEN,Color.PURPLE},0,0);
 
+       createNewHUD.creatNewDisplayStata("main_vpip_pfr_all_v_all",null,10,CALL,"_vpip_pfr",
+               0,2,new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,15,35,50,101},
+               new Color[]{Color.RED,Color.ORANGE,Color.GREEN,Color.PURPLE},0,0);
+       createNewHUD.creatNewDisplayStata("main_vpip_pfr_all_v_all",null,10,RAISE,"_vpip_pfr",
+               0,3,new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,12,25,35,101},
+               new Color[]{Color.RED,Color.ORANGE,Color.BLUE,Color.PURPLE},0,0);
+
        Color[] colors = new Color[]{Color.RED,Color.ORANGE,Color.PURPLE};
        int action = RAISE; int vertical = 2;
        // 3 BET !!!!
-       createNewHUD.creatNewDisplayStata("vRFI_mp_v_utg_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_mp_v_utg_",null,10,action,"_value", 2,vertical,
                new int[]{1,0,0,0,0,0},new int[]{0,1,0,0,0,0},"ALL",new int[]{0,2,3,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_co_bu_v_utg_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_co_bu_v_utg_",null,10,action,"_value", 2,vertical,
                new int[]{1,0,0,0,0,0},new int[]{0,0,1,1,0,0},"ALL",new int[]{0,3,4,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_sb_bb_v_utg_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_sb_bb_v_utg_",null,10,action,"_value", 2,vertical,
                new int[]{1,0,0,0,0,0},new int[]{0,0,0,0,1,1},"ALL",new int[]{0,3,4,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_co_bu_v_mp_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_co_bu_v_mp_",null,10,action,"_value", 2,vertical,
                new int[]{0,1,0,0,0,0},new int[]{0,0,1,1,0,0},"ALL",new int[]{0,3,5,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_sb_bb_v_mp_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_sb_bb_v_mp_",null,10,action,"_value", 2,vertical,
                new int[]{0,1,0,0,0,0},new int[]{0,0,0,0,1,1},"ALL",new int[]{0,3,5,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_bu_v_co_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_bu_v_co_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,5,10,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_sb_v_co_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_sb_v_co_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,5,10,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_bb_v_co_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_bb_v_co_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,5,7,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_sb_v_bu_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_sb_v_bu_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,5,12,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_bb_v_bu_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_bb_v_bu_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,5,11,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_bb_v_sb_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_bb_v_sb_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,5,10,101},colors,0,0);
 
 
        // FOLD to Open Raise
        colors = new Color[]{Color.RED,Color.GREEN}; action = FOLD; vertical = 3;
-       createNewHUD.creatNewDisplayStata("vRFI_mp_v_utg_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_mp_v_utg_",null,10,action,"_value", 2,vertical,
                new int[]{1,0,0,0,0,0},new int[]{0,1,0,0,0,0},"ALL",new int[]{0,90,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_co_bu_v_utg_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_co_bu_v_utg_",null,10,action,"_value", 2,vertical,
                new int[]{1,0,0,0,0,0},new int[]{0,0,1,1,0,0},"ALL",new int[]{0,87,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_sb_bb_v_utg_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_sb_bb_v_utg_",null,10,action,"_value", 2,vertical,
                new int[]{1,0,0,0,0,0},new int[]{0,0,0,0,1,1},"ALL",new int[]{0,85,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_co_bu_v_mp_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_co_bu_v_mp_",null,10,action,"_value", 2,vertical,
                new int[]{0,1,0,0,0,0},new int[]{0,0,1,1,0,0},"ALL",new int[]{0,85,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_sb_bb_v_mp_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_sb_bb_v_mp_",null,10,action,"_value", 2,vertical,
                new int[]{0,1,0,0,0,0},new int[]{0,0,0,0,1,1},"ALL",new int[]{0,85,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_bu_v_co_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_bu_v_co_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,80,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_sb_v_co_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_sb_v_co_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,80,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_bb_v_co_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_bb_v_co_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,80,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_sb_v_bu_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_sb_v_bu_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,75,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_bb_v_bu_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_bb_v_bu_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,70,101},colors,0,0);
-       createNewHUD.creatNewDisplayStata("vRFI_bb_v_sb_",null,10,action,"_value", 2,vertical,
+       createNewHUD.creatNewDisplayStata("v_rfi_bb_v_sb_",null,10,action,"_value", 2,vertical,
                new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,65,101},colors,0,0);
 
        // FOLD to 4bet
@@ -336,12 +378,65 @@ public class CreateNewHUD {
        createNewHUD.creatNewDisplayStata("rfi_sb_v_all",null,10,action,"_value", 1,4,
                new int[]{1,1,1,1,1,1},new int[]{1,1,1,1,1,1},"ALL",new int[]{0,32,45,101},colors,0,0);
 
+
+       //new int[]{0,68,101},new Paint[]{Color.RED,Color.GREEN});
+       vertical = 0; action = FOLD; colors = new Color[]{Color.RED,Color.GREEN};
+       createNewHUD.creatNewDisplayStata("v3bet_utg_v_all_v_mp_",null,10,action,"_value", 2,vertical,
+               new int[]{0,1,0,0,0,0},new int[]{1,0,0,0,0,0},"ALL",new int[]{0,68,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v3bet_utg_v_all_v_co_bu_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,1,0,0},new int[]{1,0,0,0,0,0},"ALL",new int[]{0,68,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v3bet_utg_v_all_v_sb_bb_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,1,1},new int[]{1,0,0,0,0,0},"ALL",new int[]{0,68,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v3bet_mp_v_all_v_co_bu_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,1,1,0,0},new int[]{0,1,0,0,0,0},"ALL",new int[]{0,68,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v3bet_mp_v_all_v_sb_bb_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,1,1},new int[]{0,1,0,0,0,0},"ALL",new int[]{0,68,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v3bet_co_v_all_v_bu_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,1,0,0,0},"ALL",new int[]{0,68,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v3bet_co_v_all_v_sb_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,1,0,0,0},"ALL",new int[]{0,68,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v3bet_co_v_all_v_bb_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,0,1},new int[]{0,0,1,0,0,0},"ALL",new int[]{0,68,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v3bet_bu_v_all_v_sb_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,68,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v3bet_bu_v_all_v_bb_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,0,1},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,68,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("v3bet_sb_v_all_v_bb_",null,10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,0,1},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,68,101},colors,0,0);
+
+
+       vertical = 1; action = RAISE;  colors = new Color[]{Color.RED,Color.ORANGE,Color.GREEN};
+       createNewHUD.creatNewDisplayStata("v3bet_utg_v_all_v_mp_","rfi_utg_v_all",10,action,"_value", 2,vertical,
+               new int[]{0,1,0,0,0,0},new int[]{1,0,0,0,0,0},"ALL",new int[]{0,1,3,101},colors,0,RAISE);
+       createNewHUD.creatNewDisplayStata("v3bet_utg_v_all_v_co_bu_","rfi_utg_v_all",10,action,"_value", 2,vertical,
+               new int[]{0,0,1,1,0,0},new int[]{1,0,0,0,0,0},"ALL",new int[]{0,1,3,101},colors,0,RAISE);
+       createNewHUD.creatNewDisplayStata("v3bet_utg_v_all_v_sb_bb_","rfi_utg_v_all",10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,1,1},new int[]{1,0,0,0,0,0},"ALL",new int[]{0,1,3,101},colors,0,RAISE);
+       createNewHUD.creatNewDisplayStata("v3bet_mp_v_all_v_co_bu_","rfi_mp_v_all",10,action,"_value", 2,vertical,
+               new int[]{0,0,1,1,0,0},new int[]{0,1,0,0,0,0},"ALL",new int[]{0,1,3,101},colors,0,RAISE);
+       createNewHUD.creatNewDisplayStata("v3bet_mp_v_all_v_sb_bb_","rfi_mp_v_all",10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,1,1},new int[]{0,1,0,0,0,0},"ALL",new int[]{0,1,3,101},colors,0,RAISE);
+       createNewHUD.creatNewDisplayStata("v3bet_co_v_all_v_bu_","rfi_co_v_all",10,action,"_value", 2,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,1,0,0,0},"ALL",new int[]{0,2,5,101},colors,0,RAISE);
+       createNewHUD.creatNewDisplayStata("v3bet_co_v_all_v_sb_","rfi_co_v_all",10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,1,0,0,0},"ALL",new int[]{0,2,5,101},colors,0,RAISE);
+       createNewHUD.creatNewDisplayStata("v3bet_co_v_all_v_bb_","rfi_co_v_all",10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,0,1},new int[]{0,0,1,0,0,0},"ALL",new int[]{0,2,5,101},colors,0,RAISE);
+       createNewHUD.creatNewDisplayStata("v3bet_bu_v_all_v_sb_","rfi_bu_v_all",10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,3,6,101},colors,0,RAISE);
+       createNewHUD.creatNewDisplayStata("v3bet_bu_v_all_v_bb_","rfi_bu_v_all",10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,0,1},new int[]{0,0,0,1,0,0},"ALL",new int[]{0,3,6,101},colors,0,RAISE);
+       createNewHUD.creatNewDisplayStata("v3bet_sb_v_all_v_bb_","rfi_sb_v_all",10,action,"_value", 2,vertical,
+               new int[]{0,0,0,0,0,1},new int[]{0,0,0,0,1,0},"ALL",new int[]{0,3,6,101},colors,0,RAISE);
+
    }
+
 
     public static void main(String[] args) {
 
-        //addNewDidsplayStats();
-        new CreateNewHUD();
+        addNewDidsplayStats();
+
+
     }
 }
 

@@ -33,7 +33,6 @@ public class OCR implements Runnable {
     String[] current_hero_cards = new String[]{"",""};
     long[][][] current_id_nicks_for_choose = new long[6][3][16];
     long[] zeros_for_clear_current_id = new long[16];
-    CreatingHUD creatingHUD;
     public static final int PREFLOP = 0,FLOP =1,TURN = 2,RIVER = 3, ENDRIVER = 4;
     List<List<long[]>> list_of_lists_current_id_nicks_for_choose = new ArrayList<>(6);
     List<long[]> list_of_hashimgs_namberhand = new ArrayList<>(3);
@@ -59,7 +58,7 @@ public class OCR implements Runnable {
 
 
     public OCR(int table){
-        creatingHUD = new CreatingHUD(table);
+
         this.table = table+1;
         queueFrameTable = new LinkedBlockingQueue<>();
         for(int i=0; i<6; i++){
@@ -741,7 +740,7 @@ public class OCR implements Runnable {
            if(currentHand==null){
                current_hero_cards[0] = hero_cards[0];current_hero_cards[1] = hero_cards[1];
                current_bu = bu;
-               hud.clear_hud(table-1);
+               hud.clearNewHUD(table-1);
                testSignalStartHand = "CardsBU==cursHandnull";
                if(startSecondHand) return checkSameNumberHand(0);
                    ///System.out.println(RED+checkSameNumberHand(0));
@@ -760,7 +759,7 @@ public class OCR implements Runnable {
        } else {
            current_hero_cards[0] = hero_cards[0];current_hero_cards[1] = hero_cards[1];
            if(bu!=current_bu){ current_bu = bu; }
-           hud.clear_hud(table-1);
+           hud.clearNewHUD(table-1);
            testSignalStartHand = "CardsBU!=";
            if(startSecondHand) return checkSameNumberHand(0);
 
@@ -779,7 +778,7 @@ public class OCR implements Runnable {
             //System.out.println(RED+"IS TABLE NO NUMBER |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
             // если стол есть, но нет карт или нет игроков то есть раздачи, то хад очищается от текста, но такая ситуация еще говорит о том, что раздача завершена и это сигнал стопа
             if(!stop_show_text_in_hud){
-                count_stop_signal = 0;stop_show_text_in_hud = true;show_text_in_hud = false; hud.clear_hud(table-1);
+                count_stop_signal = 0;stop_show_text_in_hud = true;show_text_in_hud = false; hud.clearNewHUD(table-1);
             }
             count_stop_signal++;
             return false;
@@ -792,7 +791,7 @@ public class OCR implements Runnable {
         }
         // если есть раздача и стол то хад включается
         if(!start_hud){ end_hud = false;start_hud = true;hud.show_hud(table-1); }
-        if(!show_text_in_hud){ stop_show_text_in_hud = false;show_text_in_hud = true;hud.refresh_hud(table-1); }
+        if(!show_text_in_hud){ stop_show_text_in_hud = false;show_text_in_hud = true;hud.refreshNewHUD(table-1); }
         return true;
     }
 

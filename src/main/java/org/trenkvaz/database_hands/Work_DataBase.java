@@ -4,7 +4,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.trenkvaz.main.CurrentHand;
 import org.trenkvaz.newstats.DataStata;
 import org.trenkvaz.newstats.FilterStata;
-import org.trenkvaz.stats.*;
+
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -21,7 +21,6 @@ public class Work_DataBase {
 static final String DB_SERVER = "jdbc:postgresql://127.0.0.1:5433/", USER = "postgres", PASS = "admin", BEGIN = "BEGIN;",COMMIT = "COMMIT;";
 static Connection connect_to_db, connect_to_server;
 static Statement stmt_of_db, stmt_of_server;
-public static MainStats[] main_array_of_stats = new MainStats[]{new AgainstRFI(),new Against3bet(),new VpipPFR3bet(),new RFI(),new Alliners()};
 static String work_database;
 
     public Work_DataBase(){
@@ -133,7 +132,7 @@ static String work_database;
         //String createtable_Hands = "CREATE TABLE "+NameOfTable+" ( "+getStructureTable()+" );";
         /*String createtable_idplayers_stats = "CREATE TABLE idplayers_stats (idplayers integer PRIMARY KEY);";
         String createtable_idplayers_nicks = "CREATE TABLE idplayers_nicks (idplayers integer PRIMARY KEY, nicks text );";*/
-        String main_nicks_stats = "CREATE TABLE main_nicks_stats (nicks text UNIQUE );";
+        //String main_nicks_stats = "CREATE TABLE main_nicks_stats (nicks text UNIQUE );";
         String createtable_temphands = "CREATE TABLE temphands ( time_hand bigint PRIMARY KEY, cards_hero smallint, position_hero smallint, stacks float4[], nicks text[] );";
 
         //String main_nicks_stats_new = "CREATE TABLE main_nicks_stats_new (nicks text UNIQUE );";
@@ -142,7 +141,7 @@ static String work_database;
         String workNicks = "CREATE TABLE work_nicks (nicks text PRIMARY KEY );";*/
         try {
             //stmt_of_db.executeUpdate(BEGIN);
-            stmt_of_db.executeUpdate(main_nicks_stats);
+            //stmt_of_db.executeUpdate(main_nicks_stats);
             //stmt_of_db.executeUpdate(main_nicks_stats_new);
             stmt_of_db.executeUpdate(createtable_temphands);
             /*stmt_of_db.executeUpdate(mainNicks);
@@ -152,7 +151,7 @@ static String work_database;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        add_columns_in_TableIdplayersStats();
+
     }
 
 
@@ -257,7 +256,7 @@ static String work_database;
                             pstmt.setArray(paramIndex,arraystata);
                         }
                         dataStata.isRecord = false;
-                        if(nick.equals("$ю$trenkvaz$ю$"))System.out.println(pstmt.toString());
+                        //if(nick.equals("$ю$trenkvaz$ю$"))System.out.println(pstmt.toString());
                         pstmt.addBatch();
                     }
                 } catch (SQLException throwables) {
@@ -293,55 +292,8 @@ static String work_database;
        System.out.println("delete and copy "+nameTable);
    }
 
-   public static Map<String,Map<String, DataStata>> getMapNicksMapsNameFilterDataStata(Map<String, FilterStata> statsMap,String mainORwork){
-        Map<String,Map<String, DataStata>> result = new HashMap<>();
-        String select = "", nick = null;DataStata dataStata = null;
-        try {
-        for(Map.Entry<String,FilterStata> entry:statsMap.entrySet()){
-            select = "SELECT * FROM "+mainORwork+entry.getValue().mainNameFilter+" ;";
-                stmt_of_db.executeUpdate(BEGIN);
-                PreparedStatement ps = connect_to_db.prepareStatement(select);
-                ResultSet rs = ps.executeQuery();
-                while(rs.next()) {
-                    nick = rs.getString(1);
-                    //System.out.println(nick);
-                    if(result.get(nick)==null){
-                        Map<String, DataStata> nickDataStata = new HashMap<>();
-                        for(String nameFilter:statsMap.keySet()){ nickDataStata.put(nameFilter,new DataStata(statsMap.get(nameFilter))); }
-                        result.put(nick,nickDataStata);
-                    }
-                    dataStata = result.get(nick).get(entry.getKey());
-                    int paramIndex = 1;
-                    for(int i=0;  i<entry.getValue().structureParametres.length; i++){
-                        if(!entry.getValue().structureParametres[i])continue;
-                        paramIndex++;
-                        if(rs.getArray(paramIndex)==null)continue;
-                        if(i==0)dataStata.mainSelCallRaise =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
-                        if(i==1)dataStata.selCallRaiseVsHero =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
-                        if(i==5)dataStata.W$WSF =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
-                        if(i==6)dataStata.WTSD =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
-                        if(i==7)dataStata.W$SD =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
-                        if(i==8){dataStata.VPIP_PFR =(int[])ArrayUtils.toPrimitive(rs.getArray(paramIndex).getArray());
-                       /* if(dataStata.VPIP_PFR!=null){
-                            for(int a: dataStata.VPIP_PFR) System.out.print(a+" ");
-                            System.out.println();
-                        }*/
-
-                        }
-
-                    }
-                }
-
-                stmt_of_db.executeUpdate(COMMIT);
-        }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
 
 
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     public static Map<String,Map<String, DataStata>> getMapNicksMapsNameFilterDataStataTest(Map<String, FilterStata> statsMap,String mainORwork){
         Map<String,Map<String, DataStata>> result = new HashMap<>();
         String select = "", nick = null, columns = ""; DataStata dataStata = null;
@@ -393,173 +345,6 @@ static String work_database;
         }
         return result;
     }
-
-
-
-
-    private static void add_columns_in_TableIdplayersStats(){
-        // добавление колонок со статами в таблицу idplayers_stats
-        // названия и типа колонок берутся из находящихся в массиве Объектов класса МайнСтатс
-
-        String query = "SELECT column_name FROM information_schema.columns WHERE table_name =  'main_nicks_stats' ";
-        try {
-            //stmt_of_db.executeUpdate(BEGIN);
-            ResultSet rs = stmt_of_db.executeQuery(query);
-            ArrayList<String> colomns = new ArrayList<>();
-            while (rs.next()) {
-                String colomn = rs.getString("column_name");
-                System.out.println(colomn);
-                colomns.add(colomn);
-            }
-            //stmt_of_db.executeUpdate(COMMIT);
-            System.out.println("no stats: ");
-            String adding = null;
-            for(MainStats stata: main_array_of_stats){
-                String[] str_stata = stata.getName_of_stat();
-                if(colomns.contains(str_stata[0]))continue;
-                System.out.println(str_stata[0]);
-                adding = "ALTER TABLE main_nicks_stats ADD COLUMN "+str_stata[0]+" "+str_stata[1]+" ;";
-                stmt_of_db.addBatch(adding);
-            }
-            stmt_of_db.executeBatch();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-
-    public MainStats[] fill_MainArrayOfStatsFromDateBase(String table){
-
-        String query = "SELECT * FROM "+table+" ;";
-        MainStats[] mainStats = new MainStats[]{new AgainstRFI(),new Against3bet(),new VpipPFR3bet(),new RFI(),new Alliners()};
-        try {
-            stmt_of_db.executeUpdate(BEGIN);
-            PreparedStatement ps = connect_to_db.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-
-            //ResultSet rs = stmt_of_db.executeQuery(query);
-            String nick = null;
-            while(rs.next()) {
-                //System.out.println(rs.getInt("idplayers"));
-                nick = rs.getString(1);
-                for(int i=0; i<mainStats.length; i++){
-                    Array statasql = rs.getArray(i+2);
-                    mainStats[i].setIdplayers_stats(nick,statasql);
-                }
-            }
-
-         stmt_of_db.executeUpdate(COMMIT);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        System.out.println(" read stats");
-        return mainStats;
-    }
-
-
-
-
-
-    public static void record_MainArrayOfStatsToDateBase(MainStats[] mainstats){
-        long start = System.currentTimeMillis();
-        int b =1;
-        try {
-            connect_to_db.setAutoCommit(false);
-            StringBuilder insert = new StringBuilder("INSERT INTO main_nicks_stats VALUES ( ");
-
-            StringBuilder update = new StringBuilder(" ON CONFLICT (nicks) DO UPDATE SET  ");
-            int count_stats = mainstats.length;
-            for(int i=0; i<count_stats; i++){
-                insert.append(" ?,");
-                update.append(mainstats[i].getName_of_stat()[0]).append(" = ?");
-                if(i==count_stats-1){update.append(" ;"); insert.append(" ?)");}
-                else {update.append(", "); }
-            }
-
-            //if(b==1)return;
-            PreparedStatement pstmt = connect_to_db.prepareStatement(insert.append(update).toString());
-            //System.out.println(insert);
-
-            //Array[] arrays_stats = new Array[count_stats];
-            for(Object nick: mainstats[2].getMap_of_Idplayer_stats().keySet()){
-
-                pstmt.setString(1,String.valueOf(nick));
-                //pstmt.setString(count_stats*2+2,(String) nick);
-
-                for(int i=2; i<count_stats+2; i++){ // правильно +2
-                    Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[i-2].getMap_of_Idplayer_stats().get(nick));
-                    //System.out.println(arraystata.toString()+" "+(i+1));
-                    pstmt.setArray(i, arraystata);
-                    pstmt.setArray(i+count_stats, arraystata);
-
-                }
-                //System.out.println(pstmt.toString());
-                pstmt.addBatch();
-            }
-            assert pstmt != null;
-          /*int[]  r = pstmt.executeBatch();
-          for(int a:r) System.out.println(a);*/
-            pstmt.executeBatch();
-            connect_to_db.commit();
-            connect_to_db.setAutoCommit(true);
-            System.out.println(" record stats time "+(System.currentTimeMillis()-start));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-
-    public static void record_StatsCurrentGame(MainStats[] mainstats,String[] nicks){
-
-        try {
-            connect_to_db.setAutoCommit(false);
-            StringBuilder insert = new StringBuilder("INSERT INTO work_nicks_stats VALUES ( ");
-
-            StringBuilder update = new StringBuilder(" ON CONFLICT (nicks) DO UPDATE SET  ");
-            int count_stats = mainstats.length;
-            for(int i=0; i<count_stats; i++){
-                insert.append(" ?,");
-                update.append(mainstats[i].getName_of_stat()[0]).append(" = ?");
-                if(i==count_stats-1){update.append(" ;"); insert.append(" ?)");}
-                else {update.append(", "); }
-            }
-
-            //if(b==1)return;
-            PreparedStatement pstmt = connect_to_db.prepareStatement(insert.append(update).toString());
-           //System.out.println(insert);
-            //Array[] arrays_stats = new Array[count_stats];
-            for(String nick: nicks){
-                if(nick==null)continue;
-                pstmt.setString(1,nick);
-                //pstmt.setString(count_stats*2+2,(String) nick);
-
-                for(int i=2; i<count_stats+2; i++){
-                    Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[i-2].getMap_of_Idplayer_stats().get(nick));
-                    //System.out.println(arraystata.toString()+" "+(i+1));
-                    pstmt.setArray(i, arraystata);
-                    pstmt.setArray(i+count_stats, arraystata);
-                }
-                //System.out.println(pstmt.toString());
-                pstmt.addBatch();
-            }
-            assert pstmt != null;
-         /* int[]  r = pstmt.executeBatch();
-          for(int a:r) System.out.println(a);*/
-            pstmt.executeBatch();
-            connect_to_db.commit();
-            connect_to_db.setAutoCommit(true);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
 
     public static Array get_stats_of_one_player(String nick,String stata){
         Array result = null;

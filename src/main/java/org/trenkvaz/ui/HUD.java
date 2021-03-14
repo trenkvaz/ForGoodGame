@@ -8,19 +8,22 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.trenkvaz.main.CreatingHUD;
 
-import java.io.IOException;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import static org.trenkvaz.main.CaptureVideo.COORDS_TABLES;
+import static org.trenkvaz.ui.HUD.Setting.read_coords_hud;
+import static org.trenkvaz.ui.HUD.Setting.write_coords_hud;
 import static org.trenkvaz.ui.MainWindow.anchorPane;
-import static org.trenkvaz.ui.StartAppLauncher.isNewHudTest;
+import static org.trenkvaz.ui.StartAppLauncher.home_folder;
+
 
 public class HUD {
 
@@ -29,16 +32,15 @@ public class HUD {
     Stage[][] stages_huds_each_player;
     private static double xOffset, yOffset;
     public boolean is_hud_on = false;
-    //Text[][][] arr_one_table_texts_huds_each_player = new Text[6][][];
-    List<List<List<Text>>> list_one_table_texts_huds_each_player = new ArrayList<>(6);
-
+    private final Pane[][] panesTablesPlayers = new Pane[6][6];
 
     public HUD(){
-        for(int i=0; i<6; i++) list_one_table_texts_huds_each_player.add(null);
-        start_coords = CreatingHUD.Setting.read_coords_hud();
+        start_coords = read_coords_hud();
         initPanesNewHUD();
     }
 
+
+    private void initPanesNewHUD(){ for(int i=0; i<6; i++) for(int a=0; a<6; a++)panesTablesPlayers[i][a] = new Pane(); }
 
 
     public void init_hud(Stage mainstage){
@@ -81,7 +83,7 @@ public class HUD {
                                 stages_huds_each_player[i][fin_player].setY(Y_first_table+ COORDS_TABLES[i][1] + yOffset);}
                             start_coords[fin_player][0] = (int)(X_first_table+xOffset);
                             start_coords[fin_player][1] = (int) (Y_first_table+yOffset);
-                            CreatingHUD.Setting.write_coords_hud(start_coords);
+                            write_coords_hud(start_coords);
                         }
 
                     });
@@ -101,7 +103,6 @@ public class HUD {
                 for(Stage playerstage:stages_huds_each_player[table])playerstage.show();
                 anchorPane.requestFocus();
             });
-
     }
 
 
@@ -112,59 +113,6 @@ public class HUD {
                 for(Stage playerstage:stages_huds_each_player[table])playerstage.hide();
                 anchorPane.requestFocus();
             });
-
-    }
-
-
-
-    public synchronized void set_hud(List<List<Text>> arr_one_table_texts_huds_each_player, int table){
-
-       //this.arr_one_table_texts_huds_each_player[table] = arr_one_table_texts_huds_each_player;
-       list_one_table_texts_huds_each_player.set(table,arr_one_table_texts_huds_each_player);
-       refresh_hud(table);
-    }
-
-    public void clear_hud(int table){
-        //if(arr_one_table_texts_huds_each_player[table]==null)return;
-        if(isNewHudTest){ clearNewHUD(table); return; }
-
-
-        if(list_one_table_texts_huds_each_player.get(table)==null) return;
-        Platform.runLater(() -> {
-            for(int player = 0; player<6; player++){
-                //if(arr_one_table_texts_huds_each_player[table][player]==null)continue;
-                if(list_one_table_texts_huds_each_player.get(table).get(player).isEmpty())continue;
-                anchorpanes_huds_each_player[table][player].getChildren().clear();
-            }
-            anchorPane.requestFocus();
-        });
-    }
-
-    public void refresh_hud(int table){
-
-        if(isNewHudTest){ refreshNewHUD(table); return; }
-
-        if(list_one_table_texts_huds_each_player.get(table)==null) return;
-        Platform.runLater(() -> {
-            for(int player = 0; player<6; player++){
-                //if(arr_one_table_texts_huds_each_player[table][player]==null)continue;
-                if(list_one_table_texts_huds_each_player.get(table).get(player).isEmpty())continue;
-                anchorpanes_huds_each_player[table][player].getChildren().clear();
-                for(Text stata:list_one_table_texts_huds_each_player.get(table).get(player)){
-                    //if(stata==null)continue;
-                    anchorpanes_huds_each_player[table][player].getChildren().add(stata);
-                }
-            }
-            anchorPane.requestFocus();
-        });
-
-    }
-
-    private final Pane[][] panesTablesPlayers = new Pane[6][6];
-
-    private void initPanesNewHUD(){
-        for(int i=0; i<6; i++)
-            for(int a=0; a<6; a++)panesTablesPlayers[i][a] = new Pane();
     }
 
 
@@ -203,5 +151,46 @@ public class HUD {
             //anchorPane.requestFocus();
         });
     }
+
+
+
+
+    public static class Setting{
+
+        private static File file_setting_coords_hud;
+
+        public static int[][] read_coords_hud(){
+            file_setting_coords_hud = new File(home_folder+"\\all_settings\\hud\\coords_hud.txt");
+            int[][] result = new int[][]{{262,357},{12,191},{12,50},{365,17},{519,57},{519,170}};
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(file_setting_coords_hud));
+                String text = br.readLine();
+                if(text==null)return result;
+                String[] line = text.split(",");
+                int c =-1, i = 0;
+                for(String coord:line){
+                    //System.out.println("*"+coord+"*");
+                    c++;
+                    result[i][c] = Integer.parseInt(coord);
+                    if(c==1){c=-1; i++;}
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+        public static void write_coords_hud(int[][] coords){
+            StringBuilder line = new StringBuilder();
+            for (int[] p:coords) line.append(p[0]).append(",").append(p[1]).append(",");
+            try (OutputStream os = new FileOutputStream(file_setting_coords_hud,false)) {
+                os.write(line.toString().getBytes(StandardCharsets.UTF_8));
+            } catch (FileNotFoundException e) {
+            } catch (IOException s) {
+            }
+        }
+    }
+
+
 }
 

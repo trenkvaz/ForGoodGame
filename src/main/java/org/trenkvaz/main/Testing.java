@@ -8,7 +8,7 @@ import org.opencv.core.CvType;
 import org.trenkvaz.database_hands.Work_DataBase;
 import org.trenkvaz.newstats.CreateNewHUD;
 import org.trenkvaz.newstats.DataStata;
-import org.trenkvaz.stats.MainStats;
+
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -383,7 +383,7 @@ public class Testing {
             writeResultByStreet(testCurrentHand.testAllines,testCurrentHand.time_hand,
                     testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1],testCurrentHand.resultHero,testCurrentHand.descriptionResultHero,testCurrentHand);
         } else {
-            /*saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
+           /* saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
                     "test2\\"+testCurrentHand.time_hand+"_allin");*/
 
             Testing.write_LogTest(logtest+resultturns,"allines");
@@ -409,7 +409,7 @@ public class Testing {
             if(testAllines.size()==3){nameFile = "totalRiver"; totalStreetHero[3]+=heroResult;   nameFolder = "test\\imgRiver\\";      }
         } else {totalStreetHero[0]+=heroResult; nameFolder = "test\\imgPreflop\\"; }
 
-        /*saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
+       /* saveImageToFile(testCurrentHand.ocr.images_framestimehands.get(testCurrentHand.ocr.images_framestimehands.size()-1).imges_frame(),
                 nameFolder+time_hand);*/
         Testing.write_LogTest(result,nameFile);
     }
@@ -1140,15 +1140,7 @@ public class Testing {
 
     static Work_DataBase  work_dataBase;
 
-    static ConcurrentHashMap[] get_StatsFromDataBase(){
 
-
-        MainStats[] main_stats = work_dataBase.fill_MainArrayOfStatsFromDateBase("main_nicks_stata");
-        ConcurrentHashMap[] result = new ConcurrentHashMap[main_stats.length];
-        for(int i=0; i<main_stats.length; i++)
-            result[i] = new ConcurrentHashMap<> (main_stats[i].getMap_of_Idplayer_stats());
-        return result;
-    }
 
     static HashMap<Long,String> hashmap_id_img_pix_nick_old = new HashMap<>();
     static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks_old = new TreeMap<>();
@@ -1283,8 +1275,8 @@ public class Testing {
         String t = "TURN_ALL_PREFIN_am2";
         System.out.println(t.contains("ALL"));*/
 
-      /* clearTextFiles();
-       clearImgFiles();*/
+       clearTextFiles();
+       clearImgFiles();
 
        /*ArrayList<String> a =new ArrayList<>();
        a.get(0);

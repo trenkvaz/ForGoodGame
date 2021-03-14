@@ -24,11 +24,11 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgproc.*;*/
 //import static org.bytedeco.javacpp.opencv_videoio.cvCreateFileCapture;
 import org.bytedeco.ffmpeg.global.avutil;
-import org.trenkvaz.stats.MainStats;
+
 
 //import static org.trenkvaz.database_hands.Work_DataBase.main_array_of_stats;
 
-import static org.trenkvaz.main.CaptureVideo.Settings.get_StatsFromDataBase;
+//import static org.trenkvaz.main.CaptureVideo.Settings.get_StatsFromDataBase;
 import static org.trenkvaz.ui.Controller_main_window.*;
 import static org.trenkvaz.ui.StartAppLauncher.*;
 import static org.trenkvaz.main.OcrUtils.*;
@@ -73,8 +73,7 @@ public class CaptureVideo {
    static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_nicks = new TreeMap<>();
    static long[][] _long_arr_cards_for_compare,shablons_text_sittingout_allin, shablon_text_poker_terms;
    static int[][] shablons_numbers_0_9_for_stacks, shablons_numbers_0_9_for_actions;
-   public static ConcurrentHashMap[] current_map_stats;
-   public static MainStats[] work_main_stats;
+
    public static boolean let_SaveTempHandsAndCountStatsCurrentGame = false;
    public static CaptureVideo.StartStopCapture startStopCapture;
    public record FrameTable(BufferedImage tableImg,boolean[] metaDates,int[] whoPlayOrNo){}
@@ -84,7 +83,7 @@ public class CaptureVideo {
        for(int i=0; i<4; i++)use_tessearts[i] = new UseTesseract();
        //settings_capturevideo = new Settings();
        Settings.setting_capture_video();
-       current_map_stats = get_StatsFromDataBase();
+       //current_map_stats = get_StatsFromDataBase();
        if(isTestDBandStats){
        System.out.println(RED+"START TEST DATABASE AND STATS");
        System.out.println(RESET);}
@@ -583,7 +582,7 @@ public class CaptureVideo {
             return type;
         }
 
-        static ConcurrentHashMap[] get_StatsFromDataBase(){
+        /*static ConcurrentHashMap[] get_StatsFromDataBase(){
 
 
             work_main_stats = work_dataBase.fill_MainArrayOfStatsFromDateBase("work_nicks_stats");
@@ -593,7 +592,7 @@ public class CaptureVideo {
 
 
             return result;
-        }
+        }*/
 
         public static synchronized void write_nicks_keys_img_pix(String nick,long[] imgs_pix_of_nick){
             StringBuilder line = new StringBuilder("*");

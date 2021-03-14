@@ -7,10 +7,7 @@ import org.trenkvaz.ui.StartAppLauncher;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OCR.*;
@@ -51,21 +48,23 @@ public class CurrentHand {
     List<List<Float>> flopActionsStats = new ArrayList<>(6);
     List<List<Float>> turnActionsStats = new ArrayList<>(6);
     List<List<Float>> riverActionsStats = new ArrayList<>(6);
+    static String[][] testCards = new String[6][2];
 
+    List<Set<Text>> listSetText;
 
     /*List<List<String>> allActionsTest = new ArrayList<>(6);
     float[] currentStacks = new float[6];*/
 
     public record TempHand(long time_hand, short cards_hero, short position_hero, Float[] stacks, String[] nicks){}
-    CreatingHUD creatingHUD;
+    //CreatingHUD creatingHUD;
     //TEST
     OCR ocr;
 
     CurrentHand(OCR ocr){
         this.ocr = ocr;
-        this.creatingHUD = ocr.creatingHUD;
-        creatingHUD.clear_MapStats();
-        if(isNewStats)createNewHUD.initNewTableHUD(ocr.table-1);
+        //this.creatingHUD = ocr.creatingHUD;
+        //creatingHUD.clear_MapStats();
+        createNewHUD.initNewTableHUD(ocr.table-1);
         testTable = ocr.table;
         for(int i=0; i<6; i++){
             preflopActionsStats.add(new ArrayList<>()); preflopActionsStats.get(i).add(0.0f);
@@ -99,25 +98,16 @@ public class CurrentHand {
         if(street==1) streetActionsStats = flopActionsStats;
         if(street==2) streetActionsStats = turnActionsStats;
         if(street==3) streetActionsStats = riverActionsStats;*/
-        creatingHUD.addNewHUDToOldHUD(createNewHUD.createHUDoneTable(nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero,0,null));
+        //creatingHUD.addNewHUDToOldHUD();
+        createNewHUD.createHUDoneTable(nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero,0,null);
     }
 
 
 
     void setIs_nicks_filled(){
 
-        //hudList = null;
-
-
-        creatingHUD.send_current_hand_to_creating_hud(nicks,ocr.pokerPosIndWithNumOnTable, pokerPosHero);
-
-
-       if(isNewStats){
-           String[] typesPots = {"PRE","PRE","PRE","PRE","PRE","PRE"};
-           setDataToCreateNewHUD(typesPots);
-       }
-
-
+        String[] typesPots = {"PRE","PRE","PRE","PRE","PRE","PRE"};
+        setDataToCreateNewHUD(typesPots);
 
         // проверка что все ники распознаны, чтобы не обращатся к методу распознавания ников
         for(int i=1; i<6; i++){
@@ -141,9 +131,16 @@ public class CurrentHand {
         if(let_SaveTempHandsAndCountStatsCurrentGame){
             float[] stacks = new float[6];
             for(int i=0; i<6; i++){ stacks[i]=this.startStacks[i]; }
-            ReadHistoryGetStats.count_StatsCurrentGame(current_map_stats, work_main_stats,nicks,stacks,preflopActionsStats,startAmountPlayers);
+            //ReadHistoryGetStats.count_StatsCurrentGame(current_map_stats, work_main_stats,nicks,stacks,preflopActionsStats,startAmountPlayers);
             Work_DataBase.record_rec_to_TableTempHands(new TempHand(time_hand,get_short_CardsHero(cards_hero),(short) pokerPosHero, startStacks,nicks));
+            workStats.countOneHand(testCards,nicks,stacks,null,new ArrayList<>(Arrays.asList(preflopActionsStats,flopActionsStats,turnActionsStats,riverActionsStats)),null,pokerPosHero);
         }
+
+      /*  if(isTestDBandStats){
+            float[] stacks = new float[6];
+            for(int i=0; i<6; i++){ stacks[i]=this.startStacks[i]; }
+            workStats.countOneHand(testCards,nicks,stacks,null,new ArrayList<>(Arrays.asList(preflopActionsStats,flopActionsStats,turnActionsStats,riverActionsStats)),null,pokerPosHero);
+        }*/
     }
 
 

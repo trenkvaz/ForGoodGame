@@ -197,7 +197,7 @@ public class FilterStata implements Serializable {
         dataStata.VPIP_PFR[SELECT]++;
         int actPlayer = actsRoundsByPoses[0][posPlayer];
         if(actPlayer==-10||actPlayer==10)return;
-        if(actPlayer<0)dataStata.VPIP_PFR[CALL]++;
+        dataStata.VPIP_PFR[CALL]++;
         if(actPlayer>0)dataStata.VPIP_PFR[RAISE]++;
     }
 
