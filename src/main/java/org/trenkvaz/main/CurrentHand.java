@@ -50,7 +50,7 @@ public class CurrentHand {
     List<List<Float>> riverActionsStats = new ArrayList<>(6);
     static String[][] testCards = new String[6][2];
 
-    List<Set<Text>> listSetText;
+
 
     /*List<List<String>> allActionsTest = new ArrayList<>(6);
     float[] currentStacks = new float[6];*/
@@ -131,7 +131,6 @@ public class CurrentHand {
         if(let_SaveTempHandsAndCountStatsCurrentGame){
             float[] stacks = new float[6];
             for(int i=0; i<6; i++){ stacks[i]=this.startStacks[i]; }
-            //ReadHistoryGetStats.count_StatsCurrentGame(current_map_stats, work_main_stats,nicks,stacks,preflopActionsStats,startAmountPlayers);
             Work_DataBase.record_rec_to_TableTempHands(new TempHand(time_hand,get_short_CardsHero(cards_hero),(short) pokerPosHero, startStacks,nicks));
             workStats.countOneHand(testCards,nicks,stacks,null,new ArrayList<>(Arrays.asList(preflopActionsStats,flopActionsStats,turnActionsStats,riverActionsStats)),null,pokerPosHero);
         }

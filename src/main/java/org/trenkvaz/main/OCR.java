@@ -27,6 +27,7 @@ public class OCR implements Runnable {
     FrameTable frameTable;
     CurrentHand currentHand;
     int[] pokerPosIndWithNumOnTable = new int[6];
+    boolean isPlacedPosTable = false;
     List<List<int[]>> hashesNumsActionsForCompare = new ArrayList<>(6);
     float[] actionsForCompare = new float[6];
     int current_bu = -1;
@@ -142,7 +143,7 @@ public class OCR implements Runnable {
         //System.out.println(RED+"starthand "+check_start_or_end_hand);
         if(check_start_or_end_hand==0){
             // обработка стоп сигнала для завершения последней раздачи
-            if(count_stop_signal==200&&currentHand!=null) {
+            if(count_stop_signal==200&&currentHand!=null&&isPlacedPosTable) {
 
                 finishedAllStreetNextHand();
                 currentHand.finalCurrendHand();
@@ -155,8 +156,7 @@ public class OCR implements Runnable {
         }
 
         if(check_start_or_end_hand==1) {
-            if(currentHand!=null){
-
+            if(currentHand!=null&&isPlacedPosTable){
                 finishedAllStreetNextHand();
                 currentHand.finalCurrendHand();
                 startSecondHand = true;
@@ -240,7 +240,7 @@ public class OCR implements Runnable {
         currentHand = new CurrentHand(this);
         list_of_lists_current_id_nicks_for_choose.forEach(List::clear);
         hashesNumsActionsForCompare.forEach(List::clear);
-
+        isPlacedPosTable = false;
         for(int init=0; init<6; init++){
             actionsForCompare[init] =0;
             curActsOrInvests[init] = 0;
@@ -675,7 +675,7 @@ public class OCR implements Runnable {
     private void setPokerPosIndWithNumOnTable(){
         // алгоритм определения соответсвия покерных позиций позициям за столом которые начинаются с херо, на основе того где на столе находится БУ
         // также определяется позиция героя по его известной позиции на столе
-
+        isPlacedPosTable = true;
         testCurrentHand.addMethod("setPokerPosIndWithNumOnTable");
 
         int startPos = (int) Arrays.stream(frameTable.whoPlayOrNo()).filter(c -> c==0).count();

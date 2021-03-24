@@ -5,6 +5,9 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.apache.commons.lang3.ArrayUtils;
+import org.trenkvaz.database_hands.Work_DataBase;
+import org.trenkvaz.main.CaptureVideo;
+import org.trenkvaz.ui.HUD;
 
 
 import java.io.*;
@@ -14,6 +17,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
+import static org.trenkvaz.database_hands.Work_DataBase.close_DataBase;
 import static org.trenkvaz.database_hands.Work_DataBase.strStatsValues;
 import static org.trenkvaz.main.CaptureVideo.NICK_HERO;
 import static org.trenkvaz.ui.StartAppLauncher.*;
@@ -47,7 +51,7 @@ public class CreateNewHUD {
                     tablesPlayerMatrixText[table][player][line][stata][1]=null;
                 }
 
-        for(int i=0; i<6; i++) for(int p=0; p<6; p++)listSetText.get(i).get(p).clear();
+        for(int p=0; p<6; p++)listSetText.get(table).get(p).clear();
     }
 
     private void initListSetText(){
@@ -91,16 +95,22 @@ public class CreateNewHUD {
                    break;
                }
             }
+                /*if(tablesPlayerMatrixText[table][player][line][stata][0]==null)continue;
+                listSetText.get(table).get(player).add(tablesPlayerMatrixText[table][player][line][stata][0]);
+                if(tablesPlayerMatrixText[table][player][line][stata][1]==null)continue;
+                listSetText.get(table).get(player).add(tablesPlayerMatrixText[table][player][line][stata][1]);*/
+
         }
         }
 
-        for(int table_place = 0; table_place<6; table_place++){
+        for(int table_place = 0; table_place<6; table_place++){ if(nicks[table_place]==null)continue;
             for(int l=0; l<5; l++)
                 for(int s=0; s<7; s++){
                     if(tablesPlayerMatrixText[table][table_place][l][s][0]==null)continue;
                     listSetText.get(table).get(table_place).add(tablesPlayerMatrixText[table][table_place][l][s][0]);
                     if(tablesPlayerMatrixText[table][table_place][l][s][1]==null)continue;
-                    listSetText.get(table).get(table_place).add(tablesPlayerMatrixText[table][table_place][l][s][1]); }
+                    listSetText.get(table).get(table_place).add(tablesPlayerMatrixText[table][table_place][l][s][1]);
+                }
         }
 
         hud.setNewHUD(listSetText.get(table),table);
@@ -432,9 +442,28 @@ public class CreateNewHUD {
    }
 
 
+
+   static void testDisplayStata(){
+       work_dataBase = new Work_DataBase();
+       workStats = new WorkStats(true);
+       workStats.fullMapNicksMapsNameFilterDataStata("work_");
+       createNewHUD = new CreateNewHUD();
+       for(DisplayStata displayStata:displayStataList.get(2).get(1))
+           if(displayStata.mainStata.equals("v3bet_bu_v_all_v_bb_")){
+               Text[] texts = new Text[2];
+               texts[0] = new Text(COORDS_STATS[0],COORDS_LINES[0],"");
+               texts[0].setFont(new Font(SIZE_FONT_STATA));
+               createNewHUD.addStataToText(texts,displayStata,"trenkvaz");
+               System.out.println(texts[0].getText());
+           }
+       close_DataBase();
+   }
+
+
     public static void main(String[] args) {
 
-        addNewDidsplayStats();
+       // addNewDidsplayStats();
+
 
 
     }

@@ -38,7 +38,7 @@ public class ReadHistoryGetStats {
     static WorkStats workStats;
     static boolean isNewStatsCount = false;
 
-    static boolean isAllHandsHistory = true;                                 // ВАЖНО !!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+    static boolean isAllHandsHistory = false;                                 // ВАЖНО !!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
     static {  for(int f=0; f<6; f++){
         preflopActions.add(new ArrayList<Float>()); preflopActions.get(f).add(0.0f);

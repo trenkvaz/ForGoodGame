@@ -13,6 +13,7 @@ import static org.trenkvaz.ui.StartAppLauncher.isTestDBandStats;
 
 public class WorkStats implements Serializable {
     public boolean isInGame;
+    static boolean isRecoverStats = true;
 
     Map<String, FilterStata> statsMap;
     Map<String,Map<String, DataStata>> mapNicksMapsNameFilterDataStata = new HashMap<>();
@@ -116,6 +117,13 @@ public class WorkStats implements Serializable {
    }
 
    public void createOneNewStata(FilterStata stata){
+       if(isRecoverStats){
+           stata.isCreateStructureDB = true;
+           statsMap.put(stata.getFullNameStata(),stata);
+           saveStatsMap();
+           return;
+       }
+
        // проверка на дубликат имени статы или перезапись статы
        if(statsMap.get(stata.getFullNameStata())!=null){ deleteFilterStata(stata); }
        stata.isCreateStructureDB = true;
@@ -126,11 +134,6 @@ public class WorkStats implements Serializable {
    }
 
 
-   public void recoverFilterStata(FilterStata stata){
-       stata.isCreateStructureDB = true;
-       statsMap.put(stata.getFullNameStata(),stata);
-       saveStatsMap();
-   }
 
    public void deleteFilterStata(FilterStata stata){
        System.out.println("DELETE");
@@ -274,31 +277,30 @@ public class WorkStats implements Serializable {
 
 
     static void initOldFilterStats(){
-        new Work_DataBase();
-        WorkStats workStats1 = new WorkStats(false);
-        /*FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wsd_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(2).build();
+        //new Work_DataBase();
+        WorkStats workStats1 = new WorkStats("addAndCountNewStats");
+        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter("main_wsd_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(2).build();
         FilterStata filterStata1 = new FilterStata.Builder().setMainNameFilter("main_wtsd_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(1).build();
-        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(0).build();*/
-        /*workStats1.recoverFilterStata(filterStata);
-        workStats1.recoverFilterStata(filterStata1);
-        workStats1.recoverFilterStata(filterStata2);*/
-        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("main_vpip_pfr_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(3).isAllowInGame().build();
-        /*workStats1.createOneNewStata(filterStata);
-        workStats1.createOneNewStata(filterStata1);*/
+        FilterStata filterStata2 = new FilterStata.Builder().setMainNameFilter("main_wwsf_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(0).build();
+        FilterStata filterStata3 = new FilterStata.Builder().setMainNameFilter("main_vpip_pfr_").setPosStata(new int[]{1,1,1,1,1,1},new int[][]{{1,1,1,1,1,1}}).setSpecStats(3).
+                isAllowInGame().build();
+        workStats1.createOneNewStata(filterStata);
+        workStats1.createOneNewStata(filterStata1);
         workStats1.createOneNewStata(filterStata2);
-        close_DataBase();
+        workStats1.createOneNewStata(filterStata3);
+        //close_DataBase();
     }
 
 
     static void addNewFilteStats(){
-        new Work_DataBase();
+        //new Work_DataBase();
         WorkStats workStats1 = new WorkStats(false);
         List<int[]> conditionsPreflopActions = new ArrayList<>();
         // ACT_PLAYER = 0,  LIMP = 1, LIMPS = 2, RAISER = 3, CALLERS = 4,  _3BET = 5, CALLERS_3BET= 6, _4BET = 7, CALLERS_4BET= 8, _5BET = 9, CALLERS_5BET= 10;
         String nameStata = "";
         // СДЕЛАТЬ СТАТЫ ДОСТУПНЫМИ ДЛЯ РАСЧЕТА ВО ВРЕМЯ ИГРЫ !!!
 
-        /*conditionsPreflopActions.add(new int[]{0,-1,-1, 2, -1,-1,-1,-1,-1,-1,-1});
+        conditionsPreflopActions.add(new int[]{0,-1,-1, 2, -1,-1,-1,-1,-1,-1,-1});
         nameStata = "v_rfi_";
         FilterStata filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
                 .setPosStata(new int[]{0,1,0,0,0,0},new int[][]{{1,0,0,0,0,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).isAllowInGame().build();
@@ -332,7 +334,7 @@ public class WorkStats implements Serializable {
         workStats1.createOneNewStata(filterStata9);
         FilterStata filterStata10 = new FilterStata.Builder().setMainNameFilter(nameStata)
                 .setPosStata(new int[]{0,0,0,0,0,1},new int[][]{{0,0,0,0,1,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).isAllowInGame().build();
-        workStats1.createOneNewStata(filterStata10);*/
+        workStats1.createOneNewStata(filterStata10);
 
         /*conditionsPreflopActions.add(new int[]{3,-1,-1, 2, -1,-1,-1,-1,-1,-1,-1});
         conditionsPreflopActions.add(new int[]{0,-1,-1, -1, -1,-1,-1,2,-1,-1,-1});
@@ -371,7 +373,9 @@ public class WorkStats implements Serializable {
                 .setPosStata(new int[]{0,0,0,0,0,1},new int[][]{{0,0,0,0,1,0},{0,0,0,0,1,0}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).isAllowInGame().build();
         workStats1.createOneNewStata(filterStata10);*/
 
-        /*conditionsPreflopActions.add(new int[]{0,-1,-1, -1, -1,-1,-1,-1,-1,-1,-1});
+
+
+       /* conditionsPreflopActions.add(new int[]{0,-1,-1, -1, -1,-1,-1,-1,-1,-1,-1});
         nameStata = "rfi_";
         FilterStata filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
                 .setPosStata(new int[]{1,0,0,0,0,0},new int[][]{{1,1,1,1,1,1}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).isAllowInGame().build();
@@ -391,7 +395,7 @@ public class WorkStats implements Serializable {
 
 
 
-        conditionsPreflopActions.add(new int[]{2,-1,-1, -1, -1,-1,-1,-1,-1,-1,-1});
+        /*conditionsPreflopActions.add(new int[]{2,-1,-1, -1, -1,-1,-1,-1,-1,-1,-1});
         conditionsPreflopActions.add(new int[]{0,-1,-1, -1, -1,2,-1,-1,-1,-1,-1});
         nameStata = "v3bet_";
         FilterStata filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
@@ -426,11 +430,11 @@ public class WorkStats implements Serializable {
         workStats1.createOneNewStata(filterStata9);
         FilterStata filterStata10 = new FilterStata.Builder().setMainNameFilter(nameStata)
                 .setPosStata(new int[]{0,0,0,0,1,0},new int[][]{{1,1,1,1,1,1},{0,0,0,0,0,1}}).setStreetOfActs(0).setConditionsPreflopActions(conditionsPreflopActions).isAllowInGame().build();
-        workStats1.createOneNewStata(filterStata10);
+        workStats1.createOneNewStata(filterStata10);*/
 
 
 
-        close_DataBase();
+       // close_DataBase();
     }
 
     static void testGetStata(){

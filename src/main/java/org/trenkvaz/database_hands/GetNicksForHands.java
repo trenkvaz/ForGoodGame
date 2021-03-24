@@ -13,6 +13,7 @@ import java.util.*;
 
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.DECK;
+import static org.trenkvaz.main.CaptureVideo.NICK_HERO;
 import static org.trenkvaz.ui.StartAppLauncher.RED;
 
 public class GetNicksForHands {
@@ -93,7 +94,7 @@ public class GetNicksForHands {
     private static long read_TimeHandForHistoryHand(String line){
         String[] date = line.substring(line.lastIndexOf('-')+2).split(" ");
         try {
-            int chasov = 10;
+            int chasov = 9;
             return formatter.parse(date[5]+"/"+date[1]+"/"+date[2]+" "+date[3]).getTime()+3600000*chasov;
         } catch (ParseException e) {
             e.printStackTrace();
@@ -293,9 +294,12 @@ public class GetNicksForHands {
 
        // меняются плеер1 и т.д на ники по ходу раздачи
        for(int i_line=10-cor; i_line<historyhand.size(); i_line++){
+           if(historyhand.get(i_line).startsWith("Dealt to Hero ")){
+               historyhand.set(i_line,historyhand.get(i_line).replace("Hero",NICK_HERO)); continue;
+           }
            for(int i_seat=0; i_seat<timeAndAmountPlayer[1]; i_seat++){
                if(seat_nick[i_seat][0]==null)continue;
-               if(historyhand.get(i_line).contains(seat_nick[i_seat][0])){
+               if(historyhand.get(i_line).startsWith(seat_nick[i_seat][0])){
                    historyhand.set(i_line,historyhand.get(i_line).replace(seat_nick[i_seat][0],seat_nick[i_seat][1]));
                }
            }
