@@ -103,7 +103,7 @@ static String work_database;
                             System.out.println("Connect to created "+work_database+" DB is successfully...");
                             create_Tables();
                         }
-                        delete_and_copy_WorkNicksStats();
+                        //delete_and_copy_WorkNicksStats();
                     } catch (SQLException e) {
                         System.out.println("Connection LOCAL DB Failed");
                         e.printStackTrace();
@@ -554,7 +554,7 @@ static String work_database;
     }*/
 
     public static void main(String[] args) {
-       delete_DataBase("fg_testnewstats");
+       delete_DataBase("fg_work3");
 
        /* new Work_DataBase();
         test_select();

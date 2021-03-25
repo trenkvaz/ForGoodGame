@@ -177,11 +177,15 @@ public class WorkStats implements Serializable {
 
 
    private void checkExistStructureDBofFilterStats(){
-       for(FilterStata filterStata:statsMap.values())
+       for(FilterStata filterStata:statsMap.values()){
            if(!filterStata.isCreateStructureDB){
                filterStata.isCreateStructureDB = true;
                addStructureOneNewStataToDB(filterStata);
-           }
+           }                                                                          // TEST !!!!!!!!!!!!!!!!!!!!!
+
+         /*  filterStata.isCreateStructureDB = true;
+           addStructureOneNewStataToDB(filterStata);*/
+       }
    }
 
    public Map<String, DataStata> creatMapNameFilterDataStataOnePlayer(){

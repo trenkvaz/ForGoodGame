@@ -1275,8 +1275,8 @@ public class Testing {
         String t = "TURN_ALL_PREFIN_am2";
         System.out.println(t.contains("ALL"));*/
 
-       clearTextFiles();
-       clearImgFiles();
+    /*   clearTextFiles();
+       clearImgFiles();*/
 
        /*ArrayList<String> a =new ArrayList<>();
        a.get(0);
@@ -1290,7 +1290,9 @@ public class Testing {
             else second = raiseSizesForRange[i];
             System.out.println(first+" "+second);
         }*/
-
+      String h = "12345678911234";
+        System.out.println("*"+h.substring(0,13));
+        //System.out.println(h.substring(h.indexOf(" ",2)).replaceAll("[^0-9]\\.?[^0-9]","").replaceAll("[^0-9.]",""));
 
     }
 }

@@ -299,7 +299,7 @@ public class GetNicksForHands {
            }
            for(int i_seat=0; i_seat<timeAndAmountPlayer[1]; i_seat++){
                if(seat_nick[i_seat][0]==null)continue;
-               if(historyhand.get(i_line).startsWith(seat_nick[i_seat][0])){
+               if(historyhand.get(i_line).startsWith(seat_nick[i_seat][0]+" ")){
                    historyhand.set(i_line,historyhand.get(i_line).replace(seat_nick[i_seat][0],seat_nick[i_seat][1]));
                }
            }

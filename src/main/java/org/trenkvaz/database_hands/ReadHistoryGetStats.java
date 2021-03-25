@@ -518,7 +518,7 @@ public class ReadHistoryGetStats {
         for(Integer a:sortlist) System.out.println(a);*/
         //mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
 
-        if(isAllHandsHistory)start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\Deanonim");
+        if(isAllHandsHistory)start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\partcorrect");
         else start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
         /*try {
             Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[0].getMap_of_Idplayer_stats().get(6));
