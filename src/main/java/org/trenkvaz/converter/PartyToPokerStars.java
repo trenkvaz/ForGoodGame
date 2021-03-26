@@ -23,6 +23,7 @@ public class PartyToPokerStars {
 
     static final DateFormat formatter= new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss", Locale.US);
     static final DateFormat starsFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
+    //static final String folderPokerStars = "F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\out_test_hand\\";
     static final String folderPokerStars = "F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\forHM\\";
     static boolean isCorrectHeroNick = false;
 
@@ -92,6 +93,9 @@ public class PartyToPokerStars {
         List<String> starsHand = getStartPokerStarsHand(partyHand,strBlinds);
         System.out.println(namefile+"   "+starsHand.get(0));
         List<String> nicks = getNicks(partyHand);
+
+        //nicks.forEach(System.out::println);
+
         String[] resultHand = new String[nicks.size()];
         List<String> board = changeSymbols(partyHand,starsHand,nicks,resultHand);
 
@@ -100,6 +104,9 @@ public class PartyToPokerStars {
         String[] showdowns = new String[nicks.size()];
 
         getResultPartyHand(betLose,collected,showdowns,nicks,partyHand);
+
+        //for(float g:collected) System.out.println(" "+g);
+
         float[] betLoseSort = betLose.clone();
         Arrays.sort(betLoseSort);
 
@@ -153,6 +160,8 @@ public class PartyToPokerStars {
 
         }
 
+
+
         starsHand.add("*** SUMMARY ***");
         float totalPot = 0;
         for(int i=0; i<nicks.size(); i++)totalPot+=collected[i];
@@ -201,8 +210,9 @@ public class PartyToPokerStars {
 
     static void getResultPartyHand(float[] betLose, float[] collected, String[] showdowns, List<String> nicks, List<String> partyHand){
 
-        for (int i=partyHand.size()-nicks.size(); i<partyHand.size(); i++){
+        for (int i=partyHand.size()-nicks.size()-5; i<partyHand.size(); i++){
             for(int i_nick = 0; i_nick<nicks.size(); i_nick++){
+
                 if(partyHand.get(i).startsWith(nicks.get(i_nick)+" balance ")){
                     if(partyHand.get(i).contains(" didn't bet (folded)"))break;
                     int bet = partyHand.get(i).indexOf(" bet ",nicks.get(i_nick).length()+10);
@@ -479,7 +489,8 @@ public class PartyToPokerStars {
 
     public static void main(String[] args) {
         //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
-        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\partcorrect\\");
+        //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\in_test_hand\\");
+        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_right\\");
     }
 
 }
