@@ -21,9 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.text.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -1293,6 +1291,12 @@ public class Testing {
       String h = "12345678911234";
         System.out.println("*"+h.substring(0,13));
         //System.out.println(h.substring(h.indexOf(" ",2)).replaceAll("[^0-9]\\.?[^0-9]","").replaceAll("[^0-9.]",""));
+        DecimalFormatSymbols decimalSymbols = DecimalFormatSymbols.getInstance();
+        decimalSymbols.setDecimalSeparator('.');
 
+        DecimalFormat numberFormat = new DecimalFormat("#.##",decimalSymbols);
+        float g = 0;
+        System.out.println(g);
+        System.out.println(numberFormat.format(g));
     }
 }

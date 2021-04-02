@@ -8,7 +8,7 @@ public class DataStata {
     public boolean isRecord = false;
     public String mainNameFilter;
     public String strPosStata;
-    public int[] mainSelCallRaise;//  0 основная стата выборка, колл, рейз
+    public int[] mainSelCallRaise;//  0 основная стата выборка, колл, рейз или постфлоп выборка, колл, бет\рейз разница между коллом и бетом считается чеком или фолдом
     public int[] selCallRaiseVsHero;   //  1 основная стата против Херо ответ - выборка, колл, рейз
     public List<int[]> rangeRaiseSizes; // 2    показывает карты с которыми был рейз, рейзы разные на каждый рейз массив как в колле
     public int[] rangeCall; // 3         170 1-169 показывает карты с которыми был колл прибавляется единица за каждую карту

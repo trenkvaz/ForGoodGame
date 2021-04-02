@@ -8,9 +8,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.text.*;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -23,13 +21,18 @@ public class PartyToPokerStars {
 
     static final DateFormat formatter= new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss", Locale.US);
     static final DateFormat starsFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
-    //static final String folderPokerStars = "F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\out_test_hand\\";
-    static final String folderPokerStars = "F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\forHM\\";
+    static DecimalFormat numberFormat;
+
+    static final String folderPokerStars = "F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\out_test_hand\\";
+    //static final String folderPokerStars = "F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\forHM\\";
     static boolean isCorrectHeroNick = false;
 
 
 
     static void start_ReadFilesInFolder(String folder){
+        DecimalFormatSymbols decimalSymbols = DecimalFormatSymbols.getInstance();
+        decimalSymbols.setDecimalSeparator('.');
+        numberFormat = new DecimalFormat("#.##",decimalSymbols);
 
         for(File a: Objects.requireNonNull(new File(folder).listFiles())){
             if(a.isFile()&&a.getName().endsWith(".txt")){
@@ -114,7 +117,7 @@ public class PartyToPokerStars {
         int indUncalledNick = -1;
         if(uncalledBet!=0) {
             indUncalledNick = ArrayUtils.indexOf(betLose,betLoseSort[betLoseSort.length-1]);
-            starsHand.add("Uncalled bet ($"+uncalledBet+") returned to "+nicks.get(indUncalledNick));
+            starsHand.add("Uncalled bet ($"+numberFormat.format(uncalledBet)+") returned to "+nicks.get(indUncalledNick));
             collected[indUncalledNick]=BigDecimal.valueOf(collected[indUncalledNick]-uncalledBet).setScale(2, RoundingMode.HALF_UP).floatValue();
            /* if(collected[indUncalledNick]<=0) System.out.println(RED+" +++++++++"+starsHand.get(0));
             System.out.println(RESET);*/
@@ -122,6 +125,7 @@ public class PartyToPokerStars {
         boolean isRIT = false;
         if(partyHand.stream().anyMatch(c->c.startsWith("Hand was run twice")))isRIT = true;
         String[] boardRIT = null;
+        float[][] resultRIT = null;
         if(isRIT){
           boardRIT = changeRIT(partyHand,starsHand,nicks,board);
 
@@ -136,27 +140,32 @@ public class PartyToPokerStars {
 
 
         if(!isRIT){
-        if(Arrays.stream(showdowns).anyMatch(Objects::nonNull)){
+        boolean isShowdown = false;
+        if(Arrays.stream(showdowns).anyMatch(Objects::nonNull)){ isShowdown = true;
             starsHand.add("*** SHOW DOWN ***");
             for(int i=0; i<nicks.size(); i++)if(showdowns[i]!=null)starsHand.add(nicks.get(i)+": shows "+showdowns[i]);
         }
 
-        for(int i=0; i<nicks.size(); i++) if(collected[i]>0)starsHand.add(nicks.get(i)+" collected $"+collected[i]+" from pot");
+
+
+        for(int i=0; i<nicks.size(); i++) if(collected[i]>0)starsHand.add(nicks.get(i)+" collected $"+numberFormat.format(collected[i])+" from pot");
+
+        if(!isShowdown)for(int i=0; i<nicks.size(); i++) if(collected[i]>0)starsHand.add(nicks.get(i)+": doesn't show hand ");
 
         } else {
             //for (String line:partyHand) System.out.println("*"+line+"*");
 
-            float[][] resultRIT = getCollectedRIT(uncalledBet,indUncalledNick,partyHand,nicks,showdowns);
+            resultRIT = getCollectedRIT(uncalledBet,indUncalledNick,partyHand,nicks,showdowns);
 
             //System.out.println("===============================");
 
             starsHand.add("*** FIRST SHOW DOWN ***");
             for(int i=0; i<nicks.size(); i++)if(showdowns[i]!=null)starsHand.add(nicks.get(i)+": shows "+showdowns[i]);
-            for(int i=0; i<nicks.size(); i++) if(resultRIT[0][i]>0)starsHand.add(nicks.get(i)+" collected $"+resultRIT[0][i]+" from pot");
+            for(int i=0; i<nicks.size(); i++) if(resultRIT[0][i]>0)starsHand.add(nicks.get(i)+" collected $"+numberFormat.format(resultRIT[0][i])+" from pot");
 
             starsHand.add("*** SECOND SHOW DOWN ***");
             for(int i=0; i<nicks.size(); i++)if(showdowns[i]!=null)starsHand.add(nicks.get(i)+": shows "+showdowns[i]);
-            for(int i=0; i<nicks.size(); i++) if(resultRIT[1][i]>0)starsHand.add(nicks.get(i)+" collected $"+resultRIT[1][i]+" from pot");
+            for(int i=0; i<nicks.size(); i++) if(resultRIT[1][i]>0)starsHand.add(nicks.get(i)+" collected $"+numberFormat.format(resultRIT[1][i])+" from pot");
 
         }
 
@@ -170,8 +179,9 @@ public class PartyToPokerStars {
         for(int i=8+nicks.size(); i<partyHand.size(); i++)
             if(partyHand.get(i).startsWith("Main Pot: ")){
                String strRake = partyHand.get(i).substring(partyHand.get(i).indexOf(" Rake: ")+8);
-               totalPot = BigDecimal.valueOf(totalPot+Float.parseFloat(strRake)).setScale(2, RoundingMode.HALF_UP).floatValue();
-               starsHand.add("Total pot $"+totalPot+" | Rake $"+strRake);
+               rake = Float.parseFloat(strRake);
+               totalPot = BigDecimal.valueOf(totalPot+rake).setScale(2, RoundingMode.HALF_UP).floatValue();
+               starsHand.add("Total pot $"+numberFormat.format(totalPot)+" | Rake $"+numberFormat.format(rake)+" ");
             }
 
 
@@ -189,10 +199,19 @@ public class PartyToPokerStars {
             if(i==0)pos = " (button)"; if(i==1) pos = " (small blind)"; if(i==2) pos = " (big blind)";if(i>2)pos = "";
             if(!resultHand[i].equals("r")){ starsHand.add("Seat "+(i+1)+": "+nicks.get(i)+pos+resultHand[i]);
             } else {
-              if(showdowns[i]==null)starsHand.add("Seat "+(i+1)+": "+nicks.get(i)+pos+" collected ($"+collected[i]+")");
+              if(showdowns[i]==null)starsHand.add("Seat "+(i+1)+": "+nicks.get(i)+pos+" collected ($"+numberFormat.format(collected[i])+")");
               else {
-                  if(collected[i]>0)starsHand.add("Seat "+(i+1)+": "+nicks.get(i)+pos+"  showed "+showdowns[i]+" and won ($"+collected[i]+")");
-                  else starsHand.add("Seat "+(i+1)+": "+nicks.get(i)+pos+"  showed "+showdowns[i]+" and lost");
+                  //if(!isRIT){
+                  if(collected[i]>0)starsHand.add("Seat "+(i+1)+": "+nicks.get(i)+pos+" showed "+showdowns[i]+" and won ($"+numberFormat.format(collected[i])+")");
+                  else starsHand.add("Seat "+(i+1)+": "+nicks.get(i)+pos+" showed "+showdowns[i]+" and lost");
+                 /* } else {
+                      String rit = "Seat "+(i+1)+": "+nicks.get(i)+pos+" showed "+showdowns[i];
+                      if(resultRIT[0][i]>0)rit+=" and won ($"+resultRIT[0][i]+"),";
+                      else rit+=" and lost,";
+                      if(resultRIT[1][i]>0)rit+=" and won ($"+resultRIT[1][i]+")";
+                      else rit+=" and lost";
+                      starsHand.add(rit);
+                  }*/
               }
             }
 
@@ -262,7 +281,13 @@ public class PartyToPokerStars {
         List<String> boardFlopTurn = new ArrayList<>();
         int p =0;
         for(int i=4; i<10; i++){ p++;
-            if(partyHand.get(i).startsWith("Seat "+p+": ")) { starsHand.add(partyHand.get(i).substring(0,partyHand.get(i).lastIndexOf(")"))+" in chips) "); }}
+            if(partyHand.get(i).startsWith("Seat "+p+": ")) {
+                //System.out.println(partyHand.get(i).substring(partyHand.get(i).lastIndexOf("$")+1,partyHand.get(i).lastIndexOf(")")));
+                float stack = Float.parseFloat(partyHand.get(i).substring(partyHand.get(i).lastIndexOf("$")+1,partyHand.get(i).lastIndexOf(")")));
+                //System.out.println(numberFormat.format(stack));
+               // System.out.println(partyHand.get(i).substring(0,partyHand.get(i).lastIndexOf("$")+1)+numberFormat.format(stack)+" in chips) ");
+                starsHand.add(partyHand.get(i).substring(0,partyHand.get(i).lastIndexOf("$")+1)+numberFormat.format(stack)+" in chips) "); }
+        }
 
         String postblinds = "";
         for(int i=4+nicks.size(); i<4+nicks.size()+2; i++){
@@ -489,8 +514,8 @@ public class PartyToPokerStars {
 
     public static void main(String[] args) {
         //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
-        //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\in_test_hand\\");
-        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_right\\");
+        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\in_test_hand\\");
+        //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_right\\");
     }
 
 }

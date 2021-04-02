@@ -6,6 +6,9 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static org.trenkvaz.main.CaptureVideo.NICK_HERO;
+import static org.trenkvaz.main.OCR.*;
+
 public class FilterStata implements Serializable {
 
     static final int UTG = 0, MP = 1, CO = 2, BU = 3, SB = 4, BB = 5;
@@ -13,6 +16,7 @@ public class FilterStata implements Serializable {
     // new int[]{0,-1,1,-1,2,-1,-1,-1}
     static final int SELECT = 0, CALL = 1, RAISE = 2;
     static final String[] strPositions = {"utg","mp","co","bu","sb","bb"};
+    static final int[] postflopPoses = {4,5,0,1,2,3};
 
     /*public Map<String, DataStata> mapNicksDates = new HashMap<>();
     public transient DataStata[] dataStatsOneHand;*/
@@ -57,6 +61,17 @@ public class FilterStata implements Serializable {
         if(isInGame)if(!isAllowInGame)return;
         if(posesPlayer[posPlayer]==0)return;
         //DataStata dataStata = getNewDataStata(nick);
+
+
+
+      /*  boolean isTest = false;
+        if(getFullNameStata().equals("sraisepot_vs_caller_flop_op_sb_v_all_v_bb_")&&nick.equals("$ю$"+NICK_HERO+"$ю$")){
+            isTest = true;
+        }
+        if(!isTest) return;*/
+
+
+
         if(streetOfActs==-1){ countSpecialNotActionStats(dataStata,sizeActionsStreetsStats,posPlayer,isWin,isShowDown,listPokerActionsInRoundsByPositions.get(0));}
         else if(streetOfActs==0){countPreflop(dataStata,sizeActionsStreetsStats.get(0),posPlayer,nick,stack,rangePlayer,posHero, listPokerActionsInRoundsByPositions.get(0));}
         else countPostFlop(dataStata,sizeActionsStreetsStats.get(streetOfActs),streetOfActs,posPlayer,nick,stack,listPokerActionsInRoundsByPositions);
@@ -81,8 +96,28 @@ public class FilterStata implements Serializable {
     }
 
 
-    private void countPostFlop(DataStata dataStata,List<List<Float>> postflopActions,int street, int pokPos, String nick, float stack,List<int[][]> listPokerActionsInRoundsByPositions){
+    private void countPostFlop(DataStata dataStata,List<List<Float>> postflopActions,int street, int posPlayer, String nick, float stack,List<int[][]> listPokerActionsInRoundsByPositions){
 
+       // System.out.println("1 post");
+
+        if(listPokerActionsInRoundsByPositions.get(0)[0][posPlayer]==0)return; // ситуация когда херо на ББ и все сфолдили
+
+
+        for(int round =0; round<conditionsPreflopActions.size(); round++){
+            if(!isEqualsPreflopConditionsToActions(listPokerActionsInRoundsByPositions.get(0),round,posPlayer))return;}
+
+       // System.out.println("IS !!!!!!!!");
+
+        List<int[]> conditionsPostFlop = conditionsFlopActions;
+        if(street==TURN)conditionsPostFlop = conditionsTurnActions;else if(street==RIVER)conditionsPostFlop = conditionsRiverActions;
+        for(int round =0; round<conditionsPostFlop.size(); round++){
+            if(!isEqualsPostFlopConditions(listPokerActionsInRoundsByPositions.get(street),round,posPlayer,conditionsPostFlop))return;}
+        dataStata.isRecord =true;
+        dataStata.mainSelCallRaise[SELECT]++;
+        int pokerActPlayer = listPokerActionsInRoundsByPositions.get(street)[conditionsPostFlop.size()-1][posPlayer];
+        if(pokerActPlayer==10||pokerActPlayer==-10)return;
+        if(pokerActPlayer>0)dataStata.mainSelCallRaise[RAISE]++;
+        else if(pokerActPlayer<0)dataStata.mainSelCallRaise[CALL]++;
     }
 
 
@@ -121,6 +156,9 @@ public class FilterStata implements Serializable {
         // проверка необходимое действие предидущих раундов игрока совпадало с реальным действием в первом раунде
         // или если это условие типа пота то все действия должны совпадать
         if(conditionsPreflopActions.get(round)[0]!=0)if(conditionsPreflopActions.get(round)[0]!=actsRoundsByPoses[round][posPlayer])return false;
+
+
+
         int[] resultActions = new int[11];
         Arrays.fill(resultActions,-1);
         if(round==0) { for (int pokPos=0; pokPos<posPlayer; pokPos++) setResultActions(resultActions,pokPos,actsRoundsByPoses[round][pokPos]); }
@@ -140,8 +178,17 @@ public class FilterStata implements Serializable {
         // не совпадают условия и действия липеров коллеров всех банков
         /*if(conditionsPreflopActions.get(round)[LIMPS]!=resultActions[LIMPS])return false;
         if(conditionsPreflopActions.get(round)[CALLERS]!=resultActions[CALLERS])return false;*/
+        //for(int a:resultActions) System.out.print(" "+a);
+     /*   if(round==1){
+        System.out.println(Arrays.toString(resultActions));
+        System.out.println(Arrays.toString(conditionsPreflopActions.get(round)));
+        }*/
+
+
 
         for(int c=2; c<11; c+=2)if(conditionsPreflopActions.get(round)[c]!=resultActions[c])return false;
+
+        //if(round==1)System.out.println(round+" is act");
 
         for(int act=1; act<10; act+=2){
             if(conditionsPreflopActions.get(round)[act]==-1&&resultActions[act]==-1)continue; // не должно быть действия и нет действия
@@ -149,6 +196,27 @@ public class FilterStata implements Serializable {
             if(conditionsPreflopActions.get(round)[act]==-1&&resultActions[act]!=-1)return false;// не должно быть действия и есть действие
             // поза действия важна проверка что в индексах поз оппов нет нуля, значит нет соответсвия необходимых позиций оппов и его позиций действия
             if(conditionsPreflopActions.get(round)[act]==2){ if(posOpps[round][resultActions[act]]==0)return false;}
+        }
+
+
+
+        return true;
+    }
+
+
+
+    private boolean isEqualsPostFlopConditions(int[][] actsRoundsByPoses, int round, int posPlayer, List<int[]> conditionsPostFlop){
+       /* List<int[]> conditionsPostFlop = conditionsFlopActions;
+        if(street==2)conditionsPostFlop = conditionsTurnActions;else if(street==3)conditionsPostFlop = conditionsRiverActions;*/
+        if(conditionsPostFlop.get(round)[0]!=0)if(conditionsPostFlop.get(round)[0]!=actsRoundsByPoses[round][posPlayer])return false;
+        if(conditionsPostFlop.get(0).length==2){ // игра 1 на 1
+            int actOpps = 0;
+            for(int pokPos = 0; pokPos<6; pokPos++){
+                if(postflopPoses[pokPos]==posPlayer)break;
+                if(actsRoundsByPoses[round][postflopPoses[pokPos]]==0)continue;
+                actOpps = actsRoundsByPoses[round][postflopPoses[pokPos]];
+            }
+            return conditionsPostFlop.get(round)[1] == actOpps;
         }
         return true;
     }
@@ -253,6 +321,14 @@ public class FilterStata implements Serializable {
         public Builder setRaiseSizesForRange(int[] raiseSizesForRange){ stata.raiseSizesForRange = raiseSizesForRange; stata.structureParametres[4] = true;return this; }
 
         public Builder setConditionsPreflopActions(List<int[]> conditionsPreflopActions){stata.conditionsPreflopActions = conditionsPreflopActions; return this;}
+
+        public Builder setConditionsPostFlopActions(List<int[]> conditionsPostflopActions,int street){
+           switch (street){
+               case FLOP->stata.conditionsFlopActions = conditionsPostflopActions;
+               case TURN->stata.conditionsTurnActions = conditionsPostflopActions;
+               case RIVER->stata.conditionsRiverActions = conditionsPostflopActions;
+           }
+        return this;}
 
         public Builder setSpecStats(int stata1){ stata.specStats[stata1] = true;
             stata.structureParametres[stata1+5] = true;
