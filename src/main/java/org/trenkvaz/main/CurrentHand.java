@@ -11,6 +11,7 @@ import java.util.*;
 
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OCR.*;
+import static org.trenkvaz.newstats.CreateNewHUD.mapTypesPots;
 import static org.trenkvaz.ui.StartAppLauncher.*;
 //import static org.trenkvaz.ui.StartAppLauncher.creatingHUD;
 
@@ -50,7 +51,7 @@ public class CurrentHand {
     List<List<Float>> riverActionsStats = new ArrayList<>(6);
     static String[][] testCards = new String[6][2];
 
-
+    boolean isSetTypePot = false;
 
     /*List<List<String>> allActionsTest = new ArrayList<>(6);
     float[] currentStacks = new float[6];*/
@@ -83,6 +84,59 @@ public class CurrentHand {
         cards_hero[1] = ocr.current_hero_cards[1];
 
     }
+
+
+    public void setTypePotForPostFlop(){
+        if(isSetTypePot)return;
+        System.out.println(RED+"TYPES POT"+RESET);
+        int maxSizeListActions = preflopActionsStats.stream().mapToInt(List::size).max().getAsInt();
+        int[] pot = new int[7]; // limp raise call 3bet call3bet 4bet call4bet    лимпы и коллы если один 1 если больше то 2
+        int[] lastActions = new int[6];
+        int raise = 1; int actionType = 0;
+        for(int act=1; act<maxSizeListActions; act++)
+            for(int pokPos=0; pokPos<6; pokPos++){
+                if(preflopActionsStats.get(pokPos).size()-1<act)continue;
+                float actionSize = preflopActionsStats.get(pokPos).get(act);
+                if(actionSize==Float.NEGATIVE_INFINITY)actionType=-10;
+                else if(actionSize==Float.POSITIVE_INFINITY)actionType= 10;
+                else if(actionSize!=Float.NEGATIVE_INFINITY&&actionSize<0)actionType= -(raise);
+                else if(actionSize!=Float.POSITIVE_INFINITY&&actionSize>0){ if(raise==5)actionType = raise;
+                else actionType = ++raise;}
+                lastActions[pokPos]=actionType;
+                if(actionType==-10||actionType==10)continue;
+                switch (actionType){
+                    case -1 -> { if(pot[0]==0)pot[0]=1;else pot[0]=2;}
+                    case -2 -> { if(pot[2]==0)pot[2]=1;else pot[2]=2;}
+                    case -3 -> { if(pot[4]==0)pot[4]=1;else pot[4]=2;}
+                    case -4 -> { if(pot[6]==0)pot[6]=1;else pot[6]=2;}
+                    case 2-> pot[1] = 1;
+                    case 3-> pot[3] = 1;
+                    case 4-> pot[5] = 1;
+                }
+            }
+        String namePot = null;
+        for(Map.Entry<String,int[]> entry: mapTypesPots.entrySet()) {
+            System.out.println(entry.getKey()+" "+Arrays.toString(entry.getValue()));
+            if(Arrays.equals(entry.getValue(),pot)){ namePot = entry.getKey(); break; }
+        }
+
+        String[] typesPots = {"PRE","PRE","PRE","PRE","PRE","PRE"};
+        if(namePot!=null)
+        for(int pokPos= 0; pokPos<6; pokPos++){
+            if(lastActions[pokPos]==0||lastActions[pokPos]==-10||lastActions[pokPos]==10)continue;
+            if(lastActions[pokPos]>0)typesPots[pokPos] = namePot+"_R";
+            else typesPots[pokPos] = namePot+"_C";
+        }
+        System.out.println("TABEL "+testTable);
+        System.out.println("pot "+Arrays.toString(pot));
+        System.out.println("lastact "+Arrays.toString(lastActions));
+      Arrays.asList(typesPots).forEach(s-> System.out.print(s+" "));
+        System.out.println();
+      setDataToCreateNewHUD(typesPots);
+    }
+
+
+
 
 
     public void setDataToCreateNewHUD(String[] typesPots){

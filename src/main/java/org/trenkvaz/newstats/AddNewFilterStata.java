@@ -189,7 +189,7 @@ public class AddNewFilterStata {
     static void addNewFilterStats(){
 
         WorkStats workStats1 = new WorkStats(false);
-        //WorkStats.isRecoverStats = true;
+        WorkStats.isRecoverStats = true;
         List<int[]> conditionsPreflopActions = new ArrayList<>();
         List<int[]> conditionsFlopActions = new ArrayList<>();
         // ACT_PLAYER = 0,  LIMP = 1, LIMPS = 2, RAISER = 3, CALLERS = 4,  _3BET = 5, CALLERS_3BET= 6, _4BET = 7, CALLERS_4BET= 8, _5BET = 9, CALLERS_5BET= 10;
@@ -246,7 +246,7 @@ public class AddNewFilterStata {
 
         WorkStats  workStats = new WorkStats(false);
         workStats.fullMapNicksMapsNameFilterDataStata("work_");
-        close_DataBase();
+
        /* squeeze_co_v_utg_
                 squeeze_bu_v_utg_mp_
         squeeze_sb_v_co_
@@ -255,9 +255,9 @@ public class AddNewFilterStata {
                 squeeze_bb_v_utg_mp_
         squeeze_bb_v_bu_*/
 
-        int[] stats = workStats.getValueOneStata("trenkvaz","main_vpip_pfr_all_v_all",8);
+        //int[] stats = workStats.getValueOneStata("trenkvaz","main_vpip_pfr_all_v_all",8);
 
-        //int[] stats = workStats.getValueOneStata("trenkvaz","sraisepot_vs_caller_flop_op_sb_v_all_v_bb_",0);
+        int[] stats = workStats.getValueOneStata("trenkvaz","sraisepot_vs_caller_flop_op_sb_v_all_v_bb_",0);
         //System.out.println("stata "+stats[0]+" "+stats[1]+" ");
         System.out.println("stata "+stats[0]+" "+stats[1]+" "+stats[2]);
         System.out.println("vpip "+procents(stats[1],stats[0])+" pfr "+procents(stats[2],stats[0]));
@@ -270,14 +270,17 @@ public class AddNewFilterStata {
     }
 
     public static void main(String[] args) {
-        new Work_DataBase();
 
-
-        addOldFilterStats();
-        //addNewFilterStats();
         getNamesFilterStats();
-        testGetStata();
 
-        close_DataBase();
+       // new Work_DataBase();
+
+
+        //addOldFilterStats();
+        //addNewFilterStats();
+
+       // testGetStata();
+
+        //close_DataBase();
     }
 }

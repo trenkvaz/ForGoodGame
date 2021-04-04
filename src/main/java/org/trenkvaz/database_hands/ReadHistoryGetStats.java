@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 //import static org.trenkvaz.database_hands.GetNicksForHands.reverse_MapIdplayersNicks;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
+import static org.trenkvaz.main.CaptureVideo.DECK;
 import static org.trenkvaz.main.CaptureVideo.NICK_HERO;
 import static org.trenkvaz.ui.StartAppLauncher.*;
 
@@ -31,6 +32,7 @@ public class ReadHistoryGetStats {
     bets = " bets ", dealing_turn = "** Dealing Turn", dealing_river = "** Dealing River";
     static float[][] posActions;
     static byte[][][] preflop_players_actions_in_raunds;
+    static final int PREFLOP = 0, FLOP =1, TURN = 2, RIVER = 3;
 
     static HashMap<Long,Float> numHandResultHeroHistory = new HashMap<>();
     static boolean isRecordStats = false;
@@ -38,7 +40,9 @@ public class ReadHistoryGetStats {
     static WorkStats workStats;
     static boolean isNewStatsCount = false;
 
-    static boolean isAllHandsHistory = false;                                 // ВАЖНО !!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+    static boolean isHeroCard = false;
+
+    static boolean isAllHandsHistory = true;                                 // ВАЖНО !!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
     static {  for(int f=0; f<6; f++){
         preflopActions.add(new ArrayList<Float>()); preflopActions.get(f).add(0.0f);
@@ -69,9 +73,9 @@ public class ReadHistoryGetStats {
         for(File a: Objects.requireNonNull(new File(folder).listFiles())){
             if(a.isFile()&&a.getName().endsWith(".txt")){
                 if(a.getName().endsWith("_recstats.txt")) { isAllowRec = false; }
-                /*System.out.println(RED+a.getName());
-                System.out.println(RESET);*/
-                read_File(a.getPath());
+               // System.out.println(RED+a.getName()+RESET);
+
+                read_File(a.getPath(),a.getName());
                 if(!a.getName().endsWith("_recstats.txt")){
                 File newFile = new File(folder+"\\"+a.getName().replaceFirst("[.][^.]+$", "")+"_recstats.txt");
                 if(a.renameTo(newFile)){
@@ -100,7 +104,7 @@ public class ReadHistoryGetStats {
     }
 
 
-    private static void read_File(String files){
+    private static void read_File(String files,String nameFile){
         final String start_line_of_hand = "***** Hand History";
         List<String> hand = null;
         try {
@@ -109,12 +113,12 @@ public class ReadHistoryGetStats {
             while ((line = br.readLine()) != null) {
                 if(line.length()==0)continue;
                 if(line.contains(start_line_of_hand)){
-                    if(hand!=null) read_HandHistory(hand);
+                    if(hand!=null) read_HandHistory(hand,nameFile);
                     hand = new ArrayList<>();
                     hand.add(line);
                 } else if(hand!=null)hand.add(line);
             }
-            if(hand!=null) read_HandHistory(hand);
+            if(hand!=null) read_HandHistory(hand,nameFile);
             br.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -123,7 +127,7 @@ public class ReadHistoryGetStats {
 
     static float totalHero = 0;
 
-    private static void read_HandHistory(List<String> hand){
+    private static void read_HandHistory(List<String> hand,String nameFile){
      /*if(hand.get(0).equals("***** Hand History For Game 1613331263329 *****"))return;
         if(hand.get(0).equals("***** Hand History For Game 1613331334538 *****"))return;
         if(hand.get(0).equals("***** Hand History For Game 1613331755858 *****"))return;*/
@@ -149,6 +153,12 @@ public class ReadHistoryGetStats {
      float resulHero = resultHand[Arrays.asList(nicks).indexOf(hero)];
 
      String[][] cards = getCardsShowDown(hand,amountPlayers);
+
+     if(isHeroCard){
+         if(cards[posHero][0]==null){
+             cards[posHero] = read_CardsHeroForHistoryHand(hand);
+         }
+     }
      totalHero+=resulHero;
      numHandResultHeroHistory.put(Long.parseLong(hand.get(0).substring(28,41)),resulHero);
      String[] nicksOldStata = new String[6];
@@ -161,14 +171,22 @@ public class ReadHistoryGetStats {
          stats.count_Stats_for_map(preflop_players_actions_in_raunds,nicksOldStata,stacks,(byte) amountPlayers,posActions,false);*/
 
      //testStata(posHero,hand);
-        //System.out.println(hand.get(0));
+        //System.out.println(nameFile+"   "+hand.get(0));
      if(isNewStatsCount)workStats.countOneHand(cards,nicks,stacks,resultHand,unionActionsStreetsStats(),null,posHero);
      //test_show(hand.get(0));
      clear_UsedArrays();
 
     }
 
-    static final int PREFLOP = 0, FLOP =1, TURN = 2, RIVER = 3;
+
+
+    private static String[] read_CardsHeroForHistoryHand(List<String> hand){
+        int i_deal = -1;
+        for(int i=7; i<hand.size(); i++ )if(hand.get(i).startsWith("** Dealing down cards **")){i_deal = i+1;break;}
+        int indStart = hand.get(i_deal).indexOf('[');
+        return new String[]{hand.get(i_deal).substring(indStart+2,indStart+4),hand.get(i_deal).substring(indStart+6,indStart+8)};
+    }
+
 
     private static int read_PreflopActions(List<String> hand,float bb,int startLine,int street){
         String dealingStreet = summary; List<List<Float>> actions = null;
@@ -518,8 +536,16 @@ public class ReadHistoryGetStats {
         for(Integer a:sortlist) System.out.println(a);*/
         //mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
 
-        if(isAllHandsHistory)start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_right");
-        else start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
+        //if(isAllHandsHistory)start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_right");
+        //else
+
+        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_nicks_right");
+
+
+        //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
+
+
+
         /*try {
             Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[0].getMap_of_Idplayer_stats().get(6));
             System.out.println(arraystata.toString());

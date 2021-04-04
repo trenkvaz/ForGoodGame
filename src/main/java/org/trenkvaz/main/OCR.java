@@ -134,7 +134,7 @@ public class OCR implements Runnable {
     private void main_work_on_table(){
         if(isTestDBandStats){
         //if(table!=1&&table!=2)return;
-        //if(table!=1)return;
+       // if(table!=4)return;
         }
 
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
@@ -300,7 +300,10 @@ public class OCR implements Runnable {
         // такое разделение возмозжно так как в методах завершения вход только если нет оллина.Соответственно РИТ сам выставляет наличие оллина, поэтому хода в метода завершения НЕТ
         // а при определение новой улицы оллина еще нет, и метод завершения если определит оллин, то также запретит вход в себя.
         if(!currentHand.isStartStreets[FLOP]||currentHand.isStartStreets[TURN]||currentHand.streetAllIn!=-1) return;
-        if(!currentHand.isFinishedStreets[PREFLOP]){finishedActionsAtPreflop();if(currentHand.isFinishedStreets[PREFLOP]&&currentHand.streetAllIn==-1)clearForNewStreet();}
+        if(!currentHand.isFinishedStreets[PREFLOP]){ finishedActionsAtPreflop();
+        if(currentHand.isFinishedStreets[PREFLOP]&&currentHand.streetAllIn==-1){clearForNewStreet();     if(isTestDBandStats)currentHand.setTypePotForPostFlop(); }
+
+        }
         // пока не завершится префлоп и не проверит что не было оллина префлоп дальше хода нет
 
         if(!currentHand.isFinishedStreets[PREFLOP]||currentHand.streetAllIn!=-1)return;

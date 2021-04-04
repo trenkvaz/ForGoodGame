@@ -9,12 +9,13 @@ import java.util.*;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OCR.FLOP;
-import static org.trenkvaz.ui.StartAppLauncher.home_folder;
-import static org.trenkvaz.ui.StartAppLauncher.isTestDBandStats;
+import static org.trenkvaz.ui.StartAppLauncher.*;
 
 public class WorkStats implements Serializable {
     public boolean isInGame;
     public static boolean isRecoverStats = false;
+    private static final int[] preflopPoses = {0,1,2,3,4,5};
+    private static final int[] postflopPoses = {4,5,0,1,2,3};
 
     Map<String, FilterStata> statsMap;
     Map<String,Map<String, DataStata>> mapNicksMapsNameFilterDataStata = new HashMap<>();
@@ -79,19 +80,23 @@ public class WorkStats implements Serializable {
 
     public List<int[][]> getListPokerActionsInRoundsByPositions(List<List<List<Float>>> sizeActionsStreetsStats){
         List<int[][]> result = new ArrayList<>(4);
+        int[] placePos = null;
         for(int street=0; street<4; street++){
         int maxSizeListActions = sizeActionsStreetsStats.get(street).stream().mapToInt(List::size).max().getAsInt();
-        int cor = 0; if(street==0)cor=1;
+        //if(street==0) System.out.println(RED+"max "+maxSizeListActions+RESET);
+        placePos = postflopPoses;
+        int cor = 0; if(street==0){cor=1; placePos = preflopPoses; }
         int[][] roundsPosAct = new int[maxSizeListActions-cor][6];
         int raise = cor;
         for(int act=cor; act<maxSizeListActions; act++)
             for(int pokPos=0; pokPos<6; pokPos++){
-                if(sizeActionsStreetsStats.get(street).get(pokPos).size()-1<act)continue;
-                float action = sizeActionsStreetsStats.get(street).get(pokPos).get(act);
-                if(action==Float.NEGATIVE_INFINITY)roundsPosAct[act-cor][pokPos]=-10;
-                else if(action==Float.POSITIVE_INFINITY)roundsPosAct[act-cor][pokPos]= 10;
-                else if(action!=Float.NEGATIVE_INFINITY&&action<0)roundsPosAct[act-cor][pokPos]= -(raise);
-                else if(action!=Float.POSITIVE_INFINITY&&action>0){ if(raise==5)roundsPosAct[act-cor][pokPos] = raise;else roundsPosAct[act-cor][pokPos] = ++raise;}
+                if(sizeActionsStreetsStats.get(street).get( placePos[pokPos]).size()-1<act)continue;
+                float action = sizeActionsStreetsStats.get(street).get( placePos[pokPos]).get(act);
+                if(action==Float.NEGATIVE_INFINITY)roundsPosAct[act-cor][ placePos[pokPos]]=-10;
+                else if(action==Float.POSITIVE_INFINITY)roundsPosAct[act-cor][ placePos[pokPos]]= 10;
+                else if(action!=Float.NEGATIVE_INFINITY&&action<0)roundsPosAct[act-cor][ placePos[pokPos]]= -(raise);
+                else if(action!=Float.POSITIVE_INFINITY&&action>0){ if(raise==5)roundsPosAct[act-cor][ placePos[pokPos]] = raise;
+                else roundsPosAct[act-cor][ placePos[pokPos]] = ++raise;}
             }
         result.add(roundsPosAct);
         }

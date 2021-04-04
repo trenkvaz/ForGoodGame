@@ -26,6 +26,7 @@ public class CreateNewHUD {
 
     static DecimalFormat notZeroFormat = (DecimalFormat) NumberFormat.getNumberInstance(Locale.UK);
     private static List<List<List<DisplayStata>>> displayStataList;
+    public static Map<String,int[]> mapTypesPots;
     static final int SIZE_FONT_STATA = 14;
     static final int SIZE_FONT_SELECT = 10;
     static final int[] COORDS_LINES = {12,25,38,51,64};
@@ -38,6 +39,7 @@ public class CreateNewHUD {
     public CreateNewHUD(){
         initListSetText();
         readDisplayStataList();
+        readMapTypesPots();
     }
 
     public CreateNewHUD(int a){}
@@ -249,6 +251,42 @@ public class CreateNewHUD {
    }
 
 
+
+   public void saveTypesPot(String namePot,int[] typePot){
+        if(mapTypesPots==null)mapTypesPots = new HashMap<>();
+       String workOrTest = "\\all_settings\\capture_video\\mapTypesPots.file";
+       if(isTestDBandStats)workOrTest = "\\all_settings_test\\mapTypesPots.file";
+       mapTypesPots.put(namePot,typePot);
+       try {
+           FileOutputStream file=new FileOutputStream(home_folder+workOrTest);
+           ObjectOutput out = new ObjectOutputStream(file);
+           out.writeObject(mapTypesPots);
+           out.close();
+           file.close();
+       } catch(IOException e) {
+           System.out.println(e);
+       }
+   }
+
+
+    public void readMapTypesPots(){
+        String workOrTest = "\\all_settings\\capture_video\\mapTypesPots.file";
+        if(isTestDBandStats)workOrTest = "\\all_settings_test\\mapTypesPots.file";
+        try {	FileInputStream file=new FileInputStream(home_folder+workOrTest);
+            ObjectInput out = new ObjectInputStream(file);
+            mapTypesPots = (Map<String, int[]>) out.readObject();
+            out.close();
+            file.close();
+        } catch(IOException e) {
+            System.out.println(e);
+            mapTypesPots = new HashMap<>();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
    static void addNewDidsplayStats(){
 
        CreateNewHUD createNewHUD = new CreateNewHUD(0);
@@ -441,6 +479,27 @@ public class CreateNewHUD {
 
    }
 
+   static void addPostFlop(){
+        CreateNewHUD createNewHUD = new CreateNewHUD();
+       Color[] colors = new Color[]{Color.RED,Color.GREEN};
+       int action = RAISE; int vertical = 1; int line =3;
+       String typePot = "Sraise_R";
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_ip_utg_mp_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
+               new int[]{1,1,0,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_ip_co_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_ip_bu_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_utg_mp_v_all_v_mp_co_",null,10,action,"_value", line,vertical,
+               new int[]{1,1,0,0,0,0},new int[]{0,1,1,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_utg_mp_v_all_v_bu_",null,10,action,"_value", line,vertical,
+               new int[]{1,1,0,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_co_v_all_v_bu_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_sb_v_all_v_bb_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},typePot,new int[]{0,50,101},colors,0,0);
+   }
+
 
 
    static void testDisplayStata(){
@@ -463,8 +522,9 @@ public class CreateNewHUD {
     public static void main(String[] args) {
 
        // addNewDidsplayStats();
-
-
+        addPostFlop();
+       /*CreateNewHUD createNewHUD = new CreateNewHUD(1);
+       createNewHUD.saveTypesPot("Sraise",new int[]{0,1,1,0,0,0,0});*/
 
     }
 }
