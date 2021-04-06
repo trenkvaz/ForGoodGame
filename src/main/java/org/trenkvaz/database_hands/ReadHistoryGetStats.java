@@ -528,66 +528,11 @@ public class ReadHistoryGetStats {
 
     public static void main(String[] args) {
 
-        //mainstats = main_array_of_stats;
-        //for(Map.Entry<String,Integer> entry:map_nicks_idplayers.entrySet()) System.out.println(entry.getValue()+"   "+entry.getKey());
 
-      /* List<Integer> sortlist = new ArrayList<>(map_nicks_idplayers.values());
-       Collections.sort(sortlist);
-        for(Integer a:sortlist) System.out.println(a);*/
-        //mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
-
-        //if(isAllHandsHistory)start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_right");
-        //else
 
         start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_nicks_right");
 
-
         //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
 
-
-
-        /*try {
-            Array arraystata = connect_to_db.createArrayOf("integer",(Object[]) mainstats[0].getMap_of_Idplayer_stats().get(6));
-            System.out.println(arraystata.toString());
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }*/
-
-        //mainstats = work_dataBase.fill_MainArrayOfStatsFromDateBase();
-       /* HashMap<String,Integer[][]> arr = mainstats[2].getMap_of_Idplayer_stats();
-        Integer[][] stats = arr.get("trenkvaz");
-
-        if(stats==null) System.out.println("null");
-
-
-        for (int i=0; i<6; i++)
-            System.out.println(positions_for_query[i+1]+" vpip "+procents(stats[i][1], stats[i][0])+" pfr "+procents(stats[i][2], stats[i][0])+
-                    " 3_bet "+procents(stats[i][4], stats[i][3])+" count pfr "+stats[i][2]+" count  select 3bet "+stats[i][3]+" count 3bet "+stats[i][4]+" count vpip "+stats[i][1]);
-        System.out.println("Total vpip "+procents(stats[6][1], stats[6][0])+" pfr "+procents(stats[6][2], stats[6][0])+
-                " 3_bet "+procents(stats[6][4], stats[6][3])+" count pfr "+stats[6][2]+" count  select 3bet "+stats[6][3]+" count 3bet "+stats[6][4]+" count vpip "+stats[6][1]);*/
-
-     /*   System.out.println("Res "+totalHero);
-      readResultHero();
-
-      for(Map.Entry<Long,Float> entry:numHandResultHeroTest.entrySet()){
-          if(!numHandResultHeroHistory.containsKey(entry.getKey()))continue;
-
-          if(!entry.getValue().equals(numHandResultHeroHistory.get(entry.getKey())))
-              System.out.println(entry.getKey()+" test "+entry.getValue()+" history "+numHandResultHeroHistory.get(entry.getKey()));
-
-      }*/
-
-     /* int[] wwsf = workStats.getValueOneStata("trenkvaz","WWSFall_v_all",6);
-        System.out.println(procents(wwsf[1],wwsf[0]));
-        int[] wtsd = workStats.getValueOneStata("trenkvaz","WTSDall_v_all",7);
-        System.out.println(wtsd[1]+"  "+wtsd[0]);
-        System.out.println(procents(wtsd[1],wtsd[0]));
-        int[] w$sd = workStats.getValueOneStata("trenkvaz","W$SDall_v_all",8);
-        System.out.println(procents(w$sd[1],w$sd[0]));
-        System.out.println(WorkStats.countSD);*/
-      /* if(isTest) {int[] vpip = workStats.getValueOneStata("trenkvaz","vpip_pfrall_v_all",8);
-        System.out.println("main 2 "+vpip[0]+"  "+vpip[1]+" "+vpip[2]);
-        System.out.println(procents(vpip[1]+vpip[2],vpip[0]));}*/
-        //System.out.println("Res "+totalHero);
     }
 }

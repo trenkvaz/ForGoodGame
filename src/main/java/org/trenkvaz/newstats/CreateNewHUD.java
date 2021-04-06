@@ -74,6 +74,8 @@ public class CreateNewHUD {
                 // пока так стата может вообще не завистеть от типа пота тогда отображается всегда на любой улице это -1
                 // если же она зависит от пота, то должна соотвествовать приходящему типу пота, 0 это тип пота префлоп
                 // если игрок выбыл до отображается его последний тип пота ПОКА НЕ РЕШИЛ С ПРИВЯЗКОЙ ЕЩЕ К УЛИЦЕ
+                //if(typesPots[player].equals("Sraise_R")) System.out.println(RED+"RAISER"+RESET);
+
                 if(tablesPlayerMatrixDisplayStata[table][player][line][stata].typePot.equals("ALL"))continue;
                 if(tablesPlayerMatrixDisplayStata[table][player][line][stata].typePot.equals(typesPots[player]))continue;
                 tablesPlayerMatrixDisplayStata[table][player][line][stata] = null;
@@ -82,17 +84,26 @@ public class CreateNewHUD {
             }
 
             for(DisplayStata displayStata:displayStataList.get(line).get(stata)){
+
                if(!displayStata.typePot.equals("ALL")&&(!displayStata.typePot.equals(typesPots[player])))continue;
+
+
                 //System.out.println(displayStata.posHero.length+" heropos "+posHero);
+                /*if(displayStata.typePot.equals("Sraise_R")) System.out.println("GET STATS 1 "+displayStata.posHero[posHero]+
+                        " "+displayStata.posPlayer[ArrayUtils.indexOf(pokerPosIndWithNumOnTable,player+1)]+" ");
+*/
                if(displayStata.posHero[posHero]==0)continue;
                if(displayStata.posPlayer[ArrayUtils.indexOf(pokerPosIndWithNumOnTable,player+1)]==0)continue;
 
                 //if(nicks[player].equals(NICK_HERO)) System.out.println("dot 1");
+
+               // if(displayStata.typePot.equals("Sraise_R")) System.out.println("GET STATS 2 "+displayStata.typePot+" "+displayStata.mainStata+" ");
                // добавление текста с расчетом возможного смещения по линиям если линия занята
                for(int add=line; add<5; add++) if(tablesPlayerMatrixDisplayStata[table][player][add][stata]==null){
                    tablesPlayerMatrixText[table][player][add][stata][0] = new Text(COORDS_STATS[stata],COORDS_LINES[line],"");
                    tablesPlayerMatrixText[table][player][add][stata][0].setFont(new Font(SIZE_FONT_STATA));
                    addStataToText(tablesPlayerMatrixText[table][player][add][stata],displayStata,nicks[player]);
+                   //if(displayStata.typePot.equals("Sraise_R")) System.out.println("mtext "+nicks[player]+"  "+tablesPlayerMatrixText[table][player][add][stata][0]);
                    tablesPlayerMatrixDisplayStata[table][player][add][stata] = displayStata;
                    break;
                }
@@ -109,7 +120,9 @@ public class CreateNewHUD {
             for(int l=0; l<5; l++)
                 for(int s=0; s<7; s++){
                     if(tablesPlayerMatrixText[table][table_place][l][s][0]==null)continue;
+                    //if(table_place==4&&l==3&&s==1) System.out.println("text_list "+tablesPlayerMatrixText[table][table_place][l][s][0]);
                     listSetText.get(table).get(table_place).add(tablesPlayerMatrixText[table][table_place][l][s][0]);
+                    //if(table_place==4&&l==3&&s==1) for(Text text: listSetText.get(table).get(table_place)) System.out.println("set "+text);
                     if(tablesPlayerMatrixText[table][table_place][l][s][1]==null)continue;
                     listSetText.get(table).get(table_place).add(tablesPlayerMatrixText[table][table_place][l][s][1]);
                 }
@@ -149,7 +162,11 @@ public class CreateNewHUD {
     private void addStataToText(Text[] text,DisplayStata displayStata,String nick){
         if(displayStata.descriptPot !=null){text[0].setText(displayStata.descriptPot); text[0].setFill(Color.WHITE); return;}
 
+
+
         int[] stata = workStats.getValueOneStata(nick,displayStata.mainStata,displayStata.numStata);
+
+
 
         if(stata==null||stata[0]==0){text[0].setText("--"); text[0].setFill(Color.WHITE); return;}
 
@@ -164,6 +181,7 @@ public class CreateNewHUD {
         }
 
         //if(displayStata.value==3) {System.out.println("value "+displayStata.value+"  sel "+select+" s1 "+stata[1]+" s2 "+stata[2]+" res "+result);  }
+        if(displayStata.typePot.equals("Sraise_R")) System.out.println("GET STATS "+displayStata.typePot+" "+displayStata.mainStata+" "+Arrays.toString(stata)+" res "+result);
 
         if(result>=10)text[0].setText((result>=99)? "99":Integer.toString(Math.round(result)));
         else  text[0].setText((result==0)? "0":notZeroFormat.format(result));
@@ -177,6 +195,8 @@ public class CreateNewHUD {
             text[1].setFill(Color.GRAY);
             text[1].setText(Integer.toString(select));
         }
+
+        if(displayStata.typePot.equals("Sraise_R")) System.out.println("text "+text[0]);
     }
 
     private static float getProcents (int stata, int select){
@@ -485,19 +505,19 @@ public class CreateNewHUD {
        int action = RAISE; int vertical = 1; int line =3;
        String typePot = "Sraise_R";
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_ip_utg_mp_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
-               new int[]{1,1,0,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{0,0,0,0,1,1},new int[]{1,1,0,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_ip_co_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
-               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{0,0,0,0,1,1},new int[]{0,0,1,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_ip_bu_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
-               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{0,0,0,0,1,1},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_utg_mp_v_all_v_mp_co_",null,10,action,"_value", line,vertical,
-               new int[]{1,1,0,0,0,0},new int[]{0,1,1,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{0,1,1,0,0,0},new int[]{1,1,0,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_utg_mp_v_all_v_bu_",null,10,action,"_value", line,vertical,
-               new int[]{1,1,0,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{0,0,0,1,0,0},new int[]{1,1,0,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_co_v_all_v_bu_",null,10,action,"_value", line,vertical,
-               new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{0,0,0,1,0,0},new int[]{0,0,1,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_sb_v_all_v_bb_",null,10,action,"_value", line,vertical,
-               new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{0,0,0,0,0,1},new int[]{0,0,0,0,1,0},typePot,new int[]{0,50,101},colors,0,0);
    }
 
 
@@ -521,7 +541,7 @@ public class CreateNewHUD {
 
     public static void main(String[] args) {
 
-       // addNewDidsplayStats();
+        addNewDidsplayStats();
         addPostFlop();
        /*CreateNewHUD createNewHUD = new CreateNewHUD(1);
        createNewHUD.saveTypesPot("Sraise",new int[]{0,1,1,0,0,0,0});*/

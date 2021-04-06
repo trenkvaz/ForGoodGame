@@ -189,9 +189,10 @@ public class AddNewFilterStata {
     static void addNewFilterStats(){
 
         WorkStats workStats1 = new WorkStats(false);
-        WorkStats.isRecoverStats = true;
+        //WorkStats.isRecoverStats = true;
         List<int[]> conditionsPreflopActions = new ArrayList<>();
         List<int[]> conditionsFlopActions = new ArrayList<>();
+        FilterStata filterStata = null;
         // ACT_PLAYER = 0,  LIMP = 1, LIMPS = 2, RAISER = 3, CALLERS = 4,  _3BET = 5, CALLERS_3BET= 6, _4BET = 7, CALLERS_4BET= 8, _5BET = 9, CALLERS_5BET= 10;
         String nameStata = "";
         // СДЕЛАТЬ СТАТЫ ДОСТУПНЫМИ ДЛЯ РАСЧЕТА ВО ВРЕМЯ ИГРЫ !!!
@@ -200,7 +201,7 @@ public class AddNewFilterStata {
         conditionsPreflopActions.add(new int[]{0,-1,-1, -1, 2,-1,-1,-1,-1,-1,-1});
         conditionsFlopActions.add(new int[]{0,10});
         nameStata = "sraisepot_vs_caller_flop_ip_";
-        FilterStata filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
+        filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
                 .setPosStata(new int[]{1,1,0,0,0,0},new int[][]{{1,1,1,1,1,1},{0,0,0,0,1,1}}).setStreetOfActs(FLOP).
                         setConditionsPreflopActions(conditionsPreflopActions).setConditionsPostFlopActions(conditionsFlopActions,FLOP).isAllowInGame().build();
         workStats1.createOneNewStata(filterStata);
@@ -239,6 +240,51 @@ public class AddNewFilterStata {
                         setConditionsPreflopActions(conditionsPreflopActions).setConditionsPostFlopActions(conditionsFlopActions,FLOP).isAllowInGame().build();
         workStats1.createOneNewStata(filterStata);
 
+
+        /*conditionsPreflopActions = new ArrayList<>();
+        conditionsFlopActions = new ArrayList<>();
+        conditionsPreflopActions.add(new int[]{-2,-1,-1, 2, -1,-1,-1,-1,-1,-1,-1});
+        conditionsFlopActions.add(new int[]{10,1});
+        nameStata = "sraisepot_vs_contbet_raiser_flop_op_";
+        filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,0,0,1,1},new int[][]{{1,1,0,0,0,0}}).setStreetOfActs(FLOP).
+                        setConditionsPreflopActions(conditionsPreflopActions).setConditionsPostFlopActions(conditionsFlopActions,FLOP).isAllowInGame().build();
+        workStats1.createOneNewStata(filterStata);
+
+        filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,0,0,1,1},new int[][]{{0,0,1,0,0,0}}).setStreetOfActs(FLOP).
+                        setConditionsPreflopActions(conditionsPreflopActions).setConditionsPostFlopActions(conditionsFlopActions,FLOP).isAllowInGame().build();
+        workStats1.createOneNewStata(filterStata);
+
+        filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,0,0,1,1},new int[][]{{0,0,0,1,0,0}}).setStreetOfActs(FLOP).
+                        setConditionsPreflopActions(conditionsPreflopActions).setConditionsPostFlopActions(conditionsFlopActions,FLOP).isAllowInGame().build();
+        workStats1.createOneNewStata(filterStata);
+
+
+        conditionsFlopActions = new ArrayList<>();
+        conditionsFlopActions.add(new int[]{0,1});
+        nameStata = "sraisepot_vs_contbet_raiser_flop_ip_";
+        filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,1,1,0,0,0},new int[][]{{1,1,0,0,0,0},}).setStreetOfActs(FLOP).
+                        setConditionsPreflopActions(conditionsPreflopActions).setConditionsPostFlopActions(conditionsFlopActions,FLOP).isAllowInGame().build();
+        workStats1.createOneNewStata(filterStata);
+
+        filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,0,1,0,0},new int[][]{{1,1,0,0,0,0},}).setStreetOfActs(FLOP).
+                        setConditionsPreflopActions(conditionsPreflopActions).setConditionsPostFlopActions(conditionsFlopActions,FLOP).isAllowInGame().build();
+        workStats1.createOneNewStata(filterStata);
+
+        filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,0,1,0,0},new int[][]{{0,0,1,0,0,0},}).setStreetOfActs(FLOP).
+                        setConditionsPreflopActions(conditionsPreflopActions).setConditionsPostFlopActions(conditionsFlopActions,FLOP).isAllowInGame().build();
+        workStats1.createOneNewStata(filterStata);
+
+        filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
+                .setPosStata(new int[]{0,0,0,0,0,1},new int[][]{{0,0,0,0,1,0},}).setStreetOfActs(FLOP).
+                        setConditionsPreflopActions(conditionsPreflopActions).setConditionsPostFlopActions(conditionsFlopActions,FLOP).isAllowInGame().build();
+        workStats1.createOneNewStata(filterStata);*/
+
     }
 
 
@@ -257,7 +303,7 @@ public class AddNewFilterStata {
 
         //int[] stats = workStats.getValueOneStata("trenkvaz","main_vpip_pfr_all_v_all",8);
 
-        int[] stats = workStats.getValueOneStata("trenkvaz","sraisepot_vs_caller_flop_op_sb_v_all_v_bb_",0);
+        int[] stats = workStats.getValueOneStata("trenkvaz","sraisepot_vs_contbet_raiser_flop_ip_bb_v_sb_",0);
         //System.out.println("stata "+stats[0]+" "+stats[1]+" ");
         System.out.println("stata "+stats[0]+" "+stats[1]+" "+stats[2]);
         System.out.println("vpip "+procents(stats[1],stats[0])+" pfr "+procents(stats[2],stats[0]));
@@ -271,16 +317,16 @@ public class AddNewFilterStata {
 
     public static void main(String[] args) {
 
-        getNamesFilterStats();
+        //getNamesFilterStats();
 
-       // new Work_DataBase();
+        new Work_DataBase();
 
 
         //addOldFilterStats();
-        //addNewFilterStats();
+        addNewFilterStats();
 
-       // testGetStata();
+        //testGetStata();
 
-        //close_DataBase();
+        close_DataBase();
     }
 }

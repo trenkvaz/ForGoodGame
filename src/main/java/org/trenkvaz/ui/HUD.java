@@ -121,7 +121,10 @@ public class HUD {
             for(int i=0; i<6; i++){
                 panesTablesPlayers[table][i].getChildren().clear();
                 if(arr_one_table_texts_huds_each_player.get(i).isEmpty())continue;
-                for(Text text:arr_one_table_texts_huds_each_player.get(i)) panesTablesPlayers[table][i].getChildren().add(text);
+                for(Text text:arr_one_table_texts_huds_each_player.get(i)) {
+                    //if(i==4) System.out.println(text);
+                    panesTablesPlayers[table][i].getChildren().add(text);
+                }
             }
         });
         refreshNewHUD(table);

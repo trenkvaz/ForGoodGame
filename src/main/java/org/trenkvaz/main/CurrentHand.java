@@ -88,7 +88,7 @@ public class CurrentHand {
 
     public void setTypePotForPostFlop(){
         if(isSetTypePot)return;
-        System.out.println(RED+"TYPES POT"+RESET);
+        //System.out.println(RED+"TYPES POT"+RESET);
         int maxSizeListActions = preflopActionsStats.stream().mapToInt(List::size).max().getAsInt();
         int[] pot = new int[7]; // limp raise call 3bet call3bet 4bet call4bet    лимпы и коллы если один 1 если больше то 2
         int[] lastActions = new int[6];
@@ -116,7 +116,7 @@ public class CurrentHand {
             }
         String namePot = null;
         for(Map.Entry<String,int[]> entry: mapTypesPots.entrySet()) {
-            System.out.println(entry.getKey()+" "+Arrays.toString(entry.getValue()));
+            //System.out.println(entry.getKey()+" "+Arrays.toString(entry.getValue()));
             if(Arrays.equals(entry.getValue(),pot)){ namePot = entry.getKey(); break; }
         }
 
@@ -124,14 +124,16 @@ public class CurrentHand {
         if(namePot!=null)
         for(int pokPos= 0; pokPos<6; pokPos++){
             if(lastActions[pokPos]==0||lastActions[pokPos]==-10||lastActions[pokPos]==10)continue;
-            if(lastActions[pokPos]>0)typesPots[pokPos] = namePot+"_R";
-            else typesPots[pokPos] = namePot+"_C";
+            if(lastActions[pokPos]>0)typesPots[ocr.pokerPosIndWithNumOnTable[pokPos]-1] = namePot+"_R";
+            else typesPots[ocr.pokerPosIndWithNumOnTable[pokPos]-1] = namePot+"_C";
         }
+
+/*
         System.out.println("TABEL "+testTable);
         System.out.println("pot "+Arrays.toString(pot));
         System.out.println("lastact "+Arrays.toString(lastActions));
       Arrays.asList(typesPots).forEach(s-> System.out.print(s+" "));
-        System.out.println();
+        System.out.println();*/
       setDataToCreateNewHUD(typesPots);
     }
 
