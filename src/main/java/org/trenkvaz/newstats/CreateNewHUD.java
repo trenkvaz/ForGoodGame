@@ -7,7 +7,10 @@ import javafx.scene.text.Text;
 import org.apache.commons.lang3.ArrayUtils;
 import org.trenkvaz.database_hands.Work_DataBase;
 import org.trenkvaz.main.CaptureVideo;
+import org.trenkvaz.main.OCR;
+import org.trenkvaz.main.OcrUtils;
 import org.trenkvaz.ui.HUD;
+import org.trenkvaz.main.Testing.*;
 
 
 import java.io.*;
@@ -63,7 +66,7 @@ public class CreateNewHUD {
         }
     }
 
-    public void createHUDoneTable(String[] nicks,int table, String[] typesPots, int[] pokerPosIndWithNumOnTable,int posHero, int street, List<List<Float>> streetActionStats){
+    public void createHUDoneTable(Boolean[] isPot, String[] nicks, int table, String[] typesPots, int[] pokerPosIndWithNumOnTable, int posHero, int street, List<List<Float>> streetActionStats){
           // типыПоты игроки должны быть по своим местам за столом
         //List<List<Text>> resultList = new ArrayList<>();
 
@@ -96,6 +99,10 @@ public class CreateNewHUD {
                if(displayStata.posPlayer[ArrayUtils.indexOf(pokerPosIndWithNumOnTable,player+1)]==0)continue;
 
                 //if(nicks[player].equals(NICK_HERO)) System.out.println("dot 1");
+                if(displayStata.typePot.equals("Sraise_R")||displayStata.typePot.equals("Sraise_C")){
+                    isPot[0] = true;
+                }
+
 
                // if(displayStata.typePot.equals("Sraise_R")) System.out.println("GET STATS 2 "+displayStata.typePot+" "+displayStata.mainStata+" ");
                // добавление текста с расчетом возможного смещения по линиям если линия занята
@@ -181,7 +188,7 @@ public class CreateNewHUD {
         }
 
         //if(displayStata.value==3) {System.out.println("value "+displayStata.value+"  sel "+select+" s1 "+stata[1]+" s2 "+stata[2]+" res "+result);  }
-        if(displayStata.typePot.equals("Sraise_R")) System.out.println("GET STATS "+displayStata.typePot+" "+displayStata.mainStata+" "+Arrays.toString(stata)+" res "+result);
+        //if(displayStata.typePot.equals("Sraise_R")) System.out.println("GET STATS "+displayStata.typePot+" "+displayStata.mainStata+" "+Arrays.toString(stata)+" res "+result);
 
         if(result>=10)text[0].setText((result>=99)? "99":Integer.toString(Math.round(result)));
         else  text[0].setText((result==0)? "0":notZeroFormat.format(result));
@@ -196,7 +203,7 @@ public class CreateNewHUD {
             text[1].setText(Integer.toString(select));
         }
 
-        if(displayStata.typePot.equals("Sraise_R")) System.out.println("text "+text[0]);
+        //if(displayStata.typePot.equals("Sraise_R")) System.out.println("text "+text[0]);
     }
 
     private static float getProcents (int stata, int select){
@@ -504,7 +511,7 @@ public class CreateNewHUD {
        Color[] colors = new Color[]{Color.RED,Color.GREEN};
        int action = RAISE; int vertical = 1; int line =3;
        String typePot = "Sraise_R";
-       createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_ip_utg_mp_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
+       /*createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_ip_utg_mp_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
                new int[]{0,0,0,0,1,1},new int[]{1,1,0,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_ip_co_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
                new int[]{0,0,0,0,1,1},new int[]{0,0,1,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
@@ -517,7 +524,25 @@ public class CreateNewHUD {
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_co_v_all_v_bu_",null,10,action,"_value", line,vertical,
                new int[]{0,0,0,1,0,0},new int[]{0,0,1,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_sb_v_all_v_bb_",null,10,action,"_value", line,vertical,
-               new int[]{0,0,0,0,0,1},new int[]{0,0,0,0,1,0},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{0,0,0,0,0,1},new int[]{0,0,0,0,1,0},typePot,new int[]{0,50,101},colors,0,0);*/
+
+
+       action = FOLD; vertical = 1;  line =3;
+       typePot = "Sraise_C";
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_op_sb_bb_v_utg_mp_",null,10,action,"_value", line,vertical,
+               new int[]{1,1,0,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_op_sb_bb_v_co_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_op_sb_bb_v_bu_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_mp_co_v_utg_mp_",null,10,action,"_value", line,vertical,
+               new int[]{1,1,0,0,0,0},new int[]{0,1,1,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_bu_v_utg_mp_",null,10,action,"_value", line,vertical,
+               new int[]{1,1,0,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_bu_v_co_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_bb_v_sb_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},typePot,new int[]{0,50,101},colors,0,0);
    }
 
 
@@ -541,7 +566,7 @@ public class CreateNewHUD {
 
     public static void main(String[] args) {
 
-        addNewDidsplayStats();
+        //addNewDidsplayStats();
         addPostFlop();
        /*CreateNewHUD createNewHUD = new CreateNewHUD(1);
        createNewHUD.saveTypesPot("Sraise",new int[]{0,1,1,0,0,0,0});*/

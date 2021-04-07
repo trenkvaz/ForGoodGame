@@ -128,6 +128,8 @@ public class CurrentHand {
             else typesPots[ocr.pokerPosIndWithNumOnTable[pokPos]-1] = namePot+"_C";
         }
 
+
+        if(namePot!=null)ocr.testCurrentHand.setResultPotShowHUD(time_hand,pot,lastActions,true);                 //TEST
 /*
         System.out.println("TABEL "+testTable);
         System.out.println("pot "+Arrays.toString(pot));
@@ -155,7 +157,12 @@ public class CurrentHand {
         if(street==2) streetActionsStats = turnActionsStats;
         if(street==3) streetActionsStats = riverActionsStats;*/
         //creatingHUD.addNewHUDToOldHUD();
-        createNewHUD.createHUDoneTable(nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero,0,null);
+
+        Boolean[] isPot = {false};                                                                                       //TEST
+
+        createNewHUD.createHUDoneTable(isPot,nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero,0,null);
+
+        if(ocr.testCurrentHand.isPot)ocr.testCurrentHand.resultPotShowHUD+=" "+isPot[0]+"\r\n";                          // TEST
     }
 
 

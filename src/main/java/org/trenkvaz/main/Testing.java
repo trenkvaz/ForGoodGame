@@ -50,6 +50,8 @@ class TestCurrentHand {
     float resultHero;
     int streetAllIn = -1;
     String descriptionResultHero = "";
+    public String resultPotShowHUD = "";
+    public boolean isPot = false;
 
     List<String> methodes = new ArrayList<>();
 
@@ -134,6 +136,12 @@ class TestCurrentHand {
     }
 
     public void setDefinedStacks(int pos, float stack){definedStacks[pos]=stack;}
+
+
+    public void setResultPotShowHUD(long numHand,int[]pot,int[]lastActs,boolean isHUD){
+        resultPotShowHUD+=numHand+" "+Arrays.toString(pot)+" "+Arrays.toString(lastActs);
+        isPot = isHUD;
+    }
 
 
     public void finalCurrendHand(){
@@ -394,6 +402,7 @@ public class Testing {
        /* String linemethodes = "";
         for(String method:testCurrentHand.methodes)linemethodes+=method+"\r\n";
         System.out.println(linemethodes);*/
+        Testing.write_LogTest(testCurrentHand.resultPotShowHUD,"resultPotShowHUD");
     }
 
 
@@ -532,7 +541,7 @@ public class Testing {
     }
 
     static void clearTextFiles(){
-        String[] namefiles = {"totalRiver","totalTurn","totalFlop","totalPreflop","UnknownError","resultHero","logtest","allines"};
+        String[] namefiles = {"totalRiver","totalTurn","totalFlop","totalPreflop","UnknownError","resultHero","logtest","allines","resultPotShowHUD"};
         try {
             for(String namefile:namefiles)
                 Files.newBufferedWriter(Paths.get(home_folder+"\\test\\"+namefile+".txt"), StandardOpenOption.TRUNCATE_EXISTING);
@@ -1275,7 +1284,7 @@ public class Testing {
 
     /*   clearTextFiles();
        clearImgFiles();*/
-
+        clearTextFiles();
        /*ArrayList<String> a =new ArrayList<>();
        a.get(0);
        String d ="";*/
@@ -1288,7 +1297,7 @@ public class Testing {
             else second = raiseSizesForRange[i];
             System.out.println(first+" "+second);
         }*/
-      String h = "12345678911234";
+      /*String h = "12345678911234";
         System.out.println("*"+h.substring(0,13));
         //System.out.println(h.substring(h.indexOf(" ",2)).replaceAll("[^0-9]\\.?[^0-9]","").replaceAll("[^0-9.]",""));
         DecimalFormatSymbols decimalSymbols = DecimalFormatSymbols.getInstance();
@@ -1297,6 +1306,6 @@ public class Testing {
         DecimalFormat numberFormat = new DecimalFormat("#.##",decimalSymbols);
         float g = 0;
         System.out.println(g);
-        System.out.println(numberFormat.format(g));
+        System.out.println(numberFormat.format(g));*/
     }
 }

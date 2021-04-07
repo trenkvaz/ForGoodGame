@@ -55,7 +55,7 @@ public class OCR implements Runnable {
     // test
     record TestRecFrameTimeHand(BufferedImage imges_frame,long timehand){}
     List<TestRecFrameTimeHand> images_framestimehands = new ArrayList<>(3);
-    TestCurrentHand testCurrentHand;
+    public TestCurrentHand testCurrentHand;
 
 
     public OCR(int table){
@@ -134,7 +134,7 @@ public class OCR implements Runnable {
     private void main_work_on_table(){
         if(isTestDBandStats){
         //if(table!=1&&table!=2)return;
-        if(table!=3)return;
+        if(table!=4)return;
         }
 
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
@@ -1172,8 +1172,9 @@ public class OCR implements Runnable {
        }
        else {
            // если стек равен текущему стеку, значит игрок не колил, а сфолдил
-           //if(pokerPos==5) System.out.println("stack "+stack+" curstack "+currentStacks[pokerPos]+" maxraise "+maxRaise+" curinvest "+curActsOrInvests[pokerPos]);
-           if(stack==currentHand.startStacksAtStreets[street][pokerPos]) {  curActsOrInvests[pokerPos] = -10;
+           //if(pokerPos==5) System.out.println("stack "+stack+" curstack "+currentHand.startStacksAtStreets[street][pokerPos]+" maxraise "+maxRaise+" curinvest "+curActsOrInvests[pokerPos]);
+           if(stack==BigDecimal.valueOf(currentHand.startStacksAtStreets[street][pokerPos]-curActsOrInvests[pokerPos]).
+                   setScale(SCALE, RoundingMode.HALF_UP).floatValue()) {  curActsOrInvests[pokerPos] = -10;
                actionsStats.get(pokerPos).add(Float.NEGATIVE_INFINITY);
 
 

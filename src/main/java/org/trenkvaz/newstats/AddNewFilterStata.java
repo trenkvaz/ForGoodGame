@@ -197,7 +197,7 @@ public class AddNewFilterStata {
         String nameStata = "";
         // СДЕЛАТЬ СТАТЫ ДОСТУПНЫМИ ДЛЯ РАСЧЕТА ВО ВРЕМЯ ИГРЫ !!!
 
-        conditionsPreflopActions.add(new int[]{2,-1,-1, -1, -1,-1,-1,-1,-1,-1,-1});
+        /*conditionsPreflopActions.add(new int[]{2,-1,-1, -1, -1,-1,-1,-1,-1,-1,-1});
         conditionsPreflopActions.add(new int[]{0,-1,-1, -1, 2,-1,-1,-1,-1,-1,-1});
         conditionsFlopActions.add(new int[]{0,10});
         nameStata = "sraisepot_vs_caller_flop_ip_";
@@ -238,10 +238,10 @@ public class AddNewFilterStata {
         filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
                 .setPosStata(new int[]{0,0,0,0,1,0},new int[][]{{1,1,1,1,1,1},{0,0,0,0,0,1}}).setStreetOfActs(FLOP).
                         setConditionsPreflopActions(conditionsPreflopActions).setConditionsPostFlopActions(conditionsFlopActions,FLOP).isAllowInGame().build();
-        workStats1.createOneNewStata(filterStata);
+        workStats1.createOneNewStata(filterStata);*/
 
 
-        /*conditionsPreflopActions = new ArrayList<>();
+        conditionsPreflopActions = new ArrayList<>();
         conditionsFlopActions = new ArrayList<>();
         conditionsPreflopActions.add(new int[]{-2,-1,-1, 2, -1,-1,-1,-1,-1,-1,-1});
         conditionsFlopActions.add(new int[]{10,1});
@@ -283,7 +283,7 @@ public class AddNewFilterStata {
         filterStata = new FilterStata.Builder().setMainNameFilter(nameStata)
                 .setPosStata(new int[]{0,0,0,0,0,1},new int[][]{{0,0,0,0,1,0},}).setStreetOfActs(FLOP).
                         setConditionsPreflopActions(conditionsPreflopActions).setConditionsPostFlopActions(conditionsFlopActions,FLOP).isAllowInGame().build();
-        workStats1.createOneNewStata(filterStata);*/
+        workStats1.createOneNewStata(filterStata);
 
     }
 
