@@ -134,7 +134,7 @@ public class OCR implements Runnable {
     private void main_work_on_table(){
         if(isTestDBandStats){
         //if(table!=1&&table!=2)return;
-        if(table!=4)return;
+        //if(table!=4)return;
         }
 
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }

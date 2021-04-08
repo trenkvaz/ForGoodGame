@@ -526,8 +526,27 @@ public class CreateNewHUD {
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_sb_v_all_v_bb_",null,10,action,"_value", line,vertical,
                new int[]{0,0,0,0,0,1},new int[]{0,0,0,0,1,0},typePot,new int[]{0,50,101},colors,0,0);*/
 
+       // синглрейзпот против контбета фолд
+     /*  action = FOLD; vertical = 1;  line =3;
+       typePot = "Sraise_C";
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_op_sb_bb_v_utg_mp_",null,10,action,"_value", line,vertical,
+               new int[]{1,1,0,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_op_sb_bb_v_co_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_op_sb_bb_v_bu_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_mp_co_v_utg_mp_",null,10,action,"_value", line,vertical,
+               new int[]{1,1,0,0,0,0},new int[]{0,1,1,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_bu_v_utg_mp_",null,10,action,"_value", line,vertical,
+               new int[]{1,1,0,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_bu_v_co_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_bb_v_sb_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},typePot,new int[]{0,50,101},colors,0,0);*/
 
-       action = FOLD; vertical = 1;  line =3;
+
+      // синглрейзпот против контбета рейз
+       action = RAISE; vertical = 0;  line =3;
        typePot = "Sraise_C";
        createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_op_sb_bb_v_utg_mp_",null,10,action,"_value", line,vertical,
                new int[]{1,1,0,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);

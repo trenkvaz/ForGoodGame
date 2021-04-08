@@ -51,7 +51,7 @@ public class CurrentHand {
     List<List<Float>> riverActionsStats = new ArrayList<>(6);
     static String[][] testCards = new String[6][2];
 
-    boolean isSetTypePot = false;
+    
 
     /*List<List<String>> allActionsTest = new ArrayList<>(6);
     float[] currentStacks = new float[6];*/
@@ -87,7 +87,7 @@ public class CurrentHand {
 
 
     public void setTypePotForPostFlop(){
-        if(isSetTypePot)return;
+
         //System.out.println(RED+"TYPES POT"+RESET);
         int maxSizeListActions = preflopActionsStats.stream().mapToInt(List::size).max().getAsInt();
         int[] pot = new int[7]; // limp raise call 3bet call3bet 4bet call4bet    лимпы и коллы если один 1 если больше то 2

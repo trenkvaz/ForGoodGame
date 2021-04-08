@@ -144,9 +144,11 @@ public class WorkStats implements Serializable {
 
 
    public void deleteFilterStata(FilterStata stata){
+       String workOrTest = "\\all_settings\\capture_video\\descriptions_filterstata.txt";
+       if(isTestDBandStats)workOrTest = "\\all_settings_test\\descriptions_filterstata.txt";
        System.out.println("DELETE");
        List<String> listFilterStata =new ArrayList<>();
-       try { BufferedReader br = new BufferedReader(new FileReader(new File(home_folder+"\\all_settings\\capture_video\\descriptions_filterstata.txt")));
+       try { BufferedReader br = new BufferedReader(new FileReader(new File(home_folder+workOrTest)));
            String line;while ((line = br.readLine()) != null) { listFilterStata.add(line); }br.close();
        } catch (IOException e) {
            e.printStackTrace();
