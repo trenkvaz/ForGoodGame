@@ -97,6 +97,7 @@ public class CurrentHand {
             for(int pokPos=0; pokPos<6; pokPos++){
                 if(preflopActionsStats.get(pokPos).size()-1<act)continue;
                 float actionSize = preflopActionsStats.get(pokPos).get(act);
+                //System.out.println("act "+actionSize);
                 if(actionSize==Float.NEGATIVE_INFINITY)actionType=-10;
                 else if(actionSize==Float.POSITIVE_INFINITY)actionType= 10;
                 else if(actionSize!=Float.NEGATIVE_INFINITY&&actionSize<0)actionType= -(raise);
@@ -115,6 +116,7 @@ public class CurrentHand {
                 }
             }
         String namePot = null;
+        //System.out.println("pot "+Arrays.toString(pot));
         for(Map.Entry<String,int[]> entry: mapTypesPots.entrySet()) {
             //System.out.println(entry.getKey()+" "+Arrays.toString(entry.getValue()));
             if(Arrays.equals(entry.getValue(),pot)){ namePot = entry.getKey(); break; }
@@ -130,12 +132,12 @@ public class CurrentHand {
 
 
         if(namePot!=null)ocr.testCurrentHand.setResultPotShowHUD(time_hand,pot,lastActions,true);                 //TEST
-/*
-        System.out.println("TABEL "+testTable);
+
+        /*System.out.println("TABEL "+testTable);
         System.out.println("pot "+Arrays.toString(pot));
         System.out.println("lastact "+Arrays.toString(lastActions));
-      Arrays.asList(typesPots).forEach(s-> System.out.print(s+" "));
-        System.out.println();*/
+        System.out.println("strpot "+Arrays.toString(typesPots));*/
+
       setDataToCreateNewHUD(typesPots);
     }
 

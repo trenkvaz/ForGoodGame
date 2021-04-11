@@ -530,9 +530,9 @@ public class ReadHistoryGetStats {
 
 
 
-        //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_nicks_right");
+        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_nicks_right");
 
-        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
+        //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
 
     }
 }
