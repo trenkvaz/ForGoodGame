@@ -160,7 +160,7 @@ public class CurrentHand {
         if(street==3) streetActionsStats = riverActionsStats;*/
         //creatingHUD.addNewHUDToOldHUD();
 
-        Boolean[] isPot = {false};                                                                                       //TEST
+        boolean[] isPot = new boolean[1];                                                                                //TEST
 
         createNewHUD.createHUDoneTable(isPot,nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero,0,null);
 

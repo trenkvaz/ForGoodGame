@@ -58,7 +58,7 @@ public class FilterStata implements Serializable {
 
 
     public void countOnePlayerStata(boolean isInGame,int posPlayer,String nick, float stack, List<List<List<Float>>> sizeActionsStreetsStats,
-                                    boolean isWin,boolean isShowDown,String[] cardsPlayer,int rangePlayer,int posHero,DataStata dataStata,List<int[][]> listPokerActionsInRoundsByPositions){
+                                    boolean isWin,boolean isShowDown,String[] cardsPlayer,int rangePlayer,int posHero,DataStata dataStata,List<int[][]> listPokerActionsInRoundsByPositions,String[] myCards){
         if(isInGame)if(!isAllowInGame)return;
         if(posesPlayer[posPlayer]==0)return;
         //DataStata dataStata = getNewDataStata(nick);
@@ -66,13 +66,15 @@ public class FilterStata implements Serializable {
 
                                                                                                                           // TEST !!
 
-       /* if(getFullNameStata().equals("sraisepot_vs_caller_turn_ip_bu_v_all_v_sb_bb_")&&nick.equals("$ю$"+NICK_HERO+"$ю$")){
+        /*if(getFullNameStata().equals("3betpot_vs_contbet_flop_op_co_v_all_v_bu_")
+              //  &&nick.equals("$ю$"+NICK_HERO+"$ю$")
+        ) {
 
             card = cardsPlayer;
         } else return;*/
 
-
-
+        //card = myCards;
+        //System.out.println(nick);
 
         if(streetOfActs==-1){ countSpecialNotActionStats(dataStata,sizeActionsStreetsStats,posPlayer,isWin,isShowDown,listPokerActionsInRoundsByPositions.get(0));}
         else if(streetOfActs==0){countPreflop(dataStata,sizeActionsStreetsStats.get(0),posPlayer,nick,stack,rangePlayer,posHero, listPokerActionsInRoundsByPositions.get(0));}
@@ -195,11 +197,14 @@ public class FilterStata implements Serializable {
     private boolean isEqualsPreflopConditionsToActions(int[][] actsRoundsByPoses, int round, int posPlayer){
         // проверка необходимое действие предидущих раундов игрока совпадало с реальным действием в первом раунде
         // или если это условие типа пота то все действия должны совпадать
+        /*System.out.println("card "+Arrays.toString(card)+" "+round);
+        System.out.println(round+"  "+conditionsPreflopActions.get(round)[0]+"  "+actsRoundsByPoses.length);*/
 
-       // System.out.println(round+"  "+conditionsPreflopActions.get(round)[0]+"  "+actsRoundsByPoses[round][posPlayer]);
 
-
-        if(conditionsPreflopActions.get(round)[0]!=0)if(conditionsPreflopActions.get(round)[0]!=actsRoundsByPoses[round][posPlayer])return false;
+        if(conditionsPreflopActions.get(round)[0]!=0){
+            if(actsRoundsByPoses.length<round+1)return false;
+            if(conditionsPreflopActions.get(round)[0]!=actsRoundsByPoses[round][posPlayer])return false;
+        }
 
        // System.out.println("preflop card "+Arrays.toString(card));
 

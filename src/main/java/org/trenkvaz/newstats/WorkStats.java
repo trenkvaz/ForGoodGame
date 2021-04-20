@@ -5,6 +5,7 @@ import org.trenkvaz.database_hands.Work_DataBase;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.IntStream;
 
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
@@ -45,6 +46,11 @@ public class WorkStats implements Serializable {
         boolean isWin = false, isShowDown = false; int rangePlayer = 0;
         Map<String, DataStata> mapNameFilterDataStata = null; FilterStata filterStata = null; DataStata dataStata = null;
         List<int[][]> listPokerActionsInRoundsByPositions = getListPokerActionsInRoundsByPositions(sizeActionsStreetsStats);
+
+        // TEST
+        //int mypos = IntStream.range(0,6).filter(c->nicks[c]!=null).filter(c->nicks[c].equals("trenkvaz")).findFirst().getAsInt();
+
+
         for(int pokPos=0; pokPos<6; pokPos++){
             if(nicks[pokPos]==null)continue;
             rangePlayer = 0;
@@ -55,9 +61,8 @@ public class WorkStats implements Serializable {
             } // карты обрабатываются только вне игры вин и шоудаун пока только вне игры
             nicks[pokPos] = "$ю$"+nicks[pokPos]+"$ю$";
 
-           /* if(nicks[pokPos].equals("$ю$trenkvaz$ю$")){System.out.println(rangePlayer+" sd "+isShowDown+" win "+isWin);
-            if(isShowDown)countSD++;
-            }*/
+           /* int testMypos = -1;
+            if(nicks[pokPos].equals("$ю$trenkvaz$ю$")){ testMypos = pokPos; }*/
 
             mapNameFilterDataStata = mapNicksMapsNameFilterDataStata.get(nicks[pokPos]);
             if(mapNameFilterDataStata==null){ mapNameFilterDataStata = creatMapNameFilterDataStataOnePlayer();mapNicksMapsNameFilterDataStata.put(nicks[pokPos],mapNameFilterDataStata);}
@@ -66,7 +71,7 @@ public class WorkStats implements Serializable {
                 filterStata = statsMap.get(nameFilter);
                 dataStata = mapNameFilterDataStata.get(nameFilter);
                 filterStata.countOnePlayerStata(isInGame,pokPos,nicks[pokPos],stacks[pokPos],sizeActionsStreetsStats,isWin,isShowDown,
-                        cards[pokPos],rangePlayer,posHero,dataStata,listPokerActionsInRoundsByPositions);
+                        cards[pokPos],rangePlayer,posHero,dataStata,listPokerActionsInRoundsByPositions,null);
             }
         }
 

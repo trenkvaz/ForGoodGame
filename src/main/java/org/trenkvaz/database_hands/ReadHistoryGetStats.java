@@ -40,7 +40,7 @@ public class ReadHistoryGetStats {
     static WorkStats workStats;
     static boolean isNewStatsCount = false;
 
-    static boolean isHeroCard = false;
+    static boolean isHeroCard =false;
 
     static boolean isAllHandsHistory = true;                                 // ВАЖНО !!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
@@ -158,6 +158,7 @@ public class ReadHistoryGetStats {
          if(cards[posHero][0]==null){
              cards[posHero] = read_CardsHeroForHistoryHand(hand);
          }
+        // System.out.println("cardsHero "+Arrays.toString(cards[posHero]));
      }
      totalHero+=resulHero;
      numHandResultHeroHistory.put(Long.parseLong(hand.get(0).substring(28,41)),resulHero);
@@ -532,7 +533,7 @@ public class ReadHistoryGetStats {
 
         start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_nicks_right");
 
-        //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
+       // start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
 
     }
 }

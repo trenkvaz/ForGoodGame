@@ -554,7 +554,7 @@ static String work_database;
     }*/
 
     public static void main(String[] args) {
-       delete_DataBase("fg_testnewstats");
+       delete_DataBase("fg_work");
 
        /* new Work_DataBase();
         test_select();
