@@ -42,7 +42,7 @@ public class ReadHistoryGetStats {
 
     static boolean isHeroCard =false;
 
-    static boolean isAllHandsHistory = true;                                 // ВАЖНО !!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+    static boolean isAllHandsHistory = false;                                 // ВАЖНО !!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
     static {  for(int f=0; f<6; f++){
         preflopActions.add(new ArrayList<Float>()); preflopActions.get(f).add(0.0f);
@@ -531,9 +531,9 @@ public class ReadHistoryGetStats {
 
 
 
-        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_nicks_right");
+        //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_nicks_right");
 
-       // start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
+        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
 
     }
 }

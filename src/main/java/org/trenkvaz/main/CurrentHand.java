@@ -131,7 +131,7 @@ public class CurrentHand {
         }
 
 
-        if(namePot!=null)ocr.testCurrentHand.setResultPotShowHUD(time_hand,pot,lastActions,true);                 //TEST
+        //if(namePot!=null)ocr.testCurrentHand.setResultPotShowHUD(time_hand,pot,lastActions,true);                 //TEST
 
         /*System.out.println("TABEL "+testTable);
         System.out.println("pot "+Arrays.toString(pot));
@@ -160,11 +160,11 @@ public class CurrentHand {
         if(street==3) streetActionsStats = riverActionsStats;*/
         //creatingHUD.addNewHUDToOldHUD();
 
-        boolean[] isPot = new boolean[1];                                                                                //TEST
+       // boolean[] isPot = new boolean[1];                                                                                //TEST
 
-        createNewHUD.createHUDoneTable(isPot,nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero,0,null);
+        createNewHUD.createHUDoneTable(null,nicks,ocr.table-1,typesPots,ocr.pokerPosIndWithNumOnTable,pokerPosHero,0,null);
 
-        if(ocr.testCurrentHand.isPot)ocr.testCurrentHand.resultPotShowHUD+=" "+isPot[0]+"\r\n";                          // TEST
+        //if(ocr.testCurrentHand.isPot)ocr.testCurrentHand.resultPotShowHUD+=" "+isPot[0]+"\r\n";                          // TEST
     }
 
 

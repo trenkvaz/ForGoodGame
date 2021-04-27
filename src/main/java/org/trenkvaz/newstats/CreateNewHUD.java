@@ -28,7 +28,7 @@ import static org.trenkvaz.ui.StartAppLauncher.*;
 public class CreateNewHUD {
 
     static DecimalFormat notZeroFormat = (DecimalFormat) NumberFormat.getNumberInstance(Locale.UK);
-    private static List<List<List<DisplayStata>>> displayStataList;
+    public static List<List<List<DisplayStata>>> displayStataList;
     public static Map<String,int[]> mapTypesPots;
     static final int SIZE_FONT_STATA = 14;
     static final int SIZE_FONT_SELECT = 10;
@@ -87,21 +87,27 @@ public class CreateNewHUD {
             }
 
             for(DisplayStata displayStata:displayStataList.get(line).get(stata)){
+                /*System.out.println("type "+displayStata.typePot);
+                if(displayStata.typePot.equals("3betpot_C")) System.out.println("GET STATS 1 "+displayStata.posHero[posHero]+
+                        " "+displayStata.posPlayer[ArrayUtils.indexOf(pokerPosIndWithNumOnTable,player+1)]+" ");*/
+
 
                if(!displayStata.typePot.equals("ALL")&&(!displayStata.typePot.equals(typesPots[player])))continue;
 
 
-                //System.out.println(displayStata.posHero.length+" heropos "+posHero);
-                /*if(displayStata.typePot.equals("Sraise_R")) System.out.println("GET STATS 1 "+displayStata.posHero[posHero]+
-                        " "+displayStata.posPlayer[ArrayUtils.indexOf(pokerPosIndWithNumOnTable,player+1)]+" ");
-*/
+
+                /*if(displayStata.typePot.equals("3betpot_C")) System.out.println("GET STATS 2 "+displayStata.posHero[posHero]+
+                        " "+displayStata.posPlayer[ArrayUtils.indexOf(pokerPosIndWithNumOnTable,player+1)]+" ");*/
+
+
                if(displayStata.posHero[posHero]==0)continue;
                if(displayStata.posPlayer[ArrayUtils.indexOf(pokerPosIndWithNumOnTable,player+1)]==0)continue;
 
                 //if(nicks[player].equals(NICK_HERO)) System.out.println("dot 1");
-                if(displayStata.typePot.equals("Sraise_R")||displayStata.typePot.equals("Sraise_C")||displayStata.typePot.equals("3betpot_R")){
+                /*if(displayStata.typePot.equals("Sraise_R")||displayStata.typePot.equals("Sraise_C")
+                        ||displayStata.typePot.equals("3betpot_R")||displayStata.typePot.equals("3betpot_C")){
                     isPot[0] = true;
-                }
+                }*/
 
 
                // if(displayStata.typePot.equals("Sraise_R")) System.out.println("GET STATS 2 "+displayStata.typePot+" "+displayStata.mainStata+" ");
@@ -438,12 +444,6 @@ public class CreateNewHUD {
                new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},"ALL",new int[]{0,10,101},colors,0,0);
 
 
-       /*CreatingHUD.RangeColor rfiUtgRangeColor = new CreatingHUD.RangeColor(new int[]{0,10,20,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
-       CreatingHUD.RangeColor rfiMpRangeColor = new CreatingHUD.RangeColor(new int[]{0,12,22,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
-       CreatingHUD.RangeColor rfiCoRangeColor = new CreatingHUD.RangeColor(new int[]{0,22,30,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
-       CreatingHUD.RangeColor rfiBuRangeColor = new CreatingHUD.RangeColor(new int[]{0,30,45,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});
-       CreatingHUD.RangeColor rfiSbRangeColor = new CreatingHUD.RangeColor(new int[]{0,32,45,101},new Paint[]{Color.RED,Color.ORANGE,Color.GREEN});*/
-
 
        colors = new Color[]{Color.RED,Color.ORANGE,Color.GREEN};
        createNewHUD.creatNewDisplayStata("rfi_utg_v_all",null,10,action,"_value", 1,0,
@@ -515,7 +515,7 @@ public class CreateNewHUD {
        Color[] colors = new Color[]{Color.RED,Color.GREEN};
        int action = RAISE; int vertical = 0; int line =3; String typePot = "";
        // синглейрпот котбет флоп
-      /* typePot = "Sraise_R";
+       typePot = "Sraise_R";
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_ip_utg_mp_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
                new int[]{0,0,0,0,1,1},new int[]{1,1,0,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_ip_co_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
@@ -529,10 +529,10 @@ public class CreateNewHUD {
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_co_v_all_v_bu_",null,10,action,"_value", line,vertical,
                new int[]{0,0,0,1,0,0},new int[]{0,0,1,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_flop_op_sb_v_all_v_bb_",null,10,action,"_value", line,vertical,
-               new int[]{0,0,0,0,0,1},new int[]{0,0,0,0,1,0},typePot,new int[]{0,50,101},colors,0,0);*/
+               new int[]{0,0,0,0,0,1},new int[]{0,0,0,0,1,0},typePot,new int[]{0,50,101},colors,0,0);
 
        // синглрейзпот против контбета фолд флоп
-      /* action = FOLD; vertical = 0;  line =3;
+       action = FOLD; vertical = 0;  line =3;
        typePot = "Sraise_C";
        createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_op_sb_bb_v_utg_mp_",null,10,action,"_value", line,vertical,
                new int[]{1,1,0,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
@@ -548,29 +548,29 @@ public class CreateNewHUD {
                new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_bb_v_sb_",null,10,action,"_value", line,vertical,
                new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},typePot,new int[]{0,50,101},colors,0,0);
-*/
 
       // синглрейзпот против контбета рейз флоп
-    /*   action = RAISE; vertical = 4;  line =3;
+       action = RAISE; vertical = 4;  line =3;
+         colors = new Color[]{Color.RED,Color.PURPLE};
        typePot = "Sraise_C";
        createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_op_sb_bb_v_utg_mp_",null,10,action,"_value", line,vertical,
-               new int[]{1,1,0,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{1,1,0,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,5,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_op_sb_bb_v_co_",null,10,action,"_value", line,vertical,
-               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,5,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_op_sb_bb_v_bu_",null,10,action,"_value", line,vertical,
-               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,1},typePot,new int[]{0,5,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_mp_co_v_utg_mp_",null,10,action,"_value", line,vertical,
-               new int[]{1,1,0,0,0,0},new int[]{0,1,1,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{1,1,0,0,0,0},new int[]{0,1,1,0,0,0},typePot,new int[]{0,5,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_bu_v_utg_mp_",null,10,action,"_value", line,vertical,
-               new int[]{1,1,0,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{1,1,0,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,5,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_bu_v_co_",null,10,action,"_value", line,vertical,
-               new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
+               new int[]{0,0,1,0,0,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,5,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("sraisepot_vs_contbet_raiser_flop_ip_bb_v_sb_",null,10,action,"_value", line,vertical,
-               new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},typePot,new int[]{0,50,101},colors,0,0);
-*/
+               new int[]{0,0,0,0,1,0},new int[]{0,0,0,0,0,1},typePot,new int[]{0,5,101},colors,0,0);
 
        // 3бетпот контбет флоп
-       /*action = RAISE; vertical = 0;  line =3;
+       action = RAISE; vertical = 0;  line =3;
+       colors = new Color[]{Color.RED,Color.GREEN};
        typePot = "3betpot_R";
        createNewHUD.creatNewDisplayStata("3betpot_vs_caller_flop_ip_mp_co_bu_v_utg_mp__v_utg_mp_",null,10,action,"_value", line,vertical,
                new int[]{1,1,0,0,0,0},new int[]{0,1,1,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
@@ -588,12 +588,12 @@ public class CreateNewHUD {
                new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,1,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("3betpot_vs_caller_flop_op_bb_v_bu__v_bu_",null,10,action,"_value", line,vertical,
                new int[]{0,0,0,1,0,0},new int[]{0,0,0,0,0,1},typePot,new int[]{0,50,101},colors,0,0);
-*/
 
 
-       // 3бетпот против контбета
+       // 3бетпот против контбета фолд
        action = FOLD; vertical = 0;  line =3;
-       typePot = "3betpot_С";
+       colors = new Color[]{Color.RED,Color.GREEN};
+       typePot = "3betpot_C";
        createNewHUD.creatNewDisplayStata("3betpot_vs_contbet_flop_op_utg_mp_v_all_v_mp_co_bu_",null,10,action,"_value", line,vertical,
                new int[]{0,1,1,1,0,0},new int[]{1,1,0,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("3betpot_vs_contbet_flop_op_co_v_all_v_bu_",null,10,action,"_value", line,vertical,
@@ -611,6 +611,29 @@ public class CreateNewHUD {
                new int[]{0,0,0,0,1,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
        createNewHUD.creatNewDisplayStata("3betpot_vs_contbet_flop_ip_bu_v_all_v_bb_",null,10,action,"_value", line,vertical,
                new int[]{0,0,0,0,0,1},new int[]{0,0,0,1,0,0},typePot,new int[]{0,50,101},colors,0,0);
+
+
+       // 3бетпот против контбета рейз
+       action = RAISE; vertical = 4;  line =3;
+       colors = new Color[]{Color.RED,Color.PURPLE};
+       typePot = "3betpot_C";
+       createNewHUD.creatNewDisplayStata("3betpot_vs_contbet_flop_op_utg_mp_v_all_v_mp_co_bu_",null,10,action,"_value", line,vertical,
+               new int[]{0,1,1,1,0,0},new int[]{1,1,0,0,0,0},typePot,new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("3betpot_vs_contbet_flop_op_co_v_all_v_bu_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,1,0,0},new int[]{0,0,1,0,0,0},typePot,new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("3betpot_vs_contbet_flop_op_sb_v_all_v_bb_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,0,0,1},new int[]{0,0,0,0,1,0},typePot,new int[]{0,10,101},colors,0,0);
+
+       createNewHUD.creatNewDisplayStata("3betpot_vs_contbet_flop_ip_utg_mp_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,0,1,1},new int[]{1,1,0,0,0,0},typePot,new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("3betpot_vs_contbet_flop_ip_co_v_all_v_sb_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,1,0,0,0},typePot,new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("3betpot_vs_contbet_flop_ip_co_v_all_v_bb_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,0,0,1},new int[]{0,0,1,0,0,0},typePot,new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("3betpot_vs_contbet_flop_ip_bu_v_all_v_sb_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,0,1,0},new int[]{0,0,0,1,0,0},typePot,new int[]{0,10,101},colors,0,0);
+       createNewHUD.creatNewDisplayStata("3betpot_vs_contbet_flop_ip_bu_v_all_v_bb_",null,10,action,"_value", line,vertical,
+               new int[]{0,0,0,0,0,1},new int[]{0,0,0,1,0,0},typePot,new int[]{0,10,101},colors,0,0);
    }
 
 
@@ -620,7 +643,7 @@ public class CreateNewHUD {
         int action = RAISE; int vertical = 1; int line =3;
         String typePot = "Sraise_R";
         // синглейрпот котбет терн
-       /* createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_turn_ip_utg_mp_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
+        createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_turn_ip_utg_mp_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
                 new int[]{0,0,0,0,1,1},new int[]{1,1,0,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
         createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_turn_ip_co_v_all_v_sb_bb_",null,10,action,"_value", line,vertical,
                 new int[]{0,0,0,0,1,1},new int[]{0,0,1,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
@@ -633,7 +656,7 @@ public class CreateNewHUD {
         createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_turn_op_co_v_all_v_bu_",null,10,action,"_value", line,vertical,
                 new int[]{0,0,0,1,0,0},new int[]{0,0,1,0,0,0},typePot,new int[]{0,50,101},colors,0,0);
         createNewHUD.creatNewDisplayStata("sraisepot_vs_caller_turn_op_sb_v_all_v_bb_",null,10,action,"_value", line,vertical,
-                new int[]{0,0,0,0,0,1},new int[]{0,0,0,0,1,0},typePot,new int[]{0,50,101},colors,0,0);*/
+                new int[]{0,0,0,0,0,1},new int[]{0,0,0,0,1,0},typePot,new int[]{0,50,101},colors,0,0);
 
 
         // синглрейзпот против контбета терн фолд
@@ -678,12 +701,14 @@ public class CreateNewHUD {
 
     public static void main(String[] args) {
 
-        //addNewDidsplayStats();
+        addNewDidsplayStats();
         addPostFlop();
       /* CreateNewHUD createNewHUD = new CreateNewHUD();
        createNewHUD.saveTypesPot("3betpot",new int[]{0,1,0,1,1,0,0});
         createNewHUD.saveTypesPot("Sraise",new int[]{0,1,1,0,0,0,0});*/
-     // addTurn();
+      addTurn();
+       /* CreateNewHUD createNewHUD = new CreateNewHUD();
+        createNewHUD.displayStataList.forEach(c->c.forEach(a->a.forEach(b-> System.out.println(b.typePot))));*/
     }
 }
 

@@ -574,12 +574,12 @@ public class AddNewFilterStata {
         new Work_DataBase();
 
 
-        addOldFilterStats();
-        addNewFilterStats();
+        /*addOldFilterStats();
+        addNewFilterStats();*/
 
 
-        addTurnFilters();
-        //testGetStata();
+       // addTurnFilters();
+        testGetStata();
 
         close_DataBase();
     }

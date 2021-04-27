@@ -402,7 +402,7 @@ public class Testing {
        /* String linemethodes = "";
         for(String method:testCurrentHand.methodes)linemethodes+=method+"\r\n";
         System.out.println(linemethodes);*/
-        Testing.write_LogTest(testCurrentHand.resultPotShowHUD,"resultPotShowHUD");
+        //Testing.write_LogTest(testCurrentHand.resultPotShowHUD,"resultPotShowHUD");
     }
 
 
