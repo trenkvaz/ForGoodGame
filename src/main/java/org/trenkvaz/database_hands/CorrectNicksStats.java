@@ -2,6 +2,8 @@ package org.trenkvaz.database_hands;
 
 
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -9,6 +11,7 @@ import java.util.*;
 import static org.trenkvaz.database_hands.Work_DataBase.*;
 import static org.trenkvaz.main.CaptureVideo.*;
 import static org.trenkvaz.main.OcrUtils.get_AmountOneBitInLong;
+import static org.trenkvaz.main.OcrUtils.get_intGreyColor;
 import static org.trenkvaz.ui.StartAppLauncher.home_folder;
 
 public class CorrectNicksStats {
@@ -17,6 +20,28 @@ public class CorrectNicksStats {
     public static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_NEWnicks = new TreeMap<>();
     static HashMap<Long,String> hashmap_id_img_pix_OLDnick = new HashMap<>();
     static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_OLDnicks = new TreeMap<>();
+
+
+    public static void readIdNicks(){
+        String nick = ""; Long id = null;
+        for(File a: new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\id_nicks").listFiles()){
+            if(a.isFile()){
+              nick = a.getName().substring(0,a.getName().lastIndexOf(" "));
+              id = Long.parseLong(a.getName().substring(a.getName().lastIndexOf(" ")+1,a.getName().lastIndexOf("_")));
+                hashmap_id_img_pix_NEWnick.put(id,nick);
+                //System.out.println(nick+"*"+id+"*");
+                try {
+                    BufferedImage image = ImageIO.read(a);
+                    sortedmap_all_imgs_pix_of_NEWnicks.put(id,get_longarr_HashImage(image,0,2,image.getWidth(),image.getHeight()-3,15));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            //break;
+        }
+    }
+
 
 
 
@@ -34,6 +59,8 @@ public class CorrectNicksStats {
                     img_pix[i-1] = Long.parseLong(arr_line[i]);
                 }
                 sortedmap_all_imgs_pix_of_NEWnicks.put(img_pix[15],img_pix);
+
+                System.out.println(Long.parseLong(arr_line[16])+" "+img_pix[15]);
             }
             br.close();
         } catch (IOException e) {
@@ -85,7 +112,10 @@ public class CorrectNicksStats {
     // коррекция главного списка ников убирание дубликатов и объединение их стат
     // полученный новый файл ников переименовывать в стандартный и переносить в папку настроеек и заменять текущий файл с никами
     static void checkDublicatHashLikeImg(){
-        read_Newfile_with_nicks_and_img_pixs();
+        //read_Newfile_with_nicks_and_img_pixs();
+        readIdNicks();
+
+
         //read_OLDfile_with_nicks_and_img_pixs();
         count_one_in_numbers = Settings.read_ObjectFromFile("count_one_in_numbers");
         boolean printid = true;
@@ -105,8 +135,8 @@ public class CorrectNicksStats {
                 if(!main_map_newnick_oldnicks.get(nid).contains(nid2)) main_map_newnick_oldnicks.get(nid).add(nid2);
             }
         }
-        main_map_newnick_oldnicks.remove("aenea");
-        main_map_newnick_oldnicks.remove("Negan");
+        /*main_map_newnick_oldnicks.remove("aenea");
+        main_map_newnick_oldnicks.remove("Negan");*/
         for(String nick:main_map_newnick_oldnicks.keySet()){
             System.out.print(nick+" : ");
             for(String nicks:main_map_newnick_oldnicks.get(nick)) System.out.print(nicks+" ");
@@ -185,6 +215,36 @@ public class CorrectNicksStats {
     }
 
 
+    public static long[] get_longarr_HashImage(BufferedImage image,int X, int Y, int W, int H, int amount_64nums){
+        //System.out.println("new x "+X+" y "+Y+" w "+W+" H "+H);
+        long _64_pixels =0, count_black_pix = 0, amount_pix = W*H;
+
+        long[] longarr_hashimage = new long[amount_64nums+1]; int index_longarr_hashimage = -1, count_64_pix = 0;
+        int count_all_pix = 0;
+        out:for (int x = X; x < X+W; x++){
+            for (int y = Y; y < Y+H; y++) {
+                count_all_pix++;
+                count_64_pix++;
+                _64_pixels<<=1;
+                //System.out.println(get_intGreyColor(image,x,y));
+                if(get_intGreyColor(image,x,y)==0){ _64_pixels+=1; count_black_pix++; }
+                if(count_64_pix==64||count_all_pix==amount_pix){
+                    //System.out.println(count_64_pix+" "+(amount_pix%count_64_pix));
+                    if(count_64_pix<64)_64_pixels<<=(64-count_64_pix);
+                    index_longarr_hashimage++;
+                    longarr_hashimage[index_longarr_hashimage] = _64_pixels;
+                    count_64_pix = 0;
+                    _64_pixels = 0;
+                }
+                if(index_longarr_hashimage==amount_64nums-1)break out;
+            }
+        }
+        longarr_hashimage[amount_64nums] = count_black_pix;
+        return longarr_hashimage;
+    }
+
+
+
     /*static void rewriteStats(Map<String, List<String>> main_map_newnick_oldnicks){
 
         Work_DataBase work_dataBase = new Work_DataBase();
@@ -258,6 +318,8 @@ public class CorrectNicksStats {
     public static void main(String[] args) {
         //select_AllNicks();
         checkDublicatHashLikeImg();
+        //readIdNicks();
+        //read_Newfile_with_nicks_and_img_pixs();
         // смещение битов последнего числа
        /* read_OLDfile_with_nicks_and_img_pixs();
         for(Map.Entry<Long,long[]> entry:sortedmap_all_imgs_pix_of_OLDnicks.entrySet()){
