@@ -62,12 +62,10 @@ public class PartyToPokerStars {
         }
     }
 
-   static void correctHeroNick(List<String> partyHand,String namefile){
-       List<String> nicks = getNicks(partyHand);
-       List<String[]> nicksHeroes = new ArrayList<>();
+   static void correctHeroNick(List<String> partyHand,List<String> nicks){
        boolean isNickHero = false;
        //for(String nick:nicks) if(nick.length()>4&&nick.contains("Hero")){isNickHero = true; nicksHeroes.add(new String[]{nick,nick.replace("Hero","")});         }
-       for(String nick:nicks) if(nick.equals("Hero")){isNickHero = true; break;  }
+       for(int i=0; i<nicks.size(); i++) if(nicks.get(i).equals("Hero")){  nicks.set(i,NICK_HERO); isNickHero = true; break;  }
        if(isNickHero){
            int p =0;
            for(int i=4; i<10; i++){ p++;
@@ -80,23 +78,22 @@ public class PartyToPokerStars {
            for(int i=4+nicks.size(); i<partyHand.size(); i++){
                if(partyHand.get(i).startsWith("Hero "))partyHand.set(i,partyHand.get(i).replace("Hero",NICK_HERO));
            }
-
        }
 
-       write_NewHistoryHandsWithNicks(namefile,partyHand);
+      // write_NewHistoryHandsWithNicks(namefile,partyHand);
    }
 
 
 
 
     private static void read_HandHistory(List<String> partyHand,String namefile){
-        if(isCorrectHeroNick){correctHeroNick(partyHand,namefile);return;}
+       //if(isCorrectHeroNick){correctHeroNick(partyHand,namefile);return;}
 
         String[] strBlinds = partyHand.get(1).substring(0,partyHand.get(1).indexOf(" ")).split("/");
         List<String> starsHand = getStartPokerStarsHand(partyHand,strBlinds);
         System.out.println(namefile+"   "+starsHand.get(0));
         List<String> nicks = getNicks(partyHand);
-
+        correctHeroNick(partyHand,nicks);
         //nicks.forEach(System.out::println);
 
         String[] resultHand = new String[nicks.size()];

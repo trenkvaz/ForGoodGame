@@ -33,6 +33,9 @@ public class ReadHistoryGetStats {
     static float[][] posActions;
     static byte[][][] preflop_players_actions_in_raunds;
     static final int PREFLOP = 0, FLOP =1, TURN = 2, RIVER = 3;
+    static HashMap<String,Double> boostersMap = new HashMap<>();
+    static HashMap<String,Integer> countBoostersMap = new HashMap<>();
+    static double winBooster = 0;
 
     static HashMap<Long,Float> numHandResultHeroHistory = new HashMap<>();
     static boolean isRecordStats = false;
@@ -127,6 +130,8 @@ public class ReadHistoryGetStats {
 
     static float totalHero = 0;
 
+
+
     private static void read_HandHistory(List<String> hand,String nameFile){
      /*if(hand.get(0).equals("***** Hand History For Game 1613331263329 *****"))return;
         if(hand.get(0).equals("***** Hand History For Game 1613331334538 *****"))return;
@@ -136,6 +141,8 @@ public class ReadHistoryGetStats {
         /*for(String line:hand) System.out.println(line);
         System.out.println();
         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");*/
+     checkBooster(hand);
+     if(true)return;
      float bb = read_BB(hand.get(1));
      int amountPlayers = read_StacksAndNicks(hand,bb);
      int startLine = amountPlayers+7;
@@ -179,7 +186,36 @@ public class ReadHistoryGetStats {
 
     }
 
+    static void checkBooster(List<String> hand){
+        String typeBooster = "";
+        for(int i=hand.size()-1; i>10; i--)if(hand.get(i).contains("booster value: ")){
+            typeBooster = hand.get(i).substring(0,hand.get(i).indexOf(" "));
 
+            //System.out.println("*"+hand.get(i).substring(hand.get(i).indexOf("$")+1)+"*");
+            double booster = Double.parseDouble(hand.get(i).substring(hand.get(i).indexOf("$")+1));
+            if(!boostersMap.containsKey(typeBooster)){boostersMap.put(typeBooster,booster);  countBoostersMap.put(typeBooster,1);                          }
+            else {boostersMap.put(typeBooster,boostersMap.get(typeBooster)+booster); countBoostersMap.put(typeBooster,countBoostersMap.get(typeBooster)+1);                                   }
+
+
+
+            for(int h=hand.size()-1; h>10; h--) if(hand.get(h).contains("Hero receives $")||hand.get(h).contains(NICK_HERO+" receives $")){
+                int indexHero = hand.get(h).indexOf(NICK_HERO+" receives $");
+                if(indexHero!=-1)indexHero = (NICK_HERO+" receives $").length()+indexHero;
+                else indexHero = hand.get(h).indexOf("Hero receives $")+("Hero receives $").length();
+                int lastInd = hand.get(h).indexOf(",",indexHero);
+                if(lastInd!=-1) winBooster+= Double.parseDouble(hand.get(h).substring(indexHero,lastInd));
+                else winBooster+= Double.parseDouble(hand.get(h).substring(indexHero));
+                   // winBooster = Double.parseDouble(hand.get(h).substring(hand.get(h).indexOf("$")+1));
+
+                break;
+            }
+
+
+            break;
+       }
+
+
+    }
 
     private static String[] read_CardsHeroForHistoryHand(List<String> hand){
         int i_deal = -1;
@@ -529,11 +565,18 @@ public class ReadHistoryGetStats {
 
     public static void main(String[] args) {
 
-
+    // бустер НЛ2 с 11 мая 2021
 
         //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_nicks_right");
 
         start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
 
+       for(Map.Entry<String,Double> entry:boostersMap.entrySet())
+            System.out.println(entry.getKey()+" "+entry.getValue());
+
+        for(Map.Entry<String,Integer> entry:countBoostersMap.entrySet())
+            System.out.println(entry.getKey()+" "+entry.getValue());
+
+        System.out.println("win "+winBooster);
     }
 }

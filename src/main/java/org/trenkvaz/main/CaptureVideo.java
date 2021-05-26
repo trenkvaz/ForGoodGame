@@ -340,7 +340,7 @@ public class CaptureVideo {
 
            whoPlayOrNo = getWhoPlayOrNo(indTable);
            if(whoPlayOrNo==null){ metaDates[2] = true; ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));
-               //System.out.println("WHOPLAY NULL");
+              // System.out.println("WHOPLAY NULL");
            continue;}
            // первый индекс показывает что есть только ник херо если 0
            if(whoPlayOrNo[0]==0){ ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(null,metaDates,null));
@@ -359,11 +359,19 @@ public class CaptureVideo {
 
     private static boolean isFastTable(int indTable){
        // проверка буквы Ф в названии стола Фаст
+
+
+
         if(get_longarr_HashImage(bufferedImageframe, COORDS_TABLES[indTable][0]+25,
-                COORDS_TABLES[indTable][1]+9,6,10,1,200)[0] !=8976692374933504L)return false;
+                COORDS_TABLES[indTable][1]+9,6,10,1,200)[0] !=
+                //8994284560977920L  // текущий шаблон
+                8976692374933504L // старый наблон
+        )return false;
+        //System.out.println("F");
         // проверка номера раздачи
         if(!is_CorrectImageOfNumberHandAndNicks(COORDS_TABLES[indTable][0]+579, COORDS_TABLES[indTable][1]+56,53,11,
                 100,100,100,bufferedImageframe))return false;
+        //System.out.println("NUMBER");
         // проверка чтения ника херо
         return is_CorrectImageOfNumberHandAndNicks(COORDS_TABLES[indTable][0]+291, COORDS_TABLES[indTable][1]+321,91,14,
                 220,220,210,bufferedImageframe);

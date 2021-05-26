@@ -1284,7 +1284,7 @@ public class Testing {
 
     /*   clearTextFiles();
        clearImgFiles();*/
-        clearTextFiles();
+        //clearTextFiles();
        /*ArrayList<String> a =new ArrayList<>();
        a.get(0);
        String d ="";*/
@@ -1307,5 +1307,12 @@ public class Testing {
         float g = 0;
         System.out.println(g);
         System.out.println(numberFormat.format(g));*/
+
+
+        BufferedImage niBF = read_image("testM\\h1");
+        System.out.println(get_longarr_HashImage(niBF, COORDS_TABLES[0][0]+25,
+                COORDS_TABLES[0][1]+9,6,10,1,200)[0]);
+       // 8994284560977920
+        //8976692374933504
     }
 }

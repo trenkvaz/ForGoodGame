@@ -546,7 +546,7 @@ public class AddNewFilterStata {
 
         //int[] stats = workStats.getValueOneStata("trenkvaz","main_vpip_pfr_all_v_all",8);
 
-        int[] stats = workStats.getValueOneStata("trenkvaz","3betpot_vs_contbet_flop_op_utg_mp_v_all_v_mp_co_bu_",0);
+        int[] stats = workStats.getValueOneStata("trenkvaz","3betpot_vs_caller_flop_op_bb_v_bu__v_bu_",0);
         //System.out.println("stata "+stats[0]+" "+stats[1]+" ");
         System.out.println("stata "+stats[0]+" "+stats[1]+" "+stats[2]);
         System.out.println("vpip "+procents(stats[1],stats[0])+" pfr "+procents(stats[2],stats[0]));
@@ -574,12 +574,12 @@ public class AddNewFilterStata {
         new Work_DataBase();
 
 
-        /*addOldFilterStats();
-        addNewFilterStats();*/
+        addOldFilterStats();
+        addNewFilterStats();
 
 
-       // addTurnFilters();
-        testGetStata();
+        addTurnFilters();
+        //testGetStata();
 
         close_DataBase();
     }
