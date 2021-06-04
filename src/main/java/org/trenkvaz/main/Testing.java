@@ -397,7 +397,7 @@ public class Testing {
         }
 
         String resultHero = testCurrentHand.time_hand+" "+testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1]+
-                " "+testCurrentHand.resultHero+"\r\n";
+                " "+testCurrentHand.resultHero+"  ";
         Testing.write_LogTest(resultHero,"resultHero");
        /* String linemethodes = "";
         for(String method:testCurrentHand.methodes)linemethodes+=method+"\r\n";
@@ -1282,8 +1282,8 @@ public class Testing {
         String t = "TURN_ALL_PREFIN_am2";
         System.out.println(t.contains("ALL"));*/
 
-    /*   clearTextFiles();
-       clearImgFiles();*/
+       clearTextFiles();
+       clearImgFiles();
         //clearTextFiles();
        /*ArrayList<String> a =new ArrayList<>();
        a.get(0);
@@ -1309,9 +1309,9 @@ public class Testing {
         System.out.println(numberFormat.format(g));*/
 
 
-        BufferedImage niBF = read_image("testM\\h1");
+       /* BufferedImage niBF = read_image("testM\\h1");
         System.out.println(get_longarr_HashImage(niBF, COORDS_TABLES[0][0]+25,
-                COORDS_TABLES[0][1]+9,6,10,1,200)[0]);
+                COORDS_TABLES[0][1]+9,6,10,1,200)[0]);*/
        // 8994284560977920
         //8976692374933504
     }

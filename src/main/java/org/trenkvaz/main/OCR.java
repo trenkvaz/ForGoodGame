@@ -51,6 +51,8 @@ public class OCR implements Runnable {
     int countCheckEmptyPlaces = 0;
     int[] countAllow = new int[4];
     float[] currStacks = new float[6];
+    float stackBeforHand = 100;
+    boolean isCheckWinLose = false;
 
     // test
     record TestRecFrameTimeHand(BufferedImage imges_frame,long timehand){}
@@ -146,6 +148,7 @@ public class OCR implements Runnable {
             if(count_stop_signal==200&&currentHand!=null&&isPlacedPosTable) {
 
                 finishedAllStreetNextHand();
+                checkWinLoseBeforHand(false);
                 currentHand.finalCurrendHand();
                 testCurrentHand.setStartAndEndImgOfHand(1,true,images_framestimehands.get(images_framestimehands.size()-1).imges_frame());
                 show_test_total_hand(testCurrentHand,false);
@@ -251,6 +254,8 @@ public class OCR implements Runnable {
             if(init>0)for(int n=0; n<3; n++) System.arraycopy(zeros_for_clear_current_id,0,current_id_nicks_for_choose[init][n],0,16);
         }
        maxRaise = 1;posPlayerRound = 0;round = 1; isActionPreflop = false; countCheckEmptyPlaces = 0;countAllow = new int[4];currStacks = new float[6];
+
+        isCheckWinLose = false;
         // TEST
 
 
@@ -287,6 +292,8 @@ public class OCR implements Runnable {
         if(!currentHand.is_nicks_filled)get_nicks();
         if(!currentHand.is_stacks_filled)getStartStacks();
         //System.out.println(RESET+"START PREFLOP");
+        checkWinLoseBeforHand(true);
+
         getActionsAtPreflop();
         //System.out.println(RED+"END PREFLOP");
     }
@@ -428,9 +435,12 @@ public class OCR implements Runnable {
         return countPlayers==0;
     }
 
+    float result = 0;
 
     private void countTotalHeroNew(){
-        float finishStack = 0, result = 0, getBack = 0;
+        float finishStack = 0, getBack = 0;
+        result = 0;
+        if(isWinWoShHero())return;
         for(TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){
             float stack = getOneStack(currentHand.pokerPosHero,testRecFrameTimeHand.imges_frame);
             if(stack==-11)continue;
@@ -438,7 +448,7 @@ public class OCR implements Runnable {
             if(stack==-2) {finishStack=0;break;}
         }
         float[] investLastbet = getStackMinusInvestLastBet();
-        boolean winWOSH = isWinWoShHero();
+        //boolean winWOSH = isWinWoShHero();
 
         String testActs = "", testRes = "";
             if(finishStack>currentHand.startStacks[currentHand.pokerPosHero]||finishStack>investLastbet[0]){
@@ -450,11 +460,11 @@ public class OCR implements Runnable {
                     float action = getOneAction(currentHand.pokerPosHero,testRecFrameTimeHand.imges_frame);
                     testActs+=action+" ";
                     if(action==-1) continue;
-                    if(action==investLastbet[1]&&!winWOSH)continue;
+                    if(action==investLastbet[1])continue;
                     getBack = action;
                 }
-                if(winWOSH&&getBack==0){ result = 0; testRes = "errorwinWOSH";}
-                else if(getBack==finishStack){result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]; testRes = "finstack==getBack";            }
+                //if(winWOSH&&getBack==0){ result = 0; testRes = "errorwinWOSH";}
+                if(getBack==finishStack){result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]; testRes = "finstack==getBack";            }
                 else {result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]+getBack;   testRes = "finstack!=getBack";          }
             }
       //  }
@@ -463,9 +473,33 @@ public class OCR implements Runnable {
         testCurrentHand.resultHero = result;
 
         testCurrentHand.descriptionResultHero = "finstack:"+finishStack+" startstack:"+currentHand.startStacks[currentHand.pokerPosHero]
-                +" stackInv:"+investLastbet[0]+" back:"+getBack+" lastBet:"+investLastbet[1]+" WwSH:"+winWOSH+"  pos:"+currentHand.pokerPosHero+" testRes:"+testRes+"  "+testActs;
-        totalResultHero+=result;
+                +" stackInv:"+investLastbet[0]+" back:"+getBack+" lastBet:"+investLastbet[1]+"  pos:"+currentHand.pokerPosHero+" testRes:"+testRes+"  "+testActs;
 
+
+    }
+
+
+
+    void checkWinLoseBeforHand(boolean isNewHand){
+        if(isCheckWinLose)return;
+
+        if(isNewHand){
+            if(currentHand.startStacks[currentHand.pokerPosHero]==0)return;
+            if(currentHand.startStacks[currentHand.pokerPosHero]>100)
+                result = BigDecimal.valueOf(currentHand.startStacks[currentHand.pokerPosHero]-stackBeforHand).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
+            totalResultHero+=result;
+            isCheckWinLose = true;
+
+        }
+        else {
+            float stack_without_action = getOneStack(currentHand.pokerPosHero,frameTable.tableImg());
+            if(stack_without_action>100)
+                result = BigDecimal.valueOf(stack_without_action-stackBeforHand).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
+            totalResultHero+=result;
+            isCheckWinLose = true;
+        }
+        stackBeforHand = currentHand.startStacks[currentHand.pokerPosHero];
+        Testing.write_LogTest(result+"\r\n","resultHero");
     }
 
     void get_nicks(){
