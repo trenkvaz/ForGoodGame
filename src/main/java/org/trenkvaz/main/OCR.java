@@ -51,9 +51,11 @@ public class OCR implements Runnable {
     int countCheckEmptyPlaces = 0;
     int[] countAllow = new int[4];
     float[] currStacks = new float[6];
+
     float stackBeforHand = 100;
     boolean isCheckWinLose = false;
-
+    long beforHandNum = 0;
+    float result = 0;
     // test
     record TestRecFrameTimeHand(BufferedImage imges_frame,long timehand){}
     List<TestRecFrameTimeHand> images_framestimehands = new ArrayList<>(3);
@@ -136,7 +138,7 @@ public class OCR implements Runnable {
     private void main_work_on_table(){
         if(isTestDBandStats){
         //if(table!=1&&table!=2)return;
-        //if(table!=2)return;
+       // if(table!=1)return;
         }
 
         if(!startlog){ startlog=true;Settings.ErrorLog("START"); }
@@ -435,11 +437,13 @@ public class OCR implements Runnable {
         return countPlayers==0;
     }
 
-    float result = 0;
+
 
     private void countTotalHeroNew(){
         float finishStack = 0, getBack = 0;
         result = 0;
+        beforHandNum = currentHand.time_hand;
+        //beforCards = currentHand.cards_hero.clone();
         if(isWinWoShHero())return;
         for(TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){
             float stack = getOneStack(currentHand.pokerPosHero,testRecFrameTimeHand.imges_frame);
@@ -478,6 +482,7 @@ public class OCR implements Runnable {
 
     }
 
+    //String[] beforCards = {"",""};
 
 
     void checkWinLoseBeforHand(boolean isNewHand){
@@ -487,19 +492,34 @@ public class OCR implements Runnable {
             if(currentHand.startStacks[currentHand.pokerPosHero]==0)return;
             if(currentHand.startStacks[currentHand.pokerPosHero]>100)
                 result = BigDecimal.valueOf(currentHand.startStacks[currentHand.pokerPosHero]-stackBeforHand).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
-            totalResultHero+=result;
-            isCheckWinLose = true;
 
+           // System.out.println(Arrays.toString(beforCards)+" isNewHand "+beforHandNum);
+        }
+       // else {
+            /*float stack_without_action = getOneStack(currentHand.pokerPosHero,frameTable.tableImg());
+            if(stack_without_action>100)
+                result = BigDecimal.valueOf(stack_without_action-stackBeforHand).setScale(SCALE, RoundingMode.HALF_UP).floatValue();*/
+
+      //  }
+       // System.out.println(Arrays.toString(beforCards)+" finishRes "+beforHandNum);
+        totalResultHero+=result;
+        isCheckWinLose = true;
+        stackBeforHand = currentHand.startStacks[currentHand.pokerPosHero];
+        if(beforHandNum==0)return;
+        String beforResult = null; int i=0;
+        while (beforResult==null){
+        beforResult = handWinLoseMap.get(beforHandNum);
+        if(beforResult!=null) {
+            Testing.write_LogTest(beforResult+"  "+result+"\r\n","resultHero");
+            handWinLoseMap.remove(beforHandNum);
         }
         else {
-            float stack_without_action = getOneStack(currentHand.pokerPosHero,frameTable.tableImg());
-            if(stack_without_action>100)
-                result = BigDecimal.valueOf(stack_without_action-stackBeforHand).setScale(SCALE, RoundingMode.HALF_UP).floatValue();
-            totalResultHero+=result;
-            isCheckWinLose = true;
+            i++;
+            try { Thread.sleep(20); } catch (InterruptedException e) { e.printStackTrace(); }
         }
-        stackBeforHand = currentHand.startStacks[currentHand.pokerPosHero];
-        Testing.write_LogTest(result+"\r\n","resultHero");
+        if(i!=0) System.out.println(RED+" SLOW "+RESET);
+        if(i==5)break;
+        }
     }
 
     void get_nicks(){

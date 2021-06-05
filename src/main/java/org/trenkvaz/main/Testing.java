@@ -165,7 +165,7 @@ class TestCurrentHand {
 public class Testing {
    static String[] currErrorCards = new String[]{"","","","","",""};
 
-
+   public static HashMap<Long,String> handWinLoseMap = new HashMap<>();
 
     static synchronized void show_test_total_hand(TestCurrentHand testCurrentHand,boolean isError){
 
@@ -398,7 +398,8 @@ public class Testing {
 
         String resultHero = testCurrentHand.time_hand+" "+testCurrentHand.cards_hero[0]+testCurrentHand.cards_hero[1]+
                 " "+testCurrentHand.resultHero+"  ";
-        Testing.write_LogTest(resultHero,"resultHero");
+       // Testing.write_LogTest(resultHero,"resultHero");
+        handWinLoseMap.put(testCurrentHand.time_hand,resultHero);
        /* String linemethodes = "";
         for(String method:testCurrentHand.methodes)linemethodes+=method+"\r\n";
         System.out.println(linemethodes);*/

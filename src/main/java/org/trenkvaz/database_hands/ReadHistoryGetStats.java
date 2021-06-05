@@ -142,7 +142,7 @@ public class ReadHistoryGetStats {
         System.out.println();
         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");*/
      checkBooster(hand);
-     if(true)return;
+     //if(true)return;
      float bb = read_BB(hand.get(1));
      int amountPlayers = read_StacksAndNicks(hand,bb);
      int startLine = amountPlayers+7;
@@ -167,7 +167,9 @@ public class ReadHistoryGetStats {
          }
         // System.out.println("cardsHero "+Arrays.toString(cards[posHero]));
      }
+
      totalHero+=resulHero;
+       // System.out.println(Arrays.toString(resultHand)+"  "+resulHero+"  "+totalHero);
      numHandResultHeroHistory.put(Long.parseLong(hand.get(0).substring(28,41)),resulHero);
      String[] nicksOldStata = new String[6];
         for(int i=0; i<6; i++){
@@ -569,7 +571,7 @@ public class ReadHistoryGetStats {
 
         //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_nicks_right");
 
-        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
+       start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
 
        for(Map.Entry<String,Double> entry:boostersMap.entrySet())
             System.out.println(entry.getKey()+" "+entry.getValue());
@@ -578,5 +580,6 @@ public class ReadHistoryGetStats {
             System.out.println(entry.getKey()+" "+entry.getValue());
 
         System.out.println("win "+winBooster);
+        System.out.println("total win "+totalHero);
     }
 }
