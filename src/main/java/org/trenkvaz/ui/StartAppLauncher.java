@@ -1,9 +1,15 @@
 package org.trenkvaz.ui;
 
+import javafx.scene.paint.Color;
 import org.trenkvaz.database_hands.Work_DataBase;
 import org.trenkvaz.main.CaptureVideo;
 import org.trenkvaz.newstats.CreateNewHUD;
 import org.trenkvaz.newstats.WorkStats;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+
+import static org.trenkvaz.ui.Controller_main_window.controller_main_window;
 
 public class StartAppLauncher {
 
@@ -19,6 +25,8 @@ public class StartAppLauncher {
     public static final float SB = 0.5f;
     public static final int SCALE = 1;
     public static float totalResultHero = 0;
+    public static float stopWin = 999;
+    public static float stopLoss = -300;
 
     //TEST
     public static boolean isTestDBandStats = false;
@@ -27,7 +35,6 @@ public class StartAppLauncher {
 
 
     public static float[] totalStreetHero = new float[4];
-
 
 
     public static void main(String[] args) {
@@ -40,4 +47,33 @@ public class StartAppLauncher {
 
         MainWindow.main(args);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public static synchronized void tiltBreaker(){
+        if(stopLoss!=0&&totalResultHero<stopLoss)controller_main_window.setTestMessage("LOSE !!! "+totalResultHero, Color.RED);
+        if(stopWin!=0&&totalResultHero>stopWin)controller_main_window.setTestMessage("WIN !!! "+totalResultHero, Color.GREEN);
+
+        try {
+            OutputStream os = new FileOutputStream(new File(home_folder+"\\all_settings\\capture_video\\tiltBreaker.txt"), false);
+            os.write(Float.toString(totalResultHero).getBytes(StandardCharsets.UTF_8));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 }

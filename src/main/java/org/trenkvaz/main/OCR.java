@@ -4,8 +4,10 @@ package org.trenkvaz.main;
 //import org.bytedeco.opencv.opencv_core.IplImage;
 
 import java.awt.image.BufferedImage;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -111,8 +113,8 @@ public class OCR implements Runnable {
     boolean isTestSpeed = false;
     public synchronized void addFrameTableToQueue(FrameTable frameTable1){ queueFrameTable.offer(frameTable1);
         //System.out.println(queueFrameTable.size());
-        if(queueFrameTable.size()>=5&&!isTestSpeed){ controller_main_window.setTestMessage("SIZE "+queueFrameTable.size());isTestSpeed = true; }
-        if(queueFrameTable.size()<5&&isTestSpeed){   controller_main_window.setTestMessage(""); isTestSpeed = false;  }
+        /*if(queueFrameTable.size()>=5&&!isTestSpeed){ controller_main_window.setTestMessage("SIZE "+queueFrameTable.size());isTestSpeed = true; }
+        if(queueFrameTable.size()<5&&isTestSpeed){   controller_main_window.setTestMessage(""); isTestSpeed = false;  }*/
 
         if(queueFrameTable.size()>50&&!isShowSlowWork){ isShowSlowWork = true;
 
@@ -150,10 +152,11 @@ public class OCR implements Runnable {
             if(count_stop_signal==200&&currentHand!=null&&isPlacedPosTable) {
 
                 finishedAllStreetNextHand();
-                checkWinLoseBeforHand(false);
+                countTotalHeroNew(false);
                 currentHand.finalCurrendHand();
                 testCurrentHand.setStartAndEndImgOfHand(1,true,images_framestimehands.get(images_framestimehands.size()-1).imges_frame());
                 show_test_total_hand(testCurrentHand,false);
+                checkWinLoseBeforHand(false);
                 currentHand = null;
 
             }
@@ -163,9 +166,9 @@ public class OCR implements Runnable {
         if(check_start_or_end_hand==1) {
             if(currentHand!=null&&isPlacedPosTable){
                 finishedAllStreetNextHand();
+                countTotalHeroNew(true);
                 currentHand.finalCurrendHand();
                 startSecondHand = true;
-
                 testCurrentHand.setStartAndEndImgOfHand(1,false,images_framestimehands.get(images_framestimehands.size()-1).imges_frame());
                 show_test_total_hand(testCurrentHand,false);
                 //if(currentHand.isStartStreets[RIVER]) saveImageToFile(frameTable.tableImg(),"testM\\_"+(c++));
@@ -238,7 +241,7 @@ public class OCR implements Runnable {
         if(currentHand.isStartStreets[TURN])finishedActionsPostflop(TURN);
         if(currentHand.isStartStreets[RIVER])finishedRiver();
         //countTotalHero();
-        countTotalHeroNew();
+
     }
 
     private void initNewHand(){
@@ -439,12 +442,13 @@ public class OCR implements Runnable {
 
 
 
-    private void countTotalHeroNew(){
+    private void countTotalHeroNew(boolean isEndHand){
         float finishStack = 0, getBack = 0;
         result = 0;
         beforHandNum = currentHand.time_hand;
         //beforCards = currentHand.cards_hero.clone();
-        if(isWinWoShHero())return;
+        boolean winWOSH = isWinWoShHero();
+        if(winWOSH&&isEndHand)return;
         for(TestRecFrameTimeHand testRecFrameTimeHand:images_framestimehands){
             float stack = getOneStack(currentHand.pokerPosHero,testRecFrameTimeHand.imges_frame);
             if(stack==-11)continue;
@@ -452,7 +456,7 @@ public class OCR implements Runnable {
             if(stack==-2) {finishStack=0;break;}
         }
         float[] investLastbet = getStackMinusInvestLastBet();
-        //boolean winWOSH = isWinWoShHero();
+
 
         String testActs = "", testRes = "";
             if(finishStack>currentHand.startStacks[currentHand.pokerPosHero]||finishStack>investLastbet[0]){
@@ -464,11 +468,11 @@ public class OCR implements Runnable {
                     float action = getOneAction(currentHand.pokerPosHero,testRecFrameTimeHand.imges_frame);
                     testActs+=action+" ";
                     if(action==-1) continue;
-                    if(action==investLastbet[1])continue;
+                    if(action==investLastbet[1]&&!winWOSH)continue;
                     getBack = action;
                 }
-                //if(winWOSH&&getBack==0){ result = 0; testRes = "errorwinWOSH";}
-                if(getBack==finishStack){result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]; testRes = "finstack==getBack";            }
+                if(winWOSH&&getBack==0){ result = 0; testRes = "errorwinWOSH";}
+                else if(getBack==finishStack){result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]; testRes = "finstack==getBack";            }
                 else {result = finishStack - currentHand.startStacks[currentHand.pokerPosHero]+getBack;   testRes = "finstack!=getBack";          }
             }
       //  }
@@ -520,7 +524,13 @@ public class OCR implements Runnable {
         if(i!=0) System.out.println(RED+" SLOW "+RESET);
         if(i==5)break;
         }
+
+        tiltBreaker();
     }
+
+
+
+
 
     void get_nicks(){
 

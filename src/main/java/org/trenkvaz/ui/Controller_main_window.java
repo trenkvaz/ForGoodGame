@@ -10,6 +10,9 @@ import org.trenkvaz.main.CaptureVideo;
 import org.trenkvaz.main.OCR;
 import org.trenkvaz.main.Testing;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -34,6 +37,7 @@ public class Controller_main_window {
         labelSB.setText("SB "+SB);
         //mytimer = new MyTimer();
        // new HUD();
+        setStartTotalResultHero();
     }
 
 
@@ -97,7 +101,27 @@ public class Controller_main_window {
     }
 
 
-    public void setTestMessage(String message){ Platform.runLater(() -> { timer.setText(message); }); }
+    @FXML public void resetWin(){
+        totalResultHero = 0;
+        setTestMessage("0",Color.GREEN);
+    }
+
+    public void setTestMessage(String message,Paint color){ Platform.runLater(() -> { timer.setTextFill(color);timer.setText(message); }); }
+
+
+
+     void setStartTotalResultHero(){
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(home_folder+"\\all_settings\\capture_video\\tiltBreaker.txt"));
+            totalResultHero = Float.parseFloat(br.readLine());
+            if(totalResultHero!=0)setTestMessage("NOT ZERO",Color.RED);
+            else setTestMessage("0",Color.GREEN);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
 
     class MyTimer implements Runnable {
