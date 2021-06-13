@@ -542,22 +542,30 @@ public class ReadHistoryGetStats {
     }
 
 
-    static HashMap<Long,Float> numHandResultHeroTest = new HashMap<>();
+    static HashMap<Long,float[]> numHandResultHeroTest = new HashMap<>();
 
     static void readResultHero(){
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(home_folder+"\\test\\resultHero.txt"));
-            String line; float res =0;
+            String line; float res =0; int stNumHand = 0, endNumHand = 0, stStrRes = 0; String[] resStr = null;
             while ((line = br.readLine()) != null) {
                 if(line.startsWith("TOTAL"))continue;
                 //long numHand = Long.parseLong()line.substring(0,13);
                 //res+=Float.parseFloat(line.substring(19));
                 //System.out.println("*"+line.substring(19)+"*");
-                numHandResultHeroTest.put(Long.parseLong(line.substring(0,13)),BigDecimal.valueOf(Float.parseFloat(line.substring(19))).
-                        setScale(SCALE, RoundingMode.HALF_UP).floatValue());
+                if(!line.startsWith("LAST HAND")){
+                    stNumHand = 0; endNumHand = 13; stStrRes = 19;
+                } else { stNumHand = 10; endNumHand = 23; stStrRes = 29;             }
+
+                resStr = line.substring(stStrRes).split("    ");
+
+                numHandResultHeroTest.put(Long.parseLong(line.substring(stNumHand,endNumHand)),
+                        new float[]{BigDecimal.valueOf(Float.parseFloat(resStr[0])).setScale(SCALE, RoundingMode.HALF_UP).floatValue(),
+                                BigDecimal.valueOf(Float.parseFloat(resStr[1])).setScale(SCALE, RoundingMode.HALF_UP).floatValue()});
+
             }
-            System.out.println(res);
+           // System.out.println(res);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -570,6 +578,7 @@ public class ReadHistoryGetStats {
     // бустер НЛ2 с 11 мая 2021
 
         //start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\Poker\\PartyPokerHands\\PokerStars\\party_nicks_right");
+        readResultHero();
 
        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
 
@@ -581,5 +590,15 @@ public class ReadHistoryGetStats {
 
         System.out.println("win "+winBooster);
         System.out.println("total win "+totalHero);
+       float totalResProga =0, totalResProga1 = 0;
+       for(Map.Entry<Long,float[]> entry:numHandResultHeroTest.entrySet()){
+           Float res = numHandResultHeroHistory.get(entry.getKey());
+
+           if(res!=null){
+               totalResProga+=entry.getValue()[1]; totalResProga1+=entry.getValue()[0];
+               if(res!=entry.getValue()[1]) System.out.println(entry.getKey()+" "+res+"  "+entry.getValue()[1]);
+           }
+       }
+        System.out.println(totalResProga+"  "+totalResProga1);
     }
 }

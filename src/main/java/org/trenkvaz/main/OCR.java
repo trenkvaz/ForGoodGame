@@ -156,7 +156,9 @@ public class OCR implements Runnable {
                 currentHand.finalCurrendHand();
                 testCurrentHand.setStartAndEndImgOfHand(1,true,images_framestimehands.get(images_framestimehands.size()-1).imges_frame());
                 show_test_total_hand(testCurrentHand,false);
+                isCheckWinLose = false;
                 checkWinLoseBeforHand(false);
+                System.out.println(RED+"LAST HAND   "+currentHand.time_hand+RESET);
                 currentHand = null;
 
             }
@@ -506,7 +508,7 @@ public class OCR implements Runnable {
 
       //  }
        // System.out.println(Arrays.toString(beforCards)+" finishRes "+beforHandNum);
-        totalResultHero+=result;
+
         isCheckWinLose = true;
         stackBeforHand = currentHand.startStacks[currentHand.pokerPosHero];
         if(beforHandNum==0)return;
@@ -514,7 +516,9 @@ public class OCR implements Runnable {
         while (beforResult==null){
         beforResult = handWinLoseMap.get(beforHandNum);
         if(beforResult!=null) {
+            if(!isNewHand)beforResult = "LAST HAND "+beforResult;
             Testing.write_LogTest(beforResult+"  "+result+"\r\n","resultHero");
+            totalResultHero+=result;
             handWinLoseMap.remove(beforHandNum);
         }
         else {
