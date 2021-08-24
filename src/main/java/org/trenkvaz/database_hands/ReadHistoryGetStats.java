@@ -141,7 +141,7 @@ public class ReadHistoryGetStats {
         /*for(String line:hand) System.out.println(line);
         System.out.println();
         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");*/
-     checkBooster(hand);
+     //checkBooster(hand);
      //if(true)return;
      float bb = read_BB(hand.get(1));
      int amountPlayers = read_StacksAndNicks(hand,bb);
@@ -582,14 +582,14 @@ public class ReadHistoryGetStats {
 
        start_ReadFilesInFolder("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\test_party\\output");
 
-       for(Map.Entry<String,Double> entry:boostersMap.entrySet())
+      /* for(Map.Entry<String,Double> entry:boostersMap.entrySet())
             System.out.println(entry.getKey()+" "+entry.getValue());
 
         for(Map.Entry<String,Integer> entry:countBoostersMap.entrySet())
             System.out.println(entry.getKey()+" "+entry.getValue());
 
-        System.out.println("win "+winBooster);
-        System.out.println("total win "+totalHero);
+        System.out.println("win "+winBooster);*/
+       // System.out.println("total win "+totalHero);
        float totalResProga =0, totalResProga1 = 0;
        for(Map.Entry<Long,float[]> entry:numHandResultHeroTest.entrySet()){
            Float res = numHandResultHeroHistory.get(entry.getKey());
@@ -599,6 +599,6 @@ public class ReadHistoryGetStats {
                if(res!=entry.getValue()[1]) System.out.println(entry.getKey()+" "+res+"  "+entry.getValue()[1]);
            }
        }
-        System.out.println(totalResProga+"  "+totalResProga1);
+      //  System.out.println(totalResProga+"  "+totalResProga1);
     }
 }

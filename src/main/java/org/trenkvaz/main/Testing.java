@@ -1,6 +1,7 @@
 package org.trenkvaz.main;
 
 import javafx.scene.text.Text;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.Frame;
 
@@ -1114,37 +1115,7 @@ public class Testing {
         return ((float)stata/(float)select)*100;
     }
 
-    private static void get_stata_one_player(String name, String stata){
 
-        try {
-            if(stata.equals("vpip_pfr_3bet")){ Object[][] stats =(Object[][]) get_stats_of_one_player(name,stata).getArray();
-                System.out.println("name "+name+" stata "+stata);
-                for (int i=0; i<6; i++)
-                    System.out.println(positions_for_query[i+1]+" vpip "+procents((int)stats[i][1],(int)stats[i][0])+" pfr "+procents((int)stats[i][2],(int)stats[i][0])+
-                            " 3_bet "+procents((int)stats[i][4],(int)stats[i][3])+" count pfr "+stats[i][2]+" count  select 3bet "+stats[i][3]+" count 3bet "+stats[i][4]+" count vpip "+stats[i][1]);
-                System.out.println("Total vpip "+procents((int)stats[6][1],(int)stats[6][0])+" pfr "+procents((int)stats[6][2],(int)stats[6][0])+
-                        " 3_bet "+procents((int)stats[6][4],(int)stats[6][3])+" count pfr "+stats[6][2]+" count  select 3bet "+stats[6][3]+" count 3bet "+stats[6][4]+" count vpip "+stats[6][1]);
-            }
-
-            if(stata.equals("rfi")){ Object[][] stats =(Object[][]) get_stats_of_one_player(name,stata).getArray();
-                System.out.println("name "+name+" stata "+stata);
-                for (int i=0; i<5; i++)
-                    System.out.println(positions_for_query[i+1]+" select "+stats[i][0]+" rfi "+procents((int)stats[i][1],(int)stats[i][0])+" count rfi "+stats[i][1]);
-            }
-            if(stata.equals("alliners")){ Object[][] stats =(Object[][]) get_stats_of_one_player(name,stata).getArray();
-                System.out.println("name "+name+" stata "+stata);
-                for(int v=0; v<3; v++){
-                    for (int i=0; i<4; i++){
-                        System.out.print(" stack: "+v+" select rfi- "+stats[v][0]+" all rfi- "+procents((int)stats[v][1],(int)stats[v][0])+" count rfi-"+stats[v][1]);
-                        System.out.println(" select 3bet- "+stats[v][2]+" all 3bet-"+procents((int)stats[v][3],(int)stats[v][2])+" count 3bet- "+stats[v][3]);}
-                    System.out.println();}
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     static Work_DataBase  work_dataBase;
 
@@ -1315,5 +1286,6 @@ public class Testing {
                 COORDS_TABLES[0][1]+9,6,10,1,200)[0]);*/
        // 8994284560977920
         //8976692374933504
+
     }
 }

@@ -5,7 +5,10 @@ package org.trenkvaz.database_hands;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 import static org.trenkvaz.database_hands.Work_DataBase.*;
@@ -20,6 +23,7 @@ public class CorrectNicksStats {
     public static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_NEWnicks = new TreeMap<>();
     static HashMap<Long,String> hashmap_id_img_pix_OLDnick = new HashMap<>();
     static SortedMap<Long,long[]> sortedmap_all_imgs_pix_of_OLDnicks = new TreeMap<>();
+    static HashMap<String,File> nickFileMap = new HashMap<>();
 
 
     public static void readIdNicks(){
@@ -30,6 +34,7 @@ public class CorrectNicksStats {
               id = Long.parseLong(a.getName().substring(a.getName().lastIndexOf(" ")+1,a.getName().lastIndexOf("_")));
                 hashmap_id_img_pix_NEWnick.put(id,nick);
                 //System.out.println(nick+"*"+id+"*");
+                nickFileMap.put(nick,a);
                 try {
                     BufferedImage image = ImageIO.read(a);
                     sortedmap_all_imgs_pix_of_NEWnicks.put(id,get_longarr_HashImage(image,0,2,image.getWidth(),image.getHeight()-3,15));
@@ -120,12 +125,13 @@ public class CorrectNicksStats {
         count_one_in_numbers = Settings.read_ObjectFromFile("count_one_in_numbers");
         boolean printid = true;
         Map<String, List<String>> main_map_newnick_oldnicks = new HashMap<>();
-        for(long id:sortedmap_all_imgs_pix_of_NEWnicks.keySet()){
+        List<Long> keys = new ArrayList<Long>(sortedmap_all_imgs_pix_of_NEWnicks.keySet());
+        for(int i=0; i<keys.size(); i++){
             printid = false;
-            String nid = hashmap_id_img_pix_NEWnick.get(id);
-            for (long id2:sortedmap_all_imgs_pix_of_NEWnicks.keySet()){
-                if(!compare_arrlong(sortedmap_all_imgs_pix_of_NEWnicks.get(id),sortedmap_all_imgs_pix_of_NEWnicks.get(id2),15))continue;
-                String nid2 = hashmap_id_img_pix_NEWnick.get(id2);
+            String nid = hashmap_id_img_pix_NEWnick.get(keys.get(i));
+            for (int a=i+1; a<keys.size(); a++){
+                if(!compare_arrlong(sortedmap_all_imgs_pix_of_NEWnicks.get(keys.get(i)),sortedmap_all_imgs_pix_of_NEWnicks.get(keys.get(a)),15))continue;
+                String nid2 = hashmap_id_img_pix_NEWnick.get(keys.get(a));
                 if(nid.equals(nid2))continue;
                 if(main_map_newnick_oldnicks.get(nid2)!=null)continue;
 
@@ -139,7 +145,10 @@ public class CorrectNicksStats {
         main_map_newnick_oldnicks.remove("Negan");*/
         for(String nick:main_map_newnick_oldnicks.keySet()){
             System.out.print(nick+" : ");
-            for(String nicks:main_map_newnick_oldnicks.get(nick)) System.out.print(nicks+" ");
+            copyImg(nick,nick);
+            for(String nicks:main_map_newnick_oldnicks.get(nick)) {
+                copyImg(nick,nicks);
+                System.out.print(nicks+" ");}
             System.out.println();
         }
         boolean iswork = false;
@@ -185,7 +194,10 @@ public class CorrectNicksStats {
         }
         for(String nick:main_map_newnick_oldnicks.keySet()){
             System.out.print(nick+" : ");
-            for(String nicks:main_map_newnick_oldnicks.get(nick)) System.out.print(nicks+" ");
+            copyImg(nick,nick);
+            for(String nicks:main_map_newnick_oldnicks.get(nick)) {
+                copyImg(nick,nicks);
+                System.out.print(nicks+" ");}
             System.out.println();
         }
         boolean iswork = false;
@@ -244,6 +256,20 @@ public class CorrectNicksStats {
     }
 
 
+    static synchronized void copyImg(String name_file, String nick){
+
+        if(!new File(home_folder+"\\correct_idnick\\"+name_file).exists()){
+            new File(home_folder+"\\correct_idnick\\"+name_file).mkdirs();
+        }
+        System.out.println("FROM "+nickFileMap.get(nick).toPath()+" TO "+new File(home_folder+"\\correct_idnick\\"+name_file+"\\"+nick+".png").toPath());
+        try {
+//            Files.copy(new File(home_folder+"\\correct_idnick\\"+name_file+"\\"+nick+".png").toPath(),
+//                    new File(home_folder+"\\correct_idnick\\"+name_file+"\\"+nick+".png").toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(nickFileMap.get(nick).toPath(), new File(home_folder+"\\correct_idnick\\"+name_file+"\\"+nickFileMap.get(nick).getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /*static void rewriteStats(Map<String, List<String>> main_map_newnick_oldnicks){
 
@@ -314,8 +340,23 @@ public class CorrectNicksStats {
         delete_and_copy_WorkNicksStats();
         close_DataBase();
     }*/
+    private static void copyFileUsingChannel(File source, File dest) throws IOException {
+        FileChannel sourceChannel = null;
+        FileChannel destChannel = null;
+        try {
+            sourceChannel = new FileInputStream(source).getChannel();
+            destChannel = new FileOutputStream(dest).getChannel();
+            destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+        }finally{
+            sourceChannel.close();
+            destChannel.close();
+        }
+    }
 
-    public static void main(String[] args) {
+
+
+
+    public static void main(String[] args) throws IOException {
         //select_AllNicks();
         checkDublicatHashLikeImg();
         //readIdNicks();
@@ -327,7 +368,23 @@ public class CorrectNicksStats {
             String nid = hashmap_id_img_pix_OLDnick.get(entry.getKey());
             rewrite_nicks_keys_img_pix(nid,entry.getValue());
         }*/
-
-
+//        try {
+//            Files.copy(new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\id_nicks\\Scorpi0n777 195000002_3.png").toPath(),
+//                    new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\correct_idnick\\Scorpi0n777\\Scorpi0n777.png").toPath());
+//            Thread.sleep(1000);
+//            Files.copy(new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\id_nicks\\ScOrpi0n777 198000082_4.png").toPath(),
+//                    new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\correct_idnick\\Scorpi0n777\\ScOrpi0n777.png").toPath());
+////            Files.copy(nickFileMap.get(nick).toPath(), new File(home_folder+"\\correct_idnick\\"+name_file+"\\"+nick+".png").toPath(), StandardCopyOption.REPLACE_EXISTING);
+//        } catch (IOException | InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        copyFileUsingChannel(new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\id_nicks\\Scorpi0n777 195000002_3.png"),
+//                new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\correct_idnick\\Scorpi0n777\\Scorpi0n777 195000002_3.png"));
+//
+//        copyFileUsingChannel(new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\id_nicks\\ScOrpi0n777 198000082_4.png"),
+//                new File("F:\\Moe_Alex_win_10\\JavaProjects\\ForGoodGame\\correct_idnick\\Scorpi0n777\\ScOrpi0n777 198000082_4.png"));
+//
+//
+//        System.out.println(("Scorpi0n777".hashCode())+" "+("ScOrpi0n777".hashCode()));
     }
 }

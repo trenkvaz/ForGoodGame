@@ -313,7 +313,7 @@ public class CaptureVideo {
 
 
    static void allocationTables(Frame frame){
-       long s =System.currentTimeMillis();
+      // long s =System.currentTimeMillis();
        if(bufferedImageframe==null) bufferedImageframe = new Java2DFrameConverter().getBufferedImage(frame);
        createBufferedImage(frame, bufferedImageframe);
        boolean[] metaDates = null; // есть стол, есть раздача, есть помехи, есть шоудаун
@@ -350,8 +350,8 @@ public class CaptureVideo {
            ocrList_1.get(indTable).addFrameTableToQueue(new FrameTable(cutImageTable(indTable),metaDates,whoPlayOrNo));
            //System.out.println("FRAME");
        }
-       alltime+=System.currentTimeMillis()-s;
-       counttime++;
+       /*alltime+=System.currentTimeMillis()-s;
+       counttime++;*/
    }
 
 

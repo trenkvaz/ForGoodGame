@@ -11,7 +11,8 @@
       <Label fx:id="message_work" layoutX="273.0" layoutY="14.0" prefHeight="25.0" prefWidth="151.0" />
       <Label fx:id="timer" layoutX="245.0" layoutY="52.0" prefHeight="25.0" prefWidth="287.0" />
       <Button fx:id="savehands" layoutX="23.0" layoutY="52.0" mnemonicParsing="false" onAction="#on_off_savehands" prefHeight="25.0" prefWidth="110.0" text="Not saving hands" textFill="#fc0909" />
-      <Label fx:id="labelSB" layoutX="443.0" layoutY="10.0" prefHeight="25.0" prefWidth="48.0" />
+      <Label fx:id="labelSB" layoutX="546.0" layoutY="14.0" prefHeight="25.0" prefWidth="48.0" />
       <Button fx:id="resetwin" layoutX="138.0" layoutY="52.0" mnemonicParsing="false" onAction="#resetWin" prefHeight="25.0" prefWidth="94.0" text="Reset win" />
+      <Button fx:id="sb" layoutX="487.0" layoutY="14.0" mnemonicParsing="false" onAction="#changeSB" prefHeight="25.0" prefWidth="48.0" text="SB" />
    </children>
 </AnchorPane>

@@ -22,7 +22,7 @@ public class StartAppLauncher {
     public static WorkStats workStats;
     public static CreateNewHUD createNewHUD;
 
-    public static final float SB = 0.5f;
+    public static float SB = 0.4f;
     public static final int SCALE = 1;
     public static float totalResultHero = 0;
     public static float stopWin = 999;

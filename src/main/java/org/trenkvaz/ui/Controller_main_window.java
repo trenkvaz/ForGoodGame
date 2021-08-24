@@ -23,7 +23,7 @@ import static org.trenkvaz.ui.StartAppLauncher.*;
 
 public class Controller_main_window {
 
-    @FXML public Button start_stop_capture_video, show_hide_hud, savehands;
+    @FXML public Button start_stop_capture_video, show_hide_hud, savehands, sb;
     @FXML public Label message_work,timer, labelSB;
     //CaptureVideo captureVideo;
     public static Controller_main_window controller_main_window;
@@ -56,7 +56,7 @@ public class Controller_main_window {
             if(ocr==null)continue;ocr.stop();}}
         //for(OCR ocr:captureVideo.ocrList_2)ocr.stop();
         //System.out.println("Average time "+(testTime/testTimecount)+" count "+testTimecount);
-        if(counttime!=0)System.out.println("Average time "+(alltime/counttime)+" count "+counttime);
+        //if(counttime!=0)System.out.println("Average time "+(alltime/counttime)+" count "+counttime);
         System.out.println("stop");
         Testing.write_LogTest("TOTAL "+totalResultHero+"\r\n","resultHero");
         Testing.write_LogTest("TOTAL "+totalStreetHero[0]+"\r\n","totalPreflop");
@@ -104,6 +104,14 @@ public class Controller_main_window {
     @FXML public void resetWin(){
         totalResultHero = 0;
         setTestMessage("0",Color.GREEN);
+    }
+
+
+    @FXML public void changeSB(){
+        if(labelSB.getText().equals("SB 0.4"))SB = 0.5f;
+        else SB = 0.4f;
+
+        labelSB.setText("SB "+SB);
     }
 
     public void setTestMessage(String message,Paint color){ Platform.runLater(() -> { timer.setTextFill(color);timer.setText(message); }); }
